@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://minyouman-png.github.io/techdecode/sitemap-index.xml
+Sitemap: https://menewsoft.com/sitemap-index.xml
