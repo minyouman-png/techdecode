@@ -1,0 +1,69 @@
+---
+import '../styles/global.css';
+
+const {
+  title,
+  description = 'Clear, no-hype analysis of tech, chips, and the markets that move them.',
+} = Astro.props;
+
+const SITE_NAME = 'Tech Decode';
+const fullTitle = title ? `${title} — ${SITE_NAME}` : SITE_NAME;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+// 애드센스 승인 후 여기에 'ca-pub-XXXXXXXXXXXXXXXX' 를 넣으면 광고 로더가 켜집니다.
+const ADSENSE_PUBLISHER_ID = '';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {ADSENSE_PUBLISHER_ID && (
+      <script
+        async
+        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_PUBLISHER_ID}`}
+        crossorigin="anonymous"></script>
+    )}
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="/">Tech<span>Decode</span></a>
+        <nav class="nav">
+          <a href="/">Home</a>
+          <a href="/about/">About</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <div class="wrap">
+        <slot />
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <div class="links">
+          <a href="/about/">About</a>
+          <a href="/privacy/">Privacy</a>
+        </div>
+        <p>© {new Date().getFullYear()} {SITE_NAME}. Independent analysis. Not investment advice.</p>
+      </div>
+    </footer>
+  </body>
+</html>

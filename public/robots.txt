@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://minyouman-png.github.io/sitemap-index.xml

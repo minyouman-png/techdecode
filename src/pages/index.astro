@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// blog 폴더의 모든 마크다운 글을 불러와 최신순으로 정렬합니다.
+const modules = import.meta.glob('./blog/*.md', { eager: true });
+const posts = Object.values(modules)
+  .map((m) => ({ ...m.frontmatter, url: m.url }))
+  .sort((a, b) => new Date(b.date) - new Date(a.date));
+---
+<BaseLayout>
+  <h1>Tech Decode</h1>
+  <p class="lede">Clear, no-hype analysis of tech, chips, and the markets that move them.</p>
+
+  <ul class="post-list">
+    {posts.map((post) => (
+      <li>
+        <a class="title" href={post.url}>{post.title}</a>
+        {post.description && <p class="excerpt">{post.description}</p>}
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
