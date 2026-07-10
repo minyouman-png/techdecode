@@ -1,40 +1,49 @@
 ---
 import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_NAME, htmlLang, type Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
 
-const {
-  title,
-  description = 'Clear, no-hype analysis of tech, chips, and the markets that move them.',
-} = Astro.props;
+interface Props {
+  lang: Lang;
+  title?: string;
+  description?: string;
+  // hreflang 및 언어 전환기용 대응 URL
+  alternates: Partial<Record<Lang, string>>;
+}
+const { lang, title, description, alternates } = Astro.props;
+const t = useTranslations(lang);
 
-const SITE_NAME = 'Tech Decode';
-const fullTitle = title ? `${title} — ${SITE_NAME}` : SITE_NAME;
+const fullTitle = title ? `${title} — ${SITE_NAME}` : `${SITE_NAME} — ${t('tagline')}`;
+const desc = description ?? t('metaDescription');
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 
 // 애드센스 승인 후 여기에 'ca-pub-XXXXXXXXXXXXXXXX' 를 넣으면 광고 로더가 켜집니다.
 const ADSENSE_PUBLISHER_ID = '';
-
-// 서브경로 배포(/techdecode) 대응 — 내부 링크는 이 base 를 앞에 붙입니다.
-const raw = import.meta.env.BASE_URL;
-const base = raw.endsWith('/') ? raw : raw + '/';
 ---
 <!doctype html>
-<html lang="en">
+<html lang={htmlLang[lang]}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={desc} />
     <link rel="canonical" href={canonical} />
 
-    <!-- Open Graph -->
+    {Object.entries(alternates).map(([code, href]) => (
+      <link rel="alternate" hreflang={code} href={new URL(href, Astro.site).href} />
+    ))}
+    {alternates.en && <link rel="alternate" hreflang="x-default" href={new URL(alternates.en, Astro.site).href} />}
+
     <meta property="og:type" content="website" />
     <meta property="og:title" content={fullTitle} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={desc} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={SITE_NAME} />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <link rel="sitemap" href={`${base}sitemap-index.xml`} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
 
     {ADSENSE_PUBLISHER_ID && (
       <script
@@ -44,30 +53,10 @@ const base = raw.endsWith('/') ? raw : raw + '/';
     )}
   </head>
   <body>
-    <header class="site-header">
-      <div class="wrap">
-        <a class="brand" href={base}>Tech<span>Decode</span></a>
-        <nav class="nav">
-          <a href={base}>Home</a>
-          <a href={`${base}about/`}>About</a>
-        </nav>
-      </div>
-    </header>
-
+    <Header lang={lang} alternates={alternates} />
     <main>
-      <div class="wrap">
-        <slot />
-      </div>
+      <slot />
     </main>
-
-    <footer class="site-footer">
-      <div class="wrap">
-        <div class="links">
-          <a href={`${base}about/`}>About</a>
-          <a href={`${base}privacy/`}>Privacy</a>
-        </div>
-        <p>© {new Date().getFullYear()} {SITE_NAME}. Independent analysis. Not investment advice.</p>
-      </div>
-    </footer>
+    <Footer lang={lang} />
   </body>
 </html>

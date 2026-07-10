@@ -1,0 +1,106 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { languages, type Lang } from '../i18n/ui';
+import { useTranslations, localizeUrl, blogUrl } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+// 이 언어의 글 목록 (최신순)
+const posts = (await getCollection('blog'))
+  .filter((p) => p.data.lang === lang)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const featured = posts[0];
+const rest = posts.slice(1);
+
+// 홈은 모든 언어에 존재 → 각 언어 홈으로 대응
+const alternates: Partial<Record<Lang, string>> = {};
+for (const code of Object.keys(languages) as Lang[]) {
+  alternates[code] = localizeUrl('/', code);
+}
+
+const topics = [t('topic_semis'), t('topic_ai'), t('topic_markets'), t('topic_reg')];
+---
+<BaseLayout lang={lang} alternates={alternates}>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="wrap hero-inner">
+      <span class="kicker">{t('hero_kicker')}</span>
+      <h1>{t('hero_title')}</h1>
+      <p class="sub">{t('hero_sub')}</p>
+      {featured && (
+        <a class="btn" href={blogUrl(featured.data.key, lang)}>
+          {t('hero_cta')}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      )}
+    </div>
+  </div>
+
+  <!-- INTRO + VALUES -->
+  <section class="intro">
+    <div class="wrap">
+      <p class="section-label">{t('intro_title')}</p>
+      <p class="intro-body">{t('intro_body')}</p>
+      <div class="values">
+        <div class="value"><h3>{t('v1_t')}</h3><p>{t('v1_b')}</p></div>
+        <div class="value"><h3>{t('v2_t')}</h3><p>{t('v2_b')}</p></div>
+        <div class="value"><h3>{t('v3_t')}</h3><p>{t('v3_b')}</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED -->
+  {featured && (
+    <section class="featured">
+      <div class="wrap">
+        <p class="section-label">{t('featured_label')}</p>
+        <a class="feature-card" href={blogUrl(featured.data.key, lang)}>
+          {featured.data.category && <span class="cat">{featured.data.category}</span>}
+          <h3>{featured.data.title}</h3>
+          <p class="excerpt">{featured.data.description}</p>
+          <span class="readlink">{t('readmore')}
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </a>
+      </div>
+    </section>
+  )}
+
+  <!-- LATEST -->
+  <section class="latest">
+    <div class="wrap">
+      <p class="section-label">{t('latest_label')}</p>
+      {rest.length > 0 ? (
+        <ul class="post-list">
+          {rest.map((post) => (
+            <li>
+              <a class="post-row" href={blogUrl(post.data.key, lang)}>
+                {post.data.category && <span class="cat">{post.data.category}</span>}
+                <h3>{post.data.title}</h3>
+                <p class="excerpt">{post.data.description}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="empty-note">{t('empty')}</p>
+      )}
+    </div>
+  </section>
+
+  <!-- TOPICS -->
+  <section class="topics">
+    <div class="wrap">
+      <p class="section-label">{t('topics_label')}</p>
+      <div class="chips">
+        {topics.map((tp) => <span class="chip">{tp}</span>)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

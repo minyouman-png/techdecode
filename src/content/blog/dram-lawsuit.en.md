@@ -1,9 +1,11 @@
 ---
-layout: ../../layouts/PostLayout.astro
 title: "The 2026 DRAM Price-Fixing Lawsuit, Explained: Did Samsung, SK Hynix, and Micron Rig the RAM Market?"
 description: "A class action accuses Samsung, SK Hynix, and Micron of colluding to inflate DRAM prices. Here's what happened, how much RAM prices rose, and whether the case can win."
 date: 2026-07-10
+lang: en
+key: dram-price-fixing-lawsuit-2026-explained
 author: "Tech Decode"
+category: "Semiconductors"
 ---
 
 If you have tried to buy a stick of RAM in 2026, you already know the punchline: memory has become shockingly expensive. A 32GB DDR5 kit that sold for around $149 last year now runs closer to $239, and server-grade contract prices have more than doubled. Now a group of buyers is arguing this was not just supply and demand — it was a coordinated scheme. On June 25, 2026, a federal class-action lawsuit accused the world's three dominant memory makers — **Samsung, SK Hynix, and Micron** — of conspiring to keep DRAM artificially scarce and prices artificially high.

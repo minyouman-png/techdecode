@@ -1,34 +1,38 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="About" description="What Tech Decode is and who writes it.">
-  <h1>About Tech Decode</h1>
-  <p class="lede">Independent, plain-English analysis of technology and markets.</p>
+<BaseLayout lang="en" title="About" description="What Tech Decode is and who writes it." alternates={{ en: '/about/' }}>
+  <div class="wrap">
+    <article class="page">
+      <h1>About Tech Decode</h1>
+      <p class="lede">Independent, plain-English analysis of technology and markets.</p>
 
-  <p>
-    Tech Decode exists to answer one question well: <em>what is actually going on, and what does
-    it mean?</em> The tech and semiconductor world runs on hype cycles and press releases. We cut
-    through them with careful reading of primary sources — court filings, earnings data, and
-    industry research — and explain the story in language a normal person can follow.
-  </p>
+      <p>
+        Tech Decode exists to answer one question well: <em>what is actually going on, and what does
+        it mean?</em> The tech and semiconductor world runs on hype cycles and press releases. We cut
+        through them with careful reading of primary sources — court filings, earnings data, and
+        industry research — and explain the story in language a normal person can follow.
+      </p>
 
-  <p>
-    Every article is researched and edited by a human before it is published. We cite our sources,
-    we flag what is proven versus alleged, and we tell you when something is speculation. We do not
-    publish auto-generated filler.
-  </p>
+      <p>
+        Every article is researched and edited by a human before it is published. We cite our sources,
+        we flag what is proven versus alleged, and we tell you when something is speculation. We do not
+        publish auto-generated filler.
+      </p>
 
-  <h2>What we cover</h2>
-  <ul>
-    <li>The semiconductor and memory market (DRAM, HBM, NAND)</li>
-    <li>Antitrust, regulation, and the legal side of big tech</li>
-    <li>AI infrastructure and the companies building it</li>
-  </ul>
+      <h2>What we cover</h2>
+      <ul>
+        <li>The semiconductor and memory market (DRAM, HBM, NAND)</li>
+        <li>Antitrust, regulation, and the legal side of big tech</li>
+        <li>AI infrastructure and the companies building it</li>
+      </ul>
 
-  <h2>A note on independence</h2>
-  <p>
-    Some links on this site are affiliate links, and we may run display ads. These never influence
-    our analysis, and nothing on this site is financial or investment advice. Always do your own
-    research before making money decisions.
-  </p>
+      <h2>A note on independence</h2>
+      <p>
+        Some links on this site are affiliate links, and we may run display ads. These never influence
+        our analysis, and nothing on this site is financial or investment advice. Always do your own
+        research before making money decisions.
+      </p>
+    </article>
+  </div>
 </BaseLayout>

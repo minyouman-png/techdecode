@@ -1,0 +1,23 @@
+---
+import { SITE_NAME, type Lang } from '../i18n/ui';
+import { useTranslations, localizeUrl } from '../i18n/utils';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+
+interface Props {
+  lang: Lang;
+  alternates: Partial<Record<Lang, string>>;
+}
+const { lang, alternates } = Astro.props;
+const t = useTranslations(lang);
+const [brandA, brandB] = SITE_NAME.split(' ');
+---
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href={localizeUrl('/', lang)}>{brandA}<span>{brandB}</span></a>
+    <nav class="nav">
+      <a href={localizeUrl('/', lang)}>{t('nav_home')}</a>
+      <a href="/about/">{t('nav_about')}</a>
+      <LanguageSwitcher lang={lang} alternates={alternates} />
+    </nav>
+  </div>
+</header>

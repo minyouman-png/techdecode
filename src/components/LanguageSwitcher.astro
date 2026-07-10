@@ -1,0 +1,27 @@
+---
+import { languages, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  // 각 언어별 대응 URL. 없는 언어는 표시하지 않음(예: 미번역 글).
+  alternates: Partial<Record<Lang, string>>;
+}
+const { lang, alternates } = Astro.props;
+---
+<div class="lang-switch" aria-label="Language">
+  <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18" />
+  </svg>
+  <ul>
+    {Object.entries(languages).map(([code, label]) => {
+      const href = alternates[code as Lang];
+      if (!href) return null;
+      return (
+        <li>
+          <a href={href} class={code === lang ? 'active' : ''} hreflang={code}>{label}</a>
+        </li>
+      );
+    })}
+  </ul>
+</div>

@@ -1,0 +1,51 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { languages, type Lang } from '../../../i18n/ui';
+import { useTranslations, blogUrl } from '../../../i18n/utils';
+
+const localeMap: Record<string, string> = {
+  ko: 'ko-KR', ja: 'ja-JP', es: 'es-ES', zh: 'zh-CN', en: 'en-US',
+};
+
+export async function getStaticPaths() {
+  const all = await getCollection('blog');
+  return all
+    .filter((p) => p.data.lang !== 'en')
+    .map((post) => {
+      const alternates: Partial<Record<Lang, string>> = {};
+      for (const code of Object.keys(languages) as Lang[]) {
+        if (all.some((p) => p.data.key === post.data.key && p.data.lang === code)) {
+          alternates[code] = blogUrl(post.data.key, code);
+        }
+      }
+      return {
+        params: { lang: post.data.lang, slug: post.data.key },
+        props: { post, alternates },
+      };
+    });
+}
+
+const { post, alternates } = Astro.props;
+const lang = post.data.lang as Lang;
+const { Content } = await render(post);
+const d = post.data;
+const t = useTranslations(lang);
+const dateStr = d.date.toLocaleDateString(localeMap[lang] ?? 'en-US', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+---
+<BaseLayout lang={lang} title={d.title} description={d.description} alternates={alternates}>
+  <article class="article">
+    <div class="wrap">
+      <div class="article-head">
+        {d.category && <span class="cat">{d.category}</span>}
+        <h1>{d.title}</h1>
+        <p class="post-meta">{d.author} · {dateStr}</p>
+      </div>
+      <div class="ad-slot" data-ad-slot="article-top"></div>
+      <div class="post-body"><Content /></div>
+      <p class="disclosure">{t('disclosure')}</p>
+    </div>
+  </article>
+</BaseLayout>
