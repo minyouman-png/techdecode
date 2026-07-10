@@ -5,7 +5,7 @@ date: 2026-07-10
 lang: es
 key: korea-discount-ai-boom-2026
 author: "Tech Decode"
-category: "Mercados"
+category: markets
 ---
 
 He aquí uno de los hechos más extraños de los mercados globales ahora mismo. Samsung y SK Hynix son dos de las grandes ganadoras de la era de la IA: fabrican la memoria de alto ancho de banda (HBM) que todos los centros de datos de IA se desviven por comprar, y su poder de fijación de precios rara vez ha sido tan fuerte. El KOSPI, el principal índice de Corea, se ha disparado por encima de los 7.000, con una subida de en torno al 76 %. Y, sin embargo, según una medida habitual, la mayoría de las acciones coreanas siguen estando *baratas*: cotizan por debajo del valor de los activos de sus propios balances.

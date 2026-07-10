@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { languages, type Lang } from '../../../i18n/ui';
 import { useTranslations, blogUrl } from '../../../i18n/utils';
+import { categoryLabel, categoryUrl } from '../../../i18n/categories';
 
 const localeMap: Record<string, string> = {
   ko: 'ko-KR', ja: 'ja-JP', es: 'es-ES', zh: 'zh-CN', en: 'en-US',
@@ -39,7 +40,7 @@ const dateStr = d.date.toLocaleDateString(localeMap[lang] ?? 'en-US', {
   <article class="article">
     <div class="wrap">
       <div class="article-head">
-        {d.category && <span class="cat">{d.category}</span>}
+        {d.category && <a class="cat" href={categoryUrl(d.category, lang)}>{categoryLabel(d.category, lang)}</a>}
         <h1>{d.title}</h1>
         <p class="post-meta">{d.author} · {dateStr}</p>
       </div>

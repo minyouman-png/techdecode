@@ -159,6 +159,13 @@ h2 { font-family: var(--serif); font-weight: 600; font-size: 1.8rem; letter-spac
   border: 1px solid var(--border); border-radius: 999px; padding: 10px 20px; color: var(--fg);
   font-size: 14px; background: var(--bg-elev);
 }
+a.chip { transition: border-color .15s ease, color .15s ease; }
+a.chip:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); color: var(--accent); }
+
+/* category page */
+.cat-title { font-family: var(--serif); font-weight: 600; font-size: 2.1rem; letter-spacing: -0.01em; color: var(--fg-strong); margin: 8px 0 20px; }
+a.cat { text-decoration: none; }
+a.cat:hover { text-decoration: underline; }
 
 /* ---------- Article ---------- */
 .article { padding: 60px 0 80px; }

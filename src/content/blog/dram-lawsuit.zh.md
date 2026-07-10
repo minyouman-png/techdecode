@@ -5,7 +5,7 @@ date: 2026-07-10
 lang: zh
 key: dram-price-fixing-lawsuit-2026-explained
 author: "Tech Decode"
-category: "半导体"
+category: semiconductors
 ---
 
 如果你在2026年试过买内存，那结局你早已知道：内存贵得惊人。去年约149美元的一套32GB DDR5，如今接近239美元，而服务器级的合约价更是翻了一倍多。如今，一群买家主张这并非单纯的供需，而是一场精心安排的合谋。2026年6月25日，一起美国联邦集体诉讼指控全球三大内存厂商——**三星、SK海力士和美光**——合谋人为制造DRAM短缺，以维持虚高的价格。

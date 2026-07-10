@@ -1,0 +1,50 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { languages, type Lang } from '../../../i18n/ui';
+import { useTranslations, blogUrl } from '../../../i18n/utils';
+import { categoryOrder, categoryLabel, categoryUrl } from '../../../i18n/categories';
+
+export async function getStaticPaths() {
+  const all = await getCollection('blog');
+  const paths = [];
+  for (const code of Object.keys(languages) as Lang[]) {
+    if (code === 'en') continue;
+    for (const slug of categoryOrder) {
+      const posts = all.filter((p) => p.data.lang === code && p.data.category === slug);
+      if (posts.length === 0) continue;
+      const alternates: Partial<Record<Lang, string>> = {};
+      for (const c2 of Object.keys(languages) as Lang[]) {
+        if (all.some((p) => p.data.lang === c2 && p.data.category === slug)) {
+          alternates[c2] = categoryUrl(slug, c2);
+        }
+      }
+      paths.push({ params: { lang: code, slug }, props: { lang: code, slug, posts, alternates } });
+    }
+  }
+  return paths;
+}
+
+const { lang, slug, posts, alternates } = Astro.props;
+const t = useTranslations(lang);
+const label = categoryLabel(slug, lang);
+const sorted = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<BaseLayout lang={lang} title={label} description={`${label} — ${t('tagline')}`} alternates={alternates}>
+  <section class="latest">
+    <div class="wrap">
+      <h1 class="cat-title">{label}</h1>
+      <ul class="post-list">
+        {sorted.map((post) => (
+          <li>
+            <a class="post-row" href={blogUrl(post.data.key, lang)}>
+              <span class="cat">{label}</span>
+              <h3>{post.data.title}</h3>
+              <p class="excerpt">{post.data.description}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

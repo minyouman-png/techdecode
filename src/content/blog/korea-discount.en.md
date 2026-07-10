@@ -1,11 +1,11 @@
 ---
 title: "The Korea Discount Meets the AI Boom: Why Samsung and SK Hynix Are Still Cheap"
-description: "Korean chipmakers are winning the AI memory boom, yet their stocks trade below book value. Inside the Korea Discount, the 2026 governance reforms, and the $3.1T capex fight that could decide whether the gap finally closes."
+description: "Korean chipmakers are winning the AI memory boom, yet their stocks trade below book value. Inside the Korea Discount, the 2026 governance reforms, and the ~$1.3T capex fight that could decide whether the gap finally closes."
 date: 2026-07-10
 lang: en
 key: korea-discount-ai-boom-2026
 author: "Tech Decode"
-category: "Markets"
+category: markets
 ---
 
 Here is one of the strangest facts in global markets right now. Samsung and SK Hynix are two of the biggest winners of the AI era — they make the high-bandwidth memory (HBM) that every AI data center is desperate to buy, and their pricing power has rarely been stronger. The KOSPI, Korea's main index, has ripped higher, past 7,000 and up roughly 76%. And yet, by one common measure, most Korean stocks are still *cheap* — trading below the value of the assets on their own books.

@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { languages, type Lang } from '../../i18n/ui';
 import { useTranslations, blogUrl } from '../../i18n/utils';
+import { categoryLabel, categoryUrl } from '../../i18n/categories';
 
 export async function getStaticPaths() {
   const all = await getCollection('blog');
@@ -29,7 +30,7 @@ const dateStr = d.date.toLocaleDateString('en-US', { year: 'numeric', month: 'lo
   <article class="article">
     <div class="wrap">
       <div class="article-head">
-        {d.category && <span class="cat">{d.category}</span>}
+        {d.category && <a class="cat" href={categoryUrl(d.category, 'en')}>{categoryLabel(d.category, 'en')}</a>}
         <h1>{d.title}</h1>
         <p class="post-meta">By {d.author} · {dateStr}</p>
       </div>

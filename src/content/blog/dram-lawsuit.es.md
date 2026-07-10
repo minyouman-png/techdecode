@@ -5,7 +5,7 @@ date: 2026-07-10
 lang: es
 key: dram-price-fixing-lawsuit-2026-explained
 author: "Tech Decode"
-category: "Semiconductores"
+category: semiconductors
 ---
 
 Si has intentado comprar un módulo de RAM en 2026, ya conoces el desenlace: la memoria se ha vuelto asombrosamente cara. Un kit de 32 GB DDR5 que el año pasado costaba unos 149 dólares ahora ronda los 239, y los precios de contrato para servidores se han más que duplicado. Ahora, un grupo de compradores sostiene que esto no fue simple oferta y demanda, sino un plan coordinado. El 25 de junio de 2026, una demanda colectiva federal acusó a los tres mayores fabricantes de memoria del mundo — **Samsung, SK Hynix y Micron** — de conspirar para mantener la DRAM artificialmente escasa y los precios artificialmente altos.

@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { languages, type Lang } from '../i18n/ui';
 import { useTranslations, localizeUrl, blogUrl } from '../i18n/utils';
+import { categoryOrder, categoryLabel, categoryUrl } from '../i18n/categories';
 
 interface Props {
   lang: Lang;
@@ -24,7 +25,11 @@ for (const code of Object.keys(languages) as Lang[]) {
   alternates[code] = localizeUrl('/', code);
 }
 
-const topics = [t('topic_semis'), t('topic_ai'), t('topic_markets'), t('topic_reg')];
+// 카테고리 칩: 글이 있는 카테고리는 카테고리 페이지로 링크, 없으면 라벨만.
+const cats = categoryOrder.map((slug) => ({
+  label: categoryLabel(slug, lang),
+  href: posts.some((p) => p.data.category === slug) ? categoryUrl(slug, lang) : null,
+}));
 ---
 <BaseLayout lang={lang} alternates={alternates}>
   <!-- HERO -->
@@ -61,7 +66,7 @@ const topics = [t('topic_semis'), t('topic_ai'), t('topic_markets'), t('topic_re
       <div class="wrap">
         <p class="section-label">{t('featured_label')}</p>
         <a class="feature-card" href={blogUrl(featured.data.key, lang)}>
-          {featured.data.category && <span class="cat">{featured.data.category}</span>}
+          <span class="cat">{categoryLabel(featured.data.category, lang)}</span>
           <h3>{featured.data.title}</h3>
           <p class="excerpt">{featured.data.description}</p>
           <span class="readlink">{t('readmore')}
@@ -81,7 +86,7 @@ const topics = [t('topic_semis'), t('topic_ai'), t('topic_markets'), t('topic_re
           {rest.map((post) => (
             <li>
               <a class="post-row" href={blogUrl(post.data.key, lang)}>
-                {post.data.category && <span class="cat">{post.data.category}</span>}
+                <span class="cat">{categoryLabel(post.data.category, lang)}</span>
                 <h3>{post.data.title}</h3>
                 <p class="excerpt">{post.data.description}</p>
               </a>
@@ -99,7 +104,7 @@ const topics = [t('topic_semis'), t('topic_ai'), t('topic_markets'), t('topic_re
     <div class="wrap">
       <p class="section-label">{t('topics_label')}</p>
       <div class="chips">
-        {topics.map((tp) => <span class="chip">{tp}</span>)}
+        {cats.map((c) => (c.href ? <a class="chip" href={c.href}>{c.label}</a> : <span class="chip">{c.label}</span>))}
       </div>
     </div>
   </section>

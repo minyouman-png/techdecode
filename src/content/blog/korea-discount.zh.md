@@ -5,7 +5,7 @@ date: 2026-07-10
 lang: zh
 key: korea-discount-ai-boom-2026
 author: "Tech Decode"
-category: "市场"
+category: markets
 ---
 
 眼下全球市场最奇怪的事实之一便是如此。三星和SK海力士是AI时代最大的赢家之列——它们生产每一座AI数据中心都急于抢购的高带宽内存（HBM），定价能力之强前所罕见。韩国主要指数KOSPI一路飙升，突破7000点，涨幅约76%。然而，按一个常用指标衡量，多数韩国股票依然*便宜*——其股价甚至低于自家账面上资产的价值。
