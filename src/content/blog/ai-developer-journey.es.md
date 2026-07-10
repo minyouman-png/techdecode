@@ -4,7 +4,7 @@ description: "El relato en primera persona de un desarrollador en activo sobre l
 date: 2026-07-10
 lang: es
 key: ai-developer-journey-2026
-author: "Tech Decode"
+author: "menew"
 category: ai
 ---
 

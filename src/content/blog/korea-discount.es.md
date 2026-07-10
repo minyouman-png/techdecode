@@ -4,7 +4,7 @@ description: "Los fabricantes de chips coreanos están ganando el boom de la mem
 date: 2026-07-10
 lang: es
 key: korea-discount-ai-boom-2026
-author: "Tech Decode"
+author: "menew"
 category: markets
 ---
 

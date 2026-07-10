@@ -4,7 +4,7 @@ description: "Las grandes tecnológicas gastan ~700.000 millones al año en IA m
 date: 2026-07-10
 lang: es
 key: ai-bubble-2026-debate
-author: "Tech Decode"
+author: "menew"
 category: markets
 ---
 

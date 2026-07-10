@@ -4,7 +4,7 @@ description: "所有人都盯着英伟达的GPU，但AI建设真正的咽喉是H
 date: 2026-07-10
 lang: zh
 key: hbm-ai-bottleneck-2026
-author: "Tech Decode"
+author: "menew"
 category: ai
 ---
 

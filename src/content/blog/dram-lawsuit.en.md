@@ -4,7 +4,7 @@ description: "A class action accuses Samsung, SK Hynix, and Micron of colluding 
 date: 2026-07-10
 lang: en
 key: dram-price-fixing-lawsuit-2026-explained
-author: "Tech Decode"
+author: "menew"
 category: semiconductors
 ---
 

@@ -4,7 +4,7 @@ description: "ハイパースケーラーはAIに年間約7000億ドルを投じ
 date: 2026-07-10
 lang: ja
 key: ai-bubble-2026-debate
-author: "Tech Decode"
+author: "menew"
 category: markets
 ---
 

@@ -4,7 +4,7 @@ description: "一起集体诉讼指控三星、SK海力士和美光合谋抬高D
 date: 2026-07-10
 lang: zh
 key: dram-price-fixing-lawsuit-2026-explained
-author: "Tech Decode"
+author: "menew"
 category: semiconductors
 ---
 

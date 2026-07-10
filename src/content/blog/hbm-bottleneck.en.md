@@ -4,7 +4,7 @@ description: "Everyone watches Nvidia's GPUs, but the true choke point of the AI
 date: 2026-07-10
 lang: en
 key: hbm-ai-bottleneck-2026
-author: "Tech Decode"
+author: "menew"
 category: ai
 ---
 

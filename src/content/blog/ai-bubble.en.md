@@ -4,7 +4,7 @@ description: "Hyperscalers are spending ~$700B a year on AI while the revenue to
 date: 2026-07-10
 lang: en
 key: ai-bubble-2026-debate
-author: "Tech Decode"
+author: "menew"
 category: markets
 ---
 

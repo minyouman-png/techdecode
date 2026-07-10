@@ -4,7 +4,7 @@ description: "A working developer's first-person account of the AI coding revolu
 date: 2026-07-10
 lang: en
 key: ai-developer-journey-2026
-author: "Tech Decode"
+author: "menew"
 category: ai
 ---
 

@@ -4,7 +4,7 @@ description: "Con el 84 % del mercado de chips de IA, Nvidia está ahora bajo in
 date: 2026-07-10
 lang: es
 key: nvidia-antitrust-2026
-author: "Tech Decode"
+author: "menew"
 category: regulation
 ---
 

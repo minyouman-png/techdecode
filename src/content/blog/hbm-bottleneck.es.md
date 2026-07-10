@@ -4,7 +4,7 @@ description: "Todos miran las GPU de Nvidia, pero el auténtico punto de estrang
 date: 2026-07-10
 lang: es
 key: hbm-ai-bottleneck-2026
-author: "Tech Decode"
+author: "menew"
 category: ai
 ---
 

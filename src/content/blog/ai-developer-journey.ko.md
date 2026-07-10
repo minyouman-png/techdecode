@@ -4,7 +4,7 @@ description: "GPT-3의 서툰 자동완성부터, 코덱스의 '바이브 코딩
 date: 2026-07-10
 lang: ko
 key: ai-developer-journey-2026
-author: "Tech Decode"
+author: "menew"
 category: ai
 ---
 

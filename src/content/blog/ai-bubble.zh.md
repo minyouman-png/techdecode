@@ -4,7 +4,7 @@ description: "超大规模云厂商每年在AI上砸下约7000亿美元，而足
 date: 2026-07-10
 lang: zh
 key: ai-bubble-2026-debate
-author: "Tech Decode"
+author: "menew"
 category: markets
 ---
 

@@ -4,7 +4,7 @@ description: "Korean chipmakers are winning the AI memory boom, yet their stocks
 date: 2026-07-10
 lang: en
 key: korea-discount-ai-boom-2026
-author: "Tech Decode"
+author: "menew"
 category: markets
 ---
 

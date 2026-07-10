@@ -4,7 +4,7 @@ description: "With 84% of the AI chip market, Nvidia is now under antitrust inve
 date: 2026-07-10
 lang: en
 key: nvidia-antitrust-2026
-author: "Tech Decode"
+author: "menew"
 category: regulation
 ---
 

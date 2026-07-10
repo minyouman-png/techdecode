@@ -4,7 +4,7 @@ description: "サムスン・SKハイニックス・マイクロンがDRAM価格
 date: 2026-07-10
 lang: ja
 key: dram-price-fixing-lawsuit-2026-explained
-author: "Tech Decode"
+author: "menew"
 category: semiconductors
 ---
 

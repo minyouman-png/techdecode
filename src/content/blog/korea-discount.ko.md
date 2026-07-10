@@ -4,7 +4,7 @@ description: "한국 반도체 기업들이 AI 메모리 붐의 승자인데도 
 date: 2026-07-10
 lang: ko
 key: korea-discount-ai-boom-2026
-author: "Tech Decode"
+author: "menew"
 category: markets
 ---
 
