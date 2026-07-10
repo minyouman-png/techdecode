@@ -12,6 +12,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
 
 // 애드센스 승인 후 여기에 'ca-pub-XXXXXXXXXXXXXXXX' 를 넣으면 광고 로더가 켜집니다.
 const ADSENSE_PUBLISHER_ID = '';
+
+// 서브경로 배포(/techdecode) 대응 — 내부 링크는 이 base 를 앞에 붙입니다.
+const raw = import.meta.env.BASE_URL;
+const base = raw.endsWith('/') ? raw : raw + '/';
 ---
 <!doctype html>
 <html lang="en">
@@ -30,7 +34,7 @@ const ADSENSE_PUBLISHER_ID = '';
     <meta property="og:site_name" content={SITE_NAME} />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="sitemap" href={`${base}sitemap-index.xml`} />
 
     {ADSENSE_PUBLISHER_ID && (
       <script
@@ -42,10 +46,10 @@ const ADSENSE_PUBLISHER_ID = '';
   <body>
     <header class="site-header">
       <div class="wrap">
-        <a class="brand" href="/">Tech<span>Decode</span></a>
+        <a class="brand" href={base}>Tech<span>Decode</span></a>
         <nav class="nav">
-          <a href="/">Home</a>
-          <a href="/about/">About</a>
+          <a href={base}>Home</a>
+          <a href={`${base}about/`}>About</a>
         </nav>
       </div>
     </header>
@@ -59,8 +63,8 @@ const ADSENSE_PUBLISHER_ID = '';
     <footer class="site-footer">
       <div class="wrap">
         <div class="links">
-          <a href="/about/">About</a>
-          <a href="/privacy/">Privacy</a>
+          <a href={`${base}about/`}>About</a>
+          <a href={`${base}privacy/`}>Privacy</a>
         </div>
         <p>© {new Date().getFullYear()} {SITE_NAME}. Independent analysis. Not investment advice.</p>
       </div>
