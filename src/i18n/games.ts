@@ -145,6 +145,95 @@ export interface GameEntry {
 
 export const games: GameEntry[] = [
   {
+    slug: 'menew-kart',
+    released: '2026-07',
+    tech: 'Three.js · WebGL',
+    playPath: '/games/kart/index.html',
+    cover: '/games/kart/cover.jpg',
+    copy: {
+      en: {
+        title: 'MeNew Kart',
+        tagline: 'A 3D grand prix with 11 quirky racers — drift turbos, item battles, and a local time-attack leaderboard.',
+        about: [
+          'MeNew Kart is a browser kart racer in the spirit of the classics: a 3-lap circuit with hills and banked corners, 10 CPU rivals, boost pads, and item boxes. Grab a 🍄 mushroom for a burst of speed, drop a 🍌 banana behind you, or fire a 🐢 shell down the road. Hold drift through a corner and release it for a turbo boost — the longer the drift, the bigger the boost. Wheels spin and steer, karts lean into slopes, and a minimap tracks all eleven racers in real time.',
+          'Eleven racers, each with their own top speed, acceleration and handling: the girls Uja, Uni and jjojjo 🎀, the crowned MeNew, duck-billed ND, and JB, JW, IW, DS, GS and KJ. Pick a nickname, pick a racer, and chase the finish line.',
+          'Your finish times are recorded under your nickname in a local top-10 leaderboard with your personal best — stored in this browser, with the same export/import save system as our other games, so you can carry your records to another computer.',
+          'Like everything on this shelf, this game was built entirely by AI in July 2026 from a single prompt — the track engine, the kart physics, the CPU drivers, the sounds. A playable snapshot of what AI could build at that moment.',
+        ],
+        how: [
+          '↑ / W — accelerate · ↓ / S — brake · ← → / A D — steer',
+          'Space — drift (hold through a corner, release for a turbo boost)',
+          'Shift — use item (🍄 boost · 🍌 banana trap · 🐢 shell)',
+          'ESC — menu · Finish 3 laps to set your record',
+        ],
+      },
+      ko: {
+        title: 'MeNew 카트',
+        tagline: '개성 만점 레이서 11명의 3D 그랑프리 — 드리프트 부스터, 아이템전, 로컬 타임어택 랭킹까지.',
+        about: [
+          'MeNew 카트는 고전 카트 레이싱의 감성을 담은 브라우저 레이싱 게임입니다. 언덕과 뱅킹 커브가 있는 서킷 3랩을 CPU 라이벌 10대와 겨루세요. 부스트 패드를 밟고, 아이템 박스에서 🍄 버섯(가속)·🍌 바나나(함정)·🐢 등껍질(발사)을 뽑아 쓸 수 있습니다. 코너에서 드리프트를 길게 유지했다 놓으면 터보 부스터가 터집니다 — 길게 끌수록 더 강력하게. 바퀴는 실제로 구르고 조향에 따라 꺾이며, 카트는 경사와 뱅킹에 맞춰 기울고, 미니맵에서 11대의 위치를 실시간으로 볼 수 있습니다.',
+          '레이서는 11명, 각자 최고속도·가속·조향 스탯이 다릅니다. 여성 레이서 Uja·Uni·jjojjo 🎀, 왕관을 쓴 MeNew, 오리 부리 ND, 그리고 JB·JW·IW·DS·GS·KJ까지. 닉네임을 정하고 레이서를 골라 결승선을 노려보세요.',
+          '완주 기록은 닉네임과 함께 이 브라우저의 로컬 Top10 랭킹에 저장되고 개인 최고기록도 관리됩니다. 다른 게임과 동일한 세이브 내보내기/불러오기를 지원해서 기록을 다른 컴퓨터로 옮길 수 있습니다.',
+          '이 선반의 다른 게임처럼, 이 게임도 2026년 7월 단 하나의 프롬프트로 AI가 전부 만들었습니다 — 트랙 엔진, 카트 물리, CPU 드라이버, 사운드까지. 그 시점의 AI가 만들 수 있었던 것의 플레이 가능한 기록입니다.',
+        ],
+        how: [
+          '↑ / W — 가속 · ↓ / S — 브레이크 · ← → / A D — 조향',
+          'Space — 드리프트 (코너에서 길게 유지 후 놓으면 터보 부스터)',
+          'Shift — 아이템 사용 (🍄 가속 · 🍌 바나나 함정 · 🐢 등껍질 발사)',
+          'ESC — 메뉴 · 3랩 완주 시 기록이 저장됩니다',
+        ],
+      },
+      ja: {
+        title: 'MeNew カート',
+        tagline: '個性豊かな11人のレーサーによる3Dグランプリ — ドリフトターボ、アイテムバトル、ローカルタイムアタックランキング。',
+        about: [
+          'MeNewカートは、クラシックなカートレースの魂を受け継ぐブラウザレーシングゲームです。丘とバンクコーナーのあるサーキットを3周、10台のCPUライバルと競います。ブーストパッドを踏み、アイテムボックスから🍄キノコ(加速)・🍌バナナ(トラップ)・🐢甲羅(発射)を引き当てましょう。コーナーでドリフトを長く維持して離すとターボブースト — 長いほど強力です。タイヤは実際に回転・操舵し、カートは坂とバンクに合わせて傾き、ミニマップで11台の位置をリアルタイムに確認できます。',
+          'レーサーは11人、それぞれ最高速・加速・ハンドリングが異なります。女子レーサーのUja・Uni・jjojjo 🎀、王冠のMeNew、アヒル口のND、そしてJB・JW・IW・DS・GS・KJ。ニックネームを決めて、レーサーを選び、ゴールを目指しましょう。',
+          '完走タイムはニックネームと共にこのブラウザのローカルTop10ランキングに保存され、自己ベストも管理されます。他のゲームと同じセーブ書き出し/読み込みに対応し、記録を別のパソコンへ移せます。',
+          'この棚の他のゲームと同じく、このゲームも2026年7月にたった一つのプロンプトからAIがすべて作りました — トラックエンジン、カート物理、CPUドライバー、サウンドまで。その時点のAIに何が作れたかの、遊べる記録です。',
+        ],
+        how: [
+          '↑ / W — アクセル · ↓ / S — ブレーキ · ← → / A D — ハンドル',
+          'Space — ドリフト (コーナーで長押し→離すとターボ)',
+          'Shift — アイテム使用 (🍄 加速 · 🍌 バナナ · 🐢 甲羅)',
+          'ESC — メニュー · 3周完走でタイムが記録されます',
+        ],
+      },
+      es: {
+        title: 'MeNew Kart',
+        tagline: 'Un gran premio 3D con 11 corredores únicos: turbos de derrape, batallas de objetos y ranking local contrarreloj.',
+        about: [
+          'MeNew Kart es un juego de karts para navegador con el espíritu de los clásicos: un circuito de 3 vueltas con colinas y curvas peraltadas, 10 rivales CPU, plataformas de turbo y cajas de objetos. Coge un 🍄 champiñón para acelerar, suelta un 🍌 plátano detrás de ti o lanza un 🐢 caparazón. Mantén el derrape en una curva y suéltalo para un turbo: cuanto más largo el derrape, mayor el impulso. Las ruedas giran y se orientan, los karts se inclinan con las pendientes y un minimapa sigue a los once corredores en tiempo real.',
+          'Once corredores, cada uno con su velocidad punta, aceleración y manejo: las chicas Uja, Uni y jjojjo 🎀, MeNew con su corona, ND con pico de pato, y JB, JW, IW, DS, GS y KJ. Elige apodo, elige corredor y persigue la meta.',
+          'Tus tiempos se registran con tu apodo en un ranking local top-10 junto a tu mejor marca personal — guardado en este navegador, con el mismo sistema de exportar/importar partida que nuestros otros juegos para llevar tus récords a otro ordenador.',
+          'Como todo en esta estantería, este juego fue creado íntegramente por IA en julio de 2026 a partir de un solo prompt: el motor del circuito, las físicas del kart, los pilotos CPU y los sonidos. Una instantánea jugable de lo que la IA podía construir en ese momento.',
+        ],
+        how: [
+          '↑ / W — acelerar · ↓ / S — frenar · ← → / A D — girar',
+          'Space — derrape (mantén en la curva y suelta para turbo)',
+          'Shift — usar objeto (🍄 turbo · 🍌 plátano · 🐢 caparazón)',
+          'ESC — menú · Completa 3 vueltas para registrar tu tiempo',
+        ],
+      },
+      zh: {
+        title: 'MeNew 卡丁车',
+        tagline: '11 位个性车手的 3D 大奖赛——漂移加速、道具对战、本地计时排行榜。',
+        about: [
+          'MeNew 卡丁车是一款致敬经典卡丁车竞速的浏览器游戏：带坡道和倾斜弯道的赛道跑 3 圈，与 10 名 CPU 对手竞争，还有加速带和道具箱。抽到 🍄 蘑菇瞬间提速、往身后丢 🍌 香蕉设陷阱、或发射 🐢 龟壳攻击前方。过弯时长按漂移再松开即可触发涡轮加速——漂移越久，加速越强。车轮真实转动并随转向偏转，车身会顺着坡度和弯道倾斜，小地图实时显示全部 11 辆车的位置。',
+          '11 位车手各有不同的极速、加速和操控：女车手 Uja、Uni、jjojjo 🎀，戴王冠的 MeNew，鸭嘴的 ND，以及 JB、JW、IW、DS、GS、KJ。取个昵称，选好车手，冲向终点吧。',
+          '完赛成绩会以昵称记录在此浏览器的本地 Top10 排行榜中，并保存个人最佳。支持与本站其他游戏相同的存档导出/导入，可将记录迁移到其他电脑。',
+          '和这个书架上的其他游戏一样，这款游戏也是 AI 在 2026 年 7 月凭一条提示词完成的——赛道引擎、卡丁车物理、CPU 车手、音效，全部如此。它是那个时间点 AI 能力的可玩快照。',
+        ],
+        how: [
+          '↑ / W — 加速 · ↓ / S — 刹车 · ← → / A D — 转向',
+          'Space — 漂移（弯道长按后松开触发涡轮加速）',
+          'Shift — 使用道具（🍄 加速 · 🍌 香蕉 · 🐢 龟壳）',
+          'ESC — 菜单 · 完成 3 圈即记录成绩',
+        ],
+      },
+    },
+  },
+  {
     slug: 'voxel-world',
     released: '2026-07',
     tech: 'Three.js · WebGL',
