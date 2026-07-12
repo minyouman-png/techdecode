@@ -1,0 +1,108 @@
+---
+// 게임 상세 페이지: 소개 + 브라우저 내 플레이(iframe) (언어별 공용)
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { languages, type Lang } from '../i18n/ui';
+import { gamesUi, games, gameUrl, gamesIndexUrl } from '../i18n/games';
+
+interface Props { lang: Lang; slug: string; }
+const { lang, slug } = Astro.props;
+const game = games.find((x) => x.slug === slug)!;
+const c = game.copy[lang];
+const g = gamesUi[lang];
+const alternates = Object.fromEntries(
+  (Object.keys(languages) as Lang[]).map((l) => [l, gameUrl(slug, l)])
+) as Partial<Record<Lang, string>>;
+const playSrc = `${game.playPath}?lang=${lang}`;
+
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'VideoGame',
+  name: c.title,
+  description: c.tagline,
+  gamePlatform: 'Web browser',
+  applicationCategory: 'Game',
+  playMode: 'SinglePlayer',
+  datePublished: game.released,
+  isAccessibleForFree: true,
+  inLanguage: Object.keys(languages),
+  author: { '@type': 'Person', name: 'menew' },
+  image: new URL(game.cover, Astro.site).href,
+};
+---
+<BaseLayout lang={lang} title={c.title} description={c.tagline} alternates={alternates}>
+  <article class="game-page">
+    <div class="wrap">
+      <p class="backlink"><a href={gamesIndexUrl(lang)}>{g.backToList}</a></p>
+      <h1>{c.title}</h1>
+      <p class="tagline">{c.tagline}</p>
+      <div class="chips">
+        <span class="chip ai">{g.aiBadge}</span>
+        <span class="chip">{g.releasedLabel} {game.released}</span>
+        <span class="chip">{g.techLabel}: {game.tech}</span>
+      </div>
+
+      <div class="play-frame">
+        <iframe
+          src={playSrc}
+          title={c.title}
+          allow="pointer-lock; fullscreen; autoplay"
+          allowfullscreen
+          loading="lazy"
+        ></iframe>
+      </div>
+      <div class="play-meta">
+        <span class="hint">{g.clickToPlay}</span>
+        <a class="fullbtn" href={playSrc} target="_blank" rel="noopener">{g.openFull}</a>
+      </div>
+
+      <section class="game-about">
+        <h2>{g.aboutTitle}</h2>
+        {c.about.map((p) => <p>{p}</p>)}
+      </section>
+
+      <section class="game-how">
+        <h2>{g.howTitle}</h2>
+        <ul>
+          {c.how.map((line) => <li>{line}</li>)}
+        </ul>
+        <p class="savenote">💾 {g.saveNote}</p>
+      </section>
+    </div>
+  </article>
+  <script type="application/ld+json" set:html={JSON.stringify(ld)} />
+</BaseLayout>
+
+<style>
+  .game-page { padding: 56px 0 90px; }
+  .backlink { margin: 0 0 22px; font-size: 14px; }
+  .game-page h1 {
+    font-family: var(--serif); font-weight: 600; font-size: clamp(1.7rem, 4vw, 2.6rem);
+    color: var(--fg-strong); margin: 0 0 12px; letter-spacing: -0.01em;
+  }
+  .tagline { color: var(--muted); font-size: 1.1rem; max-width: var(--readw); margin: 0 0 16px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 26px; }
+  .chip {
+    font-size: 11px; letter-spacing: 0.08em; font-weight: 600; color: var(--muted);
+    border: 1px solid var(--border); border-radius: 20px; padding: 4px 11px;
+  }
+  .chip.ai { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 50%, var(--border)); }
+  .play-frame {
+    aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--border); background: #0a0e1a;
+  }
+  .play-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+  .play-meta {
+    display: flex; justify-content: space-between; align-items: center; gap: 14px;
+    flex-wrap: wrap; margin: 12px 0 0;
+  }
+  .play-meta .hint { color: var(--faint); font-size: 13px; }
+  .fullbtn { color: var(--accent); font-weight: 600; font-size: 14px; white-space: nowrap; }
+  .game-about, .game-how { padding: 44px 0 0; max-width: var(--readw); }
+  .game-about p { color: var(--muted); font-size: 1.04rem; line-height: 1.75; }
+  .game-how ul { color: var(--muted); line-height: 2; padding-left: 20px; }
+  .savenote {
+    margin-top: 22px; padding: 14px 18px; border: 1px solid var(--border);
+    border-radius: 10px; color: var(--muted); font-size: 0.97rem;
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+  }
+</style>

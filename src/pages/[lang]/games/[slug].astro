@@ -1,0 +1,13 @@
+---
+import GamePage from '../../../components/GamePage.astro';
+import { languages, defaultLang, type Lang } from '../../../i18n/ui';
+import { games } from '../../../i18n/games';
+
+export function getStaticPaths() {
+  const langs = (Object.keys(languages) as Lang[]).filter((l) => l !== defaultLang);
+  return langs.flatMap((lang) => games.map((g) => ({ params: { lang, slug: g.slug } })));
+}
+const lang = Astro.params.lang as Lang;
+const { slug } = Astro.params;
+---
+<GamePage lang={lang} slug={slug} />

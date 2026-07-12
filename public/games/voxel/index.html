@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>MENEW SOFT — Voxel World</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000;
+    font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Hiragino Sans', sans-serif; user-select: none; }
+  canvas { display: block; }
+
+  /* HUD */
+  #cross { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -52%);
+    color: #fff; font-size: 26px; font-weight: 200; mix-blend-mode: difference;
+    pointer-events: none; z-index: 5; }
+  #info { position: fixed; left: 10px; top: 8px; color: #fff; font-size: 12px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,.8); pointer-events: none; z-index: 5;
+    font-family: Menlo, monospace; }
+  #itemname { position: fixed; left: 50%; bottom: 86px; transform: translateX(-50%);
+    color: #fff; font-size: 15px; font-weight: bold; text-shadow: 1px 1px 0 rgba(0,0,0,.85);
+    opacity: 0; transition: opacity .4s; pointer-events: none; z-index: 5; }
+  #hotbar { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 4px; z-index: 5; pointer-events: none; }
+  .slot { width: 52px; height: 52px; background: rgba(0,0,0,.45);
+    border: 3px solid rgba(120,120,120,.85); border-radius: 3px; position: relative;
+    display: flex; align-items: center; justify-content: center; }
+  .slot.on { border-color: #fff; background: rgba(0,0,0,.6); }
+  .slot canvas { width: 40px; height: 40px; image-rendering: pixelated; }
+  .slot span { position: absolute; left: 3px; top: 1px; color: #ddd; font-size: 10px;
+    text-shadow: 1px 1px 0 #000; }
+
+  /* 시작 화면 */
+  #overlay { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 20px; cursor: pointer;
+    background: rgba(10, 12, 20, .55); backdrop-filter: blur(2px); }
+  #overlay h1 { color: #fff; font-size: 50px; letter-spacing: 6px; font-weight: 900;
+    text-shadow: 3px 3px 0 #3a3a3a, 6px 6px 0 rgba(0,0,0,.5); text-align: center; }
+  #overlay h1 span { display: block; font-size: 13px; letter-spacing: 8px; color: #ffe957;
+    transform: rotate(-3deg); margin-top: 6px; text-shadow: 1px 1px 0 rgba(0,0,0,.6); }
+  #overlay .btns { display: flex; gap: 12px; }
+  #overlay button { padding: 13px 30px; font-size: 16px; font-weight: bold; cursor: pointer;
+    color: #fff; background: #3d8527; border: 2px solid #1e4712; border-bottom-width: 5px;
+    border-radius: 4px; font-family: inherit; }
+  #overlay button:hover { background: #4aa030; }
+  #overlay button#newBtn { background: #6b6b6b; border-color: #333; }
+  #overlay button#newBtn:hover { background: #808080; }
+  #overlay .help { color: #e8e8e8; font-size: 14px; line-height: 2;
+    background: rgba(0,0,0,.45); padding: 13px 26px; border-radius: 8px; max-width: 86vw; }
+  #overlay .help b { color: #ffe957; }
+  #overlay .tip { color: #9aa; font-size: 12px; }
+  #overlay .credit { color: #cfd6dd; font-size: 12px; background: rgba(0,0,0,.4);
+    padding: 6px 14px; border-radius: 20px; }
+  #overlay .credit a { color: #ffe957; text-decoration: none; }
+
+  #err { display: none; position: fixed; left: 10px; bottom: 10px; z-index: 99;
+    color: #fff; background: #b32; padding: 8px 12px; border-radius: 6px; font-size: 13px; }
+</style>
+</head>
+<body>
+  <div id="cross">+</div>
+  <div id="info"></div>
+  <div id="itemname"></div>
+  <div id="hotbar"></div>
+
+  <div id="overlay">
+    <h1>MENEW SOFT<span>VOXEL WORLD</span></h1>
+    <div class="btns">
+      <button id="playBtn"></button>
+      <button id="newBtn"></button>
+    </div>
+    <div class="help" id="help"></div>
+    <div class="tip" id="tip"></div>
+    <div class="credit" id="credit"></div>
+  </div>
+  <div id="err"></div>
+
+  <script src="three.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

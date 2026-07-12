@@ -27,6 +27,7 @@ export const ui = {
     nav_home: 'Home',
     nav_about: 'About',
     nav_contact: 'Contact',
+    nav_games: 'Games',
     hero_kicker: 'INDEPENDENT TECH ANALYSIS',
     hero_title: 'Decode the technology shaping the world.',
     hero_sub:
@@ -61,6 +62,7 @@ export const ui = {
     nav_home: '홈',
     nav_about: '소개',
     nav_contact: '문의',
+    nav_games: '게임',
     hero_kicker: '독립 테크 분석',
     hero_title: '세상을 바꾸는 기술을 해독하다.',
     hero_sub:
@@ -95,6 +97,7 @@ export const ui = {
     nav_home: 'ホーム',
     nav_about: '概要',
     nav_contact: 'お問い合わせ',
+    nav_games: 'ゲーム',
     hero_kicker: '独立系テック分析',
     hero_title: '世界を動かすテクノロジーを読み解く。',
     hero_sub:
@@ -129,6 +132,7 @@ export const ui = {
     nav_home: 'Inicio',
     nav_about: 'Acerca de',
     nav_contact: 'Contacto',
+    nav_games: 'Juegos',
     hero_kicker: 'ANÁLISIS TECNOLÓGICO INDEPENDIENTE',
     hero_title: 'Descifra la tecnología que moldea el mundo.',
     hero_sub:
@@ -163,6 +167,7 @@ export const ui = {
     nav_home: '首页',
     nav_about: '关于',
     nav_contact: '联系',
+    nav_games: '游戏',
     hero_kicker: '独立科技分析',
     hero_title: '解读塑造世界的技术。',
     hero_sub:

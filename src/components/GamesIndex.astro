@@ -1,0 +1,81 @@
+---
+// AI 인디게임 목록 페이지 (언어별 공용)
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { languages, type Lang } from '../i18n/ui';
+import { gamesUi, games, gameUrl, gamesIndexUrl } from '../i18n/games';
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const g = gamesUi[lang];
+const alternates = Object.fromEntries(
+  (Object.keys(languages) as Lang[]).map((l) => [l, gamesIndexUrl(l)])
+) as Partial<Record<Lang, string>>;
+---
+<BaseLayout lang={lang} title={g.pageTitle} description={g.metaDescription} alternates={alternates}>
+  <section class="games-hero">
+    <div class="wrap">
+      <p class="kicker">{g.kicker}</p>
+      <h1>{g.pageTitle}</h1>
+      <p class="games-intro">{g.intro1}</p>
+      <p class="games-intro">{g.intro2}</p>
+    </div>
+  </section>
+
+  <section class="games-list">
+    <div class="wrap">
+      <div class="game-grid">
+        {games.map((game) => {
+          const c = game.copy[lang];
+          return (
+            <a class="game-card" href={gameUrl(game.slug, lang)}>
+              <div class="cover">
+                <img src={game.cover} alt={c.title} loading="lazy" />
+              </div>
+              <div class="game-card-body">
+                <div class="chips">
+                  <span class="chip ai">{g.aiBadge}</span>
+                  <span class="chip">{g.releasedLabel} {game.released}</span>
+                </div>
+                <h2>{c.title}</h2>
+                <p class="tagline">{c.tagline}</p>
+                <span class="playlink">{g.playNow}</span>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .games-hero { padding: 72px 0 8px; }
+  .games-hero h1 {
+    font-family: var(--serif); font-weight: 600; font-size: clamp(2rem, 4.5vw, 3rem);
+    color: var(--fg-strong); margin: 0 0 20px; letter-spacing: -0.01em;
+  }
+  .games-intro { max-width: var(--readw); color: var(--muted); font-size: 1.08rem; margin: 0 0 14px; }
+  .games-list { padding: 44px 0 90px; }
+  .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 26px; }
+  .game-card {
+    display: block; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    background: color-mix(in srgb, var(--fg-strong) 3%, transparent);
+    transition: transform .15s ease, border-color .15s ease; color: inherit;
+  }
+  .game-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+  .cover { aspect-ratio: 16 / 10; overflow: hidden; background: #1a2433; }
+  .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .game-card-body { padding: 18px 20px 20px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .chip {
+    font-size: 11px; letter-spacing: 0.08em; font-weight: 600; color: var(--muted);
+    border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px;
+  }
+  .chip.ai { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 50%, var(--border)); }
+  .game-card h2 {
+    font-family: var(--serif); font-size: 1.3rem; font-weight: 600;
+    color: var(--fg-strong); margin: 0 0 8px;
+  }
+  .game-card .tagline { color: var(--muted); font-size: 0.95rem; margin: 0 0 14px; }
+  .playlink { color: var(--accent); font-weight: 600; font-size: 15px; }
+</style>
