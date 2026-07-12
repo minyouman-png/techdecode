@@ -46,6 +46,9 @@
   #overlay button:hover { background: #4aa030; }
   #overlay button#newBtn { background: #6b6b6b; border-color: #333; }
   #overlay button#newBtn:hover { background: #808080; }
+  #overlay .btns2 button { padding: 9px 18px; font-size: 13px; background: #35507a;
+    border-color: #1c2d4a; }
+  #overlay .btns2 button:hover { background: #41639a; }
   #overlay .help { color: #e8e8e8; font-size: 14px; line-height: 2;
     background: rgba(0,0,0,.45); padding: 13px 26px; border-radius: 8px; max-width: 86vw; }
   #overlay .help b { color: #ffe957; }
@@ -109,11 +112,16 @@
       <button id="playBtn"></button>
       <button id="newBtn"></button>
     </div>
+    <div class="btns btns2">
+      <button id="exportBtn"></button>
+      <button id="importBtn"></button>
+    </div>
     <div class="help" id="help"></div>
     <div class="tip" id="tip"></div>
     <div class="credit" id="credit"></div>
   </div>
   <div id="err"></div>
+  <input type="file" id="importFile" accept="application/json,.json" style="display:none">
 
   <script src="three.min.js"></script>
   <script src="game.js"></script>

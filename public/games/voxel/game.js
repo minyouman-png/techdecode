@@ -25,6 +25,9 @@ const I18N = {
     day: '☀️ Day', night: '🌙 Night', fly: '✈️ Flying',
     confirmNew: 'Delete this world and create a new one?',
     youDied: 'You Died!', respawn: 'Respawn',
+    expSave: '\ud83d\udcbe Export Save', impSave: '\ud83d\udcc2 Import Save',
+    impConfirm: 'Overwrite your current world with this save file?',
+    impErr: 'Not a valid MENEW CRAFT save file', expDone: 'Save file downloaded',
     bossNear: '\u26a0\ufe0f Boss MENEW has appeared!', bossDown: '\ud83c\udfc6 MENEW has been defeated!',
     questsTitle: 'Quests (Q)', questDone: 'Quest complete',
     qs: { wood: 'Timber! \u2014 break your first log', stone: 'Stone Age \u2014 mine 10 stone', place: 'Builder \u2014 place 50 blocks', iron: 'Iron Heart \u2014 mine iron ore', kill: 'Monster Hunter \u2014 first kill', types: 'Full Roster \u2014 defeat all 7 monsters', night: 'Survivor \u2014 survive a night', boss: 'Legend \u2014 defeat MENEW' },
@@ -40,6 +43,9 @@ const I18N = {
     day: '☀️ 낮', night: '🌙 밤', fly: '✈️ 비행',
     confirmNew: '현재 세계를 지우고 새 세계를 만들까요?',
     youDied: '사망했습니다!', respawn: '다시 살아나기',
+    expSave: '\ud83d\udcbe 세이브 내보내기', impSave: '\ud83d\udcc2 세이브 불러오기',
+    impConfirm: '이 세이브 파일로 현재 세계를 덮어쓸까요?',
+    impErr: '올바른 MENEW CRAFT 세이브 파일이 아닙니다', expDone: '세이브 파일이 다운로드되었습니다',
     bossNear: '\u26a0\ufe0f 보스 MENEW 출현!', bossDown: '\ud83c\udfc6 MENEW 처치 성공!',
     questsTitle: '도전과제 (Q)', questDone: '도전과제 달성',
     qs: { wood: '나무꾼 \u2014 첫 원목 캐기', stone: '석기시대 \u2014 돌 10개 캐기', place: '건축가 \u2014 블록 50개 설치', iron: '철의 심장 \u2014 철광석 캐기', kill: '몬스터 헌터 \u2014 첫 처치', types: '전원 격파 \u2014 몬스터 7종 모두 처치', night: '생존자 \u2014 밤 버텨내기', boss: '전설 \u2014 보스 MENEW 처치' },
@@ -55,6 +61,9 @@ const I18N = {
     day: '☀️ 昼', night: '🌙 夜', fly: '✈️ 飛行中',
     confirmNew: 'この世界を削除して新しい世界を作りますか？',
     youDied: '死んでしまった！', respawn: 'リスポーン',
+    expSave: '\ud83d\udcbe セーブを書き出す', impSave: '\ud83d\udcc2 セーブを読み込む',
+    impConfirm: 'このセーブファイルで現在の世界を上書きしますか？',
+    impErr: '正しいMENEW CRAFTのセーブファイルではありません', expDone: 'セーブファイルをダウンロードしました',
     bossNear: '\u26a0\ufe0f ボスMENEWが現れた！', bossDown: '\ud83c\udfc6 MENEWを倒した！',
     questsTitle: '実績 (Q)', questDone: '実績達成',
     qs: { wood: '木こり \u2014 初めて原木を壊す', stone: '石器時代 \u2014 石を10個採掘', place: '建築家 \u2014 ブロックを50個設置', iron: '鉄の心 \u2014 鉄鉱石を採掘', kill: 'モンスターハンター \u2014 初討伐', types: '全員撃破 \u2014 7種すべて討伐', night: 'サバイバー \u2014 夜を生き延びる', boss: '伝説 \u2014 ボスMENEWを倒す' },
@@ -70,6 +79,9 @@ const I18N = {
     day: '☀️ Día', night: '🌙 Noche', fly: '✈️ Volando',
     confirmNew: '¿Borrar este mundo y crear uno nuevo?',
     youDied: '¡Has muerto!', respawn: 'Reaparecer',
+    expSave: '\ud83d\udcbe Exportar partida', impSave: '\ud83d\udcc2 Importar partida',
+    impConfirm: '¿Sobrescribir tu mundo actual con esta partida guardada?',
+    impErr: 'No es un archivo de guardado válido de MENEW CRAFT', expDone: 'Partida descargada',
     bossNear: '\u26a0\ufe0f ¡El jefe MENEW ha aparecido!', bossDown: '\ud83c\udfc6 ¡MENEW derrotado!',
     questsTitle: 'Logros (Q)', questDone: 'Logro conseguido',
     qs: { wood: '¡Leñador! \u2014 rompe tu primer tronco', stone: 'Edad de Piedra \u2014 pica 10 piedras', place: 'Constructor \u2014 coloca 50 bloques', iron: 'Corazón de hierro \u2014 pica mena de hierro', kill: 'Cazador \u2014 primera baja', types: 'Plantilla completa \u2014 derrota a los 7 monstruos', night: 'Superviviente \u2014 sobrevive una noche', boss: 'Leyenda \u2014 derrota a MENEW' },
@@ -85,6 +97,9 @@ const I18N = {
     day: '☀️ 白天', night: '🌙 夜晚', fly: '✈️ 飞行中',
     confirmNew: '删除当前世界并创建新世界？',
     youDied: '你死了！', respawn: '重生',
+    expSave: '\ud83d\udcbe 导出存档', impSave: '\ud83d\udcc2 导入存档',
+    impConfirm: '用该存档覆盖当前世界？',
+    impErr: '不是有效的 MENEW CRAFT 存档文件', expDone: '存档已下载',
     bossNear: '\u26a0\ufe0f Boss MENEW 出现了！', bossDown: '\ud83c\udfc6 击败了 MENEW！',
     questsTitle: '成就 (Q)', questDone: '成就达成',
     qs: { wood: '伐木工 \u2014 破坏第一块原木', stone: '石器时代 \u2014 挖10块石头', place: '建筑师 \u2014 放置50个方块', iron: '钢铁之心 \u2014 挖到铁矿', kill: '怪物猎人 \u2014 首次击杀', types: '全员击破 \u2014 击败全部7种怪物', night: '幸存者 \u2014 熬过一夜', boss: '传说 \u2014 击败MENEW' },
@@ -101,6 +116,8 @@ const L = I18N[LANG];
   document.getElementById('newBtn').textContent = L.newWorld;
   document.getElementById('help').innerHTML = L.help;
   document.getElementById('tip').textContent = L.tip;
+  document.getElementById('exportBtn').textContent = L.expSave;
+  document.getElementById('importBtn').textContent = L.impSave;
   const gamesUrl = LANG === 'en' ? '/games/' : '/' + LANG + '/games/';
   document.getElementById('credit').innerHTML =
     L.credit + '<a href="' + gamesUrl + '">MENEW SOFT</a>';
@@ -682,6 +699,56 @@ document.getElementById('newBtn').addEventListener('click', function (e) {
   localStorage.removeItem('mcw_edits');
   localStorage.removeItem('mcw_quests');
   location.reload();
+});
+
+/* 세이브 내보내기: 시드+블록 편집+도전과제를 .json 하나로 다운로드 */
+document.getElementById('exportBtn').addEventListener('click', function (e) {
+  e.stopPropagation();
+  const data = {
+    game: 'menewcraft',
+    version: 1,
+    savedAt: new Date().toISOString(),
+    seed: SEED,
+    edits: edits,
+    quests: quest
+  };
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'menewcraft-save-' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+  toast(L.expDone);
+});
+/* 세이브 불러오기: 파일 선택 → 검증 → localStorage 덮어쓰기 → 재시작 */
+document.getElementById('importBtn').addEventListener('click', function (e) {
+  e.stopPropagation();
+  document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change', function (e) {
+  const f = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = function () {
+    let d = null;
+    try { d = JSON.parse(r.result); } catch (err) {}
+    if (!d || d.game !== 'menewcraft' || !d.seed || typeof d.edits !== 'object') {
+      alert(L.impErr);
+      return;
+    }
+    if (!confirm(L.impConfirm)) return;
+    try {
+      localStorage.setItem('mcw_seed', String(d.seed));
+      localStorage.setItem('mcw_edits', JSON.stringify(d.edits || {}));
+      if (d.quests) localStorage.setItem('mcw_quests', JSON.stringify(d.quests));
+      else localStorage.removeItem('mcw_quests');
+    } catch (err) { alert(L.impErr); return; }
+    location.reload();
+  };
+  r.readAsText(f);
 });
 addEventListener('resize', function () {
   camera.aspect = innerWidth / innerHeight;

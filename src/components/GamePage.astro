@@ -67,6 +67,13 @@ const ld = {
         </ul>
         <p class="savenote">💾 {g.saveNote}</p>
       </section>
+
+      <section class="game-save">
+        <h2>{g.saveTitle}</h2>
+        <p>{g.save1}</p>
+        <p>{g.save2}</p>
+        <p>{g.save3}</p>
+      </section>
     </div>
   </article>
   <script type="application/ld+json" set:html={JSON.stringify(ld)} />
@@ -97,8 +104,8 @@ const ld = {
   }
   .play-meta .hint { color: var(--faint); font-size: 13px; }
   .fullbtn { color: var(--accent); font-weight: 600; font-size: 14px; white-space: nowrap; }
-  .game-about, .game-how { padding: 44px 0 0; max-width: var(--readw); }
-  .game-about p { color: var(--muted); font-size: 1.04rem; line-height: 1.75; }
+  .game-about, .game-how, .game-save { padding: 44px 0 0; max-width: var(--readw); }
+  .game-about p, .game-save p { color: var(--muted); font-size: 1.04rem; line-height: 1.75; }
   .game-how ul { color: var(--muted); line-height: 2; padding-left: 20px; }
   .savenote {
     margin-top: 22px; padding: 14px 18px; border: 1px solid var(--border);
