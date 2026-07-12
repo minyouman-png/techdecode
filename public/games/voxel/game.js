@@ -17,57 +17,77 @@ window.onerror = function (msg, src, line) {
 const I18N = {
   en: {
     play: '▶ Play', newWorld: '🌍 New World',
-    help: '<b>W A S D</b> Move &nbsp;&nbsp; <b>Mouse</b> Look &nbsp;&nbsp; <b>Space</b> Jump · Swim<br><b>Left click</b> Break block &nbsp;&nbsp; <b>Right click</b> Place block<br><b>1–9 / Wheel</b> Select block &nbsp;&nbsp; <b>Shift</b> Sprint &nbsp;&nbsp; <b>F</b> Fly (Space↑ C↓)<br><b>ESC</b> Menu',
+    help: '<b>W A S D</b> Move &nbsp;&nbsp; <b>Mouse</b> Look &nbsp;&nbsp; <b>Space</b> Jump · Swim<br><b>Left click</b> Break / Attack &nbsp;&nbsp; <b>Right click</b> Place block<br><b>1–9 / Wheel</b> Select block &nbsp;&nbsp; <b>Shift</b> Sprint &nbsp;&nbsp; <b>F</b> Fly (Space↑ C↓)<br><b>Q</b> Quests &nbsp;&nbsp; <b>ESC</b> Menu',
     tip: 'Click the screen to start · Your builds are saved automatically in this browser',
     credit: 'An indie game built 100% with AI · July 2026 · ',
     flyOn: '✈️ Fly mode ON (Space↑ / C↓)', flyOff: 'Fly mode OFF',
     bedrock: 'Bedrock cannot be broken',
     day: '☀️ Day', night: '🌙 Night', fly: '✈️ Flying',
     confirmNew: 'Delete this world and create a new one?',
+    youDied: 'You Died!', respawn: 'Respawn',
+    bossNear: '\u26a0\ufe0f Boss MENEW has appeared!', bossDown: '\ud83c\udfc6 MENEW has been defeated!',
+    questsTitle: 'Quests (Q)', questDone: 'Quest complete',
+    qs: { wood: 'Timber! \u2014 break your first log', stone: 'Stone Age \u2014 mine 10 stone', place: 'Builder \u2014 place 50 blocks', iron: 'Iron Heart \u2014 mine iron ore', kill: 'Monster Hunter \u2014 first kill', types: 'Full Roster \u2014 defeat all 7 monsters', night: 'Survivor \u2014 survive a night', boss: 'Legend \u2014 defeat MENEW' },
     blocks: { 1: 'Grass', 2: 'Dirt', 3: 'Stone', 4: 'Sand', 5: 'Wood Log', 6: 'Leaves', 7: 'Water', 8: 'Planks', 9: 'Cobblestone', 10: 'Bricks', 11: 'Coal Ore', 12: 'Iron Ore', 13: 'Snow', 14: 'Bedrock' }
   },
   ko: {
     play: '▶ 게임 시작', newWorld: '🌍 새 세계 만들기',
-    help: '<b>W A S D</b> 이동 &nbsp;&nbsp; <b>마우스</b> 시점 &nbsp;&nbsp; <b>Space</b> 점프·수영<br><b>좌클릭</b> 블록 부수기 &nbsp;&nbsp; <b>우클릭</b> 블록 설치<br><b>1~9 / 휠</b> 블록 선택 &nbsp;&nbsp; <b>Shift</b> 달리기 &nbsp;&nbsp; <b>F</b> 비행 (Space↑ C↓)<br><b>ESC</b> 메뉴',
+    help: '<b>W A S D</b> 이동 &nbsp;&nbsp; <b>마우스</b> 시점 &nbsp;&nbsp; <b>Space</b> 점프·수영<br><b>좌클릭</b> 부수기·공격 &nbsp;&nbsp; <b>우클릭</b> 블록 설치<br><b>1~9 / 휠</b> 블록 선택 &nbsp;&nbsp; <b>Shift</b> 달리기 &nbsp;&nbsp; <b>F</b> 비행 (Space↑ C↓)<br><b>Q</b> 도전과제 &nbsp;&nbsp; <b>ESC</b> 메뉴',
     tip: '화면을 클릭하면 시작됩니다 · 만든 건물은 이 브라우저에 자동 저장됩니다',
     credit: 'AI로 100% 제작한 인디게임 · 2026년 7월 · ',
     flyOn: '✈️ 비행 모드 ON (Space↑ / C↓)', flyOff: '비행 모드 OFF',
     bedrock: '기반암은 부술 수 없습니다',
     day: '☀️ 낮', night: '🌙 밤', fly: '✈️ 비행',
     confirmNew: '현재 세계를 지우고 새 세계를 만들까요?',
+    youDied: '사망했습니다!', respawn: '다시 살아나기',
+    bossNear: '\u26a0\ufe0f 보스 MENEW 출현!', bossDown: '\ud83c\udfc6 MENEW 처치 성공!',
+    questsTitle: '도전과제 (Q)', questDone: '도전과제 달성',
+    qs: { wood: '나무꾼 \u2014 첫 원목 캐기', stone: '석기시대 \u2014 돌 10개 캐기', place: '건축가 \u2014 블록 50개 설치', iron: '철의 심장 \u2014 철광석 캐기', kill: '몬스터 헌터 \u2014 첫 처치', types: '전원 격파 \u2014 몬스터 7종 모두 처치', night: '생존자 \u2014 밤 버텨내기', boss: '전설 \u2014 보스 MENEW 처치' },
     blocks: { 1: '잔디', 2: '흙', 3: '돌', 4: '모래', 5: '원목', 6: '나뭇잎', 7: '물', 8: '판자', 9: '조약돌', 10: '벽돌', 11: '석탄 광석', 12: '철 광석', 13: '눈', 14: '기반암' }
   },
   ja: {
     play: '▶ ゲーム開始', newWorld: '🌍 新しい世界',
-    help: '<b>W A S D</b> 移動 &nbsp;&nbsp; <b>マウス</b> 視点 &nbsp;&nbsp; <b>Space</b> ジャンプ·水泳<br><b>左クリック</b> ブロック破壊 &nbsp;&nbsp; <b>右クリック</b> ブロック設置<br><b>1~9 / ホイール</b> ブロック選択 &nbsp;&nbsp; <b>Shift</b> ダッシュ &nbsp;&nbsp; <b>F</b> 飛行 (Space↑ C↓)<br><b>ESC</b> メニュー',
+    help: '<b>W A S D</b> 移動 &nbsp;&nbsp; <b>マウス</b> 視点 &nbsp;&nbsp; <b>Space</b> ジャンプ·水泳<br><b>左クリック</b> 破壊·攻撃 &nbsp;&nbsp; <b>右クリック</b> ブロック設置<br><b>1~9 / ホイール</b> ブロック選択 &nbsp;&nbsp; <b>Shift</b> ダッシュ &nbsp;&nbsp; <b>F</b> 飛行 (Space↑ C↓)<br><b>Q</b> 実績 &nbsp;&nbsp; <b>ESC</b> メニュー',
     tip: '画面をクリックすると開始します · 建てたものはこのブラウザに自動保存されます',
     credit: 'AIだけで作られたインディーゲーム · 2026年7月 · ',
     flyOn: '✈️ 飛行モード ON (Space↑ / C↓)', flyOff: '飛行モード OFF',
     bedrock: '岩盤は破壊できません',
     day: '☀️ 昼', night: '🌙 夜', fly: '✈️ 飛行中',
     confirmNew: 'この世界を削除して新しい世界を作りますか？',
+    youDied: '死んでしまった！', respawn: 'リスポーン',
+    bossNear: '\u26a0\ufe0f ボスMENEWが現れた！', bossDown: '\ud83c\udfc6 MENEWを倒した！',
+    questsTitle: '実績 (Q)', questDone: '実績達成',
+    qs: { wood: '木こり \u2014 初めて原木を壊す', stone: '石器時代 \u2014 石を10個採掘', place: '建築家 \u2014 ブロックを50個設置', iron: '鉄の心 \u2014 鉄鉱石を採掘', kill: 'モンスターハンター \u2014 初討伐', types: '全員撃破 \u2014 7種すべて討伐', night: 'サバイバー \u2014 夜を生き延びる', boss: '伝説 \u2014 ボスMENEWを倒す' },
     blocks: { 1: '草ブロック', 2: '土', 3: '石', 4: '砂', 5: '原木', 6: '葉', 7: '水', 8: '板材', 9: '丸石', 10: 'レンガ', 11: '石炭鉱石', 12: '鉄鉱石', 13: '雪', 14: '岩盤' }
   },
   es: {
     play: '▶ Jugar', newWorld: '🌍 Nuevo mundo',
-    help: '<b>W A S D</b> Moverse &nbsp;&nbsp; <b>Ratón</b> Mirar &nbsp;&nbsp; <b>Space</b> Saltar · Nadar<br><b>Clic izq.</b> Romper bloque &nbsp;&nbsp; <b>Clic der.</b> Colocar bloque<br><b>1–9 / Rueda</b> Elegir bloque &nbsp;&nbsp; <b>Shift</b> Correr &nbsp;&nbsp; <b>F</b> Volar (Space↑ C↓)<br><b>ESC</b> Menú',
+    help: '<b>W A S D</b> Moverse &nbsp;&nbsp; <b>Ratón</b> Mirar &nbsp;&nbsp; <b>Space</b> Saltar · Nadar<br><b>Clic izq.</b> Romper / Atacar &nbsp;&nbsp; <b>Clic der.</b> Colocar bloque<br><b>1–9 / Rueda</b> Elegir bloque &nbsp;&nbsp; <b>Shift</b> Correr &nbsp;&nbsp; <b>F</b> Volar (Space↑ C↓)<br><b>Q</b> Logros &nbsp;&nbsp; <b>ESC</b> Menú',
     tip: 'Haz clic en la pantalla para empezar · Tus construcciones se guardan automáticamente en este navegador',
     credit: 'Un juego indie creado 100% con IA · Julio de 2026 · ',
     flyOn: '✈️ Modo vuelo ON (Space↑ / C↓)', flyOff: 'Modo vuelo OFF',
     bedrock: 'La roca madre no se puede romper',
     day: '☀️ Día', night: '🌙 Noche', fly: '✈️ Volando',
     confirmNew: '¿Borrar este mundo y crear uno nuevo?',
+    youDied: '¡Has muerto!', respawn: 'Reaparecer',
+    bossNear: '\u26a0\ufe0f ¡El jefe MENEW ha aparecido!', bossDown: '\ud83c\udfc6 ¡MENEW derrotado!',
+    questsTitle: 'Logros (Q)', questDone: 'Logro conseguido',
+    qs: { wood: '¡Leñador! \u2014 rompe tu primer tronco', stone: 'Edad de Piedra \u2014 pica 10 piedras', place: 'Constructor \u2014 coloca 50 bloques', iron: 'Corazón de hierro \u2014 pica mena de hierro', kill: 'Cazador \u2014 primera baja', types: 'Plantilla completa \u2014 derrota a los 7 monstruos', night: 'Superviviente \u2014 sobrevive una noche', boss: 'Leyenda \u2014 derrota a MENEW' },
     blocks: { 1: 'Hierba', 2: 'Tierra', 3: 'Piedra', 4: 'Arena', 5: 'Tronco', 6: 'Hojas', 7: 'Agua', 8: 'Tablones', 9: 'Adoquín', 10: 'Ladrillos', 11: 'Mena de carbón', 12: 'Mena de hierro', 13: 'Nieve', 14: 'Roca madre' }
   },
   zh: {
     play: '▶ 开始游戏', newWorld: '🌍 新世界',
-    help: '<b>W A S D</b> 移动 &nbsp;&nbsp; <b>鼠标</b> 视角 &nbsp;&nbsp; <b>Space</b> 跳跃·游泳<br><b>左键</b> 破坏方块 &nbsp;&nbsp; <b>右键</b> 放置方块<br><b>1~9 / 滚轮</b> 选择方块 &nbsp;&nbsp; <b>Shift</b> 奔跑 &nbsp;&nbsp; <b>F</b> 飞行 (Space↑ C↓)<br><b>ESC</b> 菜单',
+    help: '<b>W A S D</b> 移动 &nbsp;&nbsp; <b>鼠标</b> 视角 &nbsp;&nbsp; <b>Space</b> 跳跃·游泳<br><b>左键</b> 破坏·攻击 &nbsp;&nbsp; <b>右键</b> 放置方块<br><b>1~9 / 滚轮</b> 选择方块 &nbsp;&nbsp; <b>Shift</b> 奔跑 &nbsp;&nbsp; <b>F</b> 飞行 (Space↑ C↓)<br><b>Q</b> 成就 &nbsp;&nbsp; <b>ESC</b> 菜单',
     tip: '点击屏幕开始 · 你的建筑会自动保存在此浏览器中',
     credit: '100% 由 AI 制作的独立游戏 · 2026年7月 · ',
     flyOn: '✈️ 飞行模式 ON (Space↑ / C↓)', flyOff: '飞行模式 OFF',
     bedrock: '基岩无法破坏',
     day: '☀️ 白天', night: '🌙 夜晚', fly: '✈️ 飞行中',
     confirmNew: '删除当前世界并创建新世界？',
+    youDied: '你死了！', respawn: '重生',
+    bossNear: '\u26a0\ufe0f Boss MENEW 出现了！', bossDown: '\ud83c\udfc6 击败了 MENEW！',
+    questsTitle: '成就 (Q)', questDone: '成就达成',
+    qs: { wood: '伐木工 \u2014 破坏第一块原木', stone: '石器时代 \u2014 挖10块石头', place: '建筑师 \u2014 放置50个方块', iron: '钢铁之心 \u2014 挖到铁矿', kill: '怪物猎人 \u2014 首次击杀', types: '全员击破 \u2014 击败全部7种怪物', night: '幸存者 \u2014 熬过一夜', boss: '传说 \u2014 击败MENEW' },
     blocks: { 1: '草方块', 2: '泥土', 3: '石头', 4: '沙子', 5: '原木', 6: '树叶', 7: '水', 8: '木板', 9: '圆石', 10: '砖块', 11: '煤矿石', 12: '铁矿石', 13: '雪', 14: '基岩' }
   }
 };
@@ -320,20 +340,26 @@ function getBlock(x, y, z) {
 }
 function isSolid(x, y, z) { const b = getBlock(x, y, z); return b !== 0 && b !== 7; }
 
-function setBlock(x, y, z, id) {
-  if (y < 1 || y >= WH) return;
+// 데이터만 기록하고 리메시할 청크 키를 touched 집합에 모은다 (폭발 등 일괄 처리용)
+function setBlockData(x, y, z, id, touched) {
   const cx = Math.floor(x / CHUNK), cz = Math.floor(z / CHUNK);
   const lx = x - cx * CHUNK, lz = z - cz * CHUNK;
   dataAt(cx, cz)[(y * CHUNK + lz) * CHUNK + lx] = id;
   const ck = cx + ',' + cz;
   if (!edits[ck]) edits[ck] = {};
   edits[ck][lx + ',' + y + ',' + lz] = id;
+  touched.add(ck);
+  if (lx === 0) touched.add((cx - 1) + ',' + cz);
+  if (lx === CHUNK - 1) touched.add((cx + 1) + ',' + cz);
+  if (lz === 0) touched.add(cx + ',' + (cz - 1));
+  if (lz === CHUNK - 1) touched.add(cx + ',' + (cz + 1));
+}
+function setBlock(x, y, z, id) {
+  if (y < 1 || y >= WH) return;
+  const touched = new Set();
+  setBlockData(x, y, z, id, touched);
   saveEdits();
-  buildChunkMesh(cx, cz);
-  if (lx === 0) buildChunkMesh(cx - 1, cz);
-  if (lx === CHUNK - 1) buildChunkMesh(cx + 1, cz);
-  if (lz === 0) buildChunkMesh(cx, cz - 1);
-  if (lz === CHUNK - 1) buildChunkMesh(cx, cz + 1);
+  touched.forEach(function (k) { const p = k.split(','); buildChunkMesh(+p[0], +p[1]); });
 }
 
 /* ===== 메싱 ===== */
@@ -474,8 +500,10 @@ function physics(dt) {
   let speed = player.fly ? 13 : ((keys.ShiftLeft || keys.ShiftRight) ? 6.8 : 4.4);
   if (inWater && !player.fly) speed *= 0.55;
   const sy = Math.sin(yaw), cy = Math.cos(yaw);
-  v.x = (-sy * iz + cy * ix) * speed;
-  v.z = (-cy * iz - sy * ix) * speed;
+  v.x = (-sy * iz + cy * ix) * speed + player.kbx;
+  v.z = (-cy * iz - sy * ix) * speed + player.kbz;
+  player.kbx *= Math.max(0, 1 - 6 * dt);
+  player.kbz *= Math.max(0, 1 - 6 * dt);
 
   // 수직 이동
   if (player.fly) {
@@ -507,7 +535,11 @@ function physics(dt) {
   p.y += v.y * dt;
   eachOverlap(function (x, y) {
     if (v.y > 0) p.y = y - P_H - EPS;
-    else if (v.y < 0) { p.y = y + 1 + EPS; player.onGround = true; }
+    else if (v.y < 0) {
+      p.y = y + 1 + EPS;
+      player.onGround = true;
+      if (v.y < -14) damagePlayer(Math.max(1, Math.floor((-v.y - 14) / 2.2))); // 낙하 데미지
+    }
     v.y = 0;
   });
   if (p.y < -10) { p.y = WH; v.y = 0; } // 만일의 낙사 방지
@@ -543,22 +575,28 @@ function sound(kind) {
   try {
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
     if (actx.state === 'suspended') actx.resume();
-    const o = actx.createOscillator(), g = actx.createGain();
-    o.connect(g); g.connect(actx.destination);
     const t = actx.currentTime;
-    if (kind === 'break') {
-      o.type = 'square';
-      o.frequency.setValueAtTime(130, t);
-      o.frequency.exponentialRampToValueAtTime(40, t + 0.09);
-      g.gain.setValueAtTime(0.12, t);
-    } else {
-      o.type = 'square';
-      o.frequency.setValueAtTime(220, t);
-      o.frequency.exponentialRampToValueAtTime(150, t + 0.05);
-      g.gain.setValueAtTime(0.09, t);
+    function osc(type, f0, f1, dur, vol, delay) {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.connect(g); g.connect(actx.destination);
+      const t0 = t + (delay || 0);
+      o.type = type;
+      o.frequency.setValueAtTime(f0, t0);
+      o.frequency.exponentialRampToValueAtTime(Math.max(1, f1), t0 + dur);
+      g.gain.setValueAtTime(vol, t0);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + dur + 0.02);
+      o.start(t0); o.stop(t0 + dur + 0.05);
     }
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.11);
-    o.start(t); o.stop(t + 0.13);
+    if (kind === 'break') osc('square', 130, 40, 0.09, 0.12);
+    else if (kind === 'place') osc('square', 220, 150, 0.05, 0.09);
+    else if (kind === 'hit') osc('square', 320, 180, 0.06, 0.1);
+    else if (kind === 'hurt') osc('sawtooth', 170, 55, 0.22, 0.13);
+    else if (kind === 'shoot') osc('square', 560, 240, 0.09, 0.06);
+    else if (kind === 'poof') osc('triangle', 300, 60, 0.18, 0.1);
+    else if (kind === 'fuse') osc('sawtooth', 700, 1500, 1.1, 0.05);
+    else if (kind === 'tp') osc('sine', 300, 900, 0.15, 0.08);
+    else if (kind === 'boom') { osc('square', 70, 18, 0.5, 0.24); osc('sawtooth', 110, 28, 0.4, 0.14); }
+    else if (kind === 'chime') { osc('sine', 660, 660, 0.12, 0.1); osc('sine', 990, 990, 0.28, 0.1, 0.13); }
   } catch (e) {}
 }
 
@@ -574,6 +612,10 @@ addEventListener('keydown', function (e) {
     showName(player.fly ? L.flyOn : L.flyOff);
   }
   if (e.code === 'Space' && locked) e.preventDefault();
+  if (e.code === 'KeyQ') {
+    const q = document.getElementById('quests');
+    q.style.display = q.style.display === 'block' ? 'none' : 'block';
+  }
 });
 addEventListener('keyup', function (e) { keys[e.code] = false; });
 
@@ -585,12 +627,22 @@ document.addEventListener('mousemove', function (e) {
 });
 
 canvas.addEventListener('mousedown', function (e) {
-  if (!locked) return;
+  if (!locked || dead) return;
+  if (e.button === 0) {
+    // 몬스터 우선 공격
+    const mHit = pickMob(4.5);
+    if (mHit) {
+      hurtMob(mHit, 4, mHit.pos.x - player.pos.x, mHit.pos.z - player.pos.z);
+      sound('hit');
+      return;
+    }
+  }
   const hit = raycast(6);
   if (!hit) return;
   if (e.button === 0) {
     if (hit.id === 14) { showName(L.bedrock); return; }
     setBlock(hit.x, hit.y, hit.z, 0);
+    questEvent('break', hit.id);
     sound('break');
   } else if (e.button === 2) {
     const px = hit.x + hit.fx, py = hit.y + hit.fy, pz = hit.z + hit.fz;
@@ -601,6 +653,7 @@ canvas.addEventListener('mousedown', function (e) {
         pz + 1 > p.z - P_HALF && pz < p.z + P_HALF &&
         py + 1 > p.y && py < p.y + P_H) return; // 자기 몸 위치엔 설치 금지
     setBlock(px, py, pz, HOTBAR[sel]);
+    questEvent('place');
     sound('place');
   }
 });
@@ -619,7 +672,7 @@ overlay.addEventListener('click', function () {
 });
 document.addEventListener('pointerlockchange', function () {
   locked = document.pointerLockElement === canvas;
-  overlay.style.display = locked ? 'none' : 'flex';
+  overlay.style.display = (locked || dead) ? 'none' : 'flex';
   if (!locked) for (const k in keys) keys[k] = false;
 });
 document.getElementById('newBtn').addEventListener('click', function (e) {
@@ -627,6 +680,7 @@ document.getElementById('newBtn').addEventListener('click', function (e) {
   if (!confirm(L.confirmNew)) return;
   localStorage.removeItem('mcw_seed');
   localStorage.removeItem('mcw_edits');
+  localStorage.removeItem('mcw_quests');
   location.reload();
 });
 addEventListener('resize', function () {
@@ -671,8 +725,8 @@ function selectSlot(i) {
 
 /* ===== 낮밤 ===== */
 let dayT = 0.2; // 아침부터 시작
-function updateDayNight(dt) {
-  dayT = (dayT + dt / 240) % 1; // 4분 = 하루
+function updateDayNight(dt, advance) {
+  if (advance) dayT = (dayT + dt / 240) % 1; // 4분 = 하루 (메뉴·사망 중엔 정지)
   const s = Math.sin(dayT * Math.PI * 2);
   const f = Math.max(0, Math.min(1, s * 1.4 + 0.1));
   skyColor.copy(NIGHT_SKY).lerp(DAY_SKY, f);
@@ -697,10 +751,555 @@ function updateClouds(dt) {
   }
 }
 
+/* ============================================================
+   서바이벌: 체력 / 몬스터 / 보스 / 도전과제
+   ============================================================ */
+
+/* ===== 체력 ===== */
+let hp = 20, lastHurtT = -99, dead = false, regenT = 0, tSec = 0;
+player.kbx = 0; player.kbz = 0;
+const heartsEl = document.getElementById('hearts');
+function updateHearts() {
+  let s = '';
+  for (let i = 0; i < 10; i++) {
+    const v = hp - i * 2;
+    s += v >= 2 ? '❤️' : (v === 1 ? '💔' : '🖤');
+  }
+  heartsEl.textContent = s;
+}
+function damagePlayer(n, sx, sz) {
+  if (dead || player.fly) return;          // 비행 = 크리에이티브 무적
+  if (tSec - lastHurtT < 0.5) return;      // 피격 무적시간
+  lastHurtT = tSec;
+  hp = Math.max(0, hp - n);
+  if (window._TEST) console.warn('[TEST] dmg=' + n + ' hp=' + hp);
+  updateHearts();
+  const vg = document.getElementById('vignette');
+  vg.style.opacity = '1';
+  setTimeout(function () { vg.style.opacity = '0'; }, 130);
+  if (sx !== undefined) {                  // 넉백
+    const dx = player.pos.x - sx, dz = player.pos.z - sz;
+    const dl = Math.hypot(dx, dz) || 1;
+    player.kbx = dx / dl * 7; player.kbz = dz / dl * 7;
+    if (player.onGround) player.vel.y = 4.5;
+  }
+  sound('hurt');
+  if (hp <= 0) die();
+}
+function die() {
+  dead = true;
+  document.getElementById('deathTitle').textContent = L.youDied;
+  document.getElementById('respawnBtn').textContent = L.respawn;
+  document.getElementById('death').style.display = 'flex';
+  document.exitPointerLock();
+}
+document.getElementById('respawnBtn').addEventListener('click', function () {
+  player.pos.copy(spawnPoint);
+  player.vel.set(0, 0, 0);
+  player.kbx = 0; player.kbz = 0;
+  hp = 20; dead = false; lastHurtT = tSec;
+  updateHearts();
+  document.getElementById('death').style.display = 'none';
+  try { canvas.requestPointerLock(); } catch (e) {}
+});
+
+/* ===== 도전과제 ===== */
+const QUEST_DEFS = [
+  { id: 'wood', target: 1 }, { id: 'stone', target: 10 },
+  { id: 'place', target: 50 }, { id: 'iron', target: 1 },
+  { id: 'kill', target: 1 }, { id: 'types', target: 7 },
+  { id: 'night', target: 1 }, { id: 'boss', target: 1 }
+];
+let quest = { wood: 0, stone: 0, place: 0, iron: 0, kill: 0, types: {}, night: 0, boss: 0, done: {} };
+try {
+  const q = JSON.parse(localStorage.getItem('mcw_quests') || 'null');
+  if (q && q.done) quest = q;
+} catch (e) {}
+function questVal(id) { return id === 'types' ? Object.keys(quest.types).length : quest[id]; }
+function saveQuests() { try { localStorage.setItem('mcw_quests', JSON.stringify(quest)); } catch (e) {} }
+function toast(msg) {
+  const d = document.createElement('div');
+  d.className = 'toastmsg';
+  d.textContent = msg;
+  document.getElementById('toasts').appendChild(d);
+  setTimeout(function () { d.remove(); }, 4200);
+}
+function renderQuests() {
+  let h = '<h3>' + L.questsTitle + '</h3>';
+  for (let i = 0; i < QUEST_DEFS.length; i++) {
+    const q = QUEST_DEFS[i];
+    const v = Math.min(questVal(q.id), q.target);
+    h += '<div class="qrow' + (quest.done[q.id] ? ' qdone' : '') + '">' +
+      (quest.done[q.id] ? '✅' : '⬜') + ' ' + L.qs[q.id] +
+      (q.target > 1 ? ' <em>' + v + '/' + q.target + '</em>' : '') + '</div>';
+  }
+  document.getElementById('quests').innerHTML = h;
+}
+function questCheck() {
+  for (let i = 0; i < QUEST_DEFS.length; i++) {
+    const q = QUEST_DEFS[i];
+    if (!quest.done[q.id] && questVal(q.id) >= q.target) {
+      quest.done[q.id] = 1;
+      toast('🏆 ' + L.questDone + ': ' + L.qs[q.id]);
+      sound('chime');
+    }
+  }
+  saveQuests();
+  renderQuests();
+}
+function questEvent(kind, a) {
+  if (kind === 'break') {
+    if (a === 5) quest.wood++;
+    else if (a === 3 || a === 9) quest.stone++;
+    else if (a === 12) quest.iron++;
+  } else if (kind === 'place') quest.place++;
+  else if (kind === 'kill') {
+    quest.kill++;
+    if (a === 'MENEW') quest.boss = 1; else quest.types[a] = 1;
+  } else if (kind === 'night') quest.night++;
+  questCheck();
+}
+
+/* ===== 몬스터 ===== */
+const MOB_DEFS = {
+  NODUCK: { hp: 12, spd: 2.0, dmg: 2, w: 0.7, h: 1.0, ranged: true, shootCd: 2.4, aggro: 26 },
+  SEOJB:  { hp: 16, spd: 3.1, dmg: 3, w: 0.6, h: 1.8, aggro: 24 },
+  KS:     { hp: 10, spd: 4.3, dmg: 2, w: 0.6, h: 1.4, aggro: 26 },
+  JW:     { hp: 40, spd: 1.7, dmg: 4, w: 0.8, h: 2.1, aggro: 22 },
+  DS:     { hp: 12, spd: 3.0, dmg: 0, w: 0.6, h: 1.7, creeper: true, aggro: 24 },
+  IW:     { hp: 14, spd: 3.4, dmg: 2, w: 0.9, h: 0.9, slime: true, aggro: 22 },
+  KJ:     { hp: 14, spd: 2.6, dmg: 3, w: 0.6, h: 2.3, tp: true, aggro: 30 },
+  MENEW:  { hp: 200, spd: 2.5, dmg: 6, w: 1.0, h: 3.1, boss: true, ranged: true, shootCd: 2.8, aggro: 70 }
+};
+const REGULARS = ['NODUCK', 'SEOJB', 'KS', 'JW', 'DS', 'IW', 'KJ'];
+const MOB_COLORS = {
+  NODUCK: [0xf7d63e, 0xffffff, 0xf29e38],
+  SEOJB:  [0x4e9a3c, 0x2c4f8a, 0x3a6b2e],
+  KS:     [0xc03030, 0x1d1d1d, 0x902020],
+  JW:     [0x9a9a9a, 0x707070, 0x555555],
+  DS:     [0x4fae3f, 0x3c8a30, 0x2f6d26],
+  IW:     [0x6fd44f, 0x4fae3f, 0x3c8a30],
+  KJ:     [0x1a1a22, 0x2a2a36, 0x8b4fd4],
+  MENEW:  [0x8a1f2d, 0xd4a72c, 0x5c1420]
+};
+const mobs = [], projectiles = [], fx = [];
+let bossMob = null, nights = 0, spawnTimer = 0, wasNight = false, nightLived = false;
+
+function makeNameTag(name, boss) {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 64;
+  const g = c.getContext('2d');
+  g.font = 'bold 40px Menlo, monospace';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.lineWidth = 8; g.strokeStyle = 'rgba(0,0,0,0.85)';
+  g.strokeText(name, 128, 32);
+  g.fillStyle = boss ? '#ff5555' : '#ffffff';
+  g.fillText(name, 128, 32);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true }));
+  s.scale.set(boss ? 3 : 1.7, boss ? 0.75 : 0.42, 1);
+  return s;
+}
+
+function buildMobBody(type) {
+  const d = MOB_DEFS[type];
+  const C = MOB_COLORS[type];
+  const group = new THREE.Group();
+  const mats = [];
+  function box(w, h, dep, color, x, y, z) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, dep), new THREE.MeshLambertMaterial({ color: color }));
+    m.position.set(x, y, z);
+    group.add(m); mats.push(m.material);
+    return m;
+  }
+  if (d.slime) {                       // IW: 슬라임 큐브
+    box(d.w, d.h, d.w, C[0], 0, d.h / 2, 0);
+    box(0.12, 0.12, 0.06, 0x111111, -0.18, d.h * 0.62, d.w / 2);
+    box(0.12, 0.12, 0.06, 0x111111, 0.18, d.h * 0.62, d.w / 2);
+  } else if (type === 'NODUCK') {      // 오리형 원거리
+    box(0.55, 0.45, 0.8, C[0], 0, 0.5, 0);
+    box(0.34, 0.34, 0.34, C[1], 0, 0.88, 0.28);
+    box(0.16, 0.1, 0.22, C[2], 0, 0.84, 0.55);
+    box(0.1, 0.28, 0.1, C[2], -0.14, 0.14, 0);
+    box(0.1, 0.28, 0.1, C[2], 0.14, 0.14, 0);
+    box(0.05, 0.05, 0.05, 0x111111, -0.1, 0.96, 0.46);
+    box(0.05, 0.05, 0.05, 0x111111, 0.1, 0.96, 0.46);
+  } else {                             // 휴머노이드
+    const legH = d.h * 0.4, bodyH = d.h * 0.35, headS = d.h * 0.25;
+    const bw = d.w * 0.9;
+    box(bw * 0.4, legH, bw * 0.4, C[2], -bw * 0.22, legH / 2, 0);
+    box(bw * 0.4, legH, bw * 0.4, C[2], bw * 0.22, legH / 2, 0);
+    box(bw, bodyH, bw * 0.55, C[1], 0, legH + bodyH / 2, 0);
+    box(headS, headS, headS, C[0], 0, legH + bodyH + headS / 2, 0);
+    if (!d.creeper) {
+      box(bw * 0.3, bodyH, bw * 0.3, C[0], -bw * 0.68, legH + bodyH / 2, 0);
+      box(bw * 0.3, bodyH, bw * 0.3, C[0], bw * 0.68, legH + bodyH / 2, 0);
+    }
+    const ec = d.tp ? 0xc084ff : (d.boss ? 0xffd24a : 0x111111);
+    box(headS * 0.2, headS * 0.14, 0.04, ec, -headS * 0.22, legH + bodyH + headS * 0.6, headS / 2);
+    box(headS * 0.2, headS * 0.14, 0.04, ec, headS * 0.22, legH + bodyH + headS * 0.6, headS / 2);
+    if (d.creeper) box(headS * 0.3, headS * 0.3, 0.04, 0x111111, 0, legH + bodyH + headS * 0.25, headS / 2);
+    if (d.boss) box(headS * 1.05, headS * 0.22, headS * 1.05, C[1], 0, legH + bodyH + headS * 1.12, 0); // 왕관
+  }
+  const tag = makeNameTag(type, !!d.boss);
+  tag.position.y = d.h + (d.boss ? 0.8 : 0.45);
+  group.add(tag);
+  return { group: group, mats: mats };
+}
+
+function updateBossBar() {
+  const bb = document.getElementById('bossbar');
+  if (!bossMob) { bb.style.display = 'none'; return; }
+  bb.style.display = 'block';
+  document.getElementById('bossfill').style.width =
+    Math.max(0, bossMob.hp / bossMob.def.hp * 100) + '%';
+}
+
+function spawnMob(type, x, y, z) {
+  const d = MOB_DEFS[type];
+  const b = buildMobBody(type);
+  scene.add(b.group);
+  const m = {
+    type: type, def: d, group: b.group, mats: b.mats,
+    pos: new THREE.Vector3(x, y, z), vel: new THREE.Vector3(),
+    hp: d.hp, onGround: false, hurtT: 0, dying: 0, credit: false,
+    atkCd: 0, shootT: 1 + Math.random() * 2, fuse: -1,
+    tpT: 3 + Math.random() * 3, wanderT: 0, wx: 0, wz: 0
+  };
+  mobs.push(m);
+  if (d.boss) { bossMob = m; updateBossBar(); toast(L.bossNear); sound('boom'); }
+  return m;
+}
+
+function surfaceAt(x, z) {
+  for (let y = WH - 1; y >= 1; y--) {
+    const b = getBlock(x, y, z);
+    if (b === 7) return -1;   // 수면 위 스폰 금지
+    if (b !== 0) return y + 1;
+  }
+  return -1;
+}
+
+function spawnNear(type, dist) {
+  const a = Math.random() * Math.PI * 2;
+  const x = Math.floor(player.pos.x + Math.cos(a) * dist) + 0.5;
+  const z = Math.floor(player.pos.z + Math.sin(a) * dist) + 0.5;
+  const y = surfaceAt(Math.floor(x), Math.floor(z));
+  if (y < 0) return null;
+  return spawnMob(type, x, y + 0.01, z);
+}
+
+function removeMob(m) {
+  scene.remove(m.group);
+  m.group.traverse(function (o) {
+    if (o.geometry) o.geometry.dispose();
+    if (o.material) { if (o.material.map) o.material.map.dispose(); o.material.dispose(); }
+  });
+  const i = mobs.indexOf(m);
+  if (i >= 0) mobs.splice(i, 1);
+  if (m === bossMob) { bossMob = null; updateBossBar(); }
+}
+
+function killMob(m) {
+  if (m.dying) return;
+  m.dying = 0.001;
+  if (m.credit) {
+    questEvent('kill', m.type);
+    if (m.def.boss) { toast(L.bossDown); sound('chime'); }
+  }
+  sound('poof');
+}
+
+function hurtMob(m, n, dx, dz) {
+  if (m.dying) return;
+  m.hp -= n; m.hurtT = 0.18; m.credit = true;
+  for (let i = 0; i < m.mats.length; i++) m.mats[i].emissive.setHex(0xaa2222);
+  const dl = Math.hypot(dx, dz) || 1;
+  m.vel.x += dx / dl * 6; m.vel.z += dz / dl * 6;
+  if (m.onGround) m.vel.y = 5;
+  if (m.def.boss) updateBossBar();
+  if (m.hp <= 0) killMob(m);
+}
+
+const _ray = new THREE.Ray();
+const _v1 = new THREE.Vector3(), _v2 = new THREE.Vector3();
+function pickMob(maxD) {
+  camera.getWorldDirection(_dir);
+  _ray.origin.copy(camera.position);
+  _ray.direction.copy(_dir);
+  let best = null, bestT = maxD;
+  for (let i = 0; i < mobs.length; i++) {
+    const m = mobs[i];
+    if (m.dying) continue;
+    _v1.set(m.pos.x, m.pos.y + m.def.h * 0.55, m.pos.z);
+    _v2.copy(_v1).sub(_ray.origin);
+    const t = _v2.dot(_ray.direction);
+    if (t < 0 || t > bestT) continue;
+    const perp = _v2.addScaledVector(_ray.direction, -t).length();
+    if (perp < Math.max(m.def.w, m.def.h * 0.5) * 0.8 + 0.25) { best = m; bestT = t; }
+  }
+  return best;
+}
+
+function shoot(m, dmg) {
+  _v1.set(m.pos.x, m.pos.y + m.def.h * 0.8, m.pos.z);
+  _v2.set(player.pos.x, player.pos.y + 1.3, player.pos.z).sub(_v1).normalize();
+  const mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(m.def.boss ? 0.24 : 0.14, 6, 6),
+    new THREE.MeshBasicMaterial({ color: m.def.boss ? 0xff5533 : 0xffffff })
+  );
+  mesh.position.copy(_v1);
+  scene.add(mesh);
+  projectiles.push({ mesh: mesh, vel: _v2.clone().multiplyScalar(13), ttl: 5, dmg: dmg });
+  sound('shoot');
+}
+
+function explode(m) {
+  const cx = m.pos.x, cy = m.pos.y + 0.8, cz = m.pos.z;
+  const pd = Math.hypot(player.pos.x - cx, player.pos.y + 0.9 - cy, player.pos.z - cz);
+  if (pd < 5) damagePlayer(Math.round(11 * (1 - pd / 5)) + 1, cx, cz);
+  const touched = new Set(), r = 2.5;
+  for (let x = Math.floor(cx - r); x <= Math.floor(cx + r); x++)
+    for (let y = Math.max(1, Math.floor(cy - r)); y <= Math.min(WH - 1, Math.floor(cy + r)); y++)
+      for (let z = Math.floor(cz - r); z <= Math.floor(cz + r); z++) {
+        const ddx = x + 0.5 - cx, ddy = y + 0.5 - cy, ddz = z + 0.5 - cz;
+        if (ddx * ddx + ddy * ddy + ddz * ddz > r * r) continue;
+        const b = getBlock(x, y, z);
+        if (b === 0 || b === 7 || b === 14) continue;
+        setBlockData(x, y, z, 0, touched);
+      }
+  saveEdits();
+  touched.forEach(function (k) { const p = k.split(','); buildChunkMesh(+p[0], +p[1]); });
+  const s = new THREE.Mesh(
+    new THREE.SphereGeometry(1, 10, 10),
+    new THREE.MeshBasicMaterial({ color: 0xffcc66, transparent: true, opacity: 0.9 })
+  );
+  s.position.set(cx, cy, cz);
+  scene.add(s);
+  fx.push({ mesh: s, t: 0 });
+  sound('boom');
+  removeMob(m);
+}
+
+function mobMove(m, dt) {
+  const d = m.def, half = d.w / 2;
+  m.vel.y -= 24 * dt;
+  if (m.vel.y < -40) m.vel.y = -40;
+  let hitWall = false;
+  function overlap(cb) {
+    const x0 = Math.floor(m.pos.x - half), x1 = Math.floor(m.pos.x + half - EPS);
+    const y0 = Math.floor(m.pos.y), y1 = Math.floor(m.pos.y + d.h - EPS);
+    const z0 = Math.floor(m.pos.z - half), z1 = Math.floor(m.pos.z + half - EPS);
+    for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) for (let z = z0; z <= z1; z++)
+      if (isSolid(x, y, z)) cb(x, y, z);
+  }
+  m.pos.x += m.vel.x * dt;
+  overlap(function (x) {
+    if (m.vel.x > 0) m.pos.x = x - half - EPS; else if (m.vel.x < 0) m.pos.x = x + 1 + half + EPS;
+    m.vel.x = 0; hitWall = true;
+  });
+  m.pos.z += m.vel.z * dt;
+  overlap(function (x, y, z) {
+    if (m.vel.z > 0) m.pos.z = z - half - EPS; else if (m.vel.z < 0) m.pos.z = z + 1 + half + EPS;
+    m.vel.z = 0; hitWall = true;
+  });
+  m.onGround = false;
+  m.pos.y += m.vel.y * dt;
+  overlap(function (x, y) {
+    if (m.vel.y > 0) m.pos.y = y - d.h - EPS;
+    else if (m.vel.y < 0) { m.pos.y = y + 1 + EPS; m.onGround = true; }
+    m.vel.y = 0;
+  });
+  if (hitWall && m.onGround) m.vel.y = 8; // 한 칸 오토점프
+  if (m.pos.y < -10) removeMob(m);
+}
+
+function updateMobs(dt) {
+  const isNight = Math.sin(dayT * Math.PI * 2) <= 0;
+  // 밤낮 전환 이벤트
+  if (isNight && !wasNight) {
+    nights++; nightLived = true;
+    if (nights % 3 === 0 && !bossMob && !quest.done.boss) spawnNear('MENEW', 24);
+  } else if (!isNight && wasNight) {
+    if (nightLived && !dead) questEvent('night');
+    nightLived = false;
+  }
+  wasNight = isNight;
+  // 밤 스폰 (최대 9마리)
+  spawnTimer -= dt;
+  if (isNight && spawnTimer <= 0 && mobs.length < 9) {
+    spawnTimer = 2.5;
+    spawnNear(REGULARS[Math.floor(Math.random() * REGULARS.length)], 16 + Math.random() * 16);
+  }
+
+  for (let i = mobs.length - 1; i >= 0; i--) {
+    const m = mobs[i], d = m.def;
+    if (m.dying) {                        // 소멸 연출
+      m.dying += dt;
+      m.group.scale.setScalar(Math.max(0.01, 1 - m.dying * 4));
+      m.group.position.copy(m.pos);
+      if (m.dying > 0.25) removeMob(m);
+      continue;
+    }
+    if (m.hurtT > 0) {
+      m.hurtT -= dt;
+      if (m.hurtT <= 0) for (let j = 0; j < m.mats.length; j++) m.mats[j].emissive.setHex(0);
+    }
+    const dx = player.pos.x - m.pos.x, dz = player.pos.z - m.pos.z;
+    const dist = Math.hypot(dx, dz);
+    if (dist > 80) { removeMob(m); continue; }
+    // 낮에는 불타 소멸 (보스 제외)
+    if (!isNight && !d.boss) {
+      m.hp -= 3 * dt;
+      if (m.hurtT <= 0) for (let j = 0; j < m.mats.length; j++) m.mats[j].emissive.setHex(Math.random() < 0.5 ? 0x883300 : 0x000000);
+      if (m.hp <= 0) { m.credit = false; killMob(m); continue; }
+    }
+    m.atkCd -= dt;
+    const aggro = dist < d.aggro && !dead;
+    if (m.hurtT <= 0) {                   // 넉백 중엔 AI 정지
+      if (aggro) {
+        const dl = dist || 1;
+        if (d.slime) {                    // IW: 점프 이동
+          if (m.onGround) {
+            m.vel.x = 0; m.vel.z = 0;
+            if (m.atkCd <= 0.5) {
+              m.vel.y = 7.5;
+              m.vel.x = dx / dl * d.spd; m.vel.z = dz / dl * d.spd;
+            }
+          }
+        } else if (d.creeper && dist < 3) { // DS: 자폭 퓨즈
+          m.vel.x = 0; m.vel.z = 0;
+          if (m.fuse < 0) { m.fuse = 1.4; sound('fuse'); }
+        } else if (d.ranged && dist < 9) { // 원거리형: 거리 유지
+          m.vel.x = -dx / dl * d.spd * 0.6; m.vel.z = -dz / dl * d.spd * 0.6;
+        } else {
+          m.vel.x = dx / dl * d.spd; m.vel.z = dz / dl * d.spd;
+        }
+        // 근접 공격
+        if (!d.creeper && dist < d.w / 2 + 1.25 && m.atkCd <= 0 &&
+            Math.abs(player.pos.y - m.pos.y) < 2.5) {
+          m.atkCd = 1.1;
+          damagePlayer(d.dmg, m.pos.x, m.pos.z);
+        }
+        // 원거리 공격
+        if (d.ranged) {
+          m.shootT -= dt;
+          if (m.shootT <= 0 && dist > 4 && dist < 40) { m.shootT = d.shootCd; shoot(m, d.boss ? 4 : 2); }
+        }
+        // KJ: 순간이동
+        if (d.tp) {
+          m.tpT -= dt;
+          if (m.tpT <= 0) {
+            m.tpT = 4 + Math.random() * 3;
+            const a2 = Math.random() * Math.PI * 2, r2 = 2.5 + Math.random() * 3;
+            const tx = Math.floor(player.pos.x + Math.cos(a2) * r2) + 0.5;
+            const tz = Math.floor(player.pos.z + Math.sin(a2) * r2) + 0.5;
+            const ty = surfaceAt(Math.floor(tx), Math.floor(tz));
+            if (ty > 0) { m.pos.set(tx, ty + 0.01, tz); m.vel.set(0, 0, 0); sound('tp'); }
+          }
+        }
+      } else {                            // 배회
+        m.wanderT -= dt;
+        if (m.wanderT <= 0) {
+          m.wanderT = 2 + Math.random() * 3;
+          const a3 = Math.random() * Math.PI * 2;
+          if (Math.random() < 0.4) { m.wx = 0; m.wz = 0; }
+          else { m.wx = Math.cos(a3); m.wz = Math.sin(a3); }
+        }
+        if (!d.slime) { m.vel.x = m.wx * d.spd * 0.35; m.vel.z = m.wz * d.spd * 0.35; }
+        else if (m.onGround) { m.vel.x = 0; m.vel.z = 0; }
+      }
+    }
+    // 퓨즈 카운트다운
+    if (m.fuse >= 0) {
+      m.fuse -= dt;
+      for (let j = 0; j < m.mats.length; j++) m.mats[j].emissive.setHex((m.fuse * 8 | 0) % 2 ? 0xffffff : 0x000000);
+      if (m.fuse <= 0) { explode(m); continue; }
+    }
+    mobMove(m, dt);
+    m.group.position.copy(m.pos);
+    m.group.rotation.y = Math.atan2(dx, dz);
+  }
+  if (window._TEST) {
+    window._logT = (window._logT || 0) + dt;
+    if (window._logT > 1) {
+      window._logT = 0;
+      let md = 1e9, mt = '-';
+      for (let i = 0; i < mobs.length; i++) {
+        const d2 = Math.hypot(player.pos.x - mobs[i].pos.x, player.pos.z - mobs[i].pos.z);
+        if (d2 < md) { md = d2; mt = mobs[i].type; }
+      }
+      console.warn('[TEST] mobs=' + mobs.length + ' nearest=' + mt + ' ' + md.toFixed(2) + ' hp=' + hp);
+    }
+  }
+}
+
+function updateProjectiles(dt) {
+  for (let i = projectiles.length - 1; i >= 0; i--) {
+    const p = projectiles[i];
+    p.ttl -= dt;
+    p.vel.y -= 3 * dt;
+    p.mesh.position.addScaledVector(p.vel, dt);
+    const mp = p.mesh.position;
+    let gone = p.ttl <= 0 || isSolid(Math.floor(mp.x), Math.floor(mp.y), Math.floor(mp.z));
+    if (!gone && !dead) {
+      const dx = mp.x - player.pos.x, dy = mp.y - (player.pos.y + 0.9), dz = mp.z - player.pos.z;
+      if (dx * dx + dy * dy + dz * dz < 0.85) { damagePlayer(p.dmg, mp.x, mp.z); gone = true; }
+    }
+    if (gone) {
+      scene.remove(p.mesh); p.mesh.geometry.dispose(); p.mesh.material.dispose();
+      projectiles.splice(i, 1);
+    }
+  }
+  for (let i = fx.length - 1; i >= 0; i--) {
+    const f = fx[i];
+    f.t += dt;
+    f.mesh.scale.setScalar(1 + f.t * 9);
+    f.mesh.material.opacity = Math.max(0, 0.9 - f.t * 2.4);
+    if (f.t > 0.4) {
+      scene.remove(f.mesh); f.mesh.geometry.dispose(); f.mesh.material.dispose();
+      fx.splice(i, 1);
+    }
+  }
+}
+
 /* ===== 메인 루프 ===== */
-player.pos.copy(findSpawn());
+const spawnPoint = findSpawn();
+player.pos.copy(spawnPoint);
 dataAt(Math.floor(player.pos.x / CHUNK), Math.floor(player.pos.z / CHUNK));
 selectSlot(0);
+updateHearts();
+renderQuests();
+
+// 헤드리스 검증용 테스트 모드 (?test=1): 밤 + 몹 전체 소환
+if (new URLSearchParams(location.search).has('test')) {
+  window._TEST = true;
+  setTimeout(function () {
+    console.warn('[TEST] init start');
+    overlay.style.display = 'none';
+    locked = true;
+    dayT = 0.62; // 밤
+    for (let i = 0; i < REGULARS.length; i++) {
+      const x = player.pos.x + (i - 3) * 2.4;
+      const z = player.pos.z - 7 - (i % 2) * 2;
+      const y = surfaceAt(Math.floor(x), Math.floor(z));
+      if (y > 0) spawnMob(REGULARS[i], x, y + 0.01, z);
+    }
+    const by = surfaceAt(Math.floor(player.pos.x), Math.floor(player.pos.z - 13));
+    if (by > 0) spawnMob('MENEW', player.pos.x, by + 0.01, player.pos.z - 13);
+    console.warn('[TEST] spawned mobs=' + mobs.length);
+    // ?test=sim → 10초 분량 전투를 동기 시뮬레이션 (헤드리스 검증용)
+    if (new URLSearchParams(location.search).get('test') === 'sim') {
+      for (let k = 0; k < 600; k++) {
+        tSec += 1 / 60;
+        physics(1 / 60);
+        updateMobs(1 / 60);
+        updateProjectiles(1 / 60);
+      }
+      console.warn('[TEST] after sim: hp=' + hp + ' mobs=' + mobs.length +
+        ' dead=' + dead + ' projectiles=' + projectiles.length);
+    }
+  }, 1200);
+}
 
 let last = performance.now(), fps = 60;
 function tick(now) {
@@ -708,13 +1307,22 @@ function tick(now) {
   let dt = Math.min((now - last) / 1000, 0.1);
   last = now;
   fps = fps * 0.95 + (1 / Math.max(dt, 1e-4)) * 0.05;
+  tSec += dt;
+  const playing = locked && !dead;
 
   updateChunks();
 
-  if (locked) {
+  if (playing) {
     const steps = Math.max(1, Math.ceil(dt / 0.0167));
     const sub = dt / steps;
     for (let i = 0; i < steps; i++) physics(sub);
+    updateMobs(dt);
+    updateProjectiles(dt);
+    // 자연 회복 (8초간 무피격 시)
+    if (hp < 20 && tSec - lastHurtT > 8) {
+      regenT += dt;
+      if (regenT >= 1.6) { regenT = 0; hp = Math.min(20, hp + 1); updateHearts(); }
+    }
   }
 
   camera.position.set(player.pos.x, player.pos.y + EYE, player.pos.z);
@@ -727,7 +1335,7 @@ function tick(now) {
     highlight.visible = true;
   } else highlight.visible = false;
 
-  updateDayNight(dt);
+  updateDayNight(dt, playing);
   updateClouds(dt);
 
   const p = player.pos;

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>MENEW SOFT — Voxel World</title>
+<title>MENEW CRAFT — Voxel World</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: #000;
@@ -18,7 +18,7 @@
   #info { position: fixed; left: 10px; top: 8px; color: #fff; font-size: 12px;
     text-shadow: 1px 1px 0 rgba(0,0,0,.8); pointer-events: none; z-index: 5;
     font-family: Menlo, monospace; }
-  #itemname { position: fixed; left: 50%; bottom: 86px; transform: translateX(-50%);
+  #itemname { position: fixed; left: 50%; bottom: 112px; transform: translateX(-50%);
     color: #fff; font-size: 15px; font-weight: bold; text-shadow: 1px 1px 0 rgba(0,0,0,.85);
     opacity: 0; transition: opacity .4s; pointer-events: none; z-index: 5; }
   #hotbar { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
@@ -56,16 +56,55 @@
 
   #err { display: none; position: fixed; left: 10px; bottom: 10px; z-index: 99;
     color: #fff; background: #b32; padding: 8px 12px; border-radius: 6px; font-size: 13px; }
+
+  /* 서바이벌 HUD */
+  #hearts { position: fixed; left: 50%; bottom: 72px; transform: translateX(-50%);
+    z-index: 5; pointer-events: none; font-size: 17px; letter-spacing: 1px;
+    text-shadow: 0 0 3px #000; }
+  #bossbar { display: none; position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+    width: min(520px, 70vw); z-index: 6; text-align: center; pointer-events: none; }
+  #bossbar .bname { color: #ff6b6b; font-weight: 900; letter-spacing: 4px; font-size: 15px;
+    text-shadow: 1px 1px 0 #000; }
+  #bossbar .btrack { height: 10px; border: 2px solid rgba(0,0,0,.7); border-radius: 6px;
+    background: rgba(0,0,0,.5); margin-top: 4px; overflow: hidden; }
+  #bossfill { height: 100%; width: 100%; background: linear-gradient(#ff5050, #a01020); }
+  #vignette { position: fixed; inset: 0; pointer-events: none; z-index: 8; opacity: 0;
+    transition: opacity .25s; box-shadow: inset 0 0 130px rgba(255,0,0,.75); }
+  #toasts { position: fixed; top: 16px; right: 16px; z-index: 9; display: flex;
+    flex-direction: column; gap: 8px; pointer-events: none; align-items: flex-end; }
+  .toastmsg { background: rgba(0,0,0,.75); color: #ffe957; border: 1px solid #ffe957;
+    padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: bold;
+    animation: tin .3s ease; }
+  @keyframes tin { from { transform: translateX(40px); opacity: 0; } }
+  #quests { display: none; position: fixed; right: 14px; top: 60px; z-index: 7;
+    background: rgba(0,0,0,.72); color: #eee; padding: 14px 18px; border-radius: 10px;
+    font-size: 13px; line-height: 1.9; min-width: 250px; }
+  #quests h3 { color: #ffe957; font-size: 14px; margin-bottom: 6px; }
+  #quests .qrow em { color: #9ac; font-style: normal; }
+  #quests .qdone { color: #8f8; }
+  #death { display: none; position: fixed; inset: 0; z-index: 30; background: rgba(90,0,0,.62);
+    flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
+  #death h2 { color: #fff; font-size: 44px; letter-spacing: 4px;
+    text-shadow: 3px 3px 0 rgba(0,0,0,.6); }
+  #death button { padding: 14px 34px; font-size: 17px; font-weight: bold; cursor: pointer;
+    color: #fff; background: #3d8527; border: 2px solid #1e4712; border-bottom-width: 5px;
+    border-radius: 4px; font-family: inherit; }
 </style>
 </head>
 <body>
   <div id="cross">+</div>
   <div id="info"></div>
   <div id="itemname"></div>
+  <div id="hearts"></div>
   <div id="hotbar"></div>
+  <div id="bossbar"><div class="bname">MENEW</div><div class="btrack"><div id="bossfill"></div></div></div>
+  <div id="vignette"></div>
+  <div id="toasts"></div>
+  <div id="quests"></div>
+  <div id="death"><h2 id="deathTitle"></h2><button id="respawnBtn"></button></div>
 
   <div id="overlay">
-    <h1>MENEW SOFT<span>VOXEL WORLD</span></h1>
+    <h1>MENEW CRAFT<span>VOXEL WORLD</span></h1>
     <div class="btns">
       <button id="playBtn"></button>
       <button id="newBtn"></button>
