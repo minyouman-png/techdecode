@@ -17,7 +17,7 @@ window.onerror = function (msg, src, line) {
 const I18N = {
   en: {
     play: '▶ Play', newWorld: '🌍 New World',
-    help: '<b>W A S D</b> Move &nbsp;&nbsp; <b>Mouse</b> Look &nbsp;&nbsp; <b>Space</b> Jump · Swim<br><b>Left click</b> Break / Attack &nbsp;&nbsp; <b>Right click</b> Place block<br><b>1–9 / Wheel</b> Select block &nbsp;&nbsp; <b>Shift</b> Sprint &nbsp;&nbsp; <b>F</b> Fly (Space↑ C↓)<br><b>Q</b> Quests &nbsp;&nbsp; <b>ESC</b> Menu',
+    help: '<b>W A S D</b> Move &nbsp;&nbsp; <b>Mouse</b> Look &nbsp;&nbsp; <b>Space</b> Jump · Swim<br><b>Left click</b> Break / Attack &nbsp;&nbsp; <b>Right click</b> Place block<br><b>1–9 / Wheel</b> Select block &nbsp;&nbsp; <b>Shift</b> Sprint &nbsp;&nbsp; <b>F</b> Fly (Space↑ C↓)<br><b>E</b> Weapon &nbsp;&nbsp; <b>Q</b> Quests &nbsp;&nbsp; <b>ESC</b> Menu',
     tip: 'Click the screen to start · Your builds are saved automatically in this browser',
     credit: 'An indie game built 100% with AI · July 2026 · ',
     flyOn: '✈️ Fly mode ON (Space↑ / C↓)', flyOff: 'Fly mode OFF',
@@ -27,6 +27,8 @@ const I18N = {
     youDied: 'You Died!', respawn: 'Respawn',
     expSave: '\ud83d\udcbe Export Save', impSave: '\ud83d\udcc2 Import Save',
     impConfirm: 'Overwrite your current world with this save file?',
+    toolHand: '\u270b Hand (blocks)', toolSword: '\u2694\ufe0f Sword', toolBow: '\ud83c\udff9 Bow',
+    titleLabel: 'Title', noTitle: 'None yet', doneLabel: 'Completed', todoLabel: 'In progress', titleGet: '\ud83c\udfc5 New title',
     impErr: 'Not a valid MENEW CRAFT save file', expDone: 'Save file downloaded',
     bossNear: '\u26a0\ufe0f Boss MENEW has appeared!', bossDown: '\ud83c\udfc6 MENEW has been defeated!',
     questsTitle: 'Quests (Q)', questDone: 'Quest complete',
@@ -35,7 +37,7 @@ const I18N = {
   },
   ko: {
     play: '▶ 게임 시작', newWorld: '🌍 새 세계 만들기',
-    help: '<b>W A S D</b> 이동 &nbsp;&nbsp; <b>마우스</b> 시점 &nbsp;&nbsp; <b>Space</b> 점프·수영<br><b>좌클릭</b> 부수기·공격 &nbsp;&nbsp; <b>우클릭</b> 블록 설치<br><b>1~9 / 휠</b> 블록 선택 &nbsp;&nbsp; <b>Shift</b> 달리기 &nbsp;&nbsp; <b>F</b> 비행 (Space↑ C↓)<br><b>Q</b> 도전과제 &nbsp;&nbsp; <b>ESC</b> 메뉴',
+    help: '<b>W A S D</b> 이동 &nbsp;&nbsp; <b>마우스</b> 시점 &nbsp;&nbsp; <b>Space</b> 점프·수영<br><b>좌클릭</b> 부수기·공격 &nbsp;&nbsp; <b>우클릭</b> 블록 설치<br><b>1~9 / 휠</b> 블록 선택 &nbsp;&nbsp; <b>Shift</b> 달리기 &nbsp;&nbsp; <b>F</b> 비행 (Space↑ C↓)<br><b>E</b> 무기 전환 &nbsp;&nbsp; <b>Q</b> 도전과제 &nbsp;&nbsp; <b>ESC</b> 메뉴',
     tip: '화면을 클릭하면 시작됩니다 · 만든 건물은 이 브라우저에 자동 저장됩니다',
     credit: 'AI로 100% 제작한 인디게임 · 2026년 7월 · ',
     flyOn: '✈️ 비행 모드 ON (Space↑ / C↓)', flyOff: '비행 모드 OFF',
@@ -45,6 +47,8 @@ const I18N = {
     youDied: '사망했습니다!', respawn: '다시 살아나기',
     expSave: '\ud83d\udcbe 세이브 내보내기', impSave: '\ud83d\udcc2 세이브 불러오기',
     impConfirm: '이 세이브 파일로 현재 세계를 덮어쓸까요?',
+    toolHand: '\u270b 손(블록)', toolSword: '\u2694\ufe0f 검', toolBow: '\ud83c\udff9 활',
+    titleLabel: '칭호', noTitle: '아직 없음', doneLabel: '완료', todoLabel: '진행 중', titleGet: '\ud83c\udfc5 새 칭호',
     impErr: '올바른 MENEW CRAFT 세이브 파일이 아닙니다', expDone: '세이브 파일이 다운로드되었습니다',
     bossNear: '\u26a0\ufe0f 보스 MENEW 출현!', bossDown: '\ud83c\udfc6 MENEW 처치 성공!',
     questsTitle: '도전과제 (Q)', questDone: '도전과제 달성',
@@ -53,7 +57,7 @@ const I18N = {
   },
   ja: {
     play: '▶ ゲーム開始', newWorld: '🌍 新しい世界',
-    help: '<b>W A S D</b> 移動 &nbsp;&nbsp; <b>マウス</b> 視点 &nbsp;&nbsp; <b>Space</b> ジャンプ·水泳<br><b>左クリック</b> 破壊·攻撃 &nbsp;&nbsp; <b>右クリック</b> ブロック設置<br><b>1~9 / ホイール</b> ブロック選択 &nbsp;&nbsp; <b>Shift</b> ダッシュ &nbsp;&nbsp; <b>F</b> 飛行 (Space↑ C↓)<br><b>Q</b> 実績 &nbsp;&nbsp; <b>ESC</b> メニュー',
+    help: '<b>W A S D</b> 移動 &nbsp;&nbsp; <b>マウス</b> 視点 &nbsp;&nbsp; <b>Space</b> ジャンプ·水泳<br><b>左クリック</b> 破壊·攻撃 &nbsp;&nbsp; <b>右クリック</b> ブロック設置<br><b>1~9 / ホイール</b> ブロック選択 &nbsp;&nbsp; <b>Shift</b> ダッシュ &nbsp;&nbsp; <b>F</b> 飛行 (Space↑ C↓)<br><b>E</b> 武器切替 &nbsp;&nbsp; <b>Q</b> 実績 &nbsp;&nbsp; <b>ESC</b> メニュー',
     tip: '画面をクリックすると開始します · 建てたものはこのブラウザに自動保存されます',
     credit: 'AIだけで作られたインディーゲーム · 2026年7月 · ',
     flyOn: '✈️ 飛行モード ON (Space↑ / C↓)', flyOff: '飛行モード OFF',
@@ -63,6 +67,8 @@ const I18N = {
     youDied: '死んでしまった！', respawn: 'リスポーン',
     expSave: '\ud83d\udcbe セーブを書き出す', impSave: '\ud83d\udcc2 セーブを読み込む',
     impConfirm: 'このセーブファイルで現在の世界を上書きしますか？',
+    toolHand: '\u270b 素手(ブロック)', toolSword: '\u2694\ufe0f 剣', toolBow: '\ud83c\udff9 弓',
+    titleLabel: '称号', noTitle: 'まだなし', doneLabel: '達成済み', todoLabel: '進行中', titleGet: '\ud83c\udfc5 新しい称号',
     impErr: '正しいMENEW CRAFTのセーブファイルではありません', expDone: 'セーブファイルをダウンロードしました',
     bossNear: '\u26a0\ufe0f ボスMENEWが現れた！', bossDown: '\ud83c\udfc6 MENEWを倒した！',
     questsTitle: '実績 (Q)', questDone: '実績達成',
@@ -71,7 +77,7 @@ const I18N = {
   },
   es: {
     play: '▶ Jugar', newWorld: '🌍 Nuevo mundo',
-    help: '<b>W A S D</b> Moverse &nbsp;&nbsp; <b>Ratón</b> Mirar &nbsp;&nbsp; <b>Space</b> Saltar · Nadar<br><b>Clic izq.</b> Romper / Atacar &nbsp;&nbsp; <b>Clic der.</b> Colocar bloque<br><b>1–9 / Rueda</b> Elegir bloque &nbsp;&nbsp; <b>Shift</b> Correr &nbsp;&nbsp; <b>F</b> Volar (Space↑ C↓)<br><b>Q</b> Logros &nbsp;&nbsp; <b>ESC</b> Menú',
+    help: '<b>W A S D</b> Moverse &nbsp;&nbsp; <b>Ratón</b> Mirar &nbsp;&nbsp; <b>Space</b> Saltar · Nadar<br><b>Clic izq.</b> Romper / Atacar &nbsp;&nbsp; <b>Clic der.</b> Colocar bloque<br><b>1–9 / Rueda</b> Elegir bloque &nbsp;&nbsp; <b>Shift</b> Correr &nbsp;&nbsp; <b>F</b> Volar (Space↑ C↓)<br><b>E</b> Arma &nbsp;&nbsp; <b>Q</b> Logros &nbsp;&nbsp; <b>ESC</b> Menú',
     tip: 'Haz clic en la pantalla para empezar · Tus construcciones se guardan automáticamente en este navegador',
     credit: 'Un juego indie creado 100% con IA · Julio de 2026 · ',
     flyOn: '✈️ Modo vuelo ON (Space↑ / C↓)', flyOff: 'Modo vuelo OFF',
@@ -81,6 +87,8 @@ const I18N = {
     youDied: '¡Has muerto!', respawn: 'Reaparecer',
     expSave: '\ud83d\udcbe Exportar partida', impSave: '\ud83d\udcc2 Importar partida',
     impConfirm: '¿Sobrescribir tu mundo actual con esta partida guardada?',
+    toolHand: '\u270b Mano (bloques)', toolSword: '\u2694\ufe0f Espada', toolBow: '\ud83c\udff9 Arco',
+    titleLabel: 'Título', noTitle: 'Ninguno aún', doneLabel: 'Completados', todoLabel: 'En curso', titleGet: '\ud83c\udfc5 Nuevo título',
     impErr: 'No es un archivo de guardado válido de MENEW CRAFT', expDone: 'Partida descargada',
     bossNear: '\u26a0\ufe0f ¡El jefe MENEW ha aparecido!', bossDown: '\ud83c\udfc6 ¡MENEW derrotado!',
     questsTitle: 'Logros (Q)', questDone: 'Logro conseguido',
@@ -89,7 +97,7 @@ const I18N = {
   },
   zh: {
     play: '▶ 开始游戏', newWorld: '🌍 新世界',
-    help: '<b>W A S D</b> 移动 &nbsp;&nbsp; <b>鼠标</b> 视角 &nbsp;&nbsp; <b>Space</b> 跳跃·游泳<br><b>左键</b> 破坏·攻击 &nbsp;&nbsp; <b>右键</b> 放置方块<br><b>1~9 / 滚轮</b> 选择方块 &nbsp;&nbsp; <b>Shift</b> 奔跑 &nbsp;&nbsp; <b>F</b> 飞行 (Space↑ C↓)<br><b>Q</b> 成就 &nbsp;&nbsp; <b>ESC</b> 菜单',
+    help: '<b>W A S D</b> 移动 &nbsp;&nbsp; <b>鼠标</b> 视角 &nbsp;&nbsp; <b>Space</b> 跳跃·游泳<br><b>左键</b> 破坏·攻击 &nbsp;&nbsp; <b>右键</b> 放置方块<br><b>1~9 / 滚轮</b> 选择方块 &nbsp;&nbsp; <b>Shift</b> 奔跑 &nbsp;&nbsp; <b>F</b> 飞行 (Space↑ C↓)<br><b>E</b> 切换武器 &nbsp;&nbsp; <b>Q</b> 成就 &nbsp;&nbsp; <b>ESC</b> 菜单',
     tip: '点击屏幕开始 · 你的建筑会自动保存在此浏览器中',
     credit: '100% 由 AI 制作的独立游戏 · 2026年7月 · ',
     flyOn: '✈️ 飞行模式 ON (Space↑ / C↓)', flyOff: '飞行模式 OFF',
@@ -99,6 +107,8 @@ const I18N = {
     youDied: '你死了！', respawn: '重生',
     expSave: '\ud83d\udcbe 导出存档', impSave: '\ud83d\udcc2 导入存档',
     impConfirm: '用该存档覆盖当前世界？',
+    toolHand: '\u270b 徒手(方块)', toolSword: '\u2694\ufe0f 剑', toolBow: '\ud83c\udff9 弓',
+    titleLabel: '称号', noTitle: '暂无', doneLabel: '已完成', todoLabel: '进行中', titleGet: '\ud83c\udfc5 新称号',
     impErr: '不是有效的 MENEW CRAFT 存档文件', expDone: '存档已下载',
     bossNear: '\u26a0\ufe0f Boss MENEW 出现了！', bossDown: '\ud83c\udfc6 击败了 MENEW！',
     questsTitle: '成就 (Q)', questDone: '成就达成',
@@ -291,6 +301,156 @@ const highlight = new THREE.LineSegments(
 );
 highlight.visible = false;
 scene.add(highlight);
+
+/* ===== 1인칭 뷰모델 (손 + 무기) ===== */
+scene.add(camera); // 카메라 자식(손)을 렌더링하려면 필요
+const handGroup = new THREE.Group();
+camera.add(handGroup);
+const HAND_POS = { x: 0.42, y: -0.42, z: -0.72 };
+handGroup.position.set(HAND_POS.x, HAND_POS.y, HAND_POS.z);
+handGroup.scale.set(0.72, 0.72, 0.72);
+let tool = 0;              // 0=손(블록) 1=검 2=활
+let swingT = -1, bobT = 0; // 휘두르기 진행도 / 걷기 흔들림
+const viewModel = {};
+(function buildHand() {
+  function vbox(w, h, d, color, x, y, z, parent) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d),
+      new THREE.MeshLambertMaterial({ color: color }));
+    m.position.set(x, y, z);
+    (parent || handGroup).add(m);
+    return m;
+  }
+  vbox(0.13, 0.13, 0.42, 0xd8a077, 0.05, -0.1, 0.16); // 팔뚝
+  // 검
+  const sw = new THREE.Group();
+  sw.position.set(0.02, 0.02, -0.08);
+  sw.rotation.z = -0.2; sw.rotation.x = 0.5;
+  vbox(0.045, 0.52, 0.1, 0xe8e8f2, 0, 0.36, 0, sw);
+  vbox(0.045, 0.1, 0.1, 0xf8f8ff, 0, 0.64, 0, sw);
+  vbox(0.16, 0.05, 0.12, 0xd4a72c, 0, 0.08, 0, sw);
+  vbox(0.05, 0.16, 0.06, 0x6b4a2c, 0, -0.04, 0, sw);
+  handGroup.add(sw);
+  // 활
+  const bw = new THREE.Group();
+  bw.position.set(0, 0.05, -0.1);
+  bw.rotation.z = -0.35;
+  vbox(0.05, 0.34, 0.07, 0x8a6234, 0, 0, 0, bw);
+  const up = vbox(0.05, 0.26, 0.07, 0x8a6234, 0, 0.26, -0.06, bw); up.rotation.x = -0.5;
+  const dn = vbox(0.05, 0.26, 0.07, 0x8a6234, 0, -0.26, -0.06, bw); dn.rotation.x = 0.5;
+  vbox(0.012, 0.62, 0.012, 0xf2f2f2, 0, 0, -0.12, bw);
+  handGroup.add(bw);
+  // 손에 든 블록 미니 큐브
+  const hb = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.26, 0.26),
+    new THREE.MeshLambertMaterial({ color: 0xffffff }));
+  hb.position.set(0.02, -0.02, -0.06);
+  hb.rotation.y = 0.5;
+  handGroup.add(hb);
+  viewModel.sword = sw; viewModel.bow = bw; viewModel.block = hb;
+})();
+const heldTexCache = {};
+function updateHeldVisual() {
+  viewModel.sword.visible = tool === 1;
+  viewModel.bow.visible = tool === 2;
+  viewModel.block.visible = tool === 0;
+  if (tool === 0) {
+    const id = HOTBAR[sel];
+    if (!heldTexCache[id]) {
+      const tl = BLOCKS[id].tiles[1];
+      const c = document.createElement('canvas');
+      c.width = 16; c.height = 16;
+      c.getContext('2d').drawImage(atlasCanvas, (tl % 4) * 16, Math.floor(tl / 4) * 16, 16, 16, 0, 0, 16, 16);
+      const tx = new THREE.CanvasTexture(c);
+      tx.magFilter = THREE.NearestFilter;
+      tx.minFilter = THREE.NearestFilter;
+      tx.generateMipmaps = false;
+      heldTexCache[id] = tx;
+    }
+    viewModel.block.material.map = heldTexCache[id];
+    viewModel.block.material.needsUpdate = true;
+  }
+}
+function updateToolUI() {
+  document.querySelectorAll('#toolbar .tslot').forEach(function (s2, j) {
+    s2.className = 'tslot' + (j === tool ? ' on' : '');
+  });
+  updateHeldVisual();
+}
+(function buildToolbar() {
+  const bar = document.getElementById('toolbar');
+  ['✋', '⚔️', '🏹'].forEach(function (ic, i) {
+    const d = document.createElement('div');
+    d.className = 'tslot' + (i === 0 ? ' on' : '');
+    d.textContent = ic;
+    bar.appendChild(d);
+  });
+})();
+function startSwing() { swingT = 0; sound('swing'); }
+function updateHand(dt) {
+  if (swingT >= 0) {
+    swingT += dt / 0.26;
+    if (swingT > 1) swingT = -1;
+  }
+  const s = swingT >= 0 ? Math.sin(Math.min(swingT, 1) * Math.PI) : 0;
+  handGroup.rotation.x = -s * 1.15;
+  handGroup.rotation.y = -s * 0.4;
+  const moving = locked && Math.hypot(player.vel.x, player.vel.z) > 0.5;
+  bobT += dt * (moving ? 9 : 2);
+  handGroup.position.x = HAND_POS.x + Math.cos(bobT) * (moving ? 0.016 : 0.004);
+  handGroup.position.y = HAND_POS.y + Math.sin(bobT * 2) * (moving ? 0.024 : 0.007);
+  handGroup.position.z = HAND_POS.z - s * 0.16;
+}
+
+/* 플레이어 화살 */
+const pArrows = [];
+const _dirA = new THREE.Vector3();
+function shootArrow() {
+  camera.getWorldDirection(_dirA);
+  const g = new THREE.Group();
+  const shaft = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.025, 0.46),
+    new THREE.MeshLambertMaterial({ color: 0x8a6234 }));
+  g.add(shaft);
+  const tip = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.07),
+    new THREE.MeshLambertMaterial({ color: 0xcfcfcf }));
+  tip.position.z = -0.26; g.add(tip);
+  const fl = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.07, 0.06),
+    new THREE.MeshLambertMaterial({ color: 0xf2f2f2 }));
+  fl.position.z = 0.24; g.add(fl);
+  g.position.copy(camera.position).addScaledVector(_dirA, 0.6);
+  g.position.y -= 0.12;
+  scene.add(g);
+  pArrows.push({ mesh: g, vel: _dirA.clone().multiplyScalar(26), ttl: 4 });
+}
+function updateArrows(dt) {
+  for (let i = pArrows.length - 1; i >= 0; i--) {
+    const a = pArrows[i];
+    a.ttl -= dt;
+    a.vel.y -= 8 * dt;
+    a.mesh.position.addScaledVector(a.vel, dt);
+    _dirA.copy(a.mesh.position).add(a.vel);
+    a.mesh.lookAt(_dirA);
+    const mp = a.mesh.position;
+    let gone = a.ttl <= 0 || isSolid(Math.floor(mp.x), Math.floor(mp.y), Math.floor(mp.z));
+    if (!gone) {
+      for (let j = 0; j < mobs.length; j++) {
+        const m = mobs[j];
+        if (m.dying) continue;
+        const dx = mp.x - m.pos.x, dy = mp.y - (m.pos.y + m.def.h * 0.55), dz = mp.z - m.pos.z;
+        const r = Math.max(m.def.w, m.def.h * 0.5) * 0.85;
+        if (dx * dx + dy * dy + dz * dz < r * r) {
+          hurtMob(m, 8, a.vel.x, a.vel.z);
+          sound('hit');
+          gone = true;
+          break;
+        }
+      }
+    }
+    if (gone) {
+      scene.remove(a.mesh);
+      a.mesh.traverse(function (o) { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
+      pArrows.splice(i, 1);
+    }
+  }
+}
 
 /* ===== 월드 데이터 ===== */
 const chunkData = new Map();   // "cx,cz" -> Uint8Array
@@ -612,6 +772,8 @@ function sound(kind) {
     else if (kind === 'poof') osc('triangle', 300, 60, 0.18, 0.1);
     else if (kind === 'fuse') osc('sawtooth', 700, 1500, 1.1, 0.05);
     else if (kind === 'tp') osc('sine', 300, 900, 0.15, 0.08);
+    else if (kind === 'swing') osc('triangle', 260, 90, 0.08, 0.05);
+    else if (kind === 'bow') { osc('sawtooth', 420, 120, 0.12, 0.08); osc('sine', 900, 300, 0.08, 0.04); }
     else if (kind === 'boom') { osc('square', 70, 18, 0.5, 0.24); osc('sawtooth', 110, 28, 0.4, 0.14); }
     else if (kind === 'chime') { osc('sine', 660, 660, 0.12, 0.1); osc('sine', 990, 990, 0.28, 0.1, 0.13); }
   } catch (e) {}
@@ -633,6 +795,11 @@ addEventListener('keydown', function (e) {
     const q = document.getElementById('quests');
     q.style.display = q.style.display === 'block' ? 'none' : 'block';
   }
+  if (e.code === 'KeyE' && locked) {
+    tool = (tool + 1) % 3;
+    updateToolUI();
+    showName(tool === 0 ? L.toolHand : (tool === 1 ? L.toolSword : L.toolBow));
+  }
 });
 addEventListener('keyup', function (e) { keys[e.code] = false; });
 
@@ -646,10 +813,17 @@ document.addEventListener('mousemove', function (e) {
 canvas.addEventListener('mousedown', function (e) {
   if (!locked || dead) return;
   if (e.button === 0) {
-    // 몬스터 우선 공격
-    const mHit = pickMob(4.5);
+    startSwing();
+    // 활: 화살 발사
+    if (tool === 2) {
+      shootArrow();
+      sound('bow');
+      return;
+    }
+    // 몬스터 우선 공격 (검 = 사거리·데미지 증가)
+    const mHit = pickMob(tool === 1 ? 5 : 4.5);
     if (mHit) {
-      hurtMob(mHit, 4, mHit.pos.x - player.pos.x, mHit.pos.z - player.pos.z);
+      hurtMob(mHit, tool === 1 ? 7 : 4, mHit.pos.x - player.pos.x, mHit.pos.z - player.pos.z);
       sound('hit');
       return;
     }
@@ -662,6 +836,7 @@ canvas.addEventListener('mousedown', function (e) {
     questEvent('break', hit.id);
     sound('break');
   } else if (e.button === 2) {
+    startSwing();
     const px = hit.x + hit.fx, py = hit.y + hit.fy, pz = hit.z + hit.fz;
     const cur = getBlock(px, py, pz);
     if (cur !== 0 && cur !== 7) return;
@@ -771,6 +946,8 @@ function selectSlot(i) {
   const slots = document.querySelectorAll('#hotbar .slot');
   slots.forEach(function (s, j) { s.className = 'slot' + (j === sel ? ' on' : ''); });
   showName(L.blocks[HOTBAR[sel]]);
+  tool = 0; // 블록 선택 = 손으로 전환
+  updateToolUI();
 }
 (function buildHotbar() {
   const bar = document.getElementById('hotbar');
@@ -891,13 +1068,29 @@ function toast(msg) {
   document.getElementById('toasts').appendChild(d);
   setTimeout(function () { d.remove(); }, 4200);
 }
-function renderQuests() {
-  let h = '<h3>' + L.questsTitle + '</h3>';
+// 칭호 = 완료한 도전과제 이름의 앞부분, 뒤로 갈수록 높은 칭호
+function questTitleOf(id) { return L.qs[id].split(' — ')[0]; }
+function currentTitle() {
+  let t = null;
   for (let i = 0; i < QUEST_DEFS.length; i++) {
-    const q = QUEST_DEFS[i];
+    if (quest.done[QUEST_DEFS[i].id]) t = questTitleOf(QUEST_DEFS[i].id);
+  }
+  return t;
+}
+function renderQuests() {
+  const doneL = QUEST_DEFS.filter(function (q) { return quest.done[q.id]; });
+  const todoL = QUEST_DEFS.filter(function (q) { return !quest.done[q.id]; });
+  let h = '<h3>' + L.questsTitle + '</h3>';
+  h += '<div class="qtitle">' + L.titleLabel + ': <b>' + (currentTitle() || L.noTitle) + '</b></div>';
+  h += '<div class="qsec">✅ ' + L.doneLabel + ' (' + doneL.length + '/' + QUEST_DEFS.length + ')</div>';
+  for (let i = 0; i < doneL.length; i++) {
+    h += '<div class="qrow qdone">🏅 ' + L.qs[doneL[i].id] + '</div>';
+  }
+  h += '<div class="qsec">⬜ ' + L.todoLabel + ' (' + todoL.length + ')</div>';
+  for (let i = 0; i < todoL.length; i++) {
+    const q = todoL[i];
     const v = Math.min(questVal(q.id), q.target);
-    h += '<div class="qrow' + (quest.done[q.id] ? ' qdone' : '') + '">' +
-      (quest.done[q.id] ? '✅' : '⬜') + ' ' + L.qs[q.id] +
+    h += '<div class="qrow">' + L.qs[q.id] +
       (q.target > 1 ? ' <em>' + v + '/' + q.target + '</em>' : '') + '</div>';
   }
   document.getElementById('quests').innerHTML = h;
@@ -908,6 +1101,7 @@ function questCheck() {
     if (!quest.done[q.id] && questVal(q.id) >= q.target) {
       quest.done[q.id] = 1;
       toast('🏆 ' + L.questDone + ': ' + L.qs[q.id]);
+      toast(L.titleGet + ': ' + questTitleOf(q.id));
       sound('chime');
     }
   }
@@ -978,28 +1172,70 @@ function buildMobBody(type) {
     group.add(m); mats.push(m.material);
     return m;
   }
+  const anim = {};
+  // 피봇 그룹(관절)에 붙는 박스: 회전축이 관절 위치가 되게 자식으로 단다
+  function jointBox(parent, w, h, dep, color, x, y, z) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, dep), new THREE.MeshLambertMaterial({ color: color }));
+    m.position.set(x, y, z);
+    parent.add(m); mats.push(m.material);
+    return m;
+  }
+  function joint(px, py, pz) {
+    const g = new THREE.Group();
+    g.position.set(px, py, pz);
+    group.add(g);
+    return g;
+  }
   if (d.slime) {                       // IW: 슬라임 큐브
     box(d.w, d.h, d.w, C[0], 0, d.h / 2, 0);
     box(0.12, 0.12, 0.06, 0x111111, -0.18, d.h * 0.62, d.w / 2);
     box(0.12, 0.12, 0.06, 0x111111, 0.18, d.h * 0.62, d.w / 2);
-  } else if (type === 'NODUCK') {      // 오리형 원거리
+  } else if (type === 'NODUCK') {      // 오리형 원거리 (날개 피봇)
     box(0.55, 0.45, 0.8, C[0], 0, 0.5, 0);
     box(0.34, 0.34, 0.34, C[1], 0, 0.88, 0.28);
     box(0.16, 0.1, 0.22, C[2], 0, 0.84, 0.55);
-    box(0.1, 0.28, 0.1, C[2], -0.14, 0.14, 0);
-    box(0.1, 0.28, 0.1, C[2], 0.14, 0.14, 0);
+    anim.legL = joint(-0.14, 0.28, 0);
+    jointBox(anim.legL, 0.1, 0.28, 0.1, C[2], 0, -0.14, 0);
+    anim.legR = joint(0.14, 0.28, 0);
+    jointBox(anim.legR, 0.1, 0.28, 0.1, C[2], 0, -0.14, 0);
+    anim.wingL = joint(-0.3, 0.68, 0);
+    jointBox(anim.wingL, 0.06, 0.28, 0.55, 0xe8c93a, -0.02, -0.14, 0);
+    anim.wingR = joint(0.3, 0.68, 0);
+    jointBox(anim.wingR, 0.06, 0.28, 0.55, 0xe8c93a, 0.02, -0.14, 0);
     box(0.05, 0.05, 0.05, 0x111111, -0.1, 0.96, 0.46);
     box(0.05, 0.05, 0.05, 0x111111, 0.1, 0.96, 0.46);
-  } else {                             // 휴머노이드
+  } else {                             // 휴머노이드 (팔다리 피봇 + 무기)
     const legH = d.h * 0.4, bodyH = d.h * 0.35, headS = d.h * 0.25;
     const bw = d.w * 0.9;
-    box(bw * 0.4, legH, bw * 0.4, C[2], -bw * 0.22, legH / 2, 0);
-    box(bw * 0.4, legH, bw * 0.4, C[2], bw * 0.22, legH / 2, 0);
+    anim.legL = joint(-bw * 0.22, legH, 0);
+    jointBox(anim.legL, bw * 0.4, legH, bw * 0.4, C[2], 0, -legH / 2, 0);
+    anim.legR = joint(bw * 0.22, legH, 0);
+    jointBox(anim.legR, bw * 0.4, legH, bw * 0.4, C[2], 0, -legH / 2, 0);
     box(bw, bodyH, bw * 0.55, C[1], 0, legH + bodyH / 2, 0);
     box(headS, headS, headS, C[0], 0, legH + bodyH + headS / 2, 0);
     if (!d.creeper) {
-      box(bw * 0.3, bodyH, bw * 0.3, C[0], -bw * 0.68, legH + bodyH / 2, 0);
-      box(bw * 0.3, bodyH, bw * 0.3, C[0], bw * 0.68, legH + bodyH / 2, 0);
+      anim.armL = joint(-bw * 0.68, legH + bodyH, 0);
+      jointBox(anim.armL, bw * 0.3, bodyH, bw * 0.3, C[0], 0, -bodyH / 2, 0);
+      anim.armR = joint(bw * 0.68, legH + bodyH, 0);
+      jointBox(anim.armR, bw * 0.3, bodyH, bw * 0.3, C[0], 0, -bodyH / 2, 0);
+      // 몹별 무기 (오른팔에 부착 → 팔과 함께 휘둘러짐)
+      if (type === 'SEOJB') {          // 방망이
+        jointBox(anim.armR, 0.1, 0.55, 0.1, 0x7a5230, 0, -bodyH - 0.18, 0.05);
+        jointBox(anim.armR, 0.15, 0.2, 0.15, 0x8f6239, 0, -bodyH - 0.42, 0.05);
+      } else if (type === 'KS') {      // 단검
+        jointBox(anim.armR, 0.04, 0.34, 0.07, 0xd8d8e2, 0, -bodyH - 0.16, 0.04);
+        jointBox(anim.armR, 0.09, 0.05, 0.09, 0x333333, 0, -bodyH - 0.02, 0.04);
+      } else if (type === 'JW') {      // 해머
+        jointBox(anim.armR, 0.07, 0.62, 0.07, 0x6b4a2c, 0, -bodyH - 0.22, 0.05);
+        jointBox(anim.armR, 0.3, 0.18, 0.2, 0x8a8a8a, 0, -bodyH - 0.5, 0.05);
+      } else if (type === 'KJ') {      // 마법 지팡이
+        jointBox(anim.armR, 0.06, 0.7, 0.06, 0x3a2a4a, 0, -bodyH - 0.24, 0.04);
+        jointBox(anim.armR, 0.13, 0.13, 0.13, 0xb26bff, 0, -bodyH - 0.6, 0.04);
+      } else if (type === 'MENEW') {   // 대검
+        jointBox(anim.armR, 0.1, 1.15, 0.18, 0xd8d8e2, 0, -bodyH - 0.72, 0.08);
+        jointBox(anim.armR, 0.32, 0.08, 0.22, C[1], 0, -bodyH - 0.18, 0.08);
+        jointBox(anim.armR, 0.08, 0.2, 0.1, 0x5c1420, 0, -bodyH - 0.02, 0.08);
+      }
     }
     const ec = d.tp ? 0xc084ff : (d.boss ? 0xffd24a : 0x111111);
     box(headS * 0.2, headS * 0.14, 0.04, ec, -headS * 0.22, legH + bodyH + headS * 0.6, headS / 2);
@@ -1010,7 +1246,7 @@ function buildMobBody(type) {
   const tag = makeNameTag(type, !!d.boss);
   tag.position.y = d.h + (d.boss ? 0.8 : 0.45);
   group.add(tag);
-  return { group: group, mats: mats };
+  return { group: group, mats: mats, anim: anim };
 }
 
 function updateBossBar() {
@@ -1026,11 +1262,12 @@ function spawnMob(type, x, y, z) {
   const b = buildMobBody(type);
   scene.add(b.group);
   const m = {
-    type: type, def: d, group: b.group, mats: b.mats,
+    type: type, def: d, group: b.group, mats: b.mats, anim: b.anim,
     pos: new THREE.Vector3(x, y, z), vel: new THREE.Vector3(),
     hp: d.hp, onGround: false, hurtT: 0, dying: 0, credit: false,
     atkCd: 0, shootT: 1 + Math.random() * 2, fuse: -1,
-    tpT: 3 + Math.random() * 3, wanderT: 0, wx: 0, wz: 0
+    tpT: 3 + Math.random() * 3, wanderT: 0, wx: 0, wz: 0,
+    walkT: Math.random() * 6, swingT: 0, flapT: 0
   };
   mobs.push(m);
   if (d.boss) { bossMob = m; updateBossBar(); toast(L.bossNear); sound('boom'); }
@@ -1245,12 +1482,17 @@ function updateMobs(dt) {
         if (!d.creeper && dist < d.w / 2 + 1.25 && m.atkCd <= 0 &&
             Math.abs(player.pos.y - m.pos.y) < 2.5) {
           m.atkCd = 1.1;
+          m.swingT = 0.35; // 휘두르기 모션
           damagePlayer(d.dmg, m.pos.x, m.pos.z);
         }
         // 원거리 공격
         if (d.ranged) {
           m.shootT -= dt;
-          if (m.shootT <= 0 && dist > 4 && dist < 40) { m.shootT = d.shootCd; shoot(m, d.boss ? 4 : 2); }
+          if (m.shootT <= 0 && dist > 4 && dist < 40) {
+            m.shootT = d.shootCd;
+            if (m.type === 'NODUCK') m.flapT = 0.5; else m.swingT = 0.35; // 발사 모션
+            shoot(m, d.boss ? 4 : 2);
+          }
         }
         // KJ: 순간이동
         if (d.tp) {
@@ -1283,6 +1525,35 @@ function updateMobs(dt) {
       if (m.fuse <= 0) { explode(m); continue; }
     }
     mobMove(m, dt);
+    // 팔다리/날개 애니메이션
+    const A = m.anim;
+    if (A) {
+      const sp = Math.hypot(m.vel.x, m.vel.z);
+      m.walkT += dt * (2 + sp * 3.2);
+      const sw2 = Math.sin(m.walkT * 4) * Math.min(1, sp / 2) * 0.7;
+      if (A.legL) { A.legL.rotation.x = sw2; A.legR.rotation.x = -sw2; }
+      const armBase = m.type === 'SEOJB' ? -1.3 : 0; // 좀비식 앞으로 뻗은 팔
+      if (m.swingT > 0) {
+        m.swingT -= dt;
+        const k = Math.sin((0.35 - Math.max(m.swingT, 0)) / 0.35 * Math.PI);
+        if (A.armR) A.armR.rotation.x = armBase - 2.4 * k;
+        if (A.armL) A.armL.rotation.x = armBase + 0.4 * k;
+      } else if (A.armR) {
+        A.armR.rotation.x = armBase - sw2 * 0.5;
+        A.armL.rotation.x = armBase + sw2 * 0.5;
+      }
+      if (A.wingL) {
+        if (m.flapT > 0) {
+          m.flapT -= dt;
+          const f = Math.abs(Math.sin(m.flapT * 25));
+          A.wingL.rotation.z = 0.3 + f * 0.9;
+          A.wingR.rotation.z = -0.3 - f * 0.9;
+        } else {
+          A.wingL.rotation.z = 0.12;
+          A.wingR.rotation.z = -0.12;
+        }
+      }
+    }
     m.group.position.copy(m.pos);
     m.group.rotation.y = Math.atan2(dx, dz);
   }
@@ -1345,6 +1616,7 @@ if (new URLSearchParams(location.search).has('test')) {
     overlay.style.display = 'none';
     locked = true;
     dayT = 0.62; // 밤
+    tool = 1; updateToolUI(); // 검 뷰모델 확인용
     for (let i = 0; i < REGULARS.length; i++) {
       const x = player.pos.x + (i - 3) * 2.4;
       const z = player.pos.z - 7 - (i % 2) * 2;
@@ -1385,6 +1657,7 @@ function tick(now) {
     for (let i = 0; i < steps; i++) physics(sub);
     updateMobs(dt);
     updateProjectiles(dt);
+    updateArrows(dt);
     // 자연 회복 (8초간 무피격 시)
     if (hp < 20 && tSec - lastHurtT > 8) {
       regenT += dt;
@@ -1395,6 +1668,7 @@ function tick(now) {
   camera.position.set(player.pos.x, player.pos.y + EYE, player.pos.z);
   camera.rotation.y = yaw;
   camera.rotation.x = pitch;
+  updateHand(dt);
 
   const hit = locked ? raycast(6) : null;
   if (hit) {
@@ -1406,9 +1680,11 @@ function tick(now) {
   updateClouds(dt);
 
   const p = player.pos;
+  const ttl = currentTitle();
   infoEl.textContent = 'FPS ' + Math.round(fps) +
     '  |  XYZ ' + p.x.toFixed(1) + ' / ' + p.y.toFixed(1) + ' / ' + p.z.toFixed(1) +
     '  |  ' + (Math.sin(dayT * Math.PI * 2) > 0 ? L.day : L.night) +
+    (ttl ? '  |  🏅 ' + ttl : '') +
     (player.fly ? '  |  ' + L.fly : '');
 
   renderer.render(scene, camera);
