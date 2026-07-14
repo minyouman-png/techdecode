@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>MeNew Show</title>
+<link rel="stylesheet" href="../apps.css">
+<style>
+  :root { --toolbar-h: 44px; --rail-w: 148px; }
+  body { background: #eceae4; overflow: hidden; }
+  .fmtbar {
+    position: fixed; top: var(--topbar-h); left: 0; right: 0; height: var(--toolbar-h); z-index: 490;
+    display: flex; align-items: center; gap: 4px; padding: 0 10px;
+    background: #faf8f4; border-bottom: 1px solid var(--line);
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .fmtbar::-webkit-scrollbar { display: none; }
+  .tb {
+    appearance: none; border: none; background: transparent; color: #3d3a33;
+    min-width: 32px; height: 32px; border-radius: 6px; font-size: 14px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; gap: 3px;
+    padding: 0 7px; white-space: nowrap;
+  }
+  .tb:hover { background: #eae5da; }
+  .tb[disabled] { opacity: .35; pointer-events: none; }
+  .tbsep { width: 1px; height: 22px; background: var(--line); margin: 0 4px; flex: 0 0 auto; }
+  input.tbcolor { width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 6px; padding: 1px; background: #fff; cursor: pointer; flex: 0 0 auto; }
+  .rail {
+    position: fixed; top: calc(var(--topbar-h) + var(--toolbar-h)); left: 0; bottom: 0; width: var(--rail-w);
+    background: #f2efe8; border-right: 1px solid var(--line); overflow-y: auto; padding: 10px 8px; z-index: 480;
+  }
+  .thumb {
+    position: relative; width: 100%; aspect-ratio: 16/9; background: #fff; border: 2px solid var(--line);
+    border-radius: 6px; margin-bottom: 8px; cursor: pointer; overflow: hidden;
+  }
+  .thumb.sel { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(184,134,11,.25); }
+  .thumb .tno {
+    position: absolute; left: 4px; top: 2px; font-size: 10px; color: #8a8271; z-index: 5;
+    background: rgba(255,255,255,.7); border-radius: 4px; padding: 0 4px;
+  }
+  .thumb .mini { position: absolute; left: 0; top: 0; width: 960px; height: 540px; transform-origin: 0 0; pointer-events: none; }
+  .stage {
+    position: fixed; top: calc(var(--topbar-h) + var(--toolbar-h)); left: var(--rail-w); right: 0; bottom: 0;
+    display: flex; align-items: center; justify-content: center; padding: 22px;
+  }
+  #canvasHolder { position: relative; }
+  #canvas {
+    position: absolute; left: 0; top: 0; width: 960px; height: 540px; background: #fff;
+    box-shadow: 0 3px 18px rgba(40,35,20,.2); transform-origin: 0 0; border-radius: 2px;
+  }
+  .el { position: absolute; cursor: move; user-select: none; -webkit-user-select: none; touch-action: none; }
+  .el.text { line-height: 1.35; white-space: pre-wrap; overflow-wrap: break-word; padding: 4px 6px; }
+  .el img { width: 100%; height: 100%; object-fit: fill; display: block; pointer-events: none; }
+  .el.sel { outline: 2px solid var(--gold); }
+  .el.editing { cursor: text; user-select: text; -webkit-user-select: text; }
+  .handle {
+    position: absolute; right: -9px; bottom: -9px; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--gold); border: 2px solid #fff; cursor: nwse-resize; display: none; touch-action: none;
+  }
+  .el.sel .handle { display: block; }
+  #present {
+    position: fixed; inset: 0; background: #000; z-index: 1000; display: none;
+    align-items: center; justify-content: center; cursor: pointer;
+  }
+  #present.on { display: flex; }
+  #pslide { position: relative; width: 960px; height: 540px; background: #fff; transform-origin: center center; }
+  #pnav { position: absolute; bottom: 14px; right: 18px; color: rgba(255,255,255,.6); font-size: 14px; z-index: 1001; }
+  @media (max-width: 760px) {
+    :root { --rail-w: 0px; }
+    .rail {
+      top: auto; left: 0; right: 0; bottom: 0; width: auto; height: 92px; border-right: none;
+      border-top: 1px solid var(--line); display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden; padding: 8px;
+    }
+    .thumb { width: 130px; flex: 0 0 auto; margin-bottom: 0; }
+    .stage { left: 0; bottom: 92px; padding: 10px; }
+  }
+</style>
+</head>
+<body>
+<header class="apptop">
+  <a class="back" id="backLink" href="/tools/">←</a>
+  <span class="brand">MeNew <em>Show</em></span>
+  <span class="fname" id="fname"></span>
+  <span class="spacer"></span>
+  <input type="file" id="fileInput" accept=".pptx,.mnshow.json,.json" hidden>
+  <input type="file" id="imgInput" accept="image/png,image/jpeg,image/gif" hidden>
+  <button class="btn" id="btnNew"></button>
+  <button class="btn" id="btnOpen"></button>
+  <button class="btn primary" id="btnSave"></button>
+  <button class="btn" id="btnPresent">▶</button>
+</header>
+<div class="fmtbar">
+  <button class="tb" id="addText">＋T</button>
+  <button class="tb" id="addImage">＋🖼</button>
+  <span class="tbsep"></span>
+  <button class="tb elop" id="szDown">A−</button>
+  <button class="tb elop" id="szUp">A＋</button>
+  <button class="tb elop" id="tbBold" style="font-weight:800">B</button>
+  <input class="tbcolor elop" type="color" id="elColor" value="#1c1a16">
+  <button class="tb elop" id="alLeft">⇤</button>
+  <button class="tb elop" id="alCenter">↔</button>
+  <button class="tb elop" id="alRight">⇥</button>
+  <button class="tb elop" id="zUp">⬆̲</button>
+  <button class="tb elop" id="zDown">⬇̲</button>
+  <button class="tb elop" id="elDel">🗑</button>
+  <span class="tbsep"></span>
+  <span style="font-size:12px;color:#8a8271;flex:0 0 auto" id="bgLabel"></span>
+  <input class="tbcolor" type="color" id="bgColor" value="#ffffff">
+  <span class="tbsep"></span>
+  <button class="tb" id="slAdd">＋▭</button>
+  <button class="tb" id="slDup">⧉</button>
+  <button class="tb" id="slUp">▲</button>
+  <button class="tb" id="slDown">▼</button>
+  <button class="tb" id="slDel">🗑▭</button>
+</div>
+<div class="rail" id="rail"></div>
+<div class="stage" id="stage"><div id="canvasHolder"><div id="canvas"></div></div></div>
+<div id="present"><div id="pslide"></div><div id="pnav"></div></div>
+<div class="privnote" id="privnote"></div>
+<script src="../vendor/jszip.min.js"></script>
+<script src="../vendor/pptxgen.bundle.js"></script>
+<script src="show.js"></script>
+</body>
+</html>
