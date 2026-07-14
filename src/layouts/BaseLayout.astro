@@ -56,6 +56,15 @@ const ADSENSE_PUBLISHER_ID = '';
 
     <!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) -->
     <script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+
+    <!-- 사이트 이름 별칭 (한글 표기 검색 대응) -->
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Tech Decode',
+      alternateName: ['menewsoft', 'menewsoft.com', 'MeNew Soft', '미뉴소프트', '메뉴소프트'],
+      url: 'https://menewsoft.com/',
+    })} />
   </head>
   <body>
     <Header lang={lang} alternates={alternates} />

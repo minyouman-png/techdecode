@@ -22,7 +22,7 @@ const t = useTranslations(lang);
         <a href={localizeUrl('/privacy/', lang)}>Privacy</a>
       </div>
     </div>
-    <p class="foot-note">© {new Date().getFullYear()} {SITE_NAME} · menewsoft.com — {t('footer_note')}</p>
+    <p class="foot-note">© {new Date().getFullYear()} {SITE_NAME} · menewsoft.com{t('site_alias') && ` (${t('site_alias')})`} — {t('footer_note')}</p>
     <p class="foot-visits" id="footVisits" hidden>
       👁 {t('visitors_today')} <b id="fvToday">–</b> · {t('visitors_total')} <b id="fvTotal">–</b>
     </p>
