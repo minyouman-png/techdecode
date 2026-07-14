@@ -461,6 +461,71 @@
     }).catch(function (e) { alert('Error: ' + e.message); });
   });
 
+  /* ---------- 헤드리스 UI 검증 훅 (?test=ui): 툴바 기본 동작 검증 ---------- */
+  if (qs.get('test') === 'ui') {
+    setTimeout(function () {
+      var results = {};
+      function selectAllOf(node) {
+        var r = document.createRange();
+        r.selectNodeContents(node);
+        var s = window.getSelection();
+        s.removeAllRanges();
+        s.addRange(r);
+      }
+      function caretEnd() {
+        var r = document.createRange();
+        r.selectNodeContents(page);
+        r.collapse(false);
+        var s = window.getSelection();
+        s.removeAllRanges();
+        s.addRange(r);
+      }
+      try {
+        page.innerHTML = '<p>hello world</p>';
+        page.focus();
+        // 굵게
+        selectAllOf(page.firstChild);
+        document.querySelector('.tb[data-cmd="bold"]').click();
+        results.bold = /<(b|strong)\b/i.test(page.innerHTML);
+        // 제목1
+        selectAllOf(page.firstChild);
+        selBlock.value = 'h1';
+        selBlock.dispatchEvent(new Event('change'));
+        results.h1 = /<h1\b/i.test(page.innerHTML);
+        // 글자색
+        selectAllOf(page.querySelector('h1') || page.firstChild);
+        var fc = document.getElementById('foreColor');
+        fc.value = '#cc0000';
+        fc.dispatchEvent(new Event('input'));
+        results.color = /color/i.test(page.innerHTML);
+        // 목록
+        caretEnd();
+        document.execCommand('insertParagraph');
+        document.execCommand('insertText', false, '항목');
+        document.querySelector('.tb[data-cmd="insertUnorderedList"]').click();
+        results.list = /<ul\b/i.test(page.innerHTML);
+        // 표 (prompt 스텁)
+        caretEnd();
+        var oldPrompt = window.prompt;
+        window.prompt = function () { return '2x2'; };
+        document.getElementById('btnTable').click();
+        window.prompt = oldPrompt;
+        results.table = (page.querySelectorAll('table tr').length === 2 && page.querySelectorAll('table td').length === 4);
+        // 가운데 정렬
+        selectAllOf(page.querySelector('h1') || page.firstChild);
+        document.querySelector('.tb[data-cmd="justifyCenter"]').click();
+        results.center = /text-align:\s*center/i.test(page.innerHTML);
+        // 실행취소 동작 여부
+        results.undo = document.queryCommandSupported('undo');
+        var fails = Object.keys(results).filter(function (k) { return !results[k]; });
+        console.warn('[TEST] ui=' + JSON.stringify(results));
+        console.warn(fails.length ? '[TEST] WRITE-UI FAIL ' + fails.join(',') : '[TEST] WRITE-UI OK');
+      } catch (e) {
+        console.warn('[TEST] WRITE-UI FAIL ' + e.message);
+      }
+    }, 600);
+  }
+
   /* ---------- 헤드리스 검증 훅 (?test=1) ---------- */
   if (qs.get('test') === '1') {
     setTimeout(function () {

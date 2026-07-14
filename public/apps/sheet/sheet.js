@@ -190,6 +190,33 @@
     dirty = false;
   });
 
+  /* ---------- 헤드리스 UI 검증 훅 (?test=ui): 그리드·툴바 기본 동작 검증 ---------- */
+  if (qs.get('test') === 'ui') {
+    setTimeout(function () {
+      var results = {};
+      try {
+        results.toolbar = !!document.querySelector('#grid .x-spreadsheet-toolbar');
+        results.grid = !!document.querySelector('#grid canvas');
+        xs.cellText(1, 1, '99');
+        xs.cellText(2, 1, '=B2*2');
+        xs.reRender();
+        var d = xs.getData();
+        var rows = (d[0] || d).rows || d[0].rows;
+        results.setCell = rows[1] && rows[1].cells[1] && rows[1].cells[1].text === '99';
+        results.formulaKept = rows[2] && rows[2].cells[1] && rows[2].cells[1].text === '=B2*2';
+        var wb = xtos(xs.getData());
+        var ws = wb.Sheets[wb.SheetNames[0]];
+        results.exportCell = ws['B2'] && ws['B2'].v === 99;
+        results.exportFormula = ws['B3'] && ws['B3'].f === 'B2*2';
+        var fails = Object.keys(results).filter(function (k) { return !results[k]; });
+        console.warn('[TEST] ui=' + JSON.stringify(results));
+        console.warn(fails.length ? '[TEST] SHEET-UI FAIL ' + fails.join(',') : '[TEST] SHEET-UI OK');
+      } catch (e) {
+        console.warn('[TEST] SHEET-UI FAIL ' + e.message);
+      }
+    }, 800);
+  }
+
   /* ---------- 헤드리스 검증 훅 (?test=1) ---------- */
   if (qs.get('test') === '1') {
     setTimeout(function () {

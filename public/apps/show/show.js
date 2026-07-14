@@ -136,42 +136,40 @@
     if (has) {
       var el = slides[cur].els[selEl];
       if (el.type === 'text') document.getElementById('elColor').value = el.color;
+      else document.getElementById('elEdit').setAttribute('disabled', '');
     }
   }
 
   /* ---------- 선택/드래그/리사이즈/텍스트 편집 ---------- */
+  // 주의: pointerdown에서 preventDefault()를 하면 브라우저의 네이티브 dblclick이
+  // 발생하지 않으므로, 더블클릭/더블탭은 아래에서 pointerup 기반으로 직접 감지한다.
   var drag = null;
+  var lastTap = { time: 0, idx: -1 };
   canvas.addEventListener('pointerdown', function (e) {
     var t = e.target;
-    if (t.dataset && t.dataset.resize) {
-      var host = t.parentElement;
-      selEl = parseInt(host.dataset.idx, 10);
-      var el = slides[cur].els[selEl];
-      drag = { mode: 'resize', sx: e.clientX, sy: e.clientY, ox: el.w, oy: el.h };
-      canvas.setPointerCapture(e.pointerId);
-      render();
-      e.preventDefault();
-      return;
-    }
-    while (t && t !== canvas && !(t.classList && t.classList.contains('el'))) t = t.parentElement;
-    if (t && t !== canvas && t.classList.contains('el')) {
-      if (t.classList.contains('editing')) return;
-      selEl = parseInt(t.dataset.idx, 10);
-      var el2 = slides[cur].els[selEl];
-      drag = { mode: 'move', sx: e.clientX, sy: e.clientY, ox: el2.x, oy: el2.y, moved: false };
-      canvas.setPointerCapture(e.pointerId);
-      render();
-      e.preventDefault();
-    } else {
-      commitEditing();
-      selEl = -1;
-      render();
-    }
+    var isResize = !!(t.dataset && t.dataset.resize);
+    var host = isResize ? t.parentElement : t;
+    while (host && host !== canvas && !(host.classList && host.classList.contains('el'))) host = host.parentElement;
+    var onEl = !!(host && host !== canvas && host.classList && host.classList.contains('el'));
+    if (onEl && host.classList.contains('editing')) return; // 편집 중인 상자 내부 클릭은 그대로 둠
+    var idx = onEl ? parseInt(host.dataset.idx, 10) : -1;
+    commitEditing(); // 다른 곳을 눌렀으면 진행 중이던 텍스트 편집을 먼저 커밋 (내부에서 render됨)
+    if (!onEl) { selEl = -1; render(); return; }
+    selEl = idx;
+    var el = slides[cur].els[selEl];
+    if (!el) return;
+    drag = isResize
+      ? { mode: 'resize', idx: idx, sx: e.clientX, sy: e.clientY, ox: el.w, oy: el.h, moved: false }
+      : { mode: 'move', idx: idx, sx: e.clientX, sy: e.clientY, ox: el.x, oy: el.y, moved: false };
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* 합성 이벤트는 캡처 불가 */ }
+    render();
+    e.preventDefault();
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!drag || selEl < 0) return;
     var dx = (e.clientX - drag.sx) / scale, dy = (e.clientY - drag.sy) / scale;
-    if (Math.abs(dx) + Math.abs(dy) > 2) drag.moved = true;
+    if (Math.abs(dx) + Math.abs(dy) > 6) drag.moved = true;
+    if (!drag.moved) return;
     var el = slides[cur].els[selEl];
     if (drag.mode === 'move') {
       el.x = Math.round(Math.max(-el.w + 20, Math.min(W - 20, drag.ox + dx)));
@@ -188,22 +186,31 @@
     markDirty();
   });
   canvas.addEventListener('pointerup', function () {
-    if (drag && drag.moved) renderRail();
+    var wasDrag = drag;
     drag = null;
+    if (wasDrag && wasDrag.moved) { renderRail(); lastTap.idx = -1; return; }
+    var idx = wasDrag ? wasDrag.idx : -1;
+    var now = Date.now();
+    if (idx >= 0 && idx === lastTap.idx && now - lastTap.time < 450) {
+      lastTap = { time: 0, idx: -1 };
+      editElByIdx(idx); // 더블클릭·더블탭 → 텍스트 편집
+    } else {
+      lastTap = { time: now, idx: idx };
+    }
+  });
+  canvas.addEventListener('dblclick', function (e) {
+    var t = e.target;
+    while (t && t !== canvas && !(t.classList && t.classList.contains('el'))) t = t.parentElement;
+    if (t && t !== canvas && t.classList) editElByIdx(parseInt(t.dataset.idx, 10));
   });
 
-  var lastTap = 0;
-  canvas.addEventListener('dblclick', function (e) { tryEdit(e.target); });
-  canvas.addEventListener('pointerup', function (e) {
-    var now = Date.now();
-    if (now - lastTap < 350 && !(drag && drag.moved)) tryEdit(e.target);
-    lastTap = now;
-  });
-  function tryEdit(t) {
-    while (t && t !== canvas && !(t.classList && t.classList.contains('el'))) t = t.parentElement;
-    if (!t || t === canvas || !t.classList.contains('text')) return;
-    var idx = parseInt(t.dataset.idx, 10);
+  function editElByIdx(idx) {
+    var el = slides[cur].els[idx];
+    if (!el || el.type !== 'text') return;
     selEl = idx;
+    render();
+    var t = canvas.querySelector('.el.text[data-idx="' + idx + '"]');
+    if (!t) return;
     t.classList.add('editing');
     t.setAttribute('contenteditable', 'plaintext-only');
     if (t.contentEditable !== 'plaintext-only') t.setAttribute('contenteditable', 'true');
@@ -214,10 +221,13 @@
     range.selectNodeContents(t);
     sel.removeAllRanges();
     sel.addRange(range);
+    t.addEventListener('keydown', function onkey(e) {
+      if (e.key === 'Escape') { e.stopPropagation(); t.blur(); }
+    });
     t.addEventListener('blur', function onblur() {
       t.removeEventListener('blur', onblur);
-      var el = slides[cur].els[idx];
-      if (el) { el.text = t.innerText.replace(/\n$/, ''); }
+      var el2 = slides[cur].els[idx];
+      if (el2) { el2.text = t.innerText.replace(/\n$/, ''); }
       markDirty();
       render();
     });
@@ -270,6 +280,9 @@
       imgInput.value = '';
     };
     reader.readAsDataURL(f);
+  });
+  document.getElementById('elEdit').addEventListener('click', function () {
+    if (selEl >= 0) editElByIdx(selEl);
   });
   document.getElementById('szUp').addEventListener('click', function () { withSel(function (el) { if (el.size) el.size = Math.min(140, el.size + 4); }); });
   document.getElementById('szDown').addEventListener('click', function () { withSel(function (el) { if (el.size) el.size = Math.max(10, el.size - 4); }); });
@@ -578,6 +591,105 @@
   /* ---------- 초기화 ---------- */
   layout();
   render();
+
+  /* ---------- 헤드리스 UI 검증 훅 (?test=ui): 합성 PointerEvent로 기본 인터랙션 검증 ---------- */
+  if (qs.get('test') === 'ui') {
+    setTimeout(function () {
+      var results = {};
+      function nodeOf(idx) { return canvas.querySelector('.el[data-idx="' + idx + '"]'); }
+      function pt(type, target, sx, sy) {
+        var ev = new PointerEvent(type, {
+          bubbles: true, cancelable: true, pointerId: 7, isPrimary: true,
+          clientX: sx, clientY: sy
+        });
+        target.dispatchEvent(ev);
+      }
+      function center(idx) {
+        var el = slides[cur].els[idx];
+        var r = canvas.getBoundingClientRect();
+        return { x: r.left + (el.x + el.w / 2) * scale, y: r.top + (el.y + el.h / 2) * scale };
+      }
+      try {
+        slides = [titleSlide()]; cur = 0; selEl = -1;
+        render();
+        // 1) 클릭 선택
+        var c0 = center(0);
+        pt('pointerdown', nodeOf(0), c0.x, c0.y);
+        pt('pointerup', canvas, c0.x, c0.y);
+        results.select = (selEl === 0);
+        // 2) 드래그 이동
+        var el0 = slides[0].els[0];
+        var beforeX = el0.x, beforeY = el0.y;
+        c0 = center(0);
+        pt('pointerdown', nodeOf(0), c0.x, c0.y);
+        pt('pointermove', canvas, c0.x + 60 * scale, c0.y + 40 * scale);
+        pt('pointerup', canvas, c0.x + 60 * scale, c0.y + 40 * scale);
+        results.drag = (el0.x === beforeX + 60 && el0.y === beforeY + 40);
+        // 3) 리사이즈 (핸들)
+        var beforeW = el0.w, beforeH = el0.h;
+        var hnode = nodeOf(0).querySelector('.handle');
+        var r0 = hnode.getBoundingClientRect();
+        pt('pointerdown', hnode, r0.left + 4, r0.top + 4);
+        pt('pointermove', canvas, r0.left + 4 + 50 * scale, r0.top + 4 + 30 * scale);
+        pt('pointerup', canvas, r0.left + 4 + 50 * scale, r0.top + 4 + 30 * scale);
+        results.resize = (el0.w === beforeW + 50 && el0.h === beforeH + 30);
+        // 4) 더블클릭 → 편집 → 커밋
+        c0 = center(0);
+        pt('pointerdown', nodeOf(0), c0.x, c0.y);
+        pt('pointerup', canvas, c0.x, c0.y);
+        pt('pointerdown', nodeOf(0), c0.x, c0.y);
+        pt('pointerup', canvas, c0.x, c0.y);
+        var editing = canvas.querySelector('.el.editing');
+        results.dblEdit = !!editing;
+        if (editing) {
+          editing.textContent = '수정된 제목';
+          editing.blur();
+        }
+        results.editCommit = (slides[0].els[0].text === '수정된 제목');
+        // 5) ✏️ 버튼 편집
+        selEl = 0; render(); updateOps();
+        document.getElementById('elEdit').click();
+        var editing2 = canvas.querySelector('.el.editing');
+        results.btnEdit = !!editing2;
+        if (editing2) editing2.blur();
+        // 6) 텍스트 추가 + 서식
+        var beforeN = slides[0].els.length;
+        document.getElementById('addText').click();
+        results.addText = (slides[0].els.length === beforeN + 1 && selEl === beforeN);
+        var ne = slides[0].els[selEl];
+        var beforeSz = ne.size;
+        document.getElementById('szUp').click();
+        document.getElementById('tbBold').click();
+        var alBtn = document.getElementById('alCenter');
+        alBtn.click();
+        results.format = (ne.size === beforeSz + 4 && ne.bold === true && ne.align === 'center');
+        // 7) 배경색
+        var bgi = document.getElementById('bgColor');
+        bgi.value = '#112233';
+        bgi.dispatchEvent(new Event('input'));
+        results.bg = (slides[0].bg === '#112233');
+        // 8) 슬라이드 추가/복제/삭제/이동
+        document.getElementById('slAdd').click();
+        var afterAdd = slides.length;
+        document.getElementById('slDup').click();
+        var afterDup = slides.length;
+        document.getElementById('slUp').click();
+        var movedUp = (cur === afterDup - 2);
+        document.getElementById('slDel').click();
+        results.slideOps = (afterAdd === 2 && afterDup === 3 && movedUp && slides.length === 2);
+        // 9) Delete 키로 요소 삭제
+        cur = 0; selEl = 0; render();
+        var beforeDel = slides[0].els.length;
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true }));
+        results.delKey = (slides[0].els.length === beforeDel - 1);
+        var fails = Object.keys(results).filter(function (k) { return !results[k]; });
+        console.warn('[TEST] ui=' + JSON.stringify(results));
+        console.warn(fails.length ? '[TEST] SHOW-UI FAIL ' + fails.join(',') : '[TEST] SHOW-UI OK');
+      } catch (e) {
+        console.warn('[TEST] SHOW-UI FAIL ' + e.message);
+      }
+    }, 600);
+  }
 
   /* ---------- 헤드리스 검증 훅 (?test=1) ---------- */
   if (qs.get('test') === '1') {

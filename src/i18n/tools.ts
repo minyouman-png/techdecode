@@ -90,6 +90,7 @@ export const tools: ToolEntry[] = [
         about: [
           'MeNew Sheet opens Excel-format workbooks (.xlsx, .xls, .csv) directly in your browser. You can edit cells, use formulas, apply formatting, merge cells, work across multiple sheets, and save the result back as a real .xlsx or .csv file.',
           'Everything happens locally: the file you open is read by your browser and never uploaded to a server. Very complex workbooks — charts, macros, pivot tables — are beyond what a lightweight web editor can reproduce, but core data, formulas and layout are preserved.',
+          'How to use: double-click a cell (or just start typing) to enter data, and start with = for formulas like =SUM(B2:B10). The toolbar covers fonts, colors, borders, merging and number formats, and the tabs at the bottom switch between sheets. Open ▸ pick a file ▸ edit ▸ Save XLSX.',
         ],
       },
       ko: {
@@ -98,6 +99,7 @@ export const tools: ToolEntry[] = [
         about: [
           'MeNew Sheet는 엑셀 형식 문서(.xlsx, .xls, .csv)를 브라우저에서 바로 엽니다. 셀 편집, 수식, 서식, 셀 병합, 다중 시트 작업이 가능하고, 결과를 다시 실제 .xlsx나 .csv 파일로 저장할 수 있습니다.',
           '모든 처리는 로컬에서 이루어집니다. 연 파일은 브라우저가 읽을 뿐 서버로 전송되지 않습니다. 차트·매크로·피벗테이블 같은 아주 복잡한 문서까지 재현하지는 못하지만, 핵심 데이터와 수식, 레이아웃은 보존됩니다.',
+          '사용법: 셀을 더블클릭하거나 바로 입력하면 데이터가 들어가고, =로 시작하면 =SUM(B2:B10) 같은 수식이 됩니다. 툴바에서 글꼴·색·테두리·병합·숫자 서식을 지정하고, 하단 탭으로 시트를 오갑니다. 열기 ▸ 파일 선택 ▸ 편집 ▸ XLSX 저장 순서면 됩니다.',
         ],
       },
       ja: {
@@ -106,6 +108,7 @@ export const tools: ToolEntry[] = [
         about: [
           'MeNew SheetはExcel形式のファイル(.xlsx、.xls、.csv)をブラウザで直接開きます。セル編集、数式、書式設定、セル結合、複数シートでの作業ができ、結果を本物の.xlsxや.csvファイルとして保存できます。',
           'すべての処理はローカルで完結します。開いたファイルはブラウザが読み取るだけで、サーバーに送信されることはありません。グラフ・マクロ・ピボットテーブルのような非常に複雑なファイルまでは再現できませんが、主要なデータ・数式・レイアウトは保持されます。',
+          '使い方: セルをダブルクリック(またはそのまま入力)でデータを入れ、=で始めると=SUM(B2:B10)のような数式になります。ツールバーでフォント・色・罫線・結合・表示形式を設定でき、下部のタブでシートを切り替えます。開く ▸ ファイル選択 ▸ 編集 ▸ XLSX保存の流れです。',
         ],
       },
       es: {
@@ -114,6 +117,7 @@ export const tools: ToolEntry[] = [
         about: [
           'MeNew Sheet abre libros en formato Excel (.xlsx, .xls, .csv) directamente en tu navegador. Puedes editar celdas, usar fórmulas, aplicar formato, combinar celdas, trabajar con varias hojas y guardar el resultado como un archivo .xlsx o .csv real.',
           'Todo ocurre localmente: el archivo que abres lo lee tu navegador y nunca se sube a un servidor. Los libros muy complejos — gráficos, macros, tablas dinámicas — quedan fuera del alcance de un editor web ligero, pero los datos, las fórmulas y la estructura principal se conservan.',
+          'Cómo se usa: haz doble clic en una celda (o simplemente empieza a escribir) para introducir datos, y empieza con = para fórmulas como =SUM(B2:B10). La barra de herramientas cubre fuentes, colores, bordes, combinación y formatos numéricos, y las pestañas inferiores cambian de hoja. Abrir ▸ elegir archivo ▸ editar ▸ Guardar XLSX.',
         ],
       },
       zh: {
@@ -122,6 +126,7 @@ export const tools: ToolEntry[] = [
         about: [
           'MeNew Sheet 可以直接在浏览器中打开 Excel 格式的工作簿(.xlsx、.xls、.csv)。你可以编辑单元格、使用公式、设置格式、合并单元格、在多个工作表间切换，并把结果保存为真正的 .xlsx 或 .csv 文件。',
           '一切都在本地完成:你打开的文件只由浏览器读取，绝不会上传到服务器。图表、宏、数据透视表等非常复杂的工作簿超出了轻量级网页编辑器的能力范围，但核心数据、公式和布局都会被保留。',
+          '使用方法:双击单元格(或直接输入)即可录入数据，以 = 开头即为公式，如 =SUM(B2:B10)。工具栏提供字体、颜色、边框、合并和数字格式，底部标签页可切换工作表。打开 ▸ 选择文件 ▸ 编辑 ▸ 保存 XLSX 即可。',
         ],
       },
     },
@@ -136,6 +141,7 @@ export const tools: ToolEntry[] = [
         about: [
           'MeNew Write is a word processor in your browser. Open a .docx file or start blank, then write with headings, bold/italic/underline, colors, bullet and numbered lists, tables, images and links. Saving produces a genuine .docx file that opens in Word, LibreOffice and Google Docs — and the print button gives you a PDF.',
           'Your document never leaves the browser: opening and saving are both done locally on your device. Heavily designed documents — columns, text boxes, tracked changes — are beyond a lightweight editor, but everyday documents keep their structure and formatting.',
+          'How to use: select text and hit the toolbar for bold/italic/underline, colors, alignment and lists; the dropdown switches between body text and headings. ▦ inserts a table at your chosen size, 🖼 inserts an image from your device, 🔗 adds a link — and Print/PDF uses your browser\'s print dialog to make a PDF.',
         ],
       },
       ko: {
@@ -144,6 +150,7 @@ export const tools: ToolEntry[] = [
         about: [
           'MeNew Write는 브라우저 속 워드프로세서입니다. .docx 파일을 열거나 빈 문서에서 시작해 제목, 굵게/기울임/밑줄, 글자색, 글머리·번호 목록, 표, 이미지, 링크로 문서를 작성하세요. 저장하면 Word·LibreOffice·Google Docs에서 열리는 진짜 .docx 파일이 만들어지고, 인쇄 버튼으로 PDF도 만들 수 있습니다.',
           '문서는 브라우저 밖으로 나가지 않습니다. 열기와 저장 모두 기기 안에서 처리됩니다. 다단·텍스트상자·변경추적 같은 고급 서식까지는 다루지 못하지만, 일상 문서는 구조와 서식이 유지됩니다.',
+          '사용법: 텍스트를 선택한 뒤 툴바에서 굵게/기울임/밑줄·글자색·정렬·목록을 적용하고, 드롭다운으로 본문↔제목을 전환합니다. ▦는 원하는 크기의 표, 🖼는 내 기기의 이미지, 🔗는 링크를 삽입하며, 인쇄/PDF 버튼은 브라우저 인쇄 대화상자로 PDF를 만들어줍니다.',
         ],
       },
       ja: {
@@ -152,6 +159,7 @@ export const tools: ToolEntry[] = [
         about: [
           'MeNew Writeはブラウザ内のワープロです。.docxファイルを開くか白紙から始めて、見出し、太字/斜体/下線、文字色、箇条書き・番号付きリスト、表、画像、リンクで文書を作成できます。保存するとWord・LibreOffice・Google Docsで開ける本物の.docxファイルが生成され、印刷ボタンからPDFも作れます。',
           '文書がブラウザの外に出ることはありません。開く処理も保存も端末内で完結します。段組み・テキストボックス・変更履歴のような高度な書式までは扱えませんが、日常的な文書なら構造と書式が保たれます。',
+          '使い方: テキストを選択してツールバーから太字/斜体/下線・文字色・配置・リストを適用し、ドロップダウンで本文↔見出しを切り替えます。▦は指定サイズの表、🖼は端末内の画像、🔗はリンクを挿入し、印刷/PDFボタンはブラウザの印刷ダイアログでPDFを作成します。',
         ],
       },
       es: {
@@ -160,6 +168,7 @@ export const tools: ToolEntry[] = [
         about: [
           'MeNew Write es un procesador de textos en tu navegador. Abre un archivo .docx o empieza en blanco, y escribe con títulos, negrita/cursiva/subrayado, colores, listas con viñetas y numeradas, tablas, imágenes y enlaces. Al guardar se genera un archivo .docx auténtico que se abre en Word, LibreOffice y Google Docs — y el botón de imprimir te da un PDF.',
           'Tu documento nunca sale del navegador: abrir y guardar se hacen localmente en tu dispositivo. Los documentos con diseño muy elaborado — columnas, cuadros de texto, control de cambios — quedan fuera del alcance de un editor ligero, pero los documentos cotidianos conservan su estructura y formato.',
+          'Cómo se usa: selecciona texto y usa la barra de herramientas para negrita/cursiva/subrayado, colores, alineación y listas; el desplegable cambia entre cuerpo de texto y títulos. ▦ inserta una tabla del tamaño que elijas, 🖼 inserta una imagen de tu dispositivo, 🔗 añade un enlace — y el botón Imprimir/PDF usa el diálogo de impresión de tu navegador para generar un PDF.',
         ],
       },
       zh: {
@@ -168,6 +177,7 @@ export const tools: ToolEntry[] = [
         about: [
           'MeNew Write 是浏览器里的文字处理器。打开 .docx 文件或从空白开始，使用标题、加粗/斜体/下划线、文字颜色、项目符号和编号列表、表格、图片和链接来撰写文档。保存后会生成可在 Word、LibreOffice 和 Google Docs 中打开的真正 .docx 文件，打印按钮还能输出 PDF。',
           '你的文档不会离开浏览器:打开和保存都在你的设备上本地完成。分栏、文本框、修订跟踪等重度排版超出了轻量编辑器的范围，但日常文档的结构和格式都能保留。',
+          '使用方法:选中文字后用工具栏设置加粗/斜体/下划线、颜色、对齐和列表，下拉框可在正文与标题之间切换。▦ 按所选尺寸插入表格，🖼 从设备插入图片，🔗 添加链接——打印/PDF 按钮会调用浏览器打印对话框生成 PDF。',
         ],
       },
     },
@@ -182,6 +192,7 @@ export const tools: ToolEntry[] = [
         about: [
           'MeNew Show lets you build a slide deck in your browser: add and reorder 16:9 slides, drop in text boxes and images, drag and resize them, set colors and backgrounds, then present full-screen with keyboard or tap navigation. Saving produces a real .pptx file that opens in PowerPoint, Keynote and Google Slides, and you can open existing .pptx files too (text boxes, images and backgrounds).',
           'Like every MeNew Docs tool, it runs entirely on your device — no upload, no account. Animations, transitions and slide-master themes are beyond a lightweight editor, but the content of your slides survives the round trip.',
+          'How to use: click a text box or image to select it, drag to move, and pull the gold corner handle to resize. Double-click (double-tap on mobile) or hit ✏️ to edit text; A−/A+, B, the color swatch and the alignment buttons style the selected box, and Delete removes it. +T adds a text box, +🖼 adds an image, the BG swatch recolors the slide, and ▶ starts the full-screen show — advance with arrow keys, click or tap.',
         ],
       },
       ko: {
@@ -190,6 +201,7 @@ export const tools: ToolEntry[] = [
         about: [
           'MeNew Show로 브라우저에서 슬라이드 덱을 만들 수 있습니다. 16:9 슬라이드를 추가·복제·정렬하고, 텍스트 상자와 이미지를 넣어 드래그·크기조절하고, 색과 배경을 정한 뒤 전체화면으로 발표하세요(키보드·탭 넘김). 저장하면 PowerPoint·Keynote·Google Slides에서 열리는 진짜 .pptx 파일이 만들어지고, 기존 .pptx 파일(텍스트 상자·이미지·배경)도 열 수 있습니다.',
           '다른 MeNew Docs 도구처럼 전부 기기 안에서만 동작합니다. 업로드도, 계정도 없습니다. 애니메이션·전환효과·슬라이드 마스터 테마까지는 다루지 못하지만, 슬라이드의 내용은 열고 저장하는 과정에서 그대로 유지됩니다.',
+          '사용법: 텍스트 상자나 이미지를 클릭해 선택하고, 드래그로 옮기고, 금색 모서리 핸들을 끌어 크기를 바꿉니다. 더블클릭(모바일은 두 번 탭)이나 ✏️ 버튼으로 텍스트를 편집하고, A−/A+·B·색상·정렬 버튼으로 선택한 상자를 꾸미며, Delete 키로 삭제합니다. +T는 텍스트 상자, +🖼는 이미지 추가, 배경 색상으로 슬라이드 배경을 바꾸고, ▶ 발표 버튼으로 전체화면 발표를 시작합니다(방향키·클릭·탭으로 넘김).',
         ],
       },
       ja: {
@@ -198,6 +210,7 @@ export const tools: ToolEntry[] = [
         about: [
           'MeNew Showならブラウザでスライドを作成できます。16:9のスライドを追加・複製・並べ替えし、テキストボックスや画像を配置してドラッグ・リサイズし、色や背景を設定して、フルスクリーンで発表できます(キーボード・タップ操作)。保存するとPowerPoint・Keynote・Google Slidesで開ける本物の.pptxファイルが生成され、既存の.pptxファイル(テキストボックス・画像・背景)を開くこともできます。',
           '他のMeNew Docsツールと同様、すべて端末内だけで動作します。アップロードもアカウントも不要です。アニメーション・画面切り替え・スライドマスターのテーマまでは扱えませんが、スライドの内容は開いて保存しても保たれます。',
+          '使い方: テキストボックスや画像をクリックして選択し、ドラッグで移動、金色のコーナーハンドルでサイズ変更します。ダブルクリック(モバイルはダブルタップ)または✏️ボタンでテキストを編集し、A−/A+・B・色・配置ボタンで選択中のボックスを装飾、Deleteキーで削除します。+Tでテキストボックス、+🖼で画像を追加、背景色でスライドの背景を変更し、▶ボタンでフルスクリーン発表を開始します(矢印キー・クリック・タップで進みます)。',
         ],
       },
       es: {
@@ -206,6 +219,7 @@ export const tools: ToolEntry[] = [
         about: [
           'MeNew Show te permite crear una presentación en tu navegador: añade y reordena diapositivas 16:9, inserta cuadros de texto e imágenes, arrástralos y cambia su tamaño, define colores y fondos, y presenta a pantalla completa con teclado o toques. Al guardar se genera un archivo .pptx real que se abre en PowerPoint, Keynote y Google Slides, y también puedes abrir archivos .pptx existentes (cuadros de texto, imágenes y fondos).',
           'Como todas las herramientas de MeNew Docs, funciona por completo en tu dispositivo — sin subidas, sin cuenta. Las animaciones, transiciones y temas de patrón de diapositivas quedan fuera del alcance de un editor ligero, pero el contenido de tus diapositivas sobrevive al ciclo de abrir y guardar.',
+          'Cómo se usa: haz clic en un cuadro de texto o imagen para seleccionarlo, arrástralo para moverlo y tira del asa dorada de la esquina para cambiar su tamaño. Doble clic (doble toque en móvil) o el botón ✏️ para editar el texto; A−/A+, B, el selector de color y los botones de alineación dan estilo al cuadro seleccionado, y Supr lo elimina. +T añade un cuadro de texto, +🖼 una imagen, el selector de fondo recolorea la diapositiva y ▶ inicia la presentación a pantalla completa — avanza con las flechas, clic o toque.',
         ],
       },
       zh: {
@@ -214,6 +228,7 @@ export const tools: ToolEntry[] = [
         about: [
           'MeNew Show 让你在浏览器里制作幻灯片:添加、复制、排序 16:9 幻灯片，插入文本框和图片并拖拽、缩放，设置颜色和背景，然后全屏放映(支持键盘和触摸翻页)。保存后会生成可在 PowerPoint、Keynote 和 Google Slides 中打开的真正 .pptx 文件，也可以打开现有的 .pptx 文件(文本框、图片和背景)。',
           '和所有 MeNew Docs 工具一样，它完全在你的设备上运行——无上传、无账号。动画、切换效果和母版主题超出了轻量编辑器的范围，但幻灯片的内容在打开与保存之间不会丢失。',
+          '使用方法:点击文本框或图片进行选择，拖拽移动，拉动金色角部手柄调整大小。双击(手机上双击两下)或点 ✏️ 按钮编辑文字;A−/A+、B、颜色和对齐按钮用于装饰选中的框，Delete 键删除。+T 添加文本框，+🖼 添加图片，背景色块更换幻灯片背景，▶ 开始全屏放映——用方向键、点击或触摸翻页。',
         ],
       },
     },
