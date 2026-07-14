@@ -14,11 +14,48 @@ const t = useTranslations(lang);
       <span class="foot-brand">{SITE_NAME}</span>
       <div class="links">
         <a href={localizeUrl('/', lang)}>{t('nav_home')}</a>
-        <a href="/about/">{t('nav_about')}</a>
-        <a href="/contact/">{t('nav_contact')}</a>
-        <a href="/privacy/">Privacy</a>
+        <a href={localizeUrl('/games/', lang)}>{t('nav_games')}</a>
+        <a href={localizeUrl('/tools/', lang)}>{t('nav_tools')}</a>
+        <a href={localizeUrl('/glossary/', lang)}>{t('nav_glossary')}</a>
+        <a href={localizeUrl('/about/', lang)}>{t('nav_about')}</a>
+        <a href={localizeUrl('/contact/', lang)}>{t('nav_contact')}</a>
+        <a href={localizeUrl('/privacy/', lang)}>Privacy</a>
       </div>
     </div>
     <p class="foot-note">© {new Date().getFullYear()} {SITE_NAME} · menewsoft.com — {t('footer_note')}</p>
+    <p class="foot-visits" id="footVisits" hidden>
+      👁 {t('visitors_today')} <b id="fvToday">–</b> · {t('visitors_total')} <b id="fvTotal">–</b>
+    </p>
   </div>
 </footer>
+
+<style>
+  .foot-visits { margin: 6px 0 0; font-size: 12px; color: var(--faint, #999); }
+  .foot-visits b { font-weight: 600; color: var(--muted, #777); }
+</style>
+
+<script is:inline>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://menewsoft.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script>

@@ -30,6 +30,7 @@ const ADSENSE_PUBLISHER_ID = '';
     <title>{fullTitle}</title>
     <meta name="description" content={desc} />
     <meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok" />
+    <meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d" />
     <link rel="canonical" href={canonical} />
 
     {Object.entries(alternates).map(([code, href]) => (
@@ -52,6 +53,9 @@ const ADSENSE_PUBLISHER_ID = '';
         src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_PUBLISHER_ID}`}
         crossorigin="anonymous"></script>
     )}
+
+    <!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) -->
+    <script data-goatcounter="https://menewsoft.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
   </head>
   <body>
     <Header lang={lang} alternates={alternates} />
