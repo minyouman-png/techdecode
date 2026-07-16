@@ -145,6 +145,100 @@ export interface GameEntry {
 
 export const games: GameEntry[] = [
   {
+    slug: 'fruit-blocks',
+    released: '2026-07',
+    tech: 'Canvas 2D · Web Audio',
+    playPath: '/games/fruit/index.html',
+    cover: '/games/fruit/cover.jpg',
+    copy: {
+      en: {
+        title: 'Fruit Blocks',
+        tagline: 'A juicy match-3 puzzle — burst fruit in showers of juice, chain combos, and climb the fruit ranks.',
+        about: [
+          'Fruit Blocks is a classic match-3 puzzle in the spirit of the candy-crushing greats. Swap two adjacent fruits on an 8×8 board to line up three or more of a kind — and watch them burst in a shower of juice droplets, sparkles and shockwave rings, with screen shake and rising combo notes to match. Match four in a row to forge a line blaster, an L or T shape to forge a bomb, and five in a row to earn a rainbow fruit that wipes every fruit of one kind off the board. Swap two specials together for even bigger fireworks.',
+          'Every level gives you a score target and a limited number of moves. Clear it and your leftover moves explode into bonus points; miss it and the run ends. The difficulty climbs as you go — higher targets, fewer moves, and a sixth fruit joining the board from level 3 — and your progress earns you fruit ranks, from humble Seed all the way to Fruit Legend. Chain cascades multiply your score, so one clever swap can set off a glorious chain reaction. A cheerful synthesized soundtrack and juicy pop-and-blast sound effects — all generated in code — keep the fruit flying.',
+          'Your total score is recorded under your nickname in a local top-10 leaderboard with your personal best — stored in this browser, with the same export/import save system as our other games, so you can carry your records to another computer.',
+          'Like everything on this shelf, this game was built entirely by AI in July 2026 from a single prompt — the match engine, the particle effects, the sounds, the music. A playable snapshot of what AI could build at that moment.',
+        ],
+        how: [
+          '🖱 Tap / click a fruit, then an adjacent one — or drag a fruit toward a neighbor — to swap',
+          '3 in a row — burst · 4 in a row — line blaster · L / T shape — bomb · 5 in a row — rainbow fruit',
+          'Reach the target score before your moves run out · leftover moves become bonus points',
+          'ESC — pause · 🔊 button — mute · records are saved under your nickname',
+          '📱 Mobile — fully touch-controlled: tap or swipe fruits to swap',
+        ],
+      },
+      ko: {
+        title: '과일블럭게임',
+        tagline: '과즙 팡팡 매치3 퍼즐 — 과일을 시원하게 터뜨리고, 콤보를 쌓고, 과일 등급을 올려보세요.',
+        about: [
+          '과일블럭게임은 캔디크러시류 고전 매치3 퍼즐입니다. 8×8 보드에서 이웃한 과일 두 개를 교환해 같은 과일 3개 이상을 일렬로 맞추면 — 과즙 방울과 반짝이, 충격파 링이 사방으로 튀며 시원하게 터집니다. 화면 흔들림과 콤보마다 높아지는 팡! 소리는 덤. 4개를 일렬로 맞추면 줄폭탄, L/T자로 맞추면 폭탄, 5개를 맞추면 한 종류의 과일을 몽땅 쓸어버리는 레인보우 과일이 만들어집니다. 스페셜끼리 교환하면 더 큰 불꽃놀이가 터집니다.',
+          '레벨마다 목표 점수와 제한된 이동 횟수가 주어집니다. 목표를 달성하면 남은 이동수가 보너스 점수로 펑펑 터지고, 실패하면 게임 오버. 레벨이 오를수록 목표는 높아지고 이동수는 줄어들며, 3레벨부터는 여섯 번째 과일까지 등장해 난이도가 올라갑니다. 진행에 따라 씨앗부터 전설의 과일 마스터까지 등급 칭호가 붙습니다. 연쇄(캐스케이드)는 점수를 배로 불려주니, 잘 노린 한 수가 화려한 연쇄 폭발로 이어집니다. 경쾌한 BGM과 과즙 터지는 효과음도 전부 코드로 합성했습니다.',
+          '총점은 닉네임과 함께 이 브라우저의 로컬 Top10 랭킹에 저장되고 개인 최고기록도 관리됩니다. 다른 게임과 동일한 세이브 내보내기/불러오기를 지원해서 기록을 다른 컴퓨터로 옮길 수 있습니다.',
+          '이 선반의 다른 게임처럼, 이 게임도 2026년 7월 단 하나의 프롬프트로 AI가 전부 만들었습니다 — 매치 엔진, 파티클 이펙트, 효과음, 음악까지. 그 시점의 AI가 만들 수 있었던 것의 플레이 가능한 기록입니다.',
+        ],
+        how: [
+          '🖱 과일을 탭/클릭한 뒤 옆 과일을 누르거나, 원하는 방향으로 드래그해서 교환',
+          '3개 일렬 — 팡! · 4개 일렬 — 줄폭탄 · L/T자 — 폭탄 · 5개 일렬 — 레인보우 과일',
+          '이동수가 다 떨어지기 전에 목표 점수 달성 · 남은 이동수는 보너스 점수로 전환',
+          'ESC — 일시정지 · 🔊 버튼 — 음소거 · 기록은 닉네임으로 저장됩니다',
+          '📱 모바일 — 터치 완전 지원: 과일을 탭하거나 스와이프해서 교환',
+        ],
+      },
+      ja: {
+        title: 'フルーツブロック',
+        tagline: '果汁はじけるマッチ3パズル — フルーツを爽快に弾けさせ、コンボを重ね、フルーツ称号を目指そう。',
+        about: [
+          'フルーツブロックは、キャンディクラッシュ系の王道マッチ3パズルです。8×8の盤面で隣り合うフルーツを入れ替え、同じ種類を3つ以上並べると — 果汁のしぶきとキラキラ、衝撃波リングが飛び散り、画面が揺れ、コンボごとに音程が上がるポップ音とともに爽快に弾けます。4つ並べるとラインボム、L/T字でボム、5つ並べると1種類のフルーツを一掃するレインボーフルーツが誕生。スペシャル同士を入れ替えれば、さらに大きな花火が上がります。',
+          '各レベルには目標スコアと限られた手数があります。達成すれば残り手数がボーナス点として弾け、失敗すればゲームオーバー。レベルが上がるほど目標は高く、手数は少なくなり、レベル3からは6種類目のフルーツも登場します。進行に応じてタネから伝説のフルーツマスターまでの称号が付きます。連鎖はスコアを倍々に増やすので、狙いすました一手が華麗な連鎖爆発につながります。軽快なBGMも果汁弾ける効果音も、すべてコードで合成しています。',
+          '合計スコアはニックネームと共にこのブラウザのローカルTop10ランキングに保存され、自己ベストも管理されます。他のゲームと同じセーブ書き出し/読み込みに対応し、記録を別のパソコンへ移せます。',
+          'この棚の他のゲームと同じく、このゲームも2026年7月にたった一つのプロンプトからAIがすべて作りました — マッチエンジン、パーティクル、効果音、音楽まで。その時点のAIに何が作れたかの、遊べる記録です。',
+        ],
+        how: [
+          '🖱 フルーツをタップ/クリックして隣を選ぶか、隣へドラッグして入れ替え',
+          '3つ並び — パン！ · 4つ並び — ラインボム · L/T字 — ボム · 5つ並び — レインボー',
+          '手数が尽きる前に目標スコアを達成 · 残り手数はボーナス点に変換',
+          'ESC — 一時停止 · 🔊 ボタン — ミュート · 記録はニックネームで保存',
+          '📱 モバイル — タッチ完全対応: タップまたはスワイプで入れ替え',
+        ],
+      },
+      es: {
+        title: 'Fruit Blocks',
+        tagline: 'Un match-3 jugoso: revienta frutas en lluvias de zumo, encadena combos y sube de rango frutal.',
+        about: [
+          'Fruit Blocks es un puzle match-3 clásico al estilo de los grandes rompe-caramelos. Intercambia dos frutas adyacentes en un tablero de 8×8 para alinear tres o más iguales — y míralas estallar en una lluvia de gotas de zumo, destellos y anillos de choque, con temblor de pantalla y notas de combo ascendentes. Alinea cuatro para forjar un rayo de línea, una forma en L o T para una bomba, y cinco para ganar una fruta arcoíris que barre del tablero todas las frutas de un tipo. Intercambia dos especiales entre sí para fuegos artificiales aún mayores.',
+          'Cada nivel te da una puntuación objetivo y un número limitado de movimientos. Si lo superas, tus movimientos sobrantes explotan en puntos extra; si fallas, la partida termina. La dificultad sube sin parar — objetivos más altos, menos movimientos y una sexta fruta desde el nivel 3 — y tu progreso te otorga rangos frutales, desde la humilde Semilla hasta la Leyenda de la fruta. Las cascadas multiplican tu puntuación, así que un intercambio ingenioso puede desatar una gloriosa reacción en cadena. La alegre banda sonora sintetizada y los jugosos efectos de sonido están generados íntegramente por código.',
+          'Tu puntuación total se registra con tu apodo en un ranking local top-10 junto a tu mejor marca personal — guardada en este navegador, con el mismo sistema de exportar/importar partida que nuestros otros juegos para llevar tus récords a otro ordenador.',
+          'Como todo en esta estantería, este juego fue creado íntegramente por IA en julio de 2026 a partir de un solo prompt: el motor de combinaciones, las partículas, los sonidos y la música. Una instantánea jugable de lo que la IA podía construir en ese momento.',
+        ],
+        how: [
+          '🖱 Toca/clic en una fruta y luego en una adyacente — o arrástrala hacia su vecina — para intercambiar',
+          '3 en línea — ¡pum! · 4 en línea — rayo de línea · forma L/T — bomba · 5 en línea — fruta arcoíris',
+          'Alcanza la puntuación objetivo antes de agotar los movimientos · los sobrantes se vuelven puntos extra',
+          'ESC — pausa · botón 🔊 — silenciar · los récords se guardan con tu apodo',
+          '📱 Móvil — control táctil completo: toca o desliza las frutas para intercambiar',
+        ],
+      },
+      zh: {
+        title: '水果方块',
+        tagline: '果汁四溅的消消乐——痛快地炸开水果，叠加连击，冲击水果段位。',
+        about: [
+          '水果方块是一款致敬糖果传奇的经典三消益智游戏。在 8×8 棋盘上交换相邻的两个水果，凑齐三个以上同类——它们会在果汁飞溅、星光闪烁和冲击波环中痛快爆开，伴随屏幕震动和音调步步升高的连击音效。四个一排锻造直线炸弹，L/T 形锻造范围炸弹，五个一排则获得能清空一种水果的彩虹果。两个特殊方块互换，还能引爆更大的烟花。',
+          '每一关都有目标分数和有限步数。达成目标，剩余步数会化作奖励分连环爆炸；失败则游戏结束。难度不断攀升——目标更高、步数更少，第 3 关起还会加入第六种水果——你的进度会换来水果段位，从种子一路升到传说水果大师。连锁反应会成倍放大得分，一步妙手就能引发华丽的连环爆炸。欢快的背景音乐和果汁四溅的音效全部由代码合成。',
+          '总分会以昵称记录在此浏览器的本地 Top10 排行榜中，并保存个人最佳。支持与本站其他游戏相同的存档导出/导入，可将记录迁移到其他电脑。',
+          '和这个书架上的其他游戏一样，这款游戏也是 AI 在 2026 年 7 月凭一条提示词完成的——三消引擎、粒子特效、音效、音乐，全部如此。它是那个时间点 AI 能力的可玩快照。',
+        ],
+        how: [
+          '🖱 点击一个水果再点相邻的，或朝相邻方向拖动，即可交换',
+          '3 个一排 — 爆炸 · 4 个一排 — 直线炸弹 · L/T 形 — 炸弹 · 5 个一排 — 彩虹果',
+          '在步数耗尽前达到目标分数 · 剩余步数转化为奖励分',
+          'ESC — 暂停 · 🔊 按钮 — 静音 · 记录以昵称保存',
+          '📱 移动端 — 完整触控支持：点按或滑动水果即可交换',
+        ],
+      },
+    },
+  },
+  {
     slug: 'menew-kart',
     released: '2026-07',
     tech: 'Three.js · WebGL',
@@ -165,6 +259,7 @@ export const games: GameEntry[] = [
           'Space — drift (hold through a corner, release for a turbo boost)',
           'Shift — use item (🍄 boost · 🍌 banana trap · 🐢 shell)',
           'ESC — menu · Finish 3 laps to set your record',
+          '📱 Mobile — touch controls appear automatically: steer ◀ ▶ on the left, gas / brake / drift / item on the right',
         ],
       },
       ko: {
@@ -181,6 +276,7 @@ export const games: GameEntry[] = [
           'Space — 드리프트 (코너에서 길게 유지 후 놓으면 터보 부스터)',
           'Shift — 아이템 사용 (🍄 가속 · 🍌 바나나 함정 · 🐢 등껍질 발사)',
           'ESC — 메뉴 · 3랩 완주 시 기록이 저장됩니다',
+          '📱 모바일 — 터치 컨트롤이 자동 표시됩니다: 왼쪽 ◀ ▶ 조향, 오른쪽 가속/브레이크/드리프트/아이템 버튼',
         ],
       },
       ja: {
@@ -197,6 +293,7 @@ export const games: GameEntry[] = [
           'Space — ドリフト (コーナーで長押し→離すとターボ)',
           'Shift — アイテム使用 (🍄 加速 · 🍌 バナナ · 🐢 甲羅)',
           'ESC — メニュー · 3周完走でタイムが記録されます',
+          '📱 モバイル — タッチ操作を自動表示: 左の◀ ▶でハンドル、右にアクセル/ブレーキ/ドリフト/アイテム',
         ],
       },
       es: {
@@ -213,6 +310,7 @@ export const games: GameEntry[] = [
           'Space — derrape (mantén en la curva y suelta para turbo)',
           'Shift — usar objeto (🍄 turbo · 🍌 plátano · 🐢 caparazón)',
           'ESC — menú · Completa 3 vueltas para registrar tu tiempo',
+          '📱 Móvil — controles táctiles automáticos: dirección ◀ ▶ a la izquierda; gas, freno, derrape y objeto a la derecha',
         ],
       },
       zh: {
@@ -229,6 +327,7 @@ export const games: GameEntry[] = [
           'Space — 漂移（弯道长按后松开触发涡轮加速）',
           'Shift — 使用道具（🍄 加速 · 🍌 香蕉 · 🐢 龟壳）',
           'ESC — 菜单 · 完成 3 圈即记录成绩',
+          '📱 移动端 — 自动显示触控按键：左侧 ◀ ▶ 转向，右侧油门/刹车/漂移/道具',
         ],
       },
     },
@@ -254,6 +353,7 @@ export const games: GameEntry[] = [
           'Left click — attack monsters / break blocks · Right click — place a block',
           'E — switch weapon: hand / sword / bow · 1–9 or wheel — choose a block · Q — quest log',
           'Shift — sprint · F — fly mode (Space up, C down) · ESC — menu',
+          '📱 Mobile — virtual joystick to move, drag the screen to look, buttons for jump / break / place, tap the hotbar to pick blocks',
         ],
       },
       ko: {
@@ -270,6 +370,7 @@ export const games: GameEntry[] = [
           '좌클릭 — 몬스터 공격/블록 부수기 · 우클릭 — 블록 설치',
           'E — 무기 전환: 손/검/활 · 1~9 또는 휠 — 블록 선택 · Q — 도전과제 목록',
           'Shift — 달리기 · F — 비행 모드 (Space 상승, C 하강) · ESC — 메뉴',
+          '📱 모바일 — 가상 조이스틱으로 이동, 화면 드래그로 시점 회전, 점프/파괴/설치 버튼, 핫바를 탭해 블록 선택',
         ],
       },
       ja: {
@@ -286,6 +387,7 @@ export const games: GameEntry[] = [
           '左クリック — モンスター攻撃/ブロック破壊 · 右クリック — ブロック設置',
           'E — 武器切替: 素手/剣/弓 · 1~9 またはホイール — ブロック選択 · Q — 実績リスト',
           'Shift — ダッシュ · F — 飛行モード (Spaceで上昇、Cで下降) · ESC — メニュー',
+          '📱 モバイル — 仮想ジョイスティックで移動、画面ドラッグで視点、ジャンプ/破壊/設置ボタン、ホットバーをタップして選択',
         ],
       },
       es: {
@@ -302,6 +404,7 @@ export const games: GameEntry[] = [
           'Clic izquierdo — atacar monstruos / romper bloques · Clic derecho — colocar bloque',
           'E — cambiar arma: mano / espada / arco · 1–9 o rueda — elegir bloque · Q — registro de logros',
           'Shift — correr · F — modo vuelo (Espacio sube, C baja) · ESC — menú',
+          '📱 Móvil — joystick virtual para moverte, arrastra la pantalla para mirar, botones de salto / romper / colocar, toca la barra para elegir bloques',
         ],
       },
       zh: {
@@ -318,6 +421,7 @@ export const games: GameEntry[] = [
           '左键 — 攻击怪物/破坏方块 · 右键 — 放置方块',
           'E — 切换武器: 徒手/剑/弓 · 1~9 或滚轮 — 选择方块 · Q — 成就列表',
           'Shift — 奔跑 · F — 飞行模式（空格上升，C 下降）· ESC — 菜单',
+          '📱 移动端 — 虚拟摇杆移动，拖动屏幕转视角，跳跃/破坏/放置按键，点按物品栏选择方块',
         ],
       },
     },
