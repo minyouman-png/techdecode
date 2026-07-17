@@ -155,7 +155,7 @@ export const games: GameEntry[] = [
         title: 'MENEW EMPIRES',
         tagline: 'A grand-strategy world history simulation — 230 real nations, 1,200+ provinces, and every stat you can meddle with.',
         about: [
-          'MENEW EMPIRES is a turn-based grand strategy game in the spirit of the classic world-map history simulators. The map is the real Earth — built from actual Natural Earth cartography — carved into more than 1,200 provinces across 230 playable nations, from superpowers to microstates. Pick any country and rule it: every province tracks its own population, food production, fertility, agriculture level, technology level, education level, culture, unrest and garrison, and they all feed back into each other.',
+          'MENEW EMPIRES is a turn-based grand strategy game in the spirit of the classic world-map history simulators. The map is the real Earth — built from actual Natural Earth cartography — carved into more than 1,200 provinces across 230 playable nations, from superpowers to microstates. Pick any country and rule it: every province tracks its own population, food production, fertility, agriculture level, technology level, education level, culture, unrest and garrison, and they all feed back into each other. Provinces are even named after their real major cities — Seoul, Busan, Berlin, Istanbul.',
           'Each turn covers three months. Collect taxes, invest gold to level up agriculture, technology and education province by province, recruit armies from your population, and march them across land borders — or launch naval invasions along the coast. Declare wars and negotiate peace in the diplomacy panel while 200+ AI nations run their own economies, pick their own fights and sue for peace when they are losing. Random events — plagues, bumper harvests, technological breakthroughs, riots — keep history moving. Procedurally shaded terrain with climate biomes, relief shading and zoomable borders makes the world feel like a real atlas.',
           'Your campaign is auto-saved every turn, so you can close the tab and continue later. When your nation falls — or you retire — your score is recorded under your nickname in a local top-10 leaderboard, with the same export/import save system as our other games.',
           'Like everything on this shelf, this game was built entirely by AI in July 2026 from a single prompt — the map engine, the province generator, the simulation, the AI, the sounds. A playable snapshot of what AI could build at that moment.',
@@ -163,7 +163,7 @@ export const games: GameEntry[] = [
         how: [
           '🖱 Drag — pan the map · wheel / pinch — zoom · click a province — inspect & manage',
           '💰 Invest buttons — raise agriculture / technology / education · ⚔ Recruit — raise an army from the population',
-          'Click your army, then a highlighted neighbor — move (green) or attack (red) · coastal provinces can invade across the sea',
+          'Click your army, then a highlighted neighbor — move (green) or attack (red) · coastal provinces can invade across the sea · use the deploy slider to send only part of a stack',
           '🕊 Diplomacy — declare wars, offer and accept peace · watch relations',
           'End Turn (or Enter) — advance 3 months · reach 60% of the world for hegemony · records saved under your nickname',
         ],
@@ -172,7 +172,7 @@ export const games: GameEntry[] = [
         title: 'MENEW EMPIRES',
         tagline: '대전략 세계 역사 시뮬레이션 — 실제 국가 230개, 프로빈스 1,200개+, 지역별 국력 스탯을 직접 주무르세요.',
         about: [
-          'MENEW EMPIRES는 에이지 오브 히스토리류 세계지도 역사 시뮬레이션의 감성을 담은 턴제 대전략 게임입니다. 지도는 실제 지구 — Natural Earth 실측 지도 데이터로 만들어 230개 국가를 1,200개가 넘는 프로빈스로 분할했습니다. 초강대국부터 도시국가까지 아무 나라나 골라 통치하세요. 모든 프로빈스가 자기만의 인구·식량 생산·비옥도·농업 레벨·기술 레벨·교육(주민 지식) 레벨·문화권·불안도·주둔군을 갖고 서로 맞물려 돌아갑니다.',
+          'MENEW EMPIRES는 에이지 오브 히스토리류 세계지도 역사 시뮬레이션의 감성을 담은 턴제 대전략 게임입니다. 지도는 실제 지구 — Natural Earth 실측 지도 데이터로 만들어 230개 국가를 1,200개가 넘는 프로빈스로 분할했습니다. 초강대국부터 도시국가까지 아무 나라나 골라 통치하세요. 모든 프로빈스가 자기만의 인구·식량 생산·비옥도·농업 레벨·기술 레벨·교육(주민 지식) 레벨·문화권·불안도·주둔군을 갖고 서로 맞물려 돌아갑니다. 프로빈스에는 서울·부산·베를린·이스탄불처럼 실제 주요 도시의 이름이 붙습니다.',
           '한 턴은 3개월. 세금을 걷고, 금을 투자해 프로빈스별로 농업·기술·교육을 올리고, 인구에서 군대를 모병해 국경 너머로 진군시키세요. 해안 프로빈스는 바다 건너 상륙 작전도 가능합니다. 외교 패널에서 선전포고와 평화 협상을 하는 동안 200개가 넘는 AI 국가가 각자 경제를 굴리고, 전쟁을 일으키고, 불리하면 평화를 구걸합니다. 전염병·대풍년·기술 혁신·폭동 같은 랜덤 이벤트가 역사를 계속 움직입니다. 기후 바이옴과 음영 기복이 들어간 절차 생성 지형 위에 확대/축소되는 국경선까지 — 실제 지도책을 보는 느낌을 냈습니다.',
           '캠페인은 매 턴 자동 저장되어 탭을 닫아도 이어할 수 있습니다. 국가가 멸망하거나 스스로 물러나면 점수가 닉네임과 함께 로컬 Top10 랭킹에 기록되고, 다른 게임과 동일한 세이브 내보내기/불러오기를 지원합니다.',
           '이 선반의 다른 게임처럼, 이 게임도 2026년 7월 단 하나의 프롬프트로 AI가 전부 만들었습니다 — 지도 엔진, 프로빈스 생성기, 시뮬레이션, AI, 사운드까지. 그 시점의 AI가 만들 수 있었던 것의 플레이 가능한 기록입니다.',
@@ -180,7 +180,7 @@ export const games: GameEntry[] = [
         how: [
           '🖱 드래그 — 지도 이동 · 휠/핀치 — 확대 · 프로빈스 클릭 — 정보·관리',
           '💰 투자 버튼 — 농업/기술/교육 레벨업 · ⚔ 모병 — 인구에서 군대 양성',
-          '내 군대 클릭 후 강조된 인접 지역 클릭 — 이동(초록)/공격(빨강) · 해안 지역은 바다 건너 침공 가능',
+          '내 군대 클릭 후 강조된 인접 지역 클릭 — 이동(초록)/공격(빨강) · 해안 지역은 바다 건너 침공 가능 · 파병 규모 슬라이더로 병력 일부만 파견',
           '🕊 외교 — 선전포고·평화 제안·수락 · 관계 수치 관리',
           '턴 종료(또는 Enter) — 3개월 진행 · 세계 60% 점령 시 패권 달성 · 기록은 닉네임으로 저장',
         ],
@@ -189,7 +189,7 @@ export const games: GameEntry[] = [
         title: 'MENEW EMPIRES',
         tagline: 'グランドストラテジー世界歴史シミュレーション — 実在230カ国・1,200超の州、あらゆる国力ステータスを自分の手で。',
         about: [
-          'MENEW EMPIRESは、世界地図系歴史シミュレーションの魂を受け継ぐターン制グランドストラテジーです。地図は本物の地球 — Natural Earthの実測地図データから、230カ国を1,200以上の州に分割しました。超大国から都市国家まで、どの国を選んで統治してもかまいません。すべての州が固有の人口・食料生産・肥沃度・農業レベル・技術レベル・教育(住民知識)レベル・文化圏・不安度・駐留軍を持ち、互いに影響し合います。',
+          'MENEW EMPIRESは、世界地図系歴史シミュレーションの魂を受け継ぐターン制グランドストラテジーです。地図は本物の地球 — Natural Earthの実測地図データから、230カ国を1,200以上の州に分割しました。超大国から都市国家まで、どの国を選んで統治してもかまいません。すべての州が固有の人口・食料生産・肥沃度・農業レベル・技術レベル・教育(住民知識)レベル・文化圏・不安度・駐留軍を持ち、互いに影響し合います。州にはソウル・釜山・ベルリン・イスタンブールなど実在の主要都市の名前が付きます。',
           '1ターンは3ヶ月。税を集め、金を投資して州ごとに農業・技術・教育を上げ、人口から軍を徴兵して国境の向こうへ進軍させましょう。沿岸の州なら海を越えた上陸作戦も可能です。外交パネルで宣戦布告や和平交渉をする間にも、200以上のAI国家がそれぞれ経済を回し、戦争を起こし、不利になれば和平を求めてきます。疫病・大豊作・技術革新・暴動などのランダムイベントが歴史を動かし続けます。気候バイオームと陰影起伏の手続き生成地形、ズームできる国境線 — 本物の地図帳のような世界です。',
           'キャンペーンは毎ターン自動保存され、タブを閉じても続きから遊べます。国家が滅亡するか引退すると、スコアがニックネームと共にローカルTop10ランキングに記録され、他のゲームと同じセーブ書き出し/読み込みに対応しています。',
           'この棚の他のゲームと同じく、このゲームも2026年7月にたった一つのプロンプトからAIがすべて作りました — 地図エンジン、州生成、シミュレーション、AI、サウンドまで。その時点のAIに何が作れたかの、遊べる記録です。',
@@ -197,7 +197,7 @@ export const games: GameEntry[] = [
         how: [
           '🖱 ドラッグ — 地図移動 · ホイール/ピンチ — ズーム · 州クリック — 情報・管理',
           '💰 投資ボタン — 農業/技術/教育をレベルアップ · ⚔ 徴兵 — 人口から軍を編成',
-          '自軍をクリック→ハイライトされた隣接州をクリック — 移動(緑)/攻撃(赤) · 沿岸州は海越え侵攻も可能',
+          '自軍をクリック→ハイライトされた隣接州をクリック — 移動(緑)/攻撃(赤) · 沿岸州は海越え侵攻も可能 · 派兵規模スライダーで一部だけ派遣可能',
           '🕊 外交 — 宣戦布告・和平提案・受諾 · 関係値の管理',
           'ターン終了(またはEnter) — 3ヶ月進行 · 世界の60%を支配して覇権達成 · 記録はニックネームで保存',
         ],
@@ -206,7 +206,7 @@ export const games: GameEntry[] = [
         title: 'MENEW EMPIRES',
         tagline: 'Una simulación de gran estrategia histórica: 230 naciones reales, más de 1.200 provincias y cada estadística bajo tu control.',
         about: [
-          'MENEW EMPIRES es un juego de gran estrategia por turnos con el espíritu de los clásicos simuladores históricos de mapa mundial. El mapa es la Tierra real — construido con cartografía de Natural Earth — dividido en más de 1.200 provincias repartidas entre 230 naciones jugables, de superpotencias a microestados. Elige cualquier país y gobiérnalo: cada provincia lleva su propia población, producción de alimentos, fertilidad, nivel agrícola, nivel tecnológico, nivel educativo, cultura, descontento y guarnición, y todo se retroalimenta.',
+          'MENEW EMPIRES es un juego de gran estrategia por turnos con el espíritu de los clásicos simuladores históricos de mapa mundial. El mapa es la Tierra real — construido con cartografía de Natural Earth — dividido en más de 1.200 provincias repartidas entre 230 naciones jugables, de superpotencias a microestados. Elige cualquier país y gobiérnalo: cada provincia lleva su propia población, producción de alimentos, fertilidad, nivel agrícola, nivel tecnológico, nivel educativo, cultura, descontento y guarnición, y todo se retroalimenta. Las provincias llevan además nombres de ciudades reales: Seúl, Busan, Berlín, Estambul.',
           'Cada turno son tres meses. Recauda impuestos, invierte oro para subir agricultura, tecnología y educación provincia a provincia, recluta ejércitos de tu población y hazlos marchar por las fronteras — o lanza invasiones navales por la costa. Declara guerras y negocia la paz en el panel de diplomacia mientras más de 200 naciones IA gestionan sus economías, eligen sus batallas y piden la paz cuando pierden. Eventos aleatorios — pestes, cosechas récord, avances tecnológicos, disturbios — mantienen la historia en marcha. Un terreno procedural con biomas climáticos, sombreado de relieve y fronteras con zoom hace que el mundo parezca un atlas de verdad.',
           'Tu campaña se guarda automáticamente cada turno: cierra la pestaña y continúa después. Cuando tu nación caiga — o te retires — tu puntuación queda registrada con tu apodo en un ranking local top-10, con el mismo sistema de exportar/importar partida que nuestros otros juegos.',
           'Como todo en esta estantería, este juego fue creado íntegramente por IA en julio de 2026 a partir de un solo prompt: el motor del mapa, el generador de provincias, la simulación, la IA y los sonidos. Una instantánea jugable de lo que la IA podía construir en ese momento.',
@@ -214,7 +214,7 @@ export const games: GameEntry[] = [
         how: [
           '🖱 Arrastra — mueve el mapa · rueda / pellizco — zoom · clic en una provincia — inspeccionar y gestionar',
           '💰 Botones de inversión — sube agricultura / tecnología / educación · ⚔ Reclutar — levanta un ejército de la población',
-          'Clic en tu ejército y luego en un vecino resaltado — mover (verde) o atacar (rojo) · las provincias costeras pueden invadir por mar',
+          'Clic en tu ejército y luego en un vecino resaltado — mover (verde) o atacar (rojo) · las provincias costeras pueden invadir por mar · con el control de tropas puedes enviar solo una parte',
           '🕊 Diplomacia — declara guerras, ofrece y acepta la paz · vigila las relaciones',
           'Fin de turno (o Enter) — avanza 3 meses · domina el 60% del mundo para la hegemonía · récords con tu apodo',
         ],
@@ -223,7 +223,7 @@ export const games: GameEntry[] = [
         title: 'MENEW EMPIRES',
         tagline: '大战略世界历史模拟——230个真实国家、1200多个省份，每一项国力数据都由你掌控。',
         about: [
-          'MENEW EMPIRES 是一款致敬世界地图历史模拟经典的回合制大战略游戏。地图就是真实的地球——基于 Natural Earth 实测地图数据，把 230 个国家划分成 1200 多个省份，从超级大国到微型国家都可以选择统治。每个省份都有自己的人口、粮食产量、肥沃度、农业等级、科技等级、教育（居民知识）等级、文化圈、动荡度和驻军，它们相互影响、环环相扣。',
+          'MENEW EMPIRES 是一款致敬世界地图历史模拟经典的回合制大战略游戏。地图就是真实的地球——基于 Natural Earth 实测地图数据，把 230 个国家划分成 1200 多个省份，从超级大国到微型国家都可以选择统治。每个省份都有自己的人口、粮食产量、肥沃度、农业等级、科技等级、教育（居民知识）等级、文化圈、动荡度和驻军，它们相互影响、环环相扣。省份还以真实大城市命名——首尔、釜山、柏林、伊斯坦布尔。',
           '一回合三个月。征收税金，投资金币逐省提升农业、科技和教育，从人口中征募军队，越过陆地边境行军——沿海省份还能发动跨海登陆作战。在外交面板宣战、谈和的同时，200 多个 AI 国家也在经营各自的经济、挑起战争、战败时乞求和平。瘟疫、大丰收、技术突破、暴乱等随机事件让历史不断前进。程序生成的地形带有气候生物群系与地形晕渲，边界可无级缩放——世界看起来就像一本真正的地图册。',
           '战役每回合自动存档，关掉标签页也能随时继续。当你的国家灭亡——或你主动退位——分数会以昵称记录在本地 Top10 排行榜中，并支持与本站其他游戏相同的存档导出/导入。',
           '和这个书架上的其他游戏一样，这款游戏也是 AI 在 2026 年 7 月凭一条提示词完成的——地图引擎、省份生成器、模拟系统、AI、音效，全部如此。它是那个时间点 AI 能力的可玩快照。',
@@ -231,7 +231,7 @@ export const games: GameEntry[] = [
         how: [
           '🖱 拖动——平移地图 · 滚轮/双指——缩放 · 点击省份——查看与管理',
           '💰 投资按钮——提升农业/科技/教育 · ⚔ 征兵——从人口中组建军队',
-          '点击己方军队，再点高亮的相邻省份——移动（绿）或进攻（红）· 沿海省份可跨海入侵',
+          '点击己方军队，再点高亮的相邻省份——移动（绿）或进攻（红）· 沿海省份可跨海入侵 · 用派兵滑块可只派出部分兵力',
           '🕊 外交——宣战、求和、接受和平 · 关注关系数值',
           '结束回合（或 Enter）——推进 3 个月 · 占领世界 60% 达成霸权 · 记录以昵称保存',
         ],

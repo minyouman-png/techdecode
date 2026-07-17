@@ -50,6 +50,13 @@ const I18N = {
     dirs: { c: 'Central', n: 'North', s: 'South', e: 'East', w: 'West' },
     q: ['Q1', 'Q2', 'Q3', 'Q4'], newGameConfirm: 'Start a new game? The auto-save will be replaced.',
     militia: 'militia', navalHint: '⚓ coastal — naval invasions possible within range',
+    send: '📤 Deploy size', atk: 'Attack', defP: 'Defense',
+    techNote: 'Military tech {t} → combat ×{m} (defender bonus ×1.28)',
+    perTurn: '/turn', brBase: 'base', brFoodB: 'food', brEduB: 'edu', brGrowth: 'growth',
+    tax: 'tax revenue', net: 'Net', prod: 'production', consume: 'consumption', surplus: 'Surplus',
+    foodNote: 'Surplus food speeds up population growth; deficit shrinks it.',
+    popNote: 'Growth = base 0.2% + food + education − unrest (per province)',
+    incNote: 'Income = pop × (1 + 0.28·tech + 0.18·edu) × unrest penalty',
   },
   ko: {
     sub: '세계 역사 시뮬레이션', start: '🌍 새 게임', cont: '▶ 이어하기', records: '🏆 기록실',
@@ -84,6 +91,13 @@ const I18N = {
     dirs: { c: '중부', n: '북부', s: '남부', e: '동부', w: '서부' },
     q: ['1분기', '2분기', '3분기', '4분기'], newGameConfirm: '새 게임을 시작할까요? 자동 저장이 교체됩니다.',
     militia: '민병대', navalHint: '⚓ 해안 지역 — 사거리 내 상륙 작전 가능',
+    send: '📤 파병 규모', atk: '공격력', defP: '방어력',
+    techNote: '군사 기술 {t} → 전투력 ×{m} (방어 시 추가 ×1.28)',
+    perTurn: '/턴', brBase: '기본', brFoodB: '식량', brEduB: '교육', brGrowth: '성장률',
+    tax: '세금 수입', net: '순수입', prod: '생산', consume: '소비', surplus: '잉여',
+    foodNote: '잉여 식량은 인구 성장을 가속하고, 부족하면 인구가 줄어듭니다.',
+    popNote: '성장률 = 기본 0.2% + 식량 + 교육 − 불안 (프로빈스별)',
+    incNote: '수입 = 인구 × (1 + 0.28×기술 + 0.18×교육) × 불안 보정',
   },
   ja: {
     sub: '世界歴史シミュレーション', start: '🌍 新しいゲーム', cont: '▶ つづきから', records: '🏆 記録室',
@@ -118,6 +132,13 @@ const I18N = {
     dirs: { c: '中部', n: '北部', s: '南部', e: '東部', w: '西部' },
     q: ['第1四半期', '第2四半期', '第3四半期', '第4四半期'], newGameConfirm: '新しいゲームを始めますか？自動セーブは置き換えられます。',
     militia: '民兵', navalHint: '⚓ 沿岸州 — 射程内なら上陸作戦が可能',
+    send: '📤 派兵規模', atk: '攻撃力', defP: '防御力',
+    techNote: '軍事技術 {t} → 戦闘力 ×{m} (防御時さらに ×1.28)',
+    perTurn: '/ターン', brBase: '基本', brFoodB: '食料', brEduB: '教育', brGrowth: '成長率',
+    tax: '税収', net: '純収入', prod: '生産', consume: '消費', surplus: '余剰',
+    foodNote: '余剰食料は人口増加を加速し、不足すると人口が減ります。',
+    popNote: '成長率 = 基本 0.2% + 食料 + 教育 − 不安 (州ごと)',
+    incNote: '収入 = 人口 × (1 + 0.28×技術 + 0.18×教育) × 不安補正',
   },
   es: {
     sub: 'SIMULACIÓN DE HISTORIA MUNDIAL', start: '🌍 Nueva partida', cont: '▶ Continuar', records: '🏆 Récords',
@@ -152,6 +173,13 @@ const I18N = {
     dirs: { c: 'Central', n: 'Norte', s: 'Sur', e: 'Este', w: 'Oeste' },
     q: ['T1', 'T2', 'T3', 'T4'], newGameConfirm: '¿Empezar una nueva partida? El autoguardado será reemplazado.',
     militia: 'milicia', navalHint: '⚓ costera — invasiones navales posibles dentro del alcance',
+    send: '📤 Tropas a enviar', atk: 'Ataque', defP: 'Defensa',
+    techNote: 'Tecnología militar {t} → combate ×{m} (defensor ×1.28 extra)',
+    perTurn: '/turno', brBase: 'base', brFoodB: 'comida', brEduB: 'edu.', brGrowth: 'crecimiento',
+    tax: 'impuestos', net: 'Neto', prod: 'producción', consume: 'consumo', surplus: 'Excedente',
+    foodNote: 'El excedente de comida acelera el crecimiento; el déficit lo reduce.',
+    popNote: 'Crecimiento = base 0,2% + comida + educación − descontento (por provincia)',
+    incNote: 'Ingresos = población × (1 + 0,28·tec. + 0,18·edu.) × ajuste por descontento',
   },
   zh: {
     sub: '世界历史模拟', start: '🌍 新游戏', cont: '▶ 继续游戏', records: '🏆 记录室',
@@ -186,6 +214,13 @@ const I18N = {
     dirs: { c: '中部', n: '北部', s: '南部', e: '东部', w: '西部' },
     q: ['第一季度', '第二季度', '第三季度', '第四季度'], newGameConfirm: '开始新游戏？自动存档将被替换。',
     militia: '民兵', navalHint: '⚓ 沿海省份——射程内可发动登陆作战',
+    send: '📤 派兵规模', atk: '攻击力', defP: '防御力',
+    techNote: '军事科技 {t} → 战斗力 ×{m}（防守方额外 ×1.28）',
+    perTurn: '/回合', brBase: '基础', brFoodB: '粮食', brEduB: '教育', brGrowth: '增长率',
+    tax: '税收', net: '净收入', prod: '生产', consume: '消耗', surplus: '盈余',
+    foodNote: '粮食盈余会加速人口增长，短缺则使人口减少。',
+    popNote: '增长率 = 基础 0.2% + 粮食 + 教育 − 动荡（按省份）',
+    incNote: '收入 = 人口 × (1 + 0.28×科技 + 0.18×教育) × 动荡修正',
   },
 };
 let LANG = new URLSearchParams(location.search).get('lang');
@@ -545,6 +580,27 @@ function generateWorld(seed) {
     }
   }
 
+  // ── 주요 도시 → 프로빈스 이름·수도 (CITIES: 인구순 정렬, [x,y,pop,capFlag,names])
+  const cityByProv = new Map(), capCity = new Map();
+  if (typeof CITIES !== 'undefined') {
+    for (const ct of CITIES) {
+      const gx = Math.round(ct[0]), gy = Math.round(ct[1]);
+      if (gx < 1 || gx >= MAPW - 1 || gy < 1 || gy >= MAPH - 1) continue;
+      let g = grid[gy * MAPW + gx];
+      if (!g || g >= 65534) { // 해안 도시가 바다 픽셀에 떨어진 경우 이웃 탐색
+        for (const off of [1, -1, MAPW, -MAPW, MAPW + 1, MAPW - 1, 1 - MAPW, -1 - MAPW]) {
+          const gg = grid[gy * MAPW + gx + off];
+          if (gg && gg < 65534) { g = gg; break; }
+        }
+      }
+      if (!g || g >= 65534) continue;
+      const pid = g - 1;
+      if (P[pid].dead) continue;
+      if (!cityByProv.has(pid)) cityByProv.set(pid, ct);
+      if (ct[3] && !capCity.has(P[pid].cid)) capCity.set(P[pid].cid, pid);
+    }
+  }
+
   // ── 시뮬 초기화: 비옥도·인구 배분·수도·이름·레벨
   for (const c of C) {
     if (!c.alive) continue;
@@ -562,9 +618,12 @@ function generateWorld(seed) {
       p.w = p.px * p.fert;
       wsum += p.w;
     }
-    // 수도 = 가중치 최대
-    let cap = c.provs[0];
-    for (const pid of c.provs) if (P[pid].w > P[cap].w) cap = pid;
+    // 수도 = 실제 수도 도시 위치 (없으면 가중치 최대)
+    let cap = capCity.get(c.id);
+    if (cap === undefined || P[cap].dead || P[cap].cid !== c.id) {
+      cap = c.provs[0];
+      for (const pid of c.provs) if (P[pid].w > P[cap].w) cap = pid;
+    }
     c.capital = cap; P[cap].capital = true; P[cap].w *= 2.4; wsum += P[cap].w / 2.4 * 1.4;
     const dirCount = { c: 0, n: 0, s: 0, e: 0, w: 0 };
     for (const pid of c.provs) {
@@ -580,8 +639,15 @@ function generateWorld(seed) {
         d = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'e' : 'w') : (dy > 0 ? 's' : 'n');
       }
       p.dir = d;
-      p.name = (p.capital && c.provs.length > 1) ? '★ ' + c.names[LANG] :
-        c.names[LANG] + ' ' + L.dirs[d] + ROMAN[Math.min(dirCount[d], 11)];
+      const ct = cityByProv.get(pid);
+      if (ct) {
+        const parts = ct[4].split('|');
+        p.name = (p.capital ? '★ ' : '') + (parts[LI] || parts[0]);
+        p.cityNamed = true;
+      } else {
+        p.name = (p.capital && c.provs.length > 1) ? '★ ' + c.names[LANG] :
+          c.names[LANG] + ' ' + L.dirs[d] + ROMAN[Math.min(dirCount[d], 11)];
+      }
       dirCount[d]++;
     }
     // 초기 군대·금
@@ -665,6 +731,7 @@ const armies = new Map();  // pid → {size, cid, moved}
 const G = {
   mode: 'menu', player: -1, turn: 0, sel: -1, moveTargets: null,
   peakProv: 0, peakPop: 0, busy: false, recorded: false, wonShown: false,
+  sendPct: 100,
 };
 const warMeta = new Map(); // 'a_b' → {t, aG, bG}
 function wkey(a, b) { return a < b ? a + '_' + b : b + '_' + a; }
@@ -724,23 +791,26 @@ function makePeace(a, b, silent) {
 function isVisible(cid) { return G.player >= 0 && cAdj[G.player] && cAdj[G.player].has(cid); }
 
 /* ── 전투 ── */
-function resolveBattle(fromPid, toPid) {
+function resolveBattle(fromPid, toPid, amount) {
   const att = armies.get(fromPid);
+  const send = Math.min(att.size, Math.max(100, Math.round(amount || att.size)));
   const tp = P[toPid];
   const atkC = C[att.cid], defC = C[tp.cid];
   const defA = armies.get(toPid);
   const naval = !isLandAdj(fromPid, toPid);
-  const atkStr = att.size * (1 + 0.12 * techAvg(atkC)) * (0.85 + Math.random() * 0.3) * (naval ? 0.8 : 1);
+  const atkStr = send * (1 + 0.12 * techAvg(atkC)) * (0.85 + Math.random() * 0.3) * (naval ? 0.8 : 1);
   const defSize = (defA ? defA.size : 0) + militiaOf(tp);
   const defStr = defSize * (1 + 0.12 * techAvg(defC)) * 1.28;
   const meta = warMeta.get(wkey(att.cid, tp.cid));
+  // 파견 병력을 본대에서 분리
+  if (send >= att.size) armies.delete(fromPid); else att.size -= send;
   let casual;
   if (atkStr > defStr) {
     const lossR = 0.55 * defStr / atkStr;
-    casual = Math.round(att.size * lossR + defSize);
-    att.size = Math.round(att.size * (1 - lossR));
-    armies.delete(toPid); armies.delete(fromPid);
-    if (att.size > 100) { armies.set(toPid, att); att.moved = true; }
+    casual = Math.round(send * lossR + defSize);
+    const surv = Math.round(send * (1 - lossR));
+    armies.delete(toPid);
+    if (surv > 100) armies.set(toPid, { size: surv, cid: atkC.id, moved: true });
     captureProvince(toPid, atkC.id);
     if (meta) { if (att.cid < tp.cid) meta.aG++; else meta.bG++; }
     fxFlash(toPid, '#ffdd66');
@@ -750,10 +820,15 @@ function resolveBattle(fromPid, toPid) {
     return true;
   } else {
     const lossR = 0.65 * atkStr / defStr;
-    casual = Math.round(att.size * 0.75 + defSize * lossR * 0.4);
-    att.size = Math.round(att.size * 0.25);
+    casual = Math.round(send * 0.75 + defSize * lossR * 0.4);
+    const surv = Math.round(send * 0.25);
     if (defA) defA.size = Math.max(100, Math.round(defA.size * (1 - lossR * 0.4)));
-    if (att.size < 100) armies.delete(fromPid); else att.moved = true;
+    // 생존 병력 본대 복귀
+    if (surv >= 100) {
+      const home = armies.get(fromPid);
+      if (home && home.cid === atkC.id) home.size += surv;
+      else if (!home) armies.set(fromPid, { size: surv, cid: atkC.id, moved: true });
+    }
     tp.pop = Math.max(400, Math.round(tp.pop * 0.985));
     fxFlash(toPid, '#ff6655');
     fxText(tp.cx, tp.cy, '✖ ' + fmt(casual));
@@ -903,13 +978,14 @@ function borderProv(c) {
   }
   return c.capital;
 }
-function moveArmy(from, to) {
+function moveArmy(from, to, amount) {
   const a = armies.get(from);
   if (!a) return;
-  armies.delete(from);
+  const amt = Math.min(a.size, Math.max(100, Math.round(amount || a.size)));
   const b = armies.get(to);
-  if (b && b.cid === a.cid) { b.size += a.size; b.moved = true; }
-  else armies.set(to, { size: a.size, cid: a.cid, moved: true });
+  if (amt >= a.size) armies.delete(from); else a.size -= amt;
+  if (b && b.cid === a.cid) { b.size += amt; b.moved = true; }
+  else armies.set(to, { size: amt, cid: a.cid, moved: true });
 }
 
 /* ── 월드 페이즈 ── */
@@ -1369,6 +1445,56 @@ function updateHUD() {
   $('tcDate').innerHTML = `📅 ${dateStr()} <small>· ${L.turnOf} ${G.turn}</small>`;
 }
 
+/* ── 상단바 내역 팝업 ── */
+let infoPopType = null;
+function toggleInfoPop(type, anchorId) {
+  const ip = $('infoPop');
+  if (infoPopType === type && ip.style.display === 'block') { ip.style.display = 'none'; infoPopType = null; return; }
+  if (G.player < 0) return;
+  const c = C[G.player];
+  let html = '';
+  if (type === 'gold') {
+    const tax = incomeOf(c), up = upkeepOf(c);
+    html = `<b>💰 ${L.gold}</b><br>` +
+      `<span class="plus">+${fmt(tax)}</span> ${L.tax}<br>` +
+      `<span class="minus">−${fmt(up)}</span> ${L.upkeep} (⚔️ ${fmt(armyTotal(c.id))} × 0.003)<br>` +
+      `<b>${L.net} ${tax - up >= 0 ? '+' : ''}${fmt(tax - up)}${L.perTurn}</b>` +
+      `<div class="nt">${L.incNote}</div>`;
+  } else if (type === 'food') {
+    let prod = 0, need = 0;
+    for (const pid of c.provs) { prod += foodProd(P[pid]); need += foodNeed(P[pid]); }
+    html = `<b>🌾 ${L.food}</b><br>` +
+      `<span class="plus">+${fmt(prod)}</span> ${L.prod}<br>` +
+      `<span class="minus">−${fmt(need)}</span> ${L.consume} (${L.pop} × 1%)<br>` +
+      `<b>${L.surplus} ${prod - need >= 0 ? '+' : ''}${fmt(prod - need)}${L.perTurn}</b>` +
+      `<div class="nt">${L.foodNote}</div>`;
+  } else if (type === 'pop') {
+    let growth = 0, pop = 0;
+    for (const pid of c.provs) {
+      const p = P[pid];
+      const ratio = foodProd(p) / Math.max(1, foodNeed(p));
+      const g = 0.002 + 0.0035 * Math.max(-1, Math.min(1, ratio - 1)) + 0.0004 * p.edu - p.unrest * 0.01;
+      growth += p.pop * g; pop += p.pop;
+    }
+    html = `<b>👥 ${L.pop}</b><br>` +
+      `${fmt(pop)} <span class="${growth >= 0 ? 'plus' : 'minus'}">(${growth >= 0 ? '+' : ''}${fmt(growth)}${L.perTurn} · ${(growth / Math.max(1, pop) * 100).toFixed(2)}%)</span>` +
+      `<div class="nt">${L.popNote}</div>`;
+  } else if (type === 'army') {
+    const m = 1 + 0.12 * techAvg(c);
+    const total = armyTotal(c.id);
+    html = `<b>⚔️ ${L.army}</b><br>` +
+      `${fmt(total)} · <span class="pw" style="color:#ffb0b0">${L.atk} ${fmt(total * m)}</span> · <span style="color:#9fd8ff">${L.defP} ${fmt(total * m * 1.28)}</span><br>` +
+      `<span class="minus">−${fmt(total * 0.003)}</span> ${L.upkeep}${L.perTurn}` +
+      `<div class="nt">${L.techNote.replace('{t}', techAvg(c).toFixed(1)).replace('{m}', m.toFixed(2))}</div>`;
+  }
+  ip.innerHTML = html;
+  const r = $(anchorId).getBoundingClientRect();
+  ip.style.display = 'block';
+  ip.style.left = Math.min(window.innerWidth - 330, Math.max(6, r.left)) + 'px';
+  ip.style.top = (r.bottom + 6) + 'px';
+  infoPopType = type;
+}
+
 /* ── 프로빈스 패널 ── */
 function showPanel(pid) {
   const p = P[pid];
@@ -1378,16 +1504,48 @@ function showPanel(pid) {
   $('powner').innerHTML = `<i style="background:${colorOf(c, 1)}"></i>${nameOf(c)} · ${cultName(C[p.ocid].sub)} ${L.culture}`;
   const a = armies.get(pid);
   const rows = [];
+  const pct = (x) => (x * 100).toFixed(2) + '%';
   const bal = foodProd(p) - foodNeed(p);
+  // 인구 + 성장 내역
+  const ratio = foodProd(p) / Math.max(1, foodNeed(p));
+  const gBase = 0.002, gFood = 0.0035 * Math.max(-1, Math.min(1, ratio - 1)),
+        gEdu = 0.0004 * p.edu, gUn = p.unrest * 0.01;
+  const gTot = gBase + gFood + gEdu - gUn;
   rows.push(row('👥 ' + L.pop, fmt(p.pop)));
+  rows.push(brk(`${gTot >= 0 ? '+' : ''}${fmt(p.pop * gTot)}${L.perTurn} · ${L.brGrowth} ${pct(gTot)} = ${L.brBase} ${pct(gBase)} + ${L.brFoodB} ${pct(gFood)} + ${L.brEduB} ${pct(gEdu)} − ${L.unrest} ${pct(gUn)}`));
+  // 식량 + 생산 내역
   rows.push(row('🌾 ' + L.food, `${fmt(foodProd(p))} / ${fmt(foodNeed(p))} <b style="color:${bal >= 0 ? '#8be28a' : '#ff8a8a'}">(${bal >= 0 ? '+' : ''}${fmt(bal)})</b>`));
+  rows.push(brk(`${L.prod} = ${L.brBase} ${fmt(foodNeed(p))} × ${L.fert} ${(p.fert * 100).toFixed(0)}% × ${L.agri} ×${(0.55 + 0.45 * p.agri).toFixed(2)} · ${L.consume} = ${L.pop}×1%`));
+  // 수입 내역
+  const incBase = p.pop * 2e-5, incMul = 1 + 0.28 * p.tech + 0.18 * p.edu, incUn = 1 - p.unrest * 0.5;
+  rows.push(row('💰 ' + L.income, `+${fmt(incBase * incMul * incUn)}${L.perTurn}`));
+  rows.push(brk(`= ${L.brBase} ${fmt(incBase)} × ${L.tech}·${L.edu} ×${incMul.toFixed(2)} × ${L.unrest} ×${incUn.toFixed(2)}`));
   rows.push(row('🌱 ' + L.fert, (p.fert * 100).toFixed(0) + '%'));
   rows.push(lvlRow(pid, 'agri', '🚜 ' + L.agri, mine));
   rows.push(lvlRow(pid, 'tech', '🔬 ' + L.tech, mine));
   rows.push(lvlRow(pid, 'edu', '📚 ' + L.edu, mine));
   rows.push(row('😠 ' + L.unrest, (p.unrest * 100).toFixed(0) + '%'));
+  // 군대 + 전투력 (군사 기술 배율)
+  const ownerTech = techAvg(a ? C[a.cid] : c);
+  const mult = 1 + 0.12 * ownerTech;
   rows.push(row('⚔️ ' + L.army, a ? `<b>${fmt(a.size)}</b> (${nameOf(C[a.cid])})` : `<small>${L.militia} ${fmt(militiaOf(p))}</small>`));
+  const atkP = a ? a.size * mult : 0;
+  const defP = ((a ? a.size : 0) + militiaOf(p)) * mult * 1.28;
+  rows.push(brk(`<span class="pw">${L.atk} ${a ? fmt(atkP) : '—'}</span> · <span class="pw2">${L.defP} ${fmt(defP)}</span><br>${L.techNote.replace('{t}', ownerTech.toFixed(1)).replace('{m}', mult.toFixed(2))}`));
+  // 파병 슬라이더
+  const canSend = mine && a && a.cid === G.player && !a.moved;
+  if (canSend) {
+    const amt = Math.max(100, Math.round(a.size * G.sendPct / 100));
+    rows.push(`<div class="prow"><span>${L.send}</span><input type="range" id="sendR" min="10" max="100" step="5" value="${G.sendPct}"><b id="sendV">${G.sendPct}% (${fmt(amt)})</b></div>`);
+  }
   $('prows').innerHTML = rows.join('');
+  if (canSend) {
+    const sr = $('sendR');
+    sr.oninput = () => {
+      G.sendPct = +sr.value;
+      $('sendV').textContent = `${G.sendPct}% (${fmt(Math.max(100, Math.round(a.size * G.sendPct / 100)))})`;
+    };
+  }
   // 액션
   const act = [];
   if (mine) {
@@ -1433,6 +1591,7 @@ function showPanel(pid) {
   $('ppanel').style.display = 'block';
 }
 function row(k, v) { return `<div class="prow"><span>${k}</span><span><b>${v}</b></span></div>`; }
+function brk(html) { return `<div class="brk">${html}</div>`; }
 function lvlRow(pid, st, label, mine) {
   const p = P[pid];
   const lvl = p[st];
@@ -1482,10 +1641,11 @@ function onClick(sx, sy) {
       const from = G.sel;
       const a = armies.get(from);
       if (a && a.cid === G.player && !a.moved) {
+        const amount = Math.max(100, Math.round(a.size * G.sendPct / 100));
         if (t.enemy) {
-          resolveBattle(from, pid);
+          resolveBattle(from, pid, amount);
         } else {
-          moveArmy(from, pid); sfx.march();
+          moveArmy(from, pid, amount); sfx.march();
         }
         G.sel = -1; G.moveTargets = null; hidePanel();
         updateHUD(); requestRender();
@@ -1760,6 +1920,19 @@ function uiInit() {
   };
   $('dclose').onclick = () => { $('diplo').style.display = 'none'; };
   $('muteBtn').onclick = () => { REC.muted = !REC.muted; storeRec(); applyMute(); };
+  // 상단바 내역 팝업
+  for (const [id, type] of [['tcGold', 'gold'], ['tcFood', 'food'], ['tcPop', 'pop'], ['tcArmy', 'army']]) {
+    const el = $(id);
+    el.classList.add('click');
+    el.style.pointerEvents = 'auto';
+    el.onclick = (e) => { e.stopPropagation(); toggleInfoPop(type, id); };
+  }
+  document.addEventListener('pointerdown', (e) => {
+    const ip = $('infoPop');
+    if (ip.style.display === 'block' && !ip.contains(e.target) && !e.target.closest('.tchip')) {
+      ip.style.display = 'none'; infoPopType = null;
+    }
+  });
   $('exitBtn').onclick = () => {
     if (!confirm(L.quitConfirm)) return;
     autosave();
@@ -1849,6 +2022,50 @@ function runSim() {
   T('pop drift sane', popW1 > popW0 * 0.6 && popW1 < popW0 * 1.6, fmt(popW0) + '→' + fmt(popW1));
   T('wars happened', warMeta.size > 0 || wars > 0 || capBefore !== capAfter, 'wars=' + (wars >> 1) + ' metas=' + warMeta.size);
   T('conquests happened', capBefore !== capAfter);
+  // 도시 이름 명명
+  {
+    let named = 0;
+    for (const p of liveP) if (p.cityNamed) named++;
+    T('provinces named by real cities', named > liveP.length * 0.35, `${named}/${liveP.length}`);
+    const capName = kor ? P[kor.capital].name : '';
+    T('KR capital is Seoul', /Seoul|서울/.test(capName), capName);
+  }
+  // 분할 이동: 병력 보존
+  {
+    let ok = false, det = 'no candidate';
+    for (const [pid, a] of armies) {
+      if (a.size < 2000) continue;
+      const q = [...landAdj[pid]].find(x => P[x].cid === a.cid && !armies.has(x) && !P[x].dead);
+      if (q === undefined) continue;
+      const before = a.size;
+      moveArmy(pid, q, Math.round(before / 2));
+      const s1 = armies.get(pid), s2 = armies.get(q);
+      ok = !!s1 && !!s2 && s1.size + s2.size === before && s2.moved && !s1.moved;
+      det = `${before} → ${s1 && s1.size} + ${s2 && s2.size}`;
+      break;
+    }
+    T('split move conserves troops', ok, det);
+  }
+  // 분할 공격: 본대 잔류
+  {
+    let ok = false, det = 'no candidate';
+    outer:
+    for (const p of liveP) {
+      if (!C[p.cid].alive) continue;
+      for (const q of landAdj[p.id]) {
+        const tq = P[q];
+        if (tq.dead || tq.cid === p.cid || !C[tq.cid].alive) continue;
+        declareWar(p.cid, tq.cid, true);
+        armies.set(p.id, { size: 80000, cid: p.cid, moved: false });
+        const res = resolveBattle(p.id, q, 40000);
+        const home = armies.get(p.id);
+        ok = !!home && home.cid === p.cid && home.size >= 40000 && home.size <= 80000 && typeof res === 'boolean';
+        det = `res=${res} home=${home && home.size}`;
+        break outer;
+      }
+    }
+    T('split attack keeps reserve at home', ok, det);
+  }
   // 저장 라운드트립
   const s1 = JSON.stringify(serialize());
   applySave(JSON.parse(s1));
@@ -1878,7 +2095,7 @@ function setupShot() {
     fxFlash(fr.provs[0], '#ffdd66');
     fxText(P[fr.provs[0]].cx, P[fr.provs[0]].cy, '⚔ 48K');
   }
-  view.x = 1100; view.y = 265; view.z = 3.1;
+  view.x = 1100; view.y = 265; view.z = 3.6;
   updateHUD();
   const p0 = de ? de.provs[0] : 0;
   G.sel = p0; showPanel(p0);
