@@ -321,6 +321,25 @@ let cAdj = [];            // cid → Set(cid) 국가 인접
 
 function proj(lon, lat) { return [(lon + 180) / 360 * MAPW, (90 - lat) / 180 * MAPH]; }
 
+// 영문 도시명 → 해당 도시가 포함된 프로빈스 id (grid 생성 이후 사용 가능)
+function cityProvOf(en) {
+  if (typeof CITIES === 'undefined' || !grid) return -1;
+  for (const ct of CITIES) {
+    if (ct[4].split('|')[0] !== en) continue;
+    const gx = Math.round(ct[0]), gy = Math.round(ct[1]);
+    if (gx < 1 || gx >= MAPW - 1 || gy < 1 || gy >= MAPH - 1) continue;
+    let g = grid[gy * MAPW + gx];
+    if (!g || g >= 65534) {
+      for (const off of [1, -1, MAPW, -MAPW]) {
+        const gg = grid[gy * MAPW + gx + off];
+        if (gg && gg < 65534) { g = gg; break; }
+      }
+    }
+    if (g && g < 65534 && !P[g - 1].dead) return g - 1;
+  }
+  return -1;
+}
+
 function ringsOf(geom) {
   const out = [];
   const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
@@ -653,6 +672,36 @@ function generateWorld(seed) {
     // 초기 군대·금
     c.gold = 1500 + c.pop0 * 3e-5 * c.tier;
   }
+  // ── 시나리오 튜닝: 한반도 버프 (2026-07 커스텀)
+  // 한반도 국가(KR·KP) 전역: 기술·교육 +1
+  for (const c of C) {
+    if (!c.alive || (c.iso !== 'KR' && c.iso !== 'KP')) continue;
+    for (const pid of c.provs) {
+      P[pid].tech = Math.min(10, P[pid].tech + 1);
+      P[pid].edu = Math.min(10, P[pid].edu + 1);
+    }
+  }
+  const seoulPid = cityProvOf('Seoul');
+  const wonjuPid = cityProvOf('Wonju');
+  // 서울: 인구 2배
+  if (seoulPid >= 0) P[seoulPid].pop = Math.round(P[seoulPid].pop * 2);
+  // 원주: 인구 5배, 기술·교육 +3, 불안도 항상 0
+  if (wonjuPid >= 0) {
+    const p = P[wonjuPid];
+    p.pop = Math.round(p.pop * 5);
+    p.tech = Math.min(10, p.tech + 3);
+    p.edu = Math.min(10, p.edu + 3);
+    p.unrest = 0; p.calm = true;
+    if (wonjuPid !== seoulPid) { // 원주가 서울과 다른 프로빈스일 때만 이름 교체
+      const wct = CITIES.find(ct => ct[4].split('|')[0] === 'Wonju');
+      if (wct) {
+        const parts = wct[4].split('|');
+        p.name = (p.capital ? '★ ' : '') + (parts[LI] || parts[0]);
+        p.cityNamed = true;
+      }
+    }
+  }
+
   // 초기 군대: 수도+국경에 배치
   armies.clear();
   for (const c of C) {
@@ -840,7 +889,7 @@ function captureProvince(pid, newCid) {
   const p = P[pid];
   const old = C[p.cid];
   old.provs = old.provs.filter(x => x !== pid);
-  p.cid = newCid; p.unrest = Math.min(1, p.unrest + 0.35);
+  p.cid = newCid; p.unrest = p.calm ? 0 : Math.min(1, p.unrest + 0.35);
   p.pop = Math.max(400, Math.round(p.pop * 0.93));
   p.capital = false;
   C[newCid].provs.push(pid);
@@ -1007,7 +1056,7 @@ function worldPhase() {
       const ratio = foodProd(p) / Math.max(1, foodNeed(p));
       const g = 0.002 + 0.0035 * Math.max(-1, Math.min(1, ratio - 1)) + 0.0004 * p.edu - p.unrest * 0.01;
       p.pop = Math.max(400, Math.round(p.pop * (1 + g)));
-      p.unrest = Math.max(0, p.unrest - 0.045);
+      p.unrest = p.calm ? 0 : Math.max(0, p.unrest - 0.045);
     }
     // 관계 회복
     for (const [k, v] of c.rel) if (!c.wars.has(k)) c.rel.set(k, v + (v < 0 ? 1 : v > 0 ? -1 : 0));
@@ -1020,7 +1069,7 @@ function worldPhase() {
       else if (roll < 0.5) { p.pop = Math.round(p.pop * 0.97); msg = L.ev_drought; }
       else if (roll < 0.65) { p.pop = Math.round(p.pop * 0.94); msg = L.ev_plague; }
       else if (roll < 0.85) { p.tech = Math.min(10, p.tech + 1); msg = L.ev_tech; }
-      else { p.unrest = Math.min(1, p.unrest + 0.3); msg = L.ev_unrest; }
+      else { if (!p.calm) p.unrest = Math.min(1, p.unrest + 0.3); msg = L.ev_unrest; }
       if (c.id === G.player) { toast(msg.replace('{p}', p.name), roll < 0.3 || (roll >= 0.65 && roll < 0.85) ? 'good' : 'war'); sfx.chime(); }
     }
   }
@@ -1104,7 +1153,7 @@ function applySave(s) {
   for (const c of C) { c.provs = []; c.wars = new Set(); c.offers = []; }
   s.provs.forEach((row, i) => {
     const p = P[i];
-    p.cid = row[0]; p.pop = row[1]; p.agri = row[2]; p.tech = row[3]; p.edu = row[4]; p.unrest = row[5] / 100;
+    p.cid = row[0]; p.pop = row[1]; p.agri = row[2]; p.tech = row[3]; p.edu = row[4]; p.unrest = p.calm ? 0 : row[5] / 100;
     p.capital = false;
     if (!p.dead) C[p.cid].provs.push(i);
   });
@@ -2000,6 +2049,23 @@ function runSim() {
   const popW0 = C.reduce((s, c) => s + (c.alive ? popTotal(c) : 0), 0);
   T('world pop ≈ 7-9B', popW0 > 5e9 && popW0 < 1.1e10, fmt(popW0));
   T('armies placed', armies.size > 150, 'stacks=' + armies.size);
+  // 한반도 버프
+  {
+    const kp = C.find(c => c.iso === 'KP');
+    T('KR tech/edu +1 (tier3→4+)', !!kor && kor.provs.every(pid => P[pid].tech >= 4 && P[pid].edu >= 4));
+    T('KP tech/edu +1 (tier1→2+)', !!kp && kp.provs.every(pid => P[pid].tech >= 2 && P[pid].edu >= 2));
+    const wj = cityProvOf('Wonju'), se = cityProvOf('Seoul');
+    T('Wonju province buffed', wj >= 0 && P[wj].tech >= 7 && P[wj].edu >= 7 && P[wj].calm === true && P[wj].unrest === 0,
+      wj >= 0 ? `name=${P[wj].name} tech=${P[wj].tech} edu=${P[wj].edu}` : 'missing');
+    T('Seoul pop boosted', se >= 0 && P[se].pop > 15e6, se >= 0 ? `name=${P[se].name} pop=${fmt(P[se].pop)}` : 'missing');
+    if (wj >= 0) { // calm 고정: 점령해도 불안도 0
+      const before = P[wj].cid;
+      captureProvince(wj, (before + 1) % C.length);
+      T('Wonju calm survives capture', P[wj].unrest === 0);
+      captureProvince(wj, before); // 원상복구
+      P[wj].capital = kor && kor.capital === wj;
+    }
+  }
 
   // 30턴 관전 시뮬
   G.player = -1; G.mode = 'play'; G.turn = 0;
