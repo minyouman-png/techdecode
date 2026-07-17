@@ -1411,6 +1411,14 @@ const view = { x: MAPW / 2, y: MAPH / 2, z: 0.5 };
 let mapDirty = true, renderQueued = false;
 const fxList = [];
 
+/* ── 화면 흔들림 ── */
+let shakeUntil = 0, shakeMag = 0;
+function shake(m) {
+  shakeMag = Math.max(shakeMag, m);
+  shakeUntil = performance.now() + 350;
+  requestRender();
+}
+
 /* ── 미니맵 ── */
 let miniCv = null, miniForce = true;
 const MINI_W = 192, MINI_H = 96;
@@ -1466,7 +1474,13 @@ function colorOf(c, alpha) {
 }
 function render() {
   cx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  cx.fillStyle = '#081522'; cx.fillRect(0, 0, W, H);
+  const shakeNow = performance.now();
+  if (shakeUntil > shakeNow) {
+    const kS = (shakeUntil - shakeNow) / 350;
+    cx.translate((Math.random() - 0.5) * shakeMag * kS, (Math.random() - 0.5) * shakeMag * kS);
+    requestRender();
+  } else shakeMag = 0;
+  cx.fillStyle = '#081522'; cx.fillRect(-24, -24, W + 48, H + 48);
   clampView();
   const [vx0, vy0] = s2m(0, 0), [vx1, vy1] = s2m(W, H);
   cx.save();
