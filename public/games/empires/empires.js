@@ -64,6 +64,9 @@ const I18N = {
     repNote: 'The wounded recover at their retreat province and rejoin the army over time.',
     hosp: '🏥 Wounded recovering', hospBack: '🏥 {n} wounded rejoined the army ({p})',
     hospLost: '🏥 Field hospital in {p} captured — {n} wounded absorbed',
+    world: '🌐 World', rankTitle: '🏆 World Ranking', chronTitle: '📜 Chronicle',
+    eraStart: '📜 The era of {n} begins', loot: '💰 Capital sacked! +{n} gold',
+    noIdle: 'No idle armies — all have moved', helpKeys: '<b>F</b> next idle army · <b>D</b> diplomacy · <b>C</b> world/chronicle · click the minimap to jump',
   },
   ko: {
     sub: '세계 역사 시뮬레이션', start: '🌍 새 게임', cont: '▶ 이어하기', records: '🏆 기록실',
@@ -112,6 +115,9 @@ const I18N = {
     repNote: '부상병은 후퇴 지역에서 서서히 회복되어 군에 복귀합니다.',
     hosp: '🏥 회복 중인 부상병', hospBack: '🏥 부상병 {n} 복귀 ({p})',
     hospLost: '🏥 {p}의 야전병원 함락 — 부상병 {n} 흡수됨',
+    world: '🌐 세계', rankTitle: '🏆 세계 순위', chronTitle: '📜 연대기',
+    eraStart: '📜 {n}의 시대가 시작되다', loot: '💰 수도 약탈! 금 +{n} 획득',
+    noIdle: '대기 중인 군대가 없습니다 — 전부 이동 완료', helpKeys: '<b>F</b> 대기 군대 찾기 · <b>D</b> 외교 · <b>C</b> 세계/연대기 · 우하단 미니맵 클릭=이동',
   },
   ja: {
     sub: '世界歴史シミュレーション', start: '🌍 新しいゲーム', cont: '▶ つづきから', records: '🏆 記録室',
@@ -160,6 +166,9 @@ const I18N = {
     repNote: '負傷兵は退却先で徐々に回復し、軍に復帰します。',
     hosp: '🏥 回復中の負傷兵', hospBack: '🏥 負傷兵 {n} が復帰 ({p})',
     hospLost: '🏥 {p}の野戦病院が陥落 — 負傷兵 {n} が吸収された',
+    world: '🌐 世界', rankTitle: '🏆 世界ランキング', chronTitle: '📜 年代記',
+    eraStart: '📜 {n}の時代が始まる', loot: '💰 首都を略奪！ 金 +{n} 獲得',
+    noIdle: '待機中の軍はありません — すべて移動済み', helpKeys: '<b>F</b> 待機軍を探す · <b>D</b> 外交 · <b>C</b> 世界/年代記 · 右下ミニマップクリック=移動',
   },
   es: {
     sub: 'SIMULACIÓN DE HISTORIA MUNDIAL', start: '🌍 Nueva partida', cont: '▶ Continuar', records: '🏆 Récords',
@@ -208,6 +217,9 @@ const I18N = {
     repNote: 'Los heridos se recuperan en su provincia de retirada y se reincorporan con el tiempo.',
     hosp: '🏥 Heridos en recuperación', hospBack: '🏥 {n} heridos se reincorporaron ({p})',
     hospLost: '🏥 Hospital de campaña de {p} capturado — {n} heridos absorbidos',
+    world: '🌐 Mundo', rankTitle: '🏆 Ranking mundial', chronTitle: '📜 Crónica',
+    eraStart: '📜 Comienza la era de {n}', loot: '💰 ¡Capital saqueada! +{n} de oro',
+    noIdle: 'No hay ejércitos inactivos — todos se han movido', helpKeys: '<b>F</b> siguiente ejército inactivo · <b>D</b> diplomacia · <b>C</b> mundo/crónica · clic en el minimapa para saltar',
   },
   zh: {
     sub: '世界历史模拟', start: '🌍 新游戏', cont: '▶ 继续游戏', records: '🏆 记录室',
@@ -256,6 +268,9 @@ const I18N = {
     repNote: '伤兵会在撤退省份逐渐康复并归队。',
     hosp: '🏥 康复中的伤兵', hospBack: '🏥 {n} 名伤兵归队（{p}）',
     hospLost: '🏥 {p}的野战医院陷落——{n} 名伤兵被吸收',
+    world: '🌐 世界', rankTitle: '🏆 世界排名', chronTitle: '📜 编年史',
+    eraStart: '📜 {n}的时代开始了', loot: '💰 首都遭劫掠！获得金币 +{n}',
+    noIdle: '没有待命的军队——全部已行动', helpKeys: '<b>F</b> 查找待命军队 · <b>D</b> 外交 · <b>C</b> 世界/编年史 · 点击右下小地图跳转',
   },
 };
 let LANG = new URLSearchParams(location.search).get('lang');
@@ -821,6 +836,28 @@ const G = {
 const warMeta = new Map(); // 'a_b' → {t, aG, bG}
 function wkey(a, b) { return a < b ? a + '_' + b : b + '_' + a; }
 
+/* ── 연대기 ── */
+const chronicle = []; // {t: 턴, x: 텍스트}
+function chron(txt) {
+  chronicle.push({ t: G.turn, x: txt });
+  if (chronicle.length > 250) chronicle.shift();
+}
+
+/* ── 수시 자동저장 (강제종료 대비) ── */
+let saveTimer = 0, saveIndT = 0;
+function requestSave() {
+  if (G.mode !== 'play') return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(autosave, 1200);
+}
+function flashSaveInd() {
+  const el = document.getElementById('saveInd');
+  if (!el) return;
+  el.classList.add('show');
+  clearTimeout(saveIndT);
+  saveIndT = setTimeout(() => el.classList.remove('show'), 900);
+}
+
 function nameOf(c) { return c.names[LANG]; }
 function armyTotal(cid) { let t = 0; for (const a of armies.values()) if (a.cid === cid) t += a.size; return t; }
 function techAvg(c) {
@@ -856,9 +893,11 @@ function declareWar(a, b, silent) {
   A.wars.add(b); B.wars.add(a);
   A.rel.set(b, -80); B.rel.set(a, -80);
   warMeta.set(wkey(a, b), { t: 0, aG: 0, bG: 0 });
+  const msg = L.warDeclared.replace('{a}', nameOf(A)).replace('{b}', nameOf(B));
   if (!silent && (a === G.player || b === G.player || isVisible(a) || isVisible(b)))
-    toast(L.warDeclared.replace('{a}', nameOf(A)).replace('{b}', nameOf(B)), 'war');
-  if (a === G.player || b === G.player) sfx.horn();
+    toast(msg, 'war');
+  chron(msg);
+  if (a === G.player || b === G.player) { sfx.horn(); requestSave(); }
   mapDirty = true;
 }
 function makePeace(a, b, silent) {
@@ -868,9 +907,10 @@ function makePeace(a, b, silent) {
   A.rel.set(b, -25); B.rel.set(a, -25);
   warMeta.delete(wkey(a, b));
   A.offers = A.offers.filter(o => o !== b); B.offers = B.offers.filter(o => o !== a);
-  if (!silent && (a === G.player || b === G.player))
-    toast(L.peaceMade.replace('{a}', nameOf(A)).replace('{b}', nameOf(B)), 'good');
-  if (a === G.player || b === G.player) sfx.bell();
+  const msg = L.peaceMade.replace('{a}', nameOf(A)).replace('{b}', nameOf(B));
+  if (!silent && (a === G.player || b === G.player)) toast(msg, 'good');
+  chron(msg);
+  if (a === G.player || b === G.player) { sfx.bell(); requestSave(); }
   mapDirty = true;
 }
 function isVisible(cid) { return G.player >= 0 && cAdj[G.player] && cAdj[G.player].has(cid); }
@@ -978,7 +1018,7 @@ function applyBattle(res) {
     if (res.win) { toast(L.battleWin.replace('{n}', fmt(casTotal)), 'good'); sfx.winSmall(); }
     else { toast(L.battleLose.replace('{n}', fmt(casTotal)), 'war'); sfx.battle(); }
   } else if (res.defCid === G.player) sfx.battle();
-  if ((res.attCid === G.player || res.defCid === G.player) && G.mode === 'play') showBattleReport(res);
+  if ((res.attCid === G.player || res.defCid === G.player) && G.mode === 'play') { showBattleReport(res); requestSave(); }
   return res.win;
 }
 function resolveBattle(fromPid, toPid, amount) { return applyBattle(computeBattle(fromPid, toPid, amount)); }
@@ -996,18 +1036,38 @@ function playerBattle(fromPid, toPid, amount) {
 function captureProvince(pid, newCid) {
   const p = P[pid];
   const old = C[p.cid];
+  const wasCapital = old.capital === pid;
   old.provs = old.provs.filter(x => x !== pid);
   p.cid = newCid; p.unrest = p.calm ? 0 : Math.min(1, p.unrest + 0.35);
   p.pop = Math.max(400, Math.round(p.pop * 0.93));
   p.capital = false;
   C[newCid].provs.push(pid);
-  if (newCid === G.player || old.id === G.player)
-    toast(L.captured.replace('{a}', nameOf(C[newCid])).replace('{p}', p.name), newCid === G.player ? 'good' : 'war');
+  miniForce = true;
+  // 수도 약탈: 국고 30% 획득
+  if (wasCapital) {
+    const loot = Math.round(old.gold * 0.3);
+    if (loot > 0) {
+      old.gold -= loot; C[newCid].gold += loot;
+      if (newCid === G.player || old.id === G.player) {
+        toast(L.loot.replace('{n}', fmt(loot)), newCid === G.player ? 'good' : 'war');
+        if (newCid === G.player) sfx.coin();
+      }
+    }
+  }
+  if (newCid === G.player || old.id === G.player) {
+    const msg = L.captured.replace('{a}', nameOf(C[newCid])).replace('{p}', p.name);
+    toast(msg, newCid === G.player ? 'good' : 'war');
+    chron(msg);
+    requestSave();
+  } else if (wasCapital) {
+    chron(L.captured.replace('{a}', nameOf(C[newCid])).replace('{p}', p.name));
+  }
   if (!old.provs.length) {
     old.alive = false;
     for (const w of [...old.wars]) makePeace(old.id, w, true);
     for (const [apid, a] of [...armies]) if (a.cid === old.id) armies.delete(apid);
     toast(L.fell.replace('{a}', nameOf(old)), 'war');
+    chron(L.fell.replace('{a}', nameOf(old)));
     if (old.id === G.player) playerDefeated();
   } else if (P[old.capital].cid !== old.id) {
     let cap = old.provs[0];
@@ -1231,6 +1291,8 @@ function endTurn() {
   G.busy = true;
   document.getElementById('endTurn').disabled = true;
   sfx.turn();
+  const pc0 = C[G.player];
+  const prevGold = pc0 ? pc0.gold : 0, prevPop = pc0 ? popTotal(pc0) : 0;
   setTimeout(() => {
     for (const c of C) aiTurn(c);
     worldPhase();
@@ -1238,13 +1300,23 @@ function endTurn() {
     G.turn++;
     G.sel = -1; G.moveTargets = null;
     hidePanel();
+    miniForce = true;
     autosave();
+    // 턴 요약
+    if (pc0 && pc0.alive) {
+      const dG = pc0.gold - prevGold, dP = popTotal(pc0) - prevPop;
+      toast(`📅 ${dateStr()} · 💰 ${dG >= 0 ? '+' : ''}${fmt(dG)} · 👥 ${dP >= 0 ? '+' : ''}${fmt(dP)}`);
+    }
     // 승리 체크 (전 세계 60%)
     if (!G.wonShown && G.player >= 0 && C[G.player].alive) {
       const alive = P.filter(p => !p.dead).length;
       if (C[G.player].provs.length >= alive * 0.6) {
         G.wonShown = true;
         toast(L.victory, 'good'); sfx.fanfare();
+        chron('👑 ' + L.victory);
+        const myProvs = C[G.player].provs;
+        for (let i = 0; i < 10; i++)
+          setTimeout(() => { fxFlash(myProvs[(Math.random() * myProvs.length) | 0], i % 2 ? '#ffe28a' : '#ffffff'); }, i * 160);
       }
     }
     G.busy = false;
@@ -1289,6 +1361,7 @@ function serialize() {
     provs: P.map(p => [p.cid, p.pop, p.agri, p.tech, p.edu, Math.round(p.unrest * 100)]),
     armies: [...armies].map(([pid, a]) => [pid, a.cid, a.size]),
     hosp: hospitals.map(h => [h.pid, h.cid, h.n]),
+    chron: chronicle.map(e => [e.t, e.x]),
     cs: C.map(c => [Math.round(c.gold), c.alive ? 1 : 0, [...c.wars], c.capital, c.offers]),
     wm: [...warMeta].map(([k, m]) => [k, m.t, m.aG, m.bG]),
   };
@@ -1307,6 +1380,9 @@ function applySave(s) {
   for (const [pid, cid, size] of s.armies) armies.set(pid, { pid, cid, size, moved: false });
   hospitals.length = 0;
   for (const [pid, cid, n] of (s.hosp || [])) hospitals.push({ pid, cid, n });
+  chronicle.length = 0;
+  for (const [t, x] of (s.chron || [])) chronicle.push({ t, x });
+  miniForce = true;
   s.cs.forEach((row, i) => {
     const c = C[i];
     c.gold = row[0]; c.alive = !!row[1];
@@ -1319,8 +1395,11 @@ function applySave(s) {
   mapDirty = true;
 }
 function autosave() {
-  try { localStorage.setItem(GAME_KEY, JSON.stringify(serialize())); } catch (e) {}
+  if (G.mode !== 'play' || G.player < 0) return;
+  try { localStorage.setItem(GAME_KEY, JSON.stringify(serialize())); flashSaveInd(); } catch (e) {}
 }
+window.addEventListener('beforeunload', () => { if (G.mode === 'play') autosave(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && G.mode === 'play') autosave(); });
 
 /* ============================================================
    렌더링
@@ -1331,6 +1410,34 @@ let W = 0, H = 0, DPR = 1;
 const view = { x: MAPW / 2, y: MAPH / 2, z: 0.5 };
 let mapDirty = true, renderQueued = false;
 const fxList = [];
+
+/* ── 미니맵 ── */
+let miniCv = null, miniForce = true;
+const MINI_W = 192, MINI_H = 96;
+function buildMini() {
+  if (!miniCv) { miniCv = document.createElement('canvas'); miniCv.width = MINI_W; miniCv.height = MINI_H; }
+  const m = miniCv.getContext('2d');
+  m.setTransform(1, 0, 0, 1, 0, 0);
+  m.clearRect(0, 0, MINI_W, MINI_H);
+  if (terCanvas) m.drawImage(terCanvas, 0, 0, MINI_W, MINI_H);
+  m.scale(MINI_W / MAPW, MINI_H / MAPH);
+  for (const p of P) {
+    if (p.dead) continue;
+    m.fillStyle = colorOf(C[p.cid], 0.72);
+    m.fill(p.path, 'evenodd');
+  }
+  miniForce = false;
+}
+function miniRect() { return [W - MINI_W - 12, H - MINI_H - 12]; }
+function miniHit(sx, sy) {
+  if (G.mode !== 'play' || W < 640) return false;
+  const [mx0, my0] = miniRect();
+  if (sx < mx0 || sx > mx0 + MINI_W || sy < my0 || sy > my0 + MINI_H) return false;
+  view.x = (sx - mx0) / MINI_W * MAPW;
+  view.y = (sy - my0) / MINI_H * MAPH;
+  sfx.click(); requestRender();
+  return true;
+}
 
 function layout() {
   DPR = Math.min(window.devicePixelRatio || 1, 2);
@@ -1583,6 +1690,20 @@ function render() {
       cx.globalAlpha = 1;
     }
   }
+  // 미니맵 (우하단, 넓은 화면에서만)
+  if (G.mode === 'play' && W >= 640) {
+    if (miniForce || !miniCv) buildMini();
+    const [mx0, my0] = miniRect();
+    cx.globalAlpha = 0.94;
+    cx.drawImage(miniCv, mx0, my0);
+    cx.globalAlpha = 1;
+    cx.strokeStyle = 'rgba(255,255,255,.45)'; cx.lineWidth = 1.5;
+    cx.strokeRect(mx0 - 0.5, my0 - 0.5, MINI_W + 1, MINI_H + 1);
+    const [vxa, vya] = s2m(0, 0), [vxb, vyb] = s2m(W, H);
+    cx.strokeStyle = '#ffe28a'; cx.lineWidth = 1;
+    cx.strokeRect(mx0 + Math.max(0, vxa) * MINI_W / MAPW, my0 + Math.max(0, vya) * MINI_H / MAPH,
+      Math.min(MAPW, vxb - vxa) * MINI_W / MAPW, Math.min(MAPH, vyb - vya) * MINI_H / MAPH);
+  }
   if (fxList.length) requestRender();
 }
 function fxFlash(pid, color) { fxList.push({ type: 'flash', pid, color, dur: 700, until: performance.now() + 700 }); requestRender(); }
@@ -1641,15 +1762,38 @@ const sfx = {
   fanfare() { if (!AC || muted()) return; [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.34, 'triangle', 0.13, undefined, AC.currentTime + i * 0.12)); },
   lose() { if (!AC || muted()) return; [392, 311, 262, 196].forEach((f, i) => tone(f, 0.4, 'sine', 0.12, undefined, AC.currentTime + i * 0.18)); },
 };
-/* BGM: 잔잔한 단조 아르페지오 + 저음 패드 */
+/* BGM: 잔잔한 아르페지오 + 저음 패드 · 전쟁 중엔 단조 긴장 코드 + 드럼 */
 const BGM_STEP = 60 / 76 / 2;
 const BCHORD = [[220, 261.6, 329.6], [174.6, 220, 261.6], [196, 246.9, 293.7], [164.8, 196, 246.9]];
+const WCHORD = [[220, 261.6, 311.1], [207.7, 246.9, 311.1], [196, 233.1, 293.7], [233.1, 277.2, 349.2]];
+function bgmDrum(t, snare) {
+  const len = (AC.sampleRate * (snare ? 0.09 : 0.06)) | 0;
+  const buf = AC.createBuffer(1, len, AC.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let j = 0; j < len; j++) d[j] = (Math.random() * 2 - 1) * (1 - j / len);
+  const src = AC.createBufferSource(); src.buffer = buf;
+  const f = AC.createBiquadFilter();
+  f.type = snare ? 'bandpass' : 'lowpass'; f.frequency.value = snare ? 2200 : 140;
+  const gn = AC.createGain(); gn.gain.value = snare ? 0.05 : 0.14;
+  src.connect(f); f.connect(gn); gn.connect(bgmGain); src.start(t);
+  if (!snare) { // 킥 보강
+    const o = AC.createOscillator(), g2 = AC.createGain();
+    o.type = 'sine'; o.frequency.setValueAtTime(95, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.1);
+    g2.gain.setValueAtTime(0.11, t); g2.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+    o.connect(g2); g2.connect(bgmGain); o.start(t); o.stop(t + 0.14);
+  }
+}
 function bgmSchedule() {
   if (!AC) return;
   const ahead = AC.currentTime + 0.4;
+  const atWar = G.mode === 'play' && G.player >= 0 && C[G.player] && C[G.player].alive && C[G.player].wars.size > 0;
   while (bgmSchedule.next < ahead) {
     const t = bgmSchedule.next, i = bgmBeat % 64, bar = (i / 16) | 0;
-    const ch = BCHORD[bar % 4];
+    const ch = (atWar ? WCHORD : BCHORD)[bar % 4];
+    if (atWar) {
+      if (i % 8 === 0) bgmDrum(t, false);
+      else if (i % 8 === 4) bgmDrum(t, true);
+    }
     if (i % 16 === 0) { // 패드
       for (const f of ch) {
         const o = AC.createOscillator(), gn = AC.createGain();
@@ -1872,7 +2016,7 @@ function showPanel(pid) {
       if (ex && ex.cid === G.player) ex.size += batch;
       else if (!ex) armies.set(pid, { size: batch, cid: G.player, moved: false });
       else { toast('⚠', 'war'); pc.gold += cost; p.pop += Math.round(batch * 0.8); return; }
-      sfx.drum(); updateHUD(); showPanel(pid); requestRender();
+      sfx.drum(); updateHUD(); showPanel(pid); requestRender(); requestSave();
     };
   }
   for (const st of ['agri', 'tech', 'edu']) {
@@ -1883,7 +2027,7 @@ function showPanel(pid) {
       if (p[st] >= 10) return;
       if (pc.gold < cost) { toast(L.noGold, 'war'); return; }
       pc.gold -= cost; p[st]++;
-      sfx.coin(); updateHUD(); showPanel(pid);
+      sfx.coin(); updateHUD(); showPanel(pid); requestSave();
     };
   }
   // 힌트
@@ -1954,28 +2098,75 @@ function onClick(sx, sy) {
         }
         moveArmy(from, pid, amount); sfx.march();
         G.sel = -1; G.moveTargets = null; hidePanel();
-        updateHUD(); requestRender();
+        updateHUD(); requestRender(); requestSave();
         return;
       }
     }
   }
   // 선택
   G.sel = pid;
-  G.moveTargets = null;
-  const a = armies.get(pid);
-  if (a && a.cid === G.player && !a.moved) {
-    const pc = C[G.player];
-    G.moveTargets = [];
-    for (const q of adjArr[pid]) {
-      const tp = P[q];
-      if (tp.dead) continue;
-      if (tp.cid === G.player) G.moveTargets.push({ pid: q, enemy: false });
-      else if (pc.wars.has(tp.cid)) G.moveTargets.push({ pid: q, enemy: true });
-    }
-  }
+  G.moveTargets = buildMoveTargets(pid);
   sfx.click();
   showPanel(pid);
   requestRender();
+}
+function buildMoveTargets(pid) {
+  const a = armies.get(pid);
+  if (!(a && a.cid === G.player && !a.moved)) return null;
+  const pc = C[G.player];
+  const list = [];
+  for (const q of adjArr[pid]) {
+    const tp = P[q];
+    if (tp.dead) continue;
+    if (tp.cid === G.player) list.push({ pid: q, enemy: false });
+    else if (pc.wars.has(tp.cid)) list.push({ pid: q, enemy: true });
+  }
+  return list;
+}
+/* 대기(미이동) 군대 순환 탐색 */
+let idleIdx = -1;
+function findIdleArmy() {
+  if (G.mode !== 'play' || G.busy || G.player < 0) return;
+  const own = [...armies.entries()].filter(([pid, a]) => a.cid === G.player && !a.moved && !P[pid].dead);
+  if (!own.length) { toast(L.noIdle, 'good'); return; }
+  idleIdx = (idleIdx + 1) % own.length;
+  const pid = own[idleIdx][0];
+  view.x = P[pid].cx; view.y = P[pid].cy;
+  if (view.z < 2.2) view.z = 2.6;
+  G.sel = pid;
+  G.moveTargets = buildMoveTargets(pid);
+  showPanel(pid);
+  sfx.click();
+  requestRender();
+}
+/* 세계 패널 (순위 + 연대기) */
+function renderWorld() {
+  const rows = C.filter(c => c.alive && c.provs.length)
+    .map(c => ({ c, prov: c.provs.length, pop: popTotal(c), army: armyTotal(c.id), tech: techAvg(c) }));
+  rows.sort((a, b) => b.prov - a.prov || b.pop - a.pop);
+  let h = `<b class="wt">${L.rankTitle}</b><table class="rk"><tr><th>#</th><th></th><th>${L.colProv}</th><th>${L.pop}</th><th>${L.army}</th><th>${L.tech}</th></tr>`;
+  const rowHtml = (r, i) =>
+    `<tr${r.c.id === G.player ? ' class="me"' : ''}><td>${i + 1}</td><td><i class="cc" style="background:${colorOf(r.c, 1)}"></i>${nameOf(r.c)}</td><td>${r.prov}</td><td>${fmt(r.pop)}</td><td>${fmt(r.army)}</td><td>${r.tech.toFixed(1)}</td></tr>`;
+  rows.slice(0, 12).forEach((r, i) => { h += rowHtml(r, i); });
+  const meIdx = rows.findIndex(r => r.c.id === G.player);
+  if (meIdx >= 12) h += rowHtml(rows[meIdx], meIdx);
+  h += '</table>';
+  h += `<b class="wt">${L.chronTitle}</b><div class="chr">`;
+  if (!chronicle.length) h += `<div><small>—</small></div>`;
+  for (let i = chronicle.length - 1; i >= 0 && i > chronicle.length - 61; i--) {
+    const e = chronicle[i];
+    h += `<div><small>${L.turnOf} ${e.t}</small>${e.x}</div>`;
+  }
+  h += '</div>';
+  $('wlist').innerHTML = h;
+}
+function toggleWorld() {
+  const w = $('world');
+  if (w.style.display === 'flex') { w.style.display = 'none'; return; }
+  renderWorld();
+  $('diplo').style.display = 'none';
+  w.style.display = 'flex';
+  sfx.chime();
 }
 
 /* ── 외교 패널 ── */
@@ -2028,6 +2219,7 @@ const pointers = new Map();
 let dragInfo = null, pinch0 = 0, pinchZ0 = 0;
 cv.addEventListener('pointerdown', (e) => {
   audioInit();
+  if (miniHit(e.clientX, e.clientY)) { e.preventDefault(); return; }
   cv.setPointerCapture(e.pointerId);
   pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (pointers.size === 1) dragInfo = { x: e.clientX, y: e.clientY, moved: false };
@@ -2100,14 +2292,18 @@ function hover(sx, sy) {
   tip.style.top = Math.max(40, sy - 10) + 'px';
 }
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && G.mode === 'play') {
+  if (G.mode !== 'play') return;
+  if (e.key === 'Escape') {
     if ($('diplo').style.display === 'flex') $('diplo').style.display = 'none';
+    else if ($('world').style.display === 'flex') $('world').style.display = 'none';
     else { G.sel = -1; G.moveTargets = null; hidePanel(); requestRender(); }
+    return;
   }
-  if ((e.key === 'Enter' || e.key === ' ') && G.mode === 'play' && !G.busy) {
-    if (document.activeElement && document.activeElement.tagName === 'BUTTON') return;
-    endTurn();
-  }
+  if (document.activeElement && ['BUTTON', 'INPUT'].includes(document.activeElement.tagName)) return;
+  if (e.key === 'Enter' || e.key === ' ') { if (!G.busy) endTurn(); }
+  else if (e.key === 'f' || e.key === 'F') findIdleArmy();
+  else if (e.key === 'd' || e.key === 'D') $('diploBtn').click();
+  else if (e.key === 'c' || e.key === 'C') toggleWorld();
 });
 window.addEventListener('resize', layout);
 
@@ -2148,6 +2344,9 @@ function startPlay(cid) {
   view.x = c.cx; view.y = c.cy;
   view.z = Math.max(minZoom(), Math.min(5, Math.sqrt(60000 / Math.max(40, c.px))));
   bgmStart();
+  chronicle.length = 0;
+  chron(L.eraStart.replace('{n}', nameOf(c)));
+  miniForce = true; idleIdx = -1;
   autosave();
   updateHUD(); requestRender();
   toast('👑 ' + nameOf(c) + ' — ' + dateStr(), 'good');
@@ -2200,6 +2399,10 @@ function uiInit() {
   $('endTurn').textContent = L.endTurn;
   $('diploBtn').textContent = L.diplo;
   $('dtitle').textContent = L.diplo;
+  $('worldBtn').textContent = L.world;
+  $('wtitle').textContent = L.world;
+  $('idleBtn').title = L.noIdle;
+  $('helpBox').innerHTML = L.help + '<br>' + L.helpKeys;
   $('pickBack').textContent = L.back;
   applyMute();
   let hasSave = false;
@@ -2222,9 +2425,12 @@ function uiInit() {
   $('diploBtn').onclick = () => {
     const d = $('diplo');
     if (d.style.display === 'flex') d.style.display = 'none';
-    else { renderDiplo(); d.style.display = 'flex'; }
+    else { renderDiplo(); $('world').style.display = 'none'; d.style.display = 'flex'; }
   };
   $('dclose').onclick = () => { $('diplo').style.display = 'none'; };
+  $('worldBtn').onclick = toggleWorld;
+  $('wclose').onclick = () => { $('world').style.display = 'none'; };
+  $('idleBtn').onclick = findIdleArmy;
   $('muteBtn').onclick = () => { REC.muted = !REC.muted; storeRec(); applyMute(); };
   // 상단바 내역 팝업
   for (const [id, type] of [['tcGold', 'gold'], ['tcFood', 'food'], ['tcPop', 'pop'], ['tcArmy', 'army']]) {
@@ -2429,6 +2635,49 @@ function runSim() {
     const pool = hospitals.find(h => h.pid === pid && h.cid === c0.id);
     T('wounded recover to army over turns', after >= 2500 && (!pool || pool.n <= 7100),
       `returned=${after} pool=${pool ? pool.n : 0}`);
+  }
+  // 수도 약탈: 국고 30% 이전
+  {
+    const A = C.find(c => c.alive && c.provs.length >= 2 && c.capital >= 0 && P[c.capital] && P[c.capital].cid === c.id);
+    const B = C.find(c => c.alive && c.id !== A.id);
+    A.gold = 1000; const bg = B.gold;
+    captureProvince(A.capital, B.id);
+    T('capital loot transfers 30%', Math.abs(B.gold - bg - 300) <= 1 && Math.abs(A.gold - 700) <= 1,
+      `A=${A.gold.toFixed(0)} Bgain=${(B.gold - bg).toFixed(0)}`);
+  }
+  // 연대기 기록
+  {
+    const last0 = chronicle.length ? chronicle[chronicle.length - 1].x : '';
+    const a = C.find(c => c.alive), b = C.find(c => c.alive && c.id !== a.id && !a.wars.has(c.id));
+    declareWar(a.id, b.id);
+    const last1 = chronicle[chronicle.length - 1].x;
+    T('chronicle records events', last1 !== last0 && last1.includes(nameOf(a)), last1.slice(0, 40));
+  }
+  // 자동저장 페이로드
+  {
+    const bak = localStorage.getItem(GAME_KEY);
+    G.player = C.find(c => c.alive).id;
+    autosave();
+    let s = null; try { s = JSON.parse(localStorage.getItem(GAME_KEY)); } catch (e) {}
+    T('autosave payload valid', !!s && s.v === 1 && Array.isArray(s.hosp) && Array.isArray(s.chron) && Array.isArray(s.armies));
+    if (bak === null) localStorage.removeItem(GAME_KEY); else localStorage.setItem(GAME_KEY, bak);
+    G.player = -1;
+  }
+  // 세계 패널 렌더 스모크
+  {
+    let ok = true;
+    try { renderWorld(); ok = document.getElementById('wlist').innerHTML.length > 100; }
+    catch (e) { ok = false; }
+    T('world panel renders', ok);
+  }
+  // 미니맵 히트/점프
+  {
+    W = 1280; H = 720; G.mode = 'play';
+    buildMini();
+    const [mx0, my0] = miniRect();
+    const okHit = miniHit(mx0 + MINI_W / 2, my0 + MINI_H / 2);
+    T('minimap click jumps view', okHit && Math.abs(view.x - MAPW / 2) < 20 && Math.abs(view.y - MAPH / 2) < 20,
+      `view=${view.x.toFixed(0)},${view.y.toFixed(0)}`);
   }
   // 저장 라운드트립
   const s1 = JSON.stringify(serialize());

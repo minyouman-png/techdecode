@@ -73,6 +73,28 @@
   #infoPop .plus { color: #8be28a; } #infoPop .minus { color: #ff9a9a; }
   #infoPop .nt { font-size: 11px; color: #8fa3b8; margin-top: 4px; }
 
+  /* 세계 패널 (순위+연대기) */
+  #world { position: fixed; left: 10px; top: 52px; bottom: 10px; z-index: 8; width: min(94vw, 380px);
+    background: rgba(8,14,26,.96); border: 1px solid rgba(255,255,255,.2); border-radius: 12px;
+    padding: 12px; color: #e8eef5; display: none; flex-direction: column; }
+  #wlist { overflow-y: auto; flex: 1; font-size: 12.5px; }
+  #wlist .wt { display: block; color: #ffe28a; font-size: 14px; margin: 8px 0 5px; }
+  #wlist table.rk { border-collapse: collapse; width: 100%; }
+  #wlist .rk th { color: #8fa3b8; font-size: 10.5px; text-align: left; padding: 2px 6px 4px 2px; }
+  #wlist .rk td { padding: 3px 6px 3px 2px; border-top: 1px solid rgba(255,255,255,.08); white-space: nowrap; }
+  #wlist .rk tr.me td { color: #ffe28a; font-weight: 800; }
+  #wlist .cc { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  #wlist .chr div { padding: 3px 0; border-top: 1px solid rgba(255,255,255,.07); line-height: 1.5; }
+  #wlist .chr small { color: #7f95ab; margin-right: 6px; }
+  #wclose { position: absolute; right: 10px; top: 8px; background: none; border: none;
+    color: #aab; font-size: 18px; cursor: pointer; }
+
+  /* 자동저장 표시 */
+  #saveInd { position: fixed; left: 10px; bottom: 10px; z-index: 6; font-size: 15px;
+    color: #9fd8ff; background: rgba(0,0,0,.5); padding: 4px 10px; border-radius: 14px;
+    opacity: 0; transition: opacity .4s; pointer-events: none; }
+  #saveInd.show { opacity: 1; }
+
   /* 전투 리포트 */
   #brep { position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 8;
     display: none; min-width: 300px; max-width: min(94vw, 460px);
@@ -197,6 +219,8 @@
     <span class="tchip" id="tcTech"></span>
     <span class="tchip" id="tcDate"></span>
     <button class="tbtn2" id="diploBtn"></button>
+    <button class="tbtn2" id="worldBtn"></button>
+    <button class="tbtn2" id="idleBtn">🎯</button>
     <button class="tbtn2" id="muteBtn">🔊</button>
     <button class="tbtn2" id="exitBtn">≡</button>
     <button id="endTurn"></button>
@@ -219,10 +243,18 @@
     <div id="dlist"></div>
   </div>
 
+  <!-- 세계 패널 -->
+  <div id="world">
+    <button id="wclose">✕</button>
+    <h3 id="wtitle" style="color:#ffe28a;font-size:16px;margin-bottom:6px"></h3>
+    <div id="wlist"></div>
+  </div>
+
   <div id="log"></div>
   <div id="tip"></div>
   <div id="infoPop"></div>
   <div id="brep"></div>
+  <div id="saveInd">💾</div>
 
   <!-- 메인 메뉴 -->
   <div class="screen" id="menu" style="display:flex">
