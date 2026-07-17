@@ -49,7 +49,7 @@ const I18N = {
     finalScore: 'Score', peakProv: 'Peak provinces', survived: 'Turns reigned', newRecord: '🎉 New personal best!',
     dirs: { c: 'Central', n: 'North', s: 'South', e: 'East', w: 'West' },
     q: ['Q1', 'Q2', 'Q3', 'Q4'], newGameConfirm: 'Start a new game? The auto-save will be replaced.',
-    militia: 'militia', navalHint: '⚓ coastal — naval invasions possible within range',
+    militia: 'militia', navalHint: '⚓ coastal — sea crossings only via the nearest ports / short straits',
     send: '📤 Deploy size', atk: 'Attack', defP: 'Defense',
     techNote: 'Military tech {t} → combat ×{m} (defender bonus ×1.28)',
     perTurn: '/turn', brBase: 'base', brFoodB: 'food', brEduB: 'edu', brGrowth: 'growth',
@@ -105,7 +105,7 @@ const I18N = {
     finalScore: '점수', peakProv: '최대 영토', survived: '통치 턴수', newRecord: '🎉 개인 최고기록 갱신!',
     dirs: { c: '중부', n: '북부', s: '남부', e: '동부', w: '서부' },
     q: ['1분기', '2분기', '3분기', '4분기'], newGameConfirm: '새 게임을 시작할까요? 자동 저장이 교체됩니다.',
-    militia: '민병대', navalHint: '⚓ 해안 지역 — 사거리 내 상륙 작전 가능',
+    militia: '민병대', navalHint: '⚓ 해안 지역 — 바다는 가장 가까운 항구·짧은 해협으로만 건널 수 있습니다',
     send: '📤 파병 규모', atk: '공격력', defP: '방어력',
     techNote: '군사 기술 {t} → 전투력 ×{m} (방어 시 추가 ×1.28)',
     perTurn: '/턴', brBase: '기본', brFoodB: '식량', brEduB: '교육', brGrowth: '성장률',
@@ -161,7 +161,7 @@ const I18N = {
     finalScore: 'スコア', peakProv: '最大領土', survived: '統治ターン数', newRecord: '🎉 自己ベスト更新！',
     dirs: { c: '中部', n: '北部', s: '南部', e: '東部', w: '西部' },
     q: ['第1四半期', '第2四半期', '第3四半期', '第4四半期'], newGameConfirm: '新しいゲームを始めますか？自動セーブは置き換えられます。',
-    militia: '民兵', navalHint: '⚓ 沿岸州 — 射程内なら上陸作戦が可能',
+    militia: '民兵', navalHint: '⚓ 沿岸州 — 海は最寄りの港・短い海峡からのみ渡れます',
     send: '📤 派兵規模', atk: '攻撃力', defP: '防御力',
     techNote: '軍事技術 {t} → 戦闘力 ×{m} (防御時さらに ×1.28)',
     perTurn: '/ターン', brBase: '基本', brFoodB: '食料', brEduB: '教育', brGrowth: '成長率',
@@ -217,7 +217,7 @@ const I18N = {
     finalScore: 'Puntuación', peakProv: 'Máx. provincias', survived: 'Turnos de reinado', newRecord: '🎉 ¡Nueva mejor marca!',
     dirs: { c: 'Central', n: 'Norte', s: 'Sur', e: 'Este', w: 'Oeste' },
     q: ['T1', 'T2', 'T3', 'T4'], newGameConfirm: '¿Empezar una nueva partida? El autoguardado será reemplazado.',
-    militia: 'milicia', navalHint: '⚓ costera — invasiones navales posibles dentro del alcance',
+    militia: 'milicia', navalHint: '⚓ costera — el mar solo se cruza por los puertos más cercanos / estrechos cortos',
     send: '📤 Tropas a enviar', atk: 'Ataque', defP: 'Defensa',
     techNote: 'Tecnología militar {t} → combate ×{m} (defensor ×1.28 extra)',
     perTurn: '/turno', brBase: 'base', brFoodB: 'comida', brEduB: 'edu.', brGrowth: 'crecimiento',
@@ -273,7 +273,7 @@ const I18N = {
     finalScore: '分数', peakProv: '最大领土', survived: '统治回合数', newRecord: '🎉 刷新个人最佳！',
     dirs: { c: '中部', n: '北部', s: '南部', e: '东部', w: '西部' },
     q: ['第一季度', '第二季度', '第三季度', '第四季度'], newGameConfirm: '开始新游戏？自动存档将被替换。',
-    militia: '民兵', navalHint: '⚓ 沿海省份——射程内可发动登陆作战',
+    militia: '民兵', navalHint: '⚓ 沿海省份——只能经最近的港口/短海峡渡海',
     send: '📤 派兵规模', atk: '攻击力', defP: '防御力',
     techNote: '军事科技 {t} → 战斗力 ×{m}（防守方额外 ×1.28）',
     perTurn: '/回合', brBase: '基础', brFoodB: '粮食', brEduB: '教育', brGrowth: '增长率',
@@ -390,6 +390,7 @@ const P = [];   // 프로빈스
 let grid = null;          // Uint16 pid+1 per px (0=바다, 65535=중립대륙)
 let adjArr = [];          // pid → Int32Array 인접(육상+해상)
 let landAdj = [];         // pid → 육상 인접만
+let landComp = null;      // pid → 육상 연결 컴포넌트(대륙/섬) id
 let terCanvas = null;     // 지형 오프스크린
 let antarcticaPath = null;
 let cAdj = [];            // cid → Set(cid) 국가 인접
@@ -636,17 +637,32 @@ function generateWorld(seed) {
     if (!c.provs.length) c.alive = false;
   }
   landAdj = adjSets.map(s => Int32Array.from(s));
-  // 해상 인접 (해안 ↔ 해안, 랩어라운드 거리)
+  // 육상 연결 컴포넌트 (대륙/섬 단위)
+  landComp = new Int32Array(P.length).fill(-1);
+  {
+    let nc = 0;
+    for (const p of P) {
+      if (p.dead || landComp[p.id] >= 0) continue;
+      const st = [p.id]; landComp[p.id] = nc;
+      while (st.length) {
+        const u = st.pop();
+        for (const v of landAdj[u]) if (landComp[v] < 0 && !P[v].dead) { landComp[v] = nc; st.push(v); }
+      }
+      nc++;
+    }
+  }
+  // 해상 인접: 다른 대륙/섬과는 '최근접 항구' 쌍만, 같은 대륙 안에서는 짧은 해협만
+  const SHORT_CROSS2 = 22 * 22;   // 같은 대륙 해협 최대 ≈430km
   const navSets = P.map(() => new Set());
   const coastal = P.filter(p => p.coastal && !p.dead);
   const bucket = new Map();
   const BS = NAVAL_RANGE;
   for (const p of coastal) {
-    const bxk = Math.floor(p.cx / BS), byk = Math.floor(p.cy / BS);
-    const key = bxk + '_' + byk;
+    const key = Math.floor(p.cx / BS) + '_' + Math.floor(p.cy / BS);
     if (!bucket.has(key)) bucket.set(key, []);
     bucket.get(key).push(p);
   }
+  const navCand = [];
   for (const p of coastal) {
     const bxk = Math.floor(p.cx / BS), byk = Math.floor(p.cy / BS);
     const nbx = Math.ceil(MAPW / BS);
@@ -657,11 +673,28 @@ function generateWorld(seed) {
         if (q.id <= p.id) continue;
         let ddx = Math.abs(q.cx - p.cx); if (ddx > MAPW / 2) ddx = MAPW - ddx;
         const ddy = q.cy - p.cy;
-        if (ddx * ddx + ddy * ddy < NAVAL_RANGE * NAVAL_RANGE && !adjSets[p.id].has(q.id)) {
-          navSets[p.id].add(q.id); navSets[q.id].add(p.id);
-        }
+        const d2 = ddx * ddx + ddy * ddy;
+        if (d2 < NAVAL_RANGE * NAVAL_RANGE && !adjSets[p.id].has(q.id)) navCand.push([p.id, q.id, d2]);
       }
     }
+  }
+  // 컴포넌트쌍별 최단 항구 거리
+  const groupMin = new Map();
+  for (const [a, b, d2] of navCand) {
+    const ca = landComp[a], cb = landComp[b];
+    if (ca === cb) continue;
+    const k = ca < cb ? ca + '_' + cb : cb + '_' + ca;
+    if (!groupMin.has(k) || d2 < groupMin.get(k)) groupMin.set(k, d2);
+  }
+  for (const [a, b, d2] of navCand) {
+    const ca = landComp[a], cb = landComp[b];
+    if (ca === cb) {
+      if (d2 > SHORT_CROSS2) continue;                    // 같은 대륙: 짧은 해협만
+    } else {
+      const k = ca < cb ? ca + '_' + cb : cb + '_' + ca;
+      if (d2 > groupMin.get(k) * 1.8 + 16) continue;      // 다른 대륙: 최근접 항구권만
+    }
+    navSets[a].add(b); navSets[b].add(a);
   }
   adjArr = P.map((p, i) => Int32Array.from(new Set([...adjSets[i], ...navSets[i]])));
   // 국가 인접
@@ -2732,6 +2765,28 @@ function runSim() {
     const pool = hospitals.find(h => h.pid === pid && h.cid === c0.id);
     T('wounded recover to army over turns', after >= 2500 && (!pool || pool.n <= 7100),
       `returned=${after} pool=${pool ? pool.n : 0}`);
+  }
+  // 해상 인접 제약: 최근접 항구·짧은 해협만
+  {
+    const gb = C.find(c => c.iso === 'GB'), jp = C.find(c => c.iso === 'JP');
+    const pt = C.find(c => c.iso === 'PT'), it = C.find(c => c.iso === 'IT');
+    const frC = C.find(c => c.names.en === 'France');
+    const linked = (A, B) => !!A && !!B && A.provs.some(pid => adjArr[pid].some(q => P[q].cid === B.id));
+    T('naval: GB↔FR nearest-port link', linked(gb, frC));
+    T('naval: KR↔JP strait link', linked(kor, jp));
+    T('naval: no PT↔IT long jump', !linked(pt, it));
+    let badSame = 0, maxSame = 0;
+    for (const p of liveP) {
+      for (const q of adjArr[p.id]) {
+        if (q <= p.id || landAdj[p.id].includes(q)) continue;
+        if (landComp[p.id] !== landComp[q]) continue;
+        let ddx = Math.abs(P[q].cx - p.cx); if (ddx > MAPW / 2) ddx = MAPW - ddx;
+        const d = Math.hypot(ddx, P[q].cy - p.cy);
+        maxSame = Math.max(maxSame, d);
+        if (d > 23) badSame++;
+      }
+    }
+    T('naval: same-landmass links are short straits only', badSame === 0, `max=${maxSame.toFixed(1)}px`);
   }
   // 새 UX: 이동 플로우 (버튼 → 목표 → 병력 선택 → 확인)
   {
