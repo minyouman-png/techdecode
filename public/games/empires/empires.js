@@ -66,7 +66,12 @@ const I18N = {
     hospLost: '🏥 Field hospital in {p} captured — {n} wounded absorbed',
     world: '🌐 World', rankTitle: '🏆 World Ranking', chronTitle: '📜 Chronicle',
     eraStart: '📜 The era of {n} begins', loot: '💰 Capital sacked! +{n} gold',
-    noIdle: 'No idle armies — all have moved', helpKeys: '<b>F</b> next idle army · <b>D</b> diplomacy · <b>C</b> world/chronicle · click the minimap to jump',
+    noIdle: 'No idle armies — all have moved',
+    btnMove: '🚶 Move', btnAttack: '⚔ Attack', deployMove: '🚶 Move troops', deployAtk: '⚔ Attack with troops',
+    confirmBtn: 'Confirm', cancelBtn: 'Cancel', pickTarget: 'Click a highlighted target province',
+    noTargets: 'No adjacent target provinces (attack requires a nation at war)',
+    armyBtnHint: 'Press 🚶 Move or ⚔ Attack, then click a target province and choose how many troops to send.',
+    helpKeys: '<b>F</b> next idle army · <b>D</b> diplomacy · <b>C</b> world/chronicle · click the minimap to jump',
   },
   ko: {
     sub: '세계 역사 시뮬레이션', start: '🌍 새 게임', cont: '▶ 이어하기', records: '🏆 기록실',
@@ -117,7 +122,12 @@ const I18N = {
     hospLost: '🏥 {p}의 야전병원 함락 — 부상병 {n} 흡수됨',
     world: '🌐 세계', rankTitle: '🏆 세계 순위', chronTitle: '📜 연대기',
     eraStart: '📜 {n}의 시대가 시작되다', loot: '💰 수도 약탈! 금 +{n} 획득',
-    noIdle: '대기 중인 군대가 없습니다 — 전부 이동 완료', helpKeys: '<b>F</b> 대기 군대 찾기 · <b>D</b> 외교 · <b>C</b> 세계/연대기 · 우하단 미니맵 클릭=이동',
+    noIdle: '대기 중인 군대가 없습니다 — 전부 이동 완료',
+    btnMove: '🚶 이동', btnAttack: '⚔ 공격', deployMove: '🚶 이동 병력 선택', deployAtk: '⚔ 공격 병력 선택',
+    confirmBtn: '확인', cancelBtn: '취소', pickTarget: '강조된 목표 프로빈스를 클릭하세요',
+    noTargets: '인접한 대상 지역이 없습니다 (공격은 전쟁 중인 국가만 가능)',
+    armyBtnHint: '🚶 이동 또는 ⚔ 공격 버튼을 누른 뒤, 목표 지역을 클릭하고 보낼 병력을 정하세요.',
+    helpKeys: '<b>F</b> 대기 군대 찾기 · <b>D</b> 외교 · <b>C</b> 세계/연대기 · 우하단 미니맵 클릭=이동',
   },
   ja: {
     sub: '世界歴史シミュレーション', start: '🌍 新しいゲーム', cont: '▶ つづきから', records: '🏆 記録室',
@@ -168,7 +178,12 @@ const I18N = {
     hospLost: '🏥 {p}の野戦病院が陥落 — 負傷兵 {n} が吸収された',
     world: '🌐 世界', rankTitle: '🏆 世界ランキング', chronTitle: '📜 年代記',
     eraStart: '📜 {n}の時代が始まる', loot: '💰 首都を略奪！ 金 +{n} 獲得',
-    noIdle: '待機中の軍はありません — すべて移動済み', helpKeys: '<b>F</b> 待機軍を探す · <b>D</b> 外交 · <b>C</b> 世界/年代記 · 右下ミニマップクリック=移動',
+    noIdle: '待機中の軍はありません — すべて移動済み',
+    btnMove: '🚶 移動', btnAttack: '⚔ 攻撃', deployMove: '🚶 移動する兵力を選択', deployAtk: '⚔ 攻撃する兵力を選択',
+    confirmBtn: '決定', cancelBtn: 'キャンセル', pickTarget: 'ハイライトされた目標州をクリック',
+    noTargets: '隣接する対象州がありません (攻撃は交戦中の国のみ)',
+    armyBtnHint: '🚶 移動 か ⚔ 攻撃 ボタンを押し、目標州をクリックして派兵数を決めましょう。',
+    helpKeys: '<b>F</b> 待機軍を探す · <b>D</b> 外交 · <b>C</b> 世界/年代記 · 右下ミニマップクリック=移動',
   },
   es: {
     sub: 'SIMULACIÓN DE HISTORIA MUNDIAL', start: '🌍 Nueva partida', cont: '▶ Continuar', records: '🏆 Récords',
@@ -219,7 +234,12 @@ const I18N = {
     hospLost: '🏥 Hospital de campaña de {p} capturado — {n} heridos absorbidos',
     world: '🌐 Mundo', rankTitle: '🏆 Ranking mundial', chronTitle: '📜 Crónica',
     eraStart: '📜 Comienza la era de {n}', loot: '💰 ¡Capital saqueada! +{n} de oro',
-    noIdle: 'No hay ejércitos inactivos — todos se han movido', helpKeys: '<b>F</b> siguiente ejército inactivo · <b>D</b> diplomacia · <b>C</b> mundo/crónica · clic en el minimapa para saltar',
+    noIdle: 'No hay ejércitos inactivos — todos se han movido',
+    btnMove: '🚶 Mover', btnAttack: '⚔ Atacar', deployMove: '🚶 Elegir tropas a mover', deployAtk: '⚔ Elegir tropas de ataque',
+    confirmBtn: 'Confirmar', cancelBtn: 'Cancelar', pickTarget: 'Haz clic en una provincia objetivo resaltada',
+    noTargets: 'No hay provincias objetivo adyacentes (atacar requiere una nación en guerra)',
+    armyBtnHint: 'Pulsa 🚶 Mover o ⚔ Atacar, luego haz clic en el objetivo y elige cuántas tropas enviar.',
+    helpKeys: '<b>F</b> siguiente ejército inactivo · <b>D</b> diplomacia · <b>C</b> mundo/crónica · clic en el minimapa para saltar',
   },
   zh: {
     sub: '世界历史模拟', start: '🌍 新游戏', cont: '▶ 继续游戏', records: '🏆 记录室',
@@ -270,7 +290,12 @@ const I18N = {
     hospLost: '🏥 {p}的野战医院陷落——{n} 名伤兵被吸收',
     world: '🌐 世界', rankTitle: '🏆 世界排名', chronTitle: '📜 编年史',
     eraStart: '📜 {n}的时代开始了', loot: '💰 首都遭劫掠！获得金币 +{n}',
-    noIdle: '没有待命的军队——全部已行动', helpKeys: '<b>F</b> 查找待命军队 · <b>D</b> 外交 · <b>C</b> 世界/编年史 · 点击右下小地图跳转',
+    noIdle: '没有待命的军队——全部已行动',
+    btnMove: '🚶 移动', btnAttack: '⚔ 进攻', deployMove: '🚶 选择移动兵力', deployAtk: '⚔ 选择进攻兵力',
+    confirmBtn: '确认', cancelBtn: '取消', pickTarget: '点击高亮的目标省份',
+    noTargets: '没有相邻的目标省份（进攻需要处于交战状态）',
+    armyBtnHint: '按 🚶 移动 或 ⚔ 进攻 按钮，点击目标省份后选择派出的兵力。',
+    helpKeys: '<b>F</b> 查找待命军队 · <b>D</b> 外交 · <b>C</b> 世界/编年史 · 点击右下小地图跳转',
   },
 };
 let LANG = new URLSearchParams(location.search).get('lang');
@@ -831,7 +856,7 @@ const armies = new Map();  // pid → {size, cid, moved}
 const G = {
   mode: 'menu', player: -1, turn: 0, sel: -1, moveTargets: null,
   peakProv: 0, peakPop: 0, busy: false, recorded: false, wonShown: false,
-  sendPct: 100,
+  sendPct: 100, targetMode: null, pendingTarget: null,
 };
 const warMeta = new Map(); // 'a_b' → {t, aG, bG}
 function wkey(a, b) { return a < b ? a + '_' + b : b + '_' + a; }
@@ -1298,6 +1323,7 @@ function endTurn() {
     worldPhase();
     for (const a of armies.values()) a.moved = false;
     G.turn++;
+    cancelTarget();
     G.sel = -1; G.moveTargets = null;
     hidePanel();
     miniForce = true;
@@ -1995,28 +2021,24 @@ function showPanel(pid) {
   let hw = 0;
   for (const h of hospitals) if (h.pid === pid) hw += h.n;
   if (hw) rows.push(row(L.hosp, fmt(hw)));
-  // 파병 슬라이더
-  const canSend = mine && a && a.cid === G.player && !a.moved;
-  if (canSend) {
-    const amt = Math.max(100, Math.round(a.size * G.sendPct / 100));
-    rows.push(`<div class="prow"><span>${L.send}</span><input type="range" id="sendR" min="10" max="100" step="5" value="${G.sendPct}"><b id="sendV">${G.sendPct}% (${fmt(amt)})</b></div>`);
-  }
   $('prows').innerHTML = rows.join('');
-  if (canSend) {
-    const sr = $('sendR');
-    sr.oninput = () => {
-      G.sendPct = +sr.value;
-      $('sendV').textContent = `${G.sendPct}% (${fmt(Math.max(100, Math.round(a.size * G.sendPct / 100)))})`;
-    };
-  }
+  const canSend = mine && a && a.cid === G.player && !a.moved;
   // 액션
   const act = [];
+  if (canSend) {
+    act.push(`<button id="moveBtn" style="background:#2a7a4f">${L.btnMove}</button>`);
+    act.push(`<button id="atkBtn" style="background:#b03040">${L.btnAttack}</button>`);
+  }
   if (mine) {
     const batch = Math.max(1000, Math.min(200000, Math.round(p.pop * 0.05 / 1000) * 1000));
     const cost = Math.round(batch * 0.12);
     act.push(`<button id="recruitBtn" ${C[G.player].gold < cost ? 'disabled' : ''}>${L.recruit} ${fmt(batch)} (💰${fmt(cost)})</button>`);
   }
   $('pactions').innerHTML = act.join('');
+  if (canSend) {
+    $('moveBtn').onclick = () => enterTarget(pid, 'move');
+    $('atkBtn').onclick = () => enterTarget(pid, 'attack');
+  }
   if (mine) {
     const rb = $('recruitBtn');
     if (rb) rb.onclick = () => {
@@ -2046,7 +2068,7 @@ function showPanel(pid) {
   }
   // 힌트
   let hint = '';
-  if (mine && a && a.cid === G.player && !a.moved) hint = L.moveHint;
+  if (canSend) hint = G.targetMode ? '👉 ' + L.pickTarget : L.armyBtnHint;
   else if (!mine && C[G.player] && C[G.player].wars.has(p.cid)) hint = L.attackHint;
   else if (!mine) hint = L.foreignHint;
   if (p.coastal) hint += (hint ? '<br>' : '') + L.navalHint;
@@ -2096,46 +2118,100 @@ function onClick(sx, sy) {
     return;
   }
   if (G.mode !== 'play' || G.busy) return;
-  if (pid < 0) { G.sel = -1; G.moveTargets = null; hidePanel(); requestRender(); return; }
-  // 이동/공격 대상 클릭?
-  if (G.moveTargets) {
+  if (pid < 0) {
+    if (G.targetMode) cancelTarget();
+    G.sel = -1; G.moveTargets = null; hidePanel(); requestRender(); return;
+  }
+  // 목표 지정 모드: 강조된 대상 클릭 → 파병 다이얼로그
+  if (G.targetMode && G.moveTargets) {
     const t = G.moveTargets.find(t => t.pid === pid);
-    if (t) {
-      const from = G.sel;
-      const a = armies.get(from);
-      if (a && a.cid === G.player && !a.moved) {
-        const amount = Math.max(100, Math.round(a.size * G.sendPct / 100));
-        if (t.enemy) {
-          G.sel = -1; G.moveTargets = null; hidePanel();
-          playerBattle(from, pid, amount);
-          return;
-        }
-        moveArmy(from, pid, amount); sfx.march();
-        G.sel = -1; G.moveTargets = null; hidePanel();
-        updateHUD(); requestRender(); requestSave();
-        return;
-      }
-    }
+    if (t) { openDeploy(G.sel, t.pid, t.enemy); return; }
+    cancelTarget(); // 다른 곳 클릭 = 취소 후 일반 선택으로
   }
   // 선택
   G.sel = pid;
-  G.moveTargets = buildMoveTargets(pid);
+  G.moveTargets = null;
   sfx.click();
   showPanel(pid);
   requestRender();
 }
-function buildMoveTargets(pid) {
+/* 목표 지정 모드 진입: mode = 'move' | 'attack' */
+function enterTarget(pid, mode) {
   const a = armies.get(pid);
-  if (!(a && a.cid === G.player && !a.moved)) return null;
+  if (!(a && a.cid === G.player && !a.moved)) return false;
   const pc = C[G.player];
   const list = [];
   for (const q of adjArr[pid]) {
     const tp = P[q];
     if (tp.dead) continue;
-    if (tp.cid === G.player) list.push({ pid: q, enemy: false });
-    else if (pc.wars.has(tp.cid)) list.push({ pid: q, enemy: true });
+    if (mode === 'move' && tp.cid === G.player) list.push({ pid: q, enemy: false });
+    if (mode === 'attack' && tp.cid !== G.player && pc.wars.has(tp.cid)) list.push({ pid: q, enemy: true });
   }
-  return list;
+  if (!list.length) { toast(L.noTargets, 'war'); return false; }
+  G.targetMode = mode;
+  G.sel = pid;
+  G.moveTargets = list;
+  const ph = $('phint');
+  if (ph) ph.innerHTML = '👉 ' + L.pickTarget;
+  sfx.click();
+  requestRender();
+  return true;
+}
+function cancelTarget() {
+  G.targetMode = null; G.moveTargets = null; G.pendingTarget = null;
+  $('deploy').style.display = 'none';
+  requestRender();
+}
+/* 파병 다이얼로그: 목표 확정 후 병력 규모 선택 */
+function openDeploy(from, to, enemy) {
+  const a = armies.get(from);
+  if (!a || a.cid !== G.player || a.moved) { cancelTarget(); return; }
+  G.pendingTarget = { from, to, enemy };
+  const tp = P[to];
+  $('depTitle').textContent = (enemy ? L.deployAtk : L.deployMove);
+  let info = `${P[from].name} → <b>${tp.name}</b> (${nameOf(C[tp.cid])})`;
+  if (enemy) {
+    const da = armies.get(to);
+    const defSize = (da ? da.size : 0) + Math.round(militiaOf(tp));
+    const defPow = defSize * (1 + 0.12 * techAvg(C[tp.cid])) * 1.28;
+    info += `<br><span class="pw2">${L.defP} ${fmt(defPow)}</span> (⚔️ ${fmt(da ? da.size : 0)} + ${L.militia} ${fmt(militiaOf(tp))})`;
+    const myPow = a.size * (1 + 0.12 * techAvg(C[G.player]));
+    info += ` · <span class="pw">${L.atk} ${fmt(myPow)}</span>`;
+  }
+  $('depInfo').innerHTML = info;
+  const okBtn = $('depOk');
+  okBtn.textContent = (enemy ? L.btnAttack : L.btnMove) + ' — ' + L.confirmBtn;
+  okBtn.className = enemy ? 'atk' : 'mv';
+  $('depR').value = G.sendPct;
+  updateDeployLabel();
+  $('deploy').style.display = 'block';
+  sfx.chime();
+}
+function updateDeployLabel() {
+  const pt = G.pendingTarget;
+  if (!pt) return;
+  const a = armies.get(pt.from);
+  if (!a) return;
+  const amt = Math.max(100, Math.round(a.size * G.sendPct / 100));
+  $('depV').textContent = `${G.sendPct}% (${fmt(amt)})`;
+}
+function confirmDeploy() {
+  const pt = G.pendingTarget;
+  if (!pt) return;
+  const a = armies.get(pt.from);
+  if (!a || a.cid !== G.player || a.moved) { cancelTarget(); return; }
+  const amount = Math.max(100, Math.round(a.size * G.sendPct / 100));
+  $('deploy').style.display = 'none';
+  G.pendingTarget = null;
+  G.targetMode = null; G.moveTargets = null; G.sel = -1;
+  hidePanel();
+  if (pt.enemy) {
+    playerBattle(pt.from, pt.to, amount);
+  } else {
+    moveArmy(pt.from, pt.to, amount);
+    sfx.march();
+    updateHUD(); requestRender(); requestSave();
+  }
 }
 /* 대기(미이동) 군대 순환 탐색 */
 let idleIdx = -1;
@@ -2147,8 +2223,8 @@ function findIdleArmy() {
   const pid = own[idleIdx][0];
   view.x = P[pid].cx; view.y = P[pid].cy;
   if (view.z < 2.2) view.z = 2.6;
+  cancelTarget();
   G.sel = pid;
-  G.moveTargets = buildMoveTargets(pid);
   showPanel(pid);
   sfx.click();
   requestRender();
@@ -2308,7 +2384,9 @@ function hover(sx, sy) {
 window.addEventListener('keydown', (e) => {
   if (G.mode !== 'play') return;
   if (e.key === 'Escape') {
-    if ($('diplo').style.display === 'flex') $('diplo').style.display = 'none';
+    if ($('deploy').style.display === 'block') { $('deploy').style.display = 'none'; G.pendingTarget = null; }
+    else if (G.targetMode) cancelTarget();
+    else if ($('diplo').style.display === 'flex') $('diplo').style.display = 'none';
     else if ($('world').style.display === 'flex') $('world').style.display = 'none';
     else { G.sel = -1; G.moveTargets = null; hidePanel(); requestRender(); }
     return;
@@ -2435,7 +2513,12 @@ function uiInit() {
   $('pickBack').onclick = () => { G.mode = 'menu'; $('pick').style.display = 'none'; showScreen('menu'); };
   $('pcGo').onclick = () => { if (pickSel >= 0) startPlay(pickSel); };
   $('endTurn').onclick = endTurn;
-  $('pclose').onclick = () => { G.sel = -1; G.moveTargets = null; hidePanel(); requestRender(); };
+  $('pclose').onclick = () => { cancelTarget(); G.sel = -1; hidePanel(); requestRender(); };
+  // 파병 다이얼로그
+  $('depNo').textContent = L.cancelBtn;
+  $('depNo').onclick = () => { $('deploy').style.display = 'none'; G.pendingTarget = null; };
+  $('depOk').onclick = confirmDeploy;
+  $('depR').addEventListener('input', () => { G.sendPct = +$('depR').value; updateDeployLabel(); });
   $('diploBtn').onclick = () => {
     const d = $('diplo');
     if (d.style.display === 'flex') d.style.display = 'none';
@@ -2650,6 +2733,60 @@ function runSim() {
     T('wounded recover to army over turns', after >= 2500 && (!pool || pool.n <= 7100),
       `returned=${after} pool=${pool ? pool.n : 0}`);
   }
+  // 새 UX: 이동 플로우 (버튼 → 목표 → 병력 선택 → 확인)
+  {
+    let ok = false, det = 'no candidate';
+    for (const [pid, a] of armies) {
+      if (P[pid].dead || a.size < 2000) continue;
+      const q = [...landAdj[pid]].find(x => P[x].cid === a.cid && !armies.has(x) && !P[x].dead);
+      if (q === undefined) continue;
+      G.mode = 'play'; G.player = a.cid; a.moved = false;
+      const before = a.size;
+      const entered = enterTarget(pid, 'move');
+      const targetsOk = entered && G.targetMode === 'move' &&
+        G.moveTargets.some(t => t.pid === q) && G.moveTargets.every(t => !t.enemy);
+      openDeploy(pid, q, false);
+      G.sendPct = 50; updateDeployLabel();
+      confirmDeploy();
+      const s1 = armies.get(pid), s2 = armies.get(q);
+      ok = targetsOk && !!s1 && !!s2 && s1.size + s2.size === before && G.targetMode === null && !G.pendingTarget;
+      det = `targets=${targetsOk} ${before}→${s1 && s1.size}+${s2 && s2.size}`;
+      break;
+    }
+    T('new move flow (button→target→amount)', ok, det);
+    G.player = -1; G.sendPct = 100;
+  }
+  // 새 UX: 공격 플로우 — 다이얼로그 확인 → 전투 연출 → 종료 시 결과 적용
+  {
+    let ok = false, det = 'no candidate';
+    outer3:
+    for (const p of liveP) {
+      if (!C[p.cid].alive) continue;
+      for (const q of landAdj[p.id]) {
+        const tq = P[q];
+        if (tq.dead || tq.cid === p.cid || !C[tq.cid].alive) continue;
+        G.mode = 'play'; G.player = p.cid;
+        declareWar(p.cid, tq.cid, true);
+        armies.set(p.id, { size: 90000, cid: p.cid, moved: false });
+        const entered = enterTarget(p.id, 'attack');
+        const targetsOk = entered && G.targetMode === 'attack' && G.moveTargets.every(t => t.enemy) &&
+          G.moveTargets.some(t => t.pid === q);
+        openDeploy(p.id, q, true);
+        confirmDeploy();
+        const animOn = G.busy === true && fxList.some(f => f.type === 'battle');
+        // 연출 강제 종료 → 결과 적용 경로 검증
+        for (const f of fxList) if (f.type === 'battle') f.until = performance.now() - 1;
+        render();
+        const applied = !G.busy && !fxList.some(f => f.type === 'battle');
+        const outcome = P[q].cid === p.cid || armies.has(p.id); // 승리 점령 or 패배 후 본대 잔존
+        ok = targetsOk && animOn && applied && outcome;
+        det = `targets=${targetsOk} anim=${animOn} applied=${applied} captured=${P[q].cid === p.cid}`;
+        break outer3;
+      }
+    }
+    T('new attack flow (dialog→animation→apply)', ok, det);
+    G.player = -1;
+  }
   // 수도 약탈: 국고 30% 이전
   {
     const A = C.find(c => c.alive && c.provs.length >= 2 && c.capital >= 0 && P[c.capital] && P[c.capital].cid === c.id);
@@ -2740,6 +2877,14 @@ function setupShot() {
   toast(L.warDeclared.replace('{a}', nameOf(fr || C[0])).replace('{b}', nameOf(de || C[1])), 'war');
   toast(L.ev_tech.replace('{p}', P[p0].name), 'good');
   requestRender();
+  // ?shot=2: 파병 다이얼로그 확인용
+  if (qs.get('shot') === '2' && de) {
+    const src = de.provs.find(x => armies.has(x));
+    if (src) {
+      const own = [...adjArr[src]].find(x => P[x].cid === de.id && !P[x].dead);
+      if (own !== undefined && enterTarget(src, 'move')) openDeploy(src, own, false);
+    }
+  }
   window._SHOT_READY = true;
 }
 

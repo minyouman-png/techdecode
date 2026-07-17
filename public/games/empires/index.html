@@ -89,6 +89,23 @@
   #wclose { position: absolute; right: 10px; top: 8px; background: none; border: none;
     color: #aab; font-size: 18px; cursor: pointer; }
 
+  /* 파병 다이얼로그 (목표 선택 후 병력 규모 확정) */
+  #deploy { position: fixed; left: 50%; bottom: 110px; transform: translateX(-50%); z-index: 9;
+    display: none; min-width: 290px; max-width: 92vw;
+    background: rgba(10,14,28,.97); border: 1px solid rgba(255,226,138,.55); border-radius: 12px;
+    padding: 13px 16px; color: #e8eef5; box-shadow: 0 6px 26px rgba(0,0,0,.55); }
+  #deploy b.dt { color: #ffe28a; font-size: 14.5px; }
+  #depInfo { font-size: 12.5px; color: #b8c8d8; margin: 6px 0 8px; line-height: 1.6; }
+  #depInfo .pw { color: #ffb0b0; } #depInfo .pw2 { color: #9fd8ff; }
+  .deprow { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .deprow input[type=range] { flex: 1; accent-color: #ffe28a; height: 24px; }
+  .deprow b { min-width: 108px; text-align: right; font-size: 13px; }
+  .depbtns { display: flex; gap: 8px; }
+  .depbtns button { flex: 1; padding: 10px 8px; font-size: 14px; font-weight: 800; cursor: pointer;
+    border-radius: 8px; color: #fff; border: 2px solid rgba(0,0,0,.45); border-bottom-width: 4px; }
+  #depOk.mv { background: #2a7a4f; } #depOk.atk { background: #b03040; }
+  #depNo { background: #44506a; flex: 0 0 30%; }
+
   /* 자동저장 표시 */
   #saveInd { position: fixed; left: 10px; bottom: 10px; z-index: 6; font-size: 15px;
     color: #9fd8ff; background: rgba(0,0,0,.5); padding: 4px 10px; border-radius: 14px;
@@ -255,6 +272,14 @@
   <div id="infoPop"></div>
   <div id="brep"></div>
   <div id="saveInd">💾</div>
+
+  <!-- 파병 다이얼로그 -->
+  <div id="deploy">
+    <b class="dt" id="depTitle"></b>
+    <div id="depInfo"></div>
+    <div class="deprow"><input type="range" id="depR" min="10" max="100" step="5"><b id="depV"></b></div>
+    <div class="depbtns"><button id="depOk"></button><button id="depNo"></button></div>
+  </div>
 
   <!-- 메인 메뉴 -->
   <div class="screen" id="menu" style="display:flex">
