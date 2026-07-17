@@ -145,6 +145,100 @@ export interface GameEntry {
 
 export const games: GameEntry[] = [
   {
+    slug: 'super-uja',
+    released: '2026-07',
+    tech: 'Canvas 2D · Web Audio',
+    playPath: '/games/uja/index.html',
+    cover: '/games/uja/cover.jpg',
+    copy: {
+      en: {
+        title: 'SUPER UJA',
+        tagline: 'A cute side-scrolling platformer set in old Korea — 5 stages of Joseon, Korean folk spirits, a rideable unicorn, and King Yeomra as the final boss.',
+        about: [
+          'SUPER UJA is a side-scrolling platformer in the spirit of the great mascot classics, reimagined entirely with Korean flavor. You play as Uja, a cheerful girl in hanbok, running and jumping across five hand-built stages of the Joseon dynasty: a thatched-roof village, a pine forest at sunset, moonlit palace rooftops, the road to the underworld, and the palace of King Yeomra himself. Every character, tile and background is drawn with vector code — no downloaded art.',
+          'Instead of the usual enemies, the world is haunted by Korean folk spirits: the maiden ghost (cheonyeo-gwisin) drifts toward you, the black-robed grim reaper leaves behind a sliding gat hat when stomped, mischievous dokkaebi goblins hop about, faceless egg-ghosts bob in the air, and the nine-tailed gumiho fox dashes at you. Stomp them the classic way — and ride Uni, a pastel unicorn who takes the place of the famous dinosaur mount, complete with a sparkly mid-air double jump.',
+          'Collect yeopjeon coins (100 for an extra life), smash lucky-pouch blocks for yuja fruit power-ups, and grab a dokkaebi flame for brief invincibility. Reach the flag at each stage, and at the very end, face King Yeomra, lord of the underworld, in a five-hit boss battle. Your score and the stage you reached are saved under your nickname in a local top-10 leaderboard — and your progress auto-saves so you can continue from the last stage you were on.',
+          'Like everything on this shelf, this game was built entirely by AI in July 2026 from a single prompt — the physics, the level design, the folk-spirit artwork, the gugak-flavored soundtrack. A playable snapshot of what AI could build at that moment.',
+        ],
+        how: [
+          '← → — move · Space / ↑ — jump (hold for a higher jump) · Shift — run',
+          'Stomp on spirits to defeat them · reapers drop a sliding gat hat',
+          'Ride the unicorn Uni for a sparkly double jump',
+          '100 yeopjeon coins = 1 extra life · lucky-pouch blocks hide yuja fruit · ESC pauses',
+          '📱 Mobile — on-screen buttons: move, jump and run',
+        ],
+      },
+      ko: {
+        title: '슈퍼유자',
+        tagline: '조선시대 배경의 아기자기한 횡스크롤 플랫포머 — 조선 5스테이지, 한국 요괴, 탈 수 있는 유니콘, 최종보스 염라대왕까지.',
+        about: [
+          '슈퍼유자는 명작 마스코트 플랫포머의 감성을 온전히 한국풍으로 재해석한 횡스크롤 액션 게임입니다. 한복을 입은 명랑한 소녀 유자가 되어, 손으로 설계한 조선시대 다섯 스테이지를 달리고 뛰어넘습니다. 초가마을, 석양의 소나무 숲, 달빛 궁궐 지붕, 저승길, 그리고 염라대왕의 궁궐까지. 캐릭터·타일·배경 전부 이미지 파일 없이 벡터 코드로 그렸습니다.',
+          '흔한 적 대신 이 세계엔 한국 요괴들이 출몰합니다. 스르륵 다가오는 처녀귀신, 밟으면 미끄러지는 갓을 남기는 검은 도포의 저승사자, 폴짝대는 도깨비, 허공에 둥실대는 얼굴 없는 달걀귀신, 그리고 쏜살같이 달려드는 아홉 꼬리 구미호까지. 고전 방식 그대로 밟아서 물리치세요. 그리고 그 유명한 공룡 탈것 자리를 대신하는 파스텔빛 유니콘 유니를 타면, 반짝이는 공중 2단 점프까지 쓸 수 있습니다.',
+          '엽전을 모으고(100개면 생명 +1), 복주머니 블록을 쳐서 유자열매 파워업을 얻고, 도깨비불을 먹으면 잠깐 무적이 됩니다. 각 스테이지 끝의 깃발에 도달하고, 마지막엔 저승의 지배자 염라대왕과 5번 밟기 보스전을 치릅니다. 점수와 도달 스테이지는 닉네임과 함께 로컬 Top10 랭킹에 저장되고, 진행 상황이 자동 저장되어 마지막 스테이지부터 이어할 수 있습니다.',
+          '이 선반의 다른 게임처럼, 이 게임도 2026년 7월 단 하나의 프롬프트로 AI가 전부 만들었습니다 — 물리, 레벨 디자인, 요괴 그래픽, 국악풍 사운드까지. 그 시점의 AI가 만들 수 있었던 것의 플레이 가능한 기록입니다.',
+        ],
+        how: [
+          '← → — 이동 · Space / ↑ — 점프(길게 누르면 더 높이) · Shift — 달리기',
+          '요괴는 밟아서 물리치세요 · 저승사자는 미끄러지는 갓을 남깁니다',
+          '유니콘 유니를 타면 반짝이는 2단 점프!',
+          '엽전 100개 = 생명 +1 · 복주머니 블록엔 유자열매가 · ESC로 일시정지',
+          '📱 모바일 — 화면 버튼: 이동·점프·달리기',
+        ],
+      },
+      ja: {
+        title: 'スーパーユジャ',
+        tagline: '朝鮮時代が舞台のかわいい横スクロールアクション — 朝鮮の5ステージ、韓国の妖怪、乗れるユニコーン、そしてラスボスは閻魔大王。',
+        about: [
+          'スーパーユジャは、名作マスコット・プラットフォーマーの魂を丸ごと韓国風に再解釈した横スクロールアクションです。韓服(ハンボク)を着た明るい少女ユジャとなり、手作りの朝鮮王朝5ステージを走り、跳びます。わらぶきの村、夕暮れの松林、月明かりの宮殿の屋根、冥途の道、そして閻魔大王の宮殿へ。キャラも地形も背景も、画像ファイルを使わずすべてベクターコードで描いています。',
+          'ありふれた敵の代わりに、この世界には韓国の妖怪が出没します。すっと近づく処女鬼神、踏むと滑る笠(カッ)を残す黒い道袍の死者の使い、跳ね回るトッケビ、宙をふわふわ漂う顔のない卵鬼神、そして猛然と突進する九尾狐(クミホ)。古典どおり踏んで倒しましょう。そしてあの有名な恐竜の乗り物の座を受け継ぐパステルカラーのユニコーン「ユニ」に乗れば、キラキラの空中二段ジャンプも使えます。',
+          '葉銭(ヨプチョン)を集め(100枚で残機+1)、福袋ブロックを叩いて柚子(ユジャ)の実パワーアップを得て、トッケビ火を取れば短時間無敵に。各ステージの旗に到達し、最後は冥界の主・閻魔大王との5回踏みボス戦へ。スコアと到達ステージはニックネームと共にローカルTop10ランキングに保存され、進行は自動セーブされるので最後のステージから再開できます。',
+          'この棚の他のゲームと同じく、このゲームも2026年7月にたった一つのプロンプトからAIがすべて作りました — 物理、レベルデザイン、妖怪のアート、国楽風サウンドまで。その時点のAIに何が作れたかの、遊べる記録です。',
+        ],
+        how: [
+          '← → — 移動 · Space / ↑ — ジャンプ(長押しで高く) · Shift — ダッシュ',
+          '妖怪は踏んで倒そう · 死者の使いは滑る笠を残す',
+          'ユニコーン「ユニ」に乗るとキラキラ二段ジャンプ！',
+          '葉銭100枚 = 残機+1 · 福袋ブロックに柚子の実 · ESCで一時停止',
+          '📱 モバイル — 画面ボタン: 移動・ジャンプ・ダッシュ',
+        ],
+      },
+      es: {
+        title: 'SUPER UJA',
+        tagline: 'Un adorable plataformas de scroll lateral en la antigua Corea — 5 fases de Joseon, espíritus del folclore coreano, una unicornio montable y el Rey Yeomra como jefe final.',
+        about: [
+          'SUPER UJA es un juego de plataformas de scroll lateral con el espíritu de los grandes clásicos de mascota, reimaginado por completo con sabor coreano. Juegas como Uja, una alegre niña en hanbok, corriendo y saltando por cinco fases hechas a mano de la dinastía Joseon: una aldea de tejados de paja, un bosque de pinos al atardecer, tejados de palacio a la luz de la luna, el camino al inframundo y el mismísimo palacio del Rey Yeomra. Cada personaje, casilla y fondo está dibujado con código vectorial, sin arte descargado.',
+          'En lugar de los enemigos habituales, el mundo está habitado por espíritus del folclore coreano: el fantasma doncella se desliza hacia ti, el segador de túnica negra deja caer un sombrero gat que se desliza al pisarlo, los traviesos duendes dokkaebi dan saltos, los fantasmas-huevo sin rostro flotan en el aire y la zorra de nueve colas gumiho se lanza contra ti. Písalos a la manera clásica, y monta a Uni, una unicornio pastel que ocupa el lugar del famoso dinosaurio, con un brillante doble salto en el aire.',
+          'Reúne monedas yeopjeon (100 para una vida extra), rompe los bloques de bolsa de la suerte para conseguir mejoras de fruta yuja y coge una llama dokkaebi para una breve invencibilidad. Llega a la bandera de cada fase y, al final, enfréntate al Rey Yeomra, señor del inframundo, en una batalla de cinco pisotones. Tu puntuación y la fase alcanzada se guardan con tu apodo en un ranking local top-10, y tu progreso se guarda solo para que continúes desde la última fase.',
+          'Como todo en esta estantería, este juego fue creado íntegramente por IA en julio de 2026 a partir de un solo prompt: la física, el diseño de niveles, el arte de los espíritus, la banda sonora al estilo gugak. Una instantánea jugable de lo que la IA podía construir en ese momento.',
+        ],
+        how: [
+          '← → — moverse · Espacio / ↑ — saltar (mantén para saltar más alto) · Shift — correr',
+          'Pisa a los espíritus para vencerlos · los segadores sueltan un sombrero gat deslizante',
+          '¡Monta a la unicornio Uni para un doble salto brillante!',
+          '100 monedas yeopjeon = 1 vida extra · los bloques de bolsa esconden fruta yuja · ESC pausa',
+          '📱 Móvil — botones en pantalla: moverse, saltar y correr',
+        ],
+      },
+      zh: {
+        title: '超级柚子',
+        tagline: '以古朝鲜为背景的可爱横版闯关游戏——朝鲜5大关卡、韩国妖怪、可骑乘的独角兽，以及最终boss阎罗大王。',
+        about: [
+          '《超级柚子》是一款横版闯关动作游戏，将经典吉祥物平台游戏的精髓完全以韩国风格重新演绎。你将扮演身穿韩服的开朗少女柚子，奔跑跳跃穿越五个纯手工设计的朝鲜王朝关卡：草屋村、夕阳下的松树林、月光下的宫殿屋顶、黄泉路，以及阎罗大王的宫殿。所有角色、地块和背景都用矢量代码绘制，没有任何下载素材。',
+          '这个世界里出没的不是寻常敌人，而是韩国民间妖怪：处女鬼神朝你飘来，黑袍阴差被踩后会留下一顶滑动的官帽(笠)，调皮的独脚鬼(独脚鬼)蹦蹦跳跳，没有脸的鸡蛋鬼在空中浮沉，九尾狐(九尾狐)则向你猛冲。用经典方式踩踏它们吧——还能骑上柔和粉彩色的独角兽Uni，它接替了那只著名恐龙坐骑的位置，还带有闪亮的空中二段跳。',
+          '收集叶钱(集满100枚加一条命)、敲碎福袋方块获得柚子果实强化、吃到独脚鬼火可短暂无敌。抵达每关终点的旗帜，最后与黄泉之主阎罗大王展开五次踩踏的boss战。你的分数和到达的关卡会以昵称保存在本地Top10排行榜中，进度还会自动保存，可从上次的关卡继续。',
+          '和这个书架上的其他游戏一样，这款游戏也是AI在2026年7月凭一条提示词完成的——物理、关卡设计、妖怪美术、国乐风音乐，全部如此。它是那个时间点AI能力的可玩快照。',
+        ],
+        how: [
+          '← → — 移动 · 空格 / ↑ — 跳跃(长按跳更高) · Shift — 奔跑',
+          '踩踏妖怪即可打倒它们 · 阴差会留下滑动的官帽',
+          '骑上独角兽Uni，来一记闪亮的二段跳！',
+          '100枚叶钱 = 加1条命 · 福袋方块藏着柚子果实 · ESC暂停',
+          '📱 移动端 — 屏幕按钮：移动、跳跃、奔跑',
+        ],
+      },
+    },
+  },
+  {
     slug: 'menew-empires',
     released: '2026-07',
     tech: 'Canvas 2D · Voronoi · Web Audio',
