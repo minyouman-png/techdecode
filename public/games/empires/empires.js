@@ -57,6 +57,13 @@ const I18N = {
     foodNote: 'Surplus food speeds up population growth; deficit shrinks it.',
     popNote: 'Growth = base 0.2% + food + education − unrest (per province)',
     incNote: 'Income = pop × (1 + 0.28·tech + 0.18·edu) × unrest penalty',
+    repTitle: '⚔ Battle Report', repWin: 'VICTORY', repLose: 'DEFEAT',
+    repA: 'Attacker', repD: 'Defender', repDead: 'KIA', repWnd: 'Wounded', repPow: 'POW', repSurv: 'Survivors',
+    repAbs: 'POWs absorbed: population +{p} · army +{a}',
+    repAnn: 'Annihilated — no retreat, entire force absorbed into population and army',
+    repNote: 'The wounded recover at their retreat province and rejoin the army over time.',
+    hosp: '🏥 Wounded recovering', hospBack: '🏥 {n} wounded rejoined the army ({p})',
+    hospLost: '🏥 Field hospital in {p} captured — {n} wounded absorbed',
   },
   ko: {
     sub: '세계 역사 시뮬레이션', start: '🌍 새 게임', cont: '▶ 이어하기', records: '🏆 기록실',
@@ -98,6 +105,13 @@ const I18N = {
     foodNote: '잉여 식량은 인구 성장을 가속하고, 부족하면 인구가 줄어듭니다.',
     popNote: '성장률 = 기본 0.2% + 식량 + 교육 − 불안 (프로빈스별)',
     incNote: '수입 = 인구 × (1 + 0.28×기술 + 0.18×교육) × 불안 보정',
+    repTitle: '⚔ 전투 리포트', repWin: '승리', repLose: '패배',
+    repA: '공격군', repD: '수비군', repDead: '사망', repWnd: '부상', repPow: '포로', repSurv: '생존',
+    repAbs: '포로 흡수: 인구 +{p} · 군대 +{a}',
+    repAnn: '전멸 — 후퇴 지역이 없어 전 병력이 인구와 군대로 흡수됨',
+    repNote: '부상병은 후퇴 지역에서 서서히 회복되어 군에 복귀합니다.',
+    hosp: '🏥 회복 중인 부상병', hospBack: '🏥 부상병 {n} 복귀 ({p})',
+    hospLost: '🏥 {p}의 야전병원 함락 — 부상병 {n} 흡수됨',
   },
   ja: {
     sub: '世界歴史シミュレーション', start: '🌍 新しいゲーム', cont: '▶ つづきから', records: '🏆 記録室',
@@ -139,6 +153,13 @@ const I18N = {
     foodNote: '余剰食料は人口増加を加速し、不足すると人口が減ります。',
     popNote: '成長率 = 基本 0.2% + 食料 + 教育 − 不安 (州ごと)',
     incNote: '収入 = 人口 × (1 + 0.28×技術 + 0.18×教育) × 不安補正',
+    repTitle: '⚔ 戦闘レポート', repWin: '勝利', repLose: '敗北',
+    repA: '攻撃軍', repD: '守備軍', repDead: '戦死', repWnd: '負傷', repPow: '捕虜', repSurv: '生存',
+    repAbs: '捕虜を吸収: 人口 +{p} · 軍隊 +{a}',
+    repAnn: '全滅 — 退却先がなく全兵力が人口と軍隊に吸収された',
+    repNote: '負傷兵は退却先で徐々に回復し、軍に復帰します。',
+    hosp: '🏥 回復中の負傷兵', hospBack: '🏥 負傷兵 {n} が復帰 ({p})',
+    hospLost: '🏥 {p}の野戦病院が陥落 — 負傷兵 {n} が吸収された',
   },
   es: {
     sub: 'SIMULACIÓN DE HISTORIA MUNDIAL', start: '🌍 Nueva partida', cont: '▶ Continuar', records: '🏆 Récords',
@@ -180,6 +201,13 @@ const I18N = {
     foodNote: 'El excedente de comida acelera el crecimiento; el déficit lo reduce.',
     popNote: 'Crecimiento = base 0,2% + comida + educación − descontento (por provincia)',
     incNote: 'Ingresos = población × (1 + 0,28·tec. + 0,18·edu.) × ajuste por descontento',
+    repTitle: '⚔ Informe de batalla', repWin: 'VICTORIA', repLose: 'DERROTA',
+    repA: 'Atacante', repD: 'Defensor', repDead: 'Caídos', repWnd: 'Heridos', repPow: 'Prisioneros', repSurv: 'Supervivientes',
+    repAbs: 'Prisioneros absorbidos: población +{p} · ejército +{a}',
+    repAnn: 'Aniquilado — sin retirada, toda la fuerza fue absorbida como población y ejército',
+    repNote: 'Los heridos se recuperan en su provincia de retirada y se reincorporan con el tiempo.',
+    hosp: '🏥 Heridos en recuperación', hospBack: '🏥 {n} heridos se reincorporaron ({p})',
+    hospLost: '🏥 Hospital de campaña de {p} capturado — {n} heridos absorbidos',
   },
   zh: {
     sub: '世界历史模拟', start: '🌍 新游戏', cont: '▶ 继续游戏', records: '🏆 记录室',
@@ -221,6 +249,13 @@ const I18N = {
     foodNote: '粮食盈余会加速人口增长，短缺则使人口减少。',
     popNote: '增长率 = 基础 0.2% + 粮食 + 教育 − 动荡（按省份）',
     incNote: '收入 = 人口 × (1 + 0.28×科技 + 0.18×教育) × 动荡修正',
+    repTitle: '⚔ 战斗报告', repWin: '胜利', repLose: '战败',
+    repA: '进攻方', repD: '防守方', repDead: '阵亡', repWnd: '负伤', repPow: '战俘', repSurv: '幸存',
+    repAbs: '战俘被吸收：人口 +{p} · 军队 +{a}',
+    repAnn: '全军覆没——无处撤退，全部兵力被吸收为人口与军队',
+    repNote: '伤兵会在撤退省份逐渐康复并归队。',
+    hosp: '🏥 康复中的伤兵', hospBack: '🏥 {n} 名伤兵归队（{p}）',
+    hospLost: '🏥 {p}的野战医院陷落——{n} 名伤兵被吸收',
   },
 };
 let LANG = new URLSearchParams(location.search).get('lang');
@@ -704,6 +739,7 @@ function generateWorld(seed) {
 
   // 초기 군대: 수도+국경에 배치
   armies.clear();
+  hospitals.length = 0;
   for (const c of C) {
     if (!c.alive) continue;
     const total = Math.round(c.pop0 * 0.006 * (0.7 + 0.3 * c.tier));
@@ -839,51 +875,123 @@ function makePeace(a, b, silent) {
 }
 function isVisible(cid) { return G.player >= 0 && cAdj[G.player] && cAdj[G.player].has(cid); }
 
-/* ── 전투 ── */
-function resolveBattle(fromPid, toPid, amount) {
+/* ── 전투: 계산(computeBattle) → 적용(applyBattle) 분리 ──
+   사상자 모델: 손실 = 사망 55% + 부상 45%.
+   패자 부상병의 30%는 포로(승자의 인구·군대로 50:50 흡수),
+   70%는 후퇴 지역 야전병원에서 턴당 30%씩 회복 복귀.
+   후퇴 지역이 없으면 전멸: 사망 40%, 나머지 전부 승자에게 흡수. */
+const hospitals = []; // {pid, cid, n}
+function addHosp(pid, cid, n) {
+  if (n < 50 || pid < 0) return;
+  for (const h of hospitals) if (h.pid === pid && h.cid === cid) { h.n += n; return; }
+  hospitals.push({ pid, cid, n });
+}
+function retreatFor(cid, avoidPid) {
+  for (const q of adjArr[avoidPid]) { const tp = P[q]; if (!tp.dead && tp.cid === cid) return q; }
+  return -1;
+}
+function computeBattle(fromPid, toPid, amount) {
   const att = armies.get(fromPid);
   const send = Math.min(att.size, Math.max(100, Math.round(amount || att.size)));
   const tp = P[toPid];
   const atkC = C[att.cid], defC = C[tp.cid];
   const defA = armies.get(toPid);
+  const defArmy = defA ? defA.size : 0;
+  const militia = Math.round(militiaOf(tp));
   const naval = !isLandAdj(fromPid, toPid);
   const atkStr = send * (1 + 0.12 * techAvg(atkC)) * (0.85 + Math.random() * 0.3) * (naval ? 0.8 : 1);
-  const defSize = (defA ? defA.size : 0) + militiaOf(tp);
-  const defStr = defSize * (1 + 0.12 * techAvg(defC)) * 1.28;
-  const meta = warMeta.get(wkey(att.cid, tp.cid));
-  // 파견 병력을 본대에서 분리
-  if (send >= att.size) armies.delete(fromPid); else att.size -= send;
-  let casual;
-  if (atkStr > defStr) {
-    const lossR = 0.55 * defStr / atkStr;
-    casual = Math.round(send * lossR + defSize);
-    const surv = Math.round(send * (1 - lossR));
-    armies.delete(toPid);
-    if (surv > 100) armies.set(toPid, { size: surv, cid: atkC.id, moved: true });
-    captureProvince(toPid, atkC.id);
-    if (meta) { if (att.cid < tp.cid) meta.aG++; else meta.bG++; }
-    fxFlash(toPid, '#ffdd66');
-    fxText(tp.cx, tp.cy, '⚔ ' + fmt(casual));
-    if (att.cid === G.player) { toast(L.battleWin.replace('{n}', fmt(casual)), 'good'); sfx.winSmall(); }
-    else if (tp.cid === G.player || defC.id === G.player) sfx.battle();
-    return true;
-  } else {
-    const lossR = 0.65 * atkStr / defStr;
-    casual = Math.round(send * 0.75 + defSize * lossR * 0.4);
-    const surv = Math.round(send * 0.25);
-    if (defA) defA.size = Math.max(100, Math.round(defA.size * (1 - lossR * 0.4)));
-    // 생존 병력 본대 복귀
-    if (surv >= 100) {
-      const home = armies.get(fromPid);
-      if (home && home.cid === atkC.id) home.size += surv;
-      else if (!home) armies.set(fromPid, { size: surv, cid: atkC.id, moved: true });
+  const defStr = (defArmy + militia) * (1 + 0.12 * techAvg(defC)) * 1.28;
+  const win = atkStr > defStr;
+  const res = { fromPid, toPid, attCid: att.cid, defCid: tp.cid, send, defArmy, militia, win, naval };
+  if (win) {
+    const lossR = Math.min(0.9, 0.55 * defStr / Math.max(1, atkStr));
+    const cas = Math.round(send * lossR);
+    const dead = Math.round(cas * 0.55);
+    res.att = { dead, wounded: cas - dead, pow: 0, surv: send - cas, retreat: toPid, annihilated: false };
+    const rp = retreatFor(tp.cid, toPid);
+    if (rp >= 0) {
+      const surv = Math.round(defArmy * 0.25);
+      const casD = defArmy - surv;
+      const deadD = Math.round(casD * 0.55);
+      const woundD = casD - deadD;
+      const pow = Math.round(woundD * 0.3);
+      res.def = { dead: deadD, wounded: woundD - pow, pow, surv, retreat: rp, annihilated: false };
+    } else {
+      const deadD = Math.round(defArmy * 0.4);
+      res.def = { dead: deadD, wounded: 0, pow: defArmy - deadD, surv: 0, retreat: -1, annihilated: true };
     }
-    tp.pop = Math.max(400, Math.round(tp.pop * 0.985));
-    fxFlash(toPid, '#ff6655');
-    fxText(tp.cx, tp.cy, '✖ ' + fmt(casual));
-    if (att.cid === G.player) { toast(L.battleLose.replace('{n}', fmt(casual)), 'war'); sfx.battle(); }
-    return false;
+    res.militiaLost = Math.round(militia * 0.5);
+  } else {
+    const lossR = Math.min(0.9, 0.65 * atkStr / Math.max(1, defStr));
+    const surv = Math.round(send * 0.25);
+    const cas = send - surv;
+    const dead = Math.round(cas * 0.55);
+    const wound = cas - dead;
+    const pow = Math.round(wound * 0.3);
+    res.att = { dead, wounded: wound - pow, pow, surv, retreat: fromPid, annihilated: false };
+    const casD = Math.round(defArmy * lossR * 0.4);
+    const deadD = Math.round(casD * 0.55);
+    res.def = { dead: deadD, wounded: casD - deadD, pow: 0, surv: defArmy - casD, retreat: toPid, annihilated: false };
+    res.militiaLost = Math.round(militia * lossR * 0.3);
   }
+  return res;
+}
+function applyBattle(res) {
+  const att = armies.get(res.fromPid);
+  if (att) { if (res.send >= att.size) armies.delete(res.fromPid); else att.size -= res.send; }
+  const tp = P[res.toPid];
+  const meta = warMeta.get(wkey(res.attCid, res.defCid));
+  const addArmy = (pid, cid, n, moved) => {
+    if (n < 50 || pid < 0) return;
+    const ex = armies.get(pid);
+    if (ex && ex.cid === cid) { ex.size += n; if (moved) ex.moved = true; }
+    else if (!ex) armies.set(pid, { size: n, cid, moved: !!moved });
+  };
+  if (res.win) {
+    armies.delete(res.toPid);
+    addArmy(res.def.retreat, res.defCid, res.def.surv, true);
+    addHosp(res.def.retreat, res.defCid, res.def.wounded);
+    // 포로/전멸 흡수 → 점령지 인구 + 공격군 병력
+    const abs = res.def.pow;
+    const toPop = Math.round(abs / 2), toArmy = abs - toPop;
+    captureProvince(res.toPid, res.attCid);
+    tp.pop += toPop;
+    addArmy(res.toPid, res.attCid, res.att.surv + toArmy, true);
+    addHosp(res.toPid, res.attCid, res.att.wounded);
+    if (meta) { if (res.attCid < res.defCid) meta.aG++; else meta.bG++; }
+    fxFlash(res.toPid, '#ffdd66');
+  } else {
+    addArmy(res.fromPid, res.attCid, res.att.surv);
+    addHosp(res.fromPid, res.attCid, res.att.wounded);
+    const abs = res.att.pow;
+    const toPop = Math.round(abs / 2), toArmy = abs - toPop;
+    tp.pop = Math.max(400, Math.round(tp.pop * 0.985)) + toPop;
+    const defA = armies.get(res.toPid);
+    if (defA) defA.size = Math.max(100, res.def.surv + toArmy);
+    else addArmy(res.toPid, res.defCid, toArmy);
+    addHosp(res.toPid, res.defCid, res.def.wounded);
+    fxFlash(res.toPid, '#ff6655');
+  }
+  const casTotal = res.att.dead + res.def.dead + res.militiaLost;
+  fxText(tp.cx, tp.cy, (res.win ? '⚔ ' : '✖ ') + fmt(casTotal));
+  if (res.attCid === G.player) {
+    if (res.win) { toast(L.battleWin.replace('{n}', fmt(casTotal)), 'good'); sfx.winSmall(); }
+    else { toast(L.battleLose.replace('{n}', fmt(casTotal)), 'war'); sfx.battle(); }
+  } else if (res.defCid === G.player) sfx.battle();
+  if ((res.attCid === G.player || res.defCid === G.player) && G.mode === 'play') showBattleReport(res);
+  return res.win;
+}
+function resolveBattle(fromPid, toPid, amount) { return applyBattle(computeBattle(fromPid, toPid, amount)); }
+// 플레이어 전투: 애니메이션(HP바·병력 카운트다운) 후 결과 적용
+function playerBattle(fromPid, toPid, amount) {
+  const res = computeBattle(fromPid, toPid, amount);
+  G.busy = true;
+  const eb = document.getElementById('endTurn');
+  if (eb) eb.disabled = true;
+  const tp = P[toPid];
+  fxList.push({ type: 'battle', x: tp.cx, y: tp.cy, t: 0, dur: 2300, until: performance.now() + 2300, res, pulse: 0 });
+  sfx.battle(); shake(6);
+  requestRender();
 }
 function captureProvince(pid, newCid) {
   const p = P[pid];
@@ -1033,8 +1141,21 @@ function moveArmy(from, to, amount) {
   const amt = Math.min(a.size, Math.max(100, Math.round(amount || a.size)));
   const b = armies.get(to);
   if (amt >= a.size) armies.delete(from); else a.size -= amt;
-  if (b && b.cid === a.cid) { b.size += amt; b.moved = true; }
-  else armies.set(to, { size: amt, cid: a.cid, moved: true });
+  let dest;
+  if (b && b.cid === a.cid) { b.size += amt; b.moved = true; dest = b; }
+  else { dest = { size: amt, cid: a.cid, moved: true }; armies.set(to, dest); }
+  // 이동 애니메이션 (화면 안 + fx 여유 있을 때)
+  if (G.mode === 'play' && !SHOT && fxList.length < 90) {
+    const fp = P[from], tp = P[to];
+    const [sx0, sy0] = m2s(fp.cx, fp.cy);
+    if (sx0 > -80 && sx0 < W + 80 && sy0 > -80 && sy0 < H + 80) {
+      const dur = 480;
+      fxList.push({ type: 'ghostArmy', x0: fp.cx, y0: fp.cy, x1: tp.cx, y1: tp.cy,
+        dur, until: performance.now() + dur, size: amt, cid: a.cid });
+      dest.hideUntil = performance.now() + dur;
+      requestRender();
+    }
+  }
 }
 
 /* ── 월드 페이즈 ── */
@@ -1072,6 +1193,30 @@ function worldPhase() {
       else { if (!p.calm) p.unrest = Math.min(1, p.unrest + 0.3); msg = L.ev_unrest; }
       if (c.id === G.player) { toast(msg.replace('{p}', p.name), roll < 0.3 || (roll >= 0.65 && roll < 0.85) ? 'good' : 'war'); sfx.chime(); }
     }
+  }
+  // 야전병원: 부상병 턴당 30% 복귀 · 회복지 함락 시 점령국이 흡수
+  for (let i = hospitals.length - 1; i >= 0; i--) {
+    const h = hospitals[i];
+    const p = P[h.pid];
+    if (!p || p.dead || !C[h.cid].alive) { hospitals.splice(i, 1); continue; }
+    if (p.cid !== h.cid) {
+      const toPop = Math.round(h.n / 2), toArmy = h.n - toPop;
+      p.pop += toPop;
+      const ex = armies.get(h.pid);
+      if (ex && ex.cid === p.cid) ex.size += toArmy;
+      else if (!ex && toArmy >= 50) armies.set(h.pid, { size: toArmy, cid: p.cid, moved: false });
+      if (h.cid === G.player || p.cid === G.player)
+        toast(L.hospLost.replace('{p}', p.name).replace('{n}', fmt(h.n)), h.cid === G.player ? 'war' : 'good');
+      hospitals.splice(i, 1); continue;
+    }
+    const give = Math.min(h.n, Math.max(50, Math.round(h.n * 0.3)));
+    const ex = armies.get(h.pid);
+    if (ex && ex.cid === h.cid) ex.size += give;
+    else if (!ex) armies.set(h.pid, { size: give, cid: h.cid, moved: false });
+    else continue;
+    h.n -= give;
+    if (h.cid === G.player) toast(L.hospBack.replace('{n}', fmt(give)).replace('{p}', p.name), 'good');
+    if (h.n < 50) hospitals.splice(i, 1);
   }
   for (const m of warMeta.values()) m.t++;
   // 플레이어 피크
@@ -1143,6 +1288,7 @@ function serialize() {
     peakProv: G.peakProv, peakPop: G.peakPop, wonShown: G.wonShown,
     provs: P.map(p => [p.cid, p.pop, p.agri, p.tech, p.edu, Math.round(p.unrest * 100)]),
     armies: [...armies].map(([pid, a]) => [pid, a.cid, a.size]),
+    hosp: hospitals.map(h => [h.pid, h.cid, h.n]),
     cs: C.map(c => [Math.round(c.gold), c.alive ? 1 : 0, [...c.wars], c.capital, c.offers]),
     wm: [...warMeta].map(([k, m]) => [k, m.t, m.aG, m.bG]),
   };
@@ -1159,6 +1305,8 @@ function applySave(s) {
   });
   armies.clear();
   for (const [pid, cid, size] of s.armies) armies.set(pid, { pid, cid, size, moved: false });
+  hospitals.length = 0;
+  for (const [pid, cid, n] of (s.hosp || [])) hospitals.push({ pid, cid, n });
   s.cs.forEach((row, i) => {
     const c = C[i];
     c.gold = row[0]; c.alive = !!row[1];
@@ -1258,18 +1406,17 @@ function render() {
     if (b[2] < vx0 - 50 || b[0] > vx1 + 50 || b[3] < vy0 - 50 || b[1] > vy1 + 50) continue;
     cx.stroke(c.path);
   }
-  // FX (플래시)
+  // FX (플래시 — 맵 좌표계)
   const now = performance.now();
   for (let i = fxList.length - 1; i >= 0; i--) {
     const f = fxList[i];
+    if (f.type !== 'flash') continue;
     const k = (f.until - now) / f.dur;
     if (k <= 0) { fxList.splice(i, 1); continue; }
-    if (f.type === 'flash') {
-      cx.fillStyle = f.color;
-      cx.globalAlpha = k * 0.65;
-      cx.fill(P[f.pid].path, 'evenodd');
-      cx.globalAlpha = 1;
-    }
+    cx.fillStyle = f.color;
+    cx.globalAlpha = k * 0.65;
+    cx.fill(P[f.pid].path, 'evenodd');
+    cx.globalAlpha = 1;
   }
   cx.restore();
 
@@ -1309,6 +1456,7 @@ function render() {
       if (drawn > 420) break;
       const p = P[pid];
       if (p.dead) continue;
+      if (a.hideUntil && a.hideUntil > now) continue; // 이동 고스트 비행 중
       if (view.z < 0.85 && a.size < 60000 && a.cid !== G.player) continue;
       const [sx0, sy0] = m2s(p.cx, p.cy);
       if (sx0 < -30 || sx0 > W + 30 || sy0 < -30 || sy0 > H + 30) continue;
@@ -1340,20 +1488,100 @@ function render() {
       }
     }
   }
-  // FX 텍스트
+  // FX (화면 좌표계): 텍스트 · 이동 고스트 · 전투 연출
   for (let i = fxList.length - 1; i >= 0; i--) {
     const f = fxList[i];
-    if (f.type !== 'text') continue;
+    if (f.type === 'flash') continue;
     const k = (f.until - now) / f.dur;
-    if (k <= 0) { fxList.splice(i, 1); continue; }
-    const [sx0, sy0] = m2s(f.x, f.y);
-    cx.globalAlpha = Math.min(1, k * 2);
-    cx.font = '900 15px sans-serif';
-    cx.lineWidth = 3; cx.strokeStyle = 'rgba(0,0,0,.7)';
-    const yy = sy0 - (1 - k) * 34;
-    cx.strokeText(f.txt, sx0, yy);
-    cx.fillStyle = '#ffe28a'; cx.fillText(f.txt, sx0, yy);
-    cx.globalAlpha = 1;
+    if (k <= 0) {
+      if (f.type === 'battle') { // 연출 종료 → 결과 적용
+        fxList.splice(i, 1);
+        applyBattle(f.res);
+        G.busy = false;
+        const eb = document.getElementById('endTurn');
+        if (eb) eb.disabled = false;
+        G.sel = -1; G.moveTargets = null;
+        updateHUD();
+        continue;
+      }
+      fxList.splice(i, 1); continue;
+    }
+    if (f.type === 'text') {
+      const [sx0, sy0] = m2s(f.x, f.y);
+      cx.globalAlpha = Math.min(1, k * 2);
+      cx.font = '900 15px sans-serif';
+      cx.textAlign = 'center'; cx.textBaseline = 'middle';
+      cx.lineWidth = 3; cx.strokeStyle = 'rgba(0,0,0,.7)';
+      const yy = sy0 - (1 - k) * 34;
+      cx.strokeText(f.txt, sx0, yy);
+      cx.fillStyle = '#ffe28a'; cx.fillText(f.txt, sx0, yy);
+      cx.globalAlpha = 1;
+    } else if (f.type === 'ghostArmy') {
+      const kk = 1 - k, e = kk * kk * (3 - 2 * kk);
+      const [sx0, sy0] = m2s(f.x0 + (f.x1 - f.x0) * e, f.y0 + (f.y1 - f.y0) * e);
+      const txt = '⚔' + fmt(f.size);
+      cx.font = '800 10px sans-serif';
+      cx.textAlign = 'center'; cx.textBaseline = 'middle';
+      const w2 = cx.measureText(txt).width / 2 + 6;
+      cx.globalAlpha = 0.92;
+      cx.fillStyle = colorOf(C[f.cid], 0.95);
+      cx.strokeStyle = f.cid === G.player ? '#fff' : 'rgba(0,0,0,.7)';
+      cx.lineWidth = 1.2;
+      cx.beginPath(); cx.roundRect(sx0 - w2, sy0 - 8, w2 * 2, 16, 8);
+      cx.fill(); cx.stroke();
+      cx.fillStyle = '#fff'; cx.fillText(txt, sx0, sy0);
+      cx.globalAlpha = 1;
+    } else if (f.type === 'battle') {
+      const kk = 1 - k;
+      // 진행 중 흔들림 펄스
+      const pu = Math.floor(kk * 4);
+      if (pu > f.pulse) { f.pulse = pu; shake(4); if (!muted() && pu < 3) noiseS(0.16, 500, 0.12, 120); }
+      const r = f.res;
+      const [sx0, sy0raw] = m2s(f.x, f.y);
+      const sy0 = Math.max(110, sy0raw - 46);
+      const ease = kk < 0.12 ? 0 : Math.min(1, (kk - 0.12) / 0.78);
+      const aStart = r.send, aEnd = r.att.surv;
+      const dStart = r.defArmy + r.militia, dEnd = r.def.surv;
+      const aCur = Math.round(aStart - (aStart - aEnd) * ease);
+      const dCur = Math.round(dStart - (dStart - dEnd) * ease);
+      const PW = 250, PH = 66;
+      const px0 = Math.max(6, Math.min(W - PW - 6, sx0 - PW / 2)), py0 = sy0 - PH;
+      cx.globalAlpha = Math.min(1, kk * 6);
+      cx.fillStyle = 'rgba(8,10,24,.88)';
+      cx.strokeStyle = 'rgba(255,180,90,.7)'; cx.lineWidth = 1.5;
+      cx.beginPath(); cx.roundRect(px0, py0, PW, PH, 10); cx.fill(); cx.stroke();
+      // 진영별 이름·바·병력
+      const drawSide = (x, cid, cur, start, alignRight) => {
+        const cc = C[cid];
+        cx.font = '800 10px sans-serif';
+        cx.textAlign = alignRight ? 'right' : 'left'; cx.textBaseline = 'top';
+        cx.fillStyle = '#dfe9f3';
+        cx.fillText(nameOf(cc).slice(0, 12), x, py0 + 7);
+        const bw = 96, bx0 = alignRight ? x - bw : x;
+        cx.fillStyle = 'rgba(255,255,255,.14)';
+        cx.beginPath(); cx.roundRect(bx0, py0 + 22, bw, 9, 5); cx.fill();
+        const frac = Math.max(0.02, cur / Math.max(1, start));
+        cx.fillStyle = colorOf(cc, 1);
+        cx.beginPath();
+        cx.roundRect(alignRight ? bx0 + bw * (1 - frac) : bx0, py0 + 22, bw * frac, 9, 5); cx.fill();
+        cx.font = '900 14px sans-serif';
+        cx.fillStyle = '#fff';
+        cx.fillText('⚔ ' + fmt(cur), x, py0 + 37);
+      };
+      drawSide(px0 + 12, r.attCid, aCur, aStart, false);
+      drawSide(px0 + PW - 12, r.defCid, dCur, dStart, true);
+      // 중앙 충돌 이펙트
+      cx.textAlign = 'center'; cx.textBaseline = 'middle';
+      cx.font = (18 + Math.sin(now / 60) * 3) + 'px sans-serif';
+      cx.fillText('💥', px0 + PW / 2, py0 + PH / 2);
+      for (let s2 = 0; s2 < 3; s2++) {
+        cx.fillStyle = s2 % 2 ? '#ffe28a' : '#fff';
+        cx.beginPath();
+        cx.arc(px0 + PW / 2 + (Math.random() - 0.5) * 34, py0 + PH / 2 + (Math.random() - 0.5) * 26, 1.5 + Math.random() * 2, 0, 6.283);
+        cx.fill();
+      }
+      cx.globalAlpha = 1;
+    }
   }
   if (fxList.length) requestRender();
 }
@@ -1494,6 +1722,27 @@ function updateHUD() {
   $('tcDate').innerHTML = `📅 ${dateStr()} <small>· ${L.turnOf} ${G.turn}</small>`;
 }
 
+/* ── 전투 리포트 ── */
+let brepTimer = 0;
+function showBattleReport(res) {
+  const el = $('brep');
+  const a = res.att, d = res.def;
+  const playerWon = (res.attCid === G.player) === res.win;
+  const abs = res.win ? d.pow : a.pow;
+  const toPop = Math.round(abs / 2);
+  let h = `<b class="t">${L.repTitle} — <span class="${playerWon ? 'w' : 'l'}">${playerWon ? L.repWin : L.repLose}</span> · ${P[res.toPid].name}</b>`;
+  h += `<div>${L.repA} (${nameOf(C[res.attCid])}): ${L.repDead} <b>${fmt(a.dead)}</b> · ${L.repWnd} <b>${fmt(a.wounded)}</b>${a.pow ? ` · ${L.repPow} <b>${fmt(a.pow)}</b>` : ''} · ${L.repSurv} <b>${fmt(a.surv)}</b></div>`;
+  h += `<div>${L.repD} (${nameOf(C[res.defCid])}): ${L.repDead} <b>${fmt(d.dead + res.militiaLost)}</b> · ${L.repWnd} <b>${fmt(d.wounded)}</b>${d.pow ? ` · ${L.repPow} <b>${fmt(d.pow)}</b>` : ''} · ${L.repSurv} <b>${fmt(d.surv)}</b>${res.militia ? ` (${L.militia} ${fmt(res.militia)})` : ''}</div>`;
+  if (d.annihilated) h += `<div class="abs">${L.repAnn}</div>`;
+  if (abs) h += `<div class="abs">${L.repAbs.replace('{p}', fmt(toPop)).replace('{a}', fmt(abs - toPop))}</div>`;
+  if (a.wounded || d.wounded) h += `<div class="nt">${L.repNote}</div>`;
+  el.innerHTML = h;
+  el.style.display = 'block';
+  clearTimeout(brepTimer);
+  brepTimer = setTimeout(() => { el.style.display = 'none'; }, 9000);
+  el.onclick = () => { el.style.display = 'none'; };
+}
+
 /* ── 상단바 내역 팝업 ── */
 let infoPopType = null;
 function toggleInfoPop(type, anchorId) {
@@ -1531,9 +1780,12 @@ function toggleInfoPop(type, anchorId) {
   } else if (type === 'army') {
     const m = 1 + 0.12 * techAvg(c);
     const total = armyTotal(c.id);
+    let wounded = 0;
+    for (const h of hospitals) if (h.cid === c.id) wounded += h.n;
     html = `<b>⚔️ ${L.army}</b><br>` +
       `${fmt(total)} · <span class="pw" style="color:#ffb0b0">${L.atk} ${fmt(total * m)}</span> · <span style="color:#9fd8ff">${L.defP} ${fmt(total * m * 1.28)}</span><br>` +
       `<span class="minus">−${fmt(total * 0.003)}</span> ${L.upkeep}${L.perTurn}` +
+      (wounded ? `<br>${L.hosp}: ${fmt(wounded)}` : '') +
       `<div class="nt">${L.techNote.replace('{t}', techAvg(c).toFixed(1)).replace('{m}', m.toFixed(2))}</div>`;
   }
   ip.innerHTML = html;
@@ -1581,6 +1833,10 @@ function showPanel(pid) {
   const atkP = a ? a.size * mult : 0;
   const defP = ((a ? a.size : 0) + militiaOf(p)) * mult * 1.28;
   rows.push(brk(`<span class="pw">${L.atk} ${a ? fmt(atkP) : '—'}</span> · <span class="pw2">${L.defP} ${fmt(defP)}</span><br>${L.techNote.replace('{t}', ownerTech.toFixed(1)).replace('{m}', mult.toFixed(2))}`));
+  // 이 지역에서 회복 중인 부상병
+  let hw = 0;
+  for (const h of hospitals) if (h.pid === pid) hw += h.n;
+  if (hw) rows.push(row(L.hosp, fmt(hw)));
   // 파병 슬라이더
   const canSend = mine && a && a.cid === G.player && !a.moved;
   if (canSend) {
@@ -1681,7 +1937,7 @@ function onClick(sx, sy) {
     }
     return;
   }
-  if (G.mode !== 'play') return;
+  if (G.mode !== 'play' || G.busy) return;
   if (pid < 0) { G.sel = -1; G.moveTargets = null; hidePanel(); requestRender(); return; }
   // 이동/공격 대상 클릭?
   if (G.moveTargets) {
@@ -1692,10 +1948,11 @@ function onClick(sx, sy) {
       if (a && a.cid === G.player && !a.moved) {
         const amount = Math.max(100, Math.round(a.size * G.sendPct / 100));
         if (t.enemy) {
-          resolveBattle(from, pid, amount);
-        } else {
-          moveArmy(from, pid, amount); sfx.march();
+          G.sel = -1; G.moveTargets = null; hidePanel();
+          playerBattle(from, pid, amount);
+          return;
         }
+        moveArmy(from, pid, amount); sfx.march();
         G.sel = -1; G.moveTargets = null; hidePanel();
         updateHUD(); requestRender();
         return;
@@ -1983,6 +2240,7 @@ function uiInit() {
     }
   });
   $('exitBtn').onclick = () => {
+    if (G.busy) return; // 전투 연출 중 이탈 방지
     if (!confirm(L.quitConfirm)) return;
     autosave();
     G.mode = 'menu';
@@ -2132,6 +2390,46 @@ function runSim() {
     }
     T('split attack keeps reserve at home', ok, det);
   }
+  // 전투 사상자 보존 (사망+부상+포로+생존 = 투입 병력) + 야전병원 생성
+  {
+    let ok1 = false, ok2 = false, det = 'no candidate';
+    outer2:
+    for (const p of liveP) {
+      if (!C[p.cid].alive) continue;
+      for (const q of landAdj[p.id]) {
+        const tq = P[q];
+        if (tq.dead || tq.cid === p.cid || !C[tq.cid].alive) continue;
+        declareWar(p.cid, tq.cid, true);
+        armies.set(p.id, { size: 60000, cid: p.cid, moved: false });
+        armies.set(q, { size: 30000, cid: tq.cid, moved: false });
+        const res = computeBattle(p.id, q, 30000);
+        const aSum = res.att.dead + res.att.wounded + res.att.pow + res.att.surv;
+        const dSum = res.def.dead + res.def.wounded + res.def.pow + res.def.surv;
+        ok1 = Math.abs(aSum - res.send) <= 3 && Math.abs(dSum - res.defArmy) <= 3;
+        det = `att ${aSum}/${res.send} def ${dSum}/${res.defArmy} win=${res.win}`;
+        const hBefore = hospitals.reduce((s2, h) => s2 + h.n, 0);
+        applyBattle(res);
+        const hAfter = hospitals.reduce((s2, h) => s2 + h.n, 0);
+        ok2 = hAfter > hBefore;
+        break outer2;
+      }
+    }
+    T('battle conserves both sides', ok1, det);
+    T('battle fills field hospitals', ok2, 'woundedPool=' + hospitals.reduce((s2, h) => s2 + h.n, 0));
+  }
+  // 야전병원 회복: 턴당 ~30% 복귀
+  {
+    const c0 = C.find(c => c.alive && c.provs.length && c.wars.size === 0);
+    const pid = c0.provs[0];
+    armies.delete(pid);
+    hospitals.push({ pid, cid: c0.id, n: 10000 });
+    worldPhase();
+    const ex = armies.get(pid);
+    const after = ex && ex.cid === c0.id ? ex.size : 0;
+    const pool = hospitals.find(h => h.pid === pid && h.cid === c0.id);
+    T('wounded recover to army over turns', after >= 2500 && (!pool || pool.n <= 7100),
+      `returned=${after} pool=${pool ? pool.n : 0}`);
+  }
   // 저장 라운드트립
   const s1 = JSON.stringify(serialize());
   applySave(JSON.parse(s1));
@@ -2147,7 +2445,7 @@ function setupShot() {
   REC.nick = 'MENEW';
   generateWorld(777); worldReady = true;
   // 유럽에 전쟁 연출
-  const fr = C.find(c => c.iso === 'FR'), de = C.find(c => c.iso === 'DE');
+  const fr = C.find(c => c.names.en === 'France'), de = C.find(c => c.iso === 'DE'); // FR은 NE 데이터에서 ISO '-99'
   const ru = C.find(c => c.iso === 'RU'), ua = C.find(c => c.iso === 'UA');
   if (fr && de) declareWar(fr.id, de.id, true);
   if (ru && ua) declareWar(ru.id, ua.id, true);
@@ -2160,6 +2458,17 @@ function setupShot() {
   if (de && fr) {
     fxFlash(fr.provs[0], '#ffdd66');
     fxText(P[fr.provs[0]].cx, P[fr.provs[0]].cy, '⚔ 48K');
+    // 전투 연출 중간 프레임 고정 (커버용)
+    let bf = -1, bt = -1;
+    outer: for (const pid of de.provs) {
+      for (const q of adjArr[pid]) if (P[q].cid === fr.id && !P[q].dead) { bf = pid; bt = q; break outer; }
+    }
+    if (bf >= 0) {
+      if (!armies.has(bf)) armies.set(bf, { size: 120000, cid: de.id, moved: false });
+      const res = computeBattle(bf, bt, 90000);
+      fxList.push({ type: 'battle', x: P[bt].cx, y: P[bt].cy, t: 0, dur: 100000,
+        until: performance.now() + 55000, res, pulse: 99 });
+    }
   }
   view.x = 1100; view.y = 265; view.z = 3.6;
   updateHUD();

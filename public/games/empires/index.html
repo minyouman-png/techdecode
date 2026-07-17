@@ -73,6 +73,17 @@
   #infoPop .plus { color: #8be28a; } #infoPop .minus { color: #ff9a9a; }
   #infoPop .nt { font-size: 11px; color: #8fa3b8; margin-top: 4px; }
 
+  /* 전투 리포트 */
+  #brep { position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 8;
+    display: none; min-width: 300px; max-width: min(94vw, 460px);
+    background: rgba(10,12,26,.96); border: 1px solid rgba(255,170,80,.5); border-radius: 12px;
+    padding: 11px 16px; color: #e8eef5; font-size: 12.5px; line-height: 1.75; cursor: pointer;
+    box-shadow: 0 4px 24px rgba(0,0,0,.5); }
+  #brep b.t { color: #ffc46b; font-size: 14px; }
+  #brep .w { color: #8be28a; } #brep .l { color: #ff8a8a; }
+  #brep .abs { color: #9fd8ff; }
+  #brep .nt { font-size: 11px; color: #8fa3b8; }
+
   /* ===== 외교 패널 ===== */
   #diplo { position: fixed; right: 10px; top: 52px; bottom: 10px; z-index: 8; width: min(94vw, 360px);
     background: rgba(8,14,26,.96); border: 1px solid rgba(255,255,255,.2); border-radius: 12px;
@@ -211,6 +222,7 @@
   <div id="log"></div>
   <div id="tip"></div>
   <div id="infoPop"></div>
+  <div id="brep"></div>
 
   <!-- 메인 메뉴 -->
   <div class="screen" id="menu" style="display:flex">
