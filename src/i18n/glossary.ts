@@ -87,7 +87,7 @@ export const glossaryTerms: GlossaryEntry[] = [
   {
     slug: 'llm',
     category: 'fundamentals',
-    related: ['transformer', 'token', 'context-window'],
+    related: ['transformer', 'token', 'context-window', 'gpu'],
     copy: {
       en: {
         term: 'LLM (Large Language Model)',
@@ -558,7 +558,7 @@ export const glossaryTerms: GlossaryEntry[] = [
   {
     slug: 'moe',
     category: 'infrastructure',
-    related: ['transformer', 'inference', 'hbm'],
+    related: ['transformer', 'inference', 'hbm', 'parameter'],
     copy: {
       en: {
         term: 'MoE (Mixture of Experts)',
@@ -605,7 +605,7 @@ export const glossaryTerms: GlossaryEntry[] = [
   {
     slug: 'hbm',
     category: 'infrastructure',
-    related: ['moe', 'inference', 'transformer'],
+    related: ['moe', 'inference', 'transformer', 'foundry'],
     relatedPost: 'hbm-ai-bottleneck-2026',
     copy: {
       en: {
@@ -646,6 +646,390 @@ export const glossaryTerms: GlossaryEntry[] = [
         body: [
           'GPU 等 AI 加速器每秒能完成的运算量，远超普通内存所能提供数据的速度，这一差距被称为"内存墙(memory wall)"。HBM 通过将多层内存芯片垂直堆叠、并用极宽极短的互联线路与处理器相连，大幅提升了相对于标准 DRAM 的带宽，从而弥补了这一差距的一部分。',
           'HBM 的供应被少数几家厂商主导——主要是 SK 海力士、三星和美光。来自 AI 训练与推理的需求，已经让它成为整个 AI 产业链中供应最紧张、也在战略上最重要的组件之一。',
+        ],
+      },
+    },
+  },
+  {
+    slug: 'gpu',
+    category: 'fundamentals',
+    related: ['cuda', 'hbm', 'moe'],
+    relatedPost: 'nvidia-antitrust-2026',
+    copy: {
+      en: {
+        term: 'GPU (Graphics Processing Unit)',
+        short: 'A chip originally built to render graphics that turned out to be the ideal engine for AI, because it can do thousands of simple calculations at once instead of one at a time.',
+        body: [
+          "A CPU is built to do a handful of complex tasks in sequence, fast. A GPU is built the opposite way: thousands of small cores doing the same simple operation — mostly matrix multiplication — on different pieces of data simultaneously. That happens to be exactly the math a neural network is made of, which is why GPUs, not CPUs, became the default hardware for training and running AI models.",
+          "That accident of fit is also why one company's chips ended up so central to the entire industry, and why the debate over how defensible that position really is — whether it rests on superior silicon or on the software ecosystem built around it — has become a genuine antitrust question rather than just a market-share one.",
+        ],
+      },
+      ko: {
+        term: 'GPU (그래픽 처리 장치)',
+        short: '원래 그래픽 렌더링용으로 만들어졌지만, 한 번에 하나씩이 아니라 수천 개의 단순 연산을 동시에 처리할 수 있어 AI에 가장 적합한 엔진이 된 칩.',
+        body: [
+          'CPU는 복잡한 작업 몇 가지를 순서대로 빠르게 처리하도록 설계됩니다. GPU는 정반대입니다 — 수천 개의 작은 코어가 서로 다른 데이터 조각에 대해 똑같이 단순한 연산(대부분 행렬 곱셈)을 동시에 수행합니다. 공교롭게도 이게 바로 신경망을 이루는 연산 그 자체라서, CPU가 아니라 GPU가 AI 모델 학습·구동의 기본 하드웨어가 됐습니다.',
+          '이 우연한 적합성 때문에 한 회사의 칩이 업계 전체의 중심에 서게 됐고, 그 지위가 얼마나 뛰어난 실리콘 때문인지 아니면 그 위에 쌓인 소프트웨어 생태계 때문인지를 둘러싼 논쟁은 단순한 시장점유율 문제를 넘어 실제 반독점 쟁점이 됐습니다.',
+        ],
+      },
+      ja: {
+        term: 'GPU(グラフィック処理装置)',
+        short: '本来はグラフィックス描画用に作られたが、一度に一つずつではなく数千もの単純な計算を同時にこなせるため、AIに最適なエンジンとなったチップ。',
+        body: [
+          'CPUは複雑な処理をいくつか順番に高速でこなすよう設計されています。GPUはその逆で、数千個の小さなコアが、異なるデータの断片に対して同じ単純な演算(主に行列の乗算)を同時に実行します。これは偶然にも、まさにニューラルネットワークを構成する計算そのものであり、だからこそCPUではなくGPUがAIモデルの学習・実行における標準ハードウェアになりました。',
+          'この偶然の適合性のおかげで、一社のチップが業界全体の中心的存在になり、その地位が優れたシリコンによるものなのか、その上に築かれたソフトウェアのエコシステムによるものなのかをめぐる論争は、単なる市場シェアの問題を超え、本物の独占禁止法上の論点になっています。',
+        ],
+      },
+      es: {
+        term: 'GPU (Unidad de Procesamiento Gráfico)',
+        short: 'Un chip creado originalmente para renderizar gráficos que resultó ser el motor ideal para la IA, porque puede realizar miles de cálculos simples a la vez en lugar de uno por uno.',
+        body: [
+          'Una CPU está diseñada para hacer unas pocas tareas complejas en secuencia, rápido. Una GPU está diseñada al revés: miles de núcleos pequeños realizando la misma operación simple —principalmente multiplicación de matrices— sobre datos distintos al mismo tiempo. Da la casualidad de que eso es exactamente la matemática de la que está hecha una red neuronal, por lo que las GPU, no las CPU, se convirtieron en el hardware por defecto para entrenar y ejecutar modelos de IA.',
+          'Ese ajuste casual es también la razón por la que los chips de una sola empresa terminaron siendo tan centrales para toda la industria, y por la que el debate sobre cuán defendible es realmente esa posición —si descansa en un silicio superior o en el ecosistema de software construido a su alrededor— se ha convertido en una auténtica cuestión antimonopolio y no solo de cuota de mercado.',
+        ],
+      },
+      zh: {
+        term: 'GPU(图形处理器)',
+        short: '最初为图形渲染而生的芯片，却因为能同时进行成千上万次简单运算(而不是一次只算一个)，意外成为最适合 AI 的引擎。',
+        body: [
+          'CPU 的设计思路是把少数几个复杂任务按顺序快速做完。GPU 的设计思路正相反:数千个小核心同时对不同的数据片段执行同一种简单运算(大多是矩阵乘法)。而这恰好正是神经网络的运算本质——这也是为什么最终是 GPU 而不是 CPU，成了训练和运行 AI 模型的默认硬件。',
+          '正是这种偶然的契合，让一家公司的芯片变得对整个行业如此举足轻重；而这种地位究竟建立在更优越的芯片本身，还是建立在围绕它搭建起来的软件生态之上——这场争论也因此从单纯的市场份额问题，演变成了一个真正的反垄断议题。',
+        ],
+      },
+    },
+  },
+  {
+    slug: 'parameter',
+    category: 'fundamentals',
+    related: ['llm', 'moe', 'quantization'],
+    relatedPost: 'ai-bubble-2026-debate',
+    copy: {
+      en: {
+        term: 'Parameter',
+        short: "One of the internal numbers a neural network adjusts during training — the '70B' or '400B' quoted in a model's name is a count of these.",
+        body: [
+          "Think of parameters as millions or billions of dials, each nudged slightly during training until the model gets better at predicting the next piece of text. There's no single dial that means anything on its own; the model's behavior emerges from all of them acting together. Parameter count has long served as a rough, if crude, proxy for how much a model can potentially learn and retain.",
+          "But 'more parameters' has stopped being a reliable shorthand for 'better model.' Techniques like mixture-of-experts, quantization, and distillation now let smaller, cheaper models match or beat much larger ones on real tasks — which is exactly the kind of efficiency gain that has fueled arguments on both sides of the debate over whether the industry's capital spending has run ahead of what the underlying technology actually requires.",
+        ],
+      },
+      ko: {
+        term: '파라미터(매개변수)',
+        short: '신경망이 학습 과정에서 조정하는 내부 숫자 하나하나 — 모델 이름에 붙는 "700억", "4000억" 같은 수치가 바로 이 파라미터 개수입니다.',
+        body: [
+          '파라미터를 수백만~수천억 개의 다이얼이라고 생각하면 됩니다. 각 다이얼은 학습 과정에서 조금씩 조정되면서, 모델이 다음에 올 텍스트를 더 잘 예측하도록 만듭니다. 다이얼 하나하나가 독립적으로 어떤 의미를 갖는 건 아니고, 이 전부가 함께 작동하면서 모델의 행동이 나타납니다. 파라미터 개수는 오랫동안 모델이 얼마나 많이 학습하고 기억할 수 있는지를 가늠하는 다소 거친 대리 지표로 쓰여왔습니다.',
+          '하지만 "파라미터가 많을수록 더 좋은 모델"이라는 공식은 더 이상 믿을 만하지 않습니다. 전문가 혼합(MoE), 양자화, 지식 증류 같은 기법 덕분에 더 작고 저렴한 모델이 실제 과제에서 훨씬 큰 모델과 맞먹거나 앞서는 경우가 나오고 있습니다. 이런 효율화는 업계의 자본 지출이 실제 기술이 필요로 하는 수준을 앞질렀는지에 대한 논쟁 양쪽 진영 모두가 근거로 삼는 지점이기도 합니다.',
+        ],
+      },
+      ja: {
+        term: 'パラメータ',
+        short: 'ニューラルネットワークが学習中に調整する内部の数値の一つ一つ — モデル名に付く「700億」「4000億」といった数字は、このパラメータの個数です。',
+        body: [
+          'パラメータは数百万から数千億個のつまみだと考えてください。それぞれのつまみは学習の過程で少しずつ調整され、モデルが次に来るテキストをより上手く予測できるようにします。一つ一つのつまみ単体に意味があるわけではなく、これら全部が一緒に働くことでモデルの振る舞いが生まれます。パラメータ数は長らく、モデルがどれだけ学習・保持できるかを大まかに示す(やや粗い)指標として使われてきました。',
+          'しかし「パラメータが多いほど良いモデル」という単純な図式はもはや信頼できません。専門家混合(MoE)、量子化、蒸留といった技術のおかげで、より小さく安価なモデルが実際のタスクではるかに大きなモデルに匹敵する、あるいは上回ることが起きています。こうした効率化こそ、業界の資本支出が基盤技術の実際の必要量を上回ってしまったのかという論争の双方が根拠にしているポイントです。',
+        ],
+      },
+      es: {
+        term: 'Parámetro',
+        short: "Uno de los números internos que una red neuronal ajusta durante el entrenamiento — el '70B' o '400B' que aparece en el nombre de un modelo es un recuento de estos.",
+        body: [
+          'Piensa en los parámetros como millones o miles de millones de diales, cada uno ajustado ligeramente durante el entrenamiento hasta que el modelo mejora en predecir el siguiente fragmento de texto. Ningún dial individual significa algo por sí solo; el comportamiento del modelo surge de todos ellos actuando juntos. El recuento de parámetros ha servido durante mucho tiempo como un indicador aproximado, aunque tosco, de cuánto puede potencialmente aprender y retener un modelo.',
+          "Pero 'más parámetros' ha dejado de ser un atajo fiable para 'mejor modelo'. Técnicas como la mezcla de expertos, la cuantización y la destilación permiten ahora que modelos más pequeños y baratos igualen o superen a otros mucho más grandes en tareas reales — exactamente el tipo de ganancia de eficiencia que alimenta los argumentos en ambos lados del debate sobre si el gasto de capital de la industria se ha adelantado a lo que la tecnología subyacente realmente requiere.",
+        ],
+      },
+      zh: {
+        term: '参数',
+        short: '神经网络在训练过程中不断调整的内部数值之一——模型名称里常见的"700亿""4000亿"，指的正是参数的数量。',
+        body: [
+          '可以把参数想象成数百万甚至数千亿个旋钮，每个旋钮在训练过程中都会被微调，直到模型更擅长预测接下来的文本。单个旋钮本身并没有什么意义，模型的行为是所有旋钮共同作用后涌现出来的。长期以来，参数量一直被当作衡量模型潜在学习和记忆能力的一个粗略指标。',
+          '但"参数越多、模型越好"早已不再是可靠的经验法则。混合专家(MoE)、量化、蒸馏等技术，如今已经能让更小、更便宜的模型在实际任务上追平甚至超越体量大得多的模型——而这正是"行业资本支出是否已经跑在了底层技术真实需求前面"这场争论中，双方都会援引的那种效率提升。',
+        ],
+      },
+    },
+  },
+  {
+    slug: 'multimodal',
+    category: 'fundamentals',
+    related: ['llm', 'agentic-ai'],
+    relatedPost: 'physical-ai-us-manufacturing-hegemony-2026',
+    copy: {
+      en: {
+        term: 'Multimodal AI',
+        short: 'A model that can take in, or generate, more than one type of data — text, images, audio, video — instead of only text.',
+        body: [
+          "Early large language models only read and wrote text. A multimodal model can also look at a photo and describe it, listen to speech, watch video, or generate an image — because it's been trained to map different kinds of data into the same underlying representation the model reasons over.",
+          "Multimodality stops being a demo trick and becomes a hard requirement the moment AI has to act in the physical world: a robot or an autonomous vehicle needs to see, hear, and reason in the same model, not stitch together separate single-purpose systems — which is a big part of why 'physical AI' is treated as a harder, later milestone than chatbot-style text AI.",
+        ],
+      },
+      ko: {
+        term: '멀티모달 AI',
+        short: '텍스트만이 아니라 이미지·음성·영상 등 두 가지 이상의 데이터 유형을 입력받거나 생성할 수 있는 모델.',
+        body: [
+          '초기 거대 언어 모델은 텍스트만 읽고 썼습니다. 멀티모달 모델은 사진을 보고 설명하거나, 음성을 듣거나, 영상을 이해하거나, 이미지를 생성할 수도 있습니다 — 서로 다른 유형의 데이터를 모델이 추론하는 동일한 내부 표현으로 대응시키도록 학습됐기 때문입니다.',
+          'AI가 물리적 세계에서 실제로 행동해야 하는 순간, 멀티모달은 그저 시연용 트릭이 아니라 필수 요건이 됩니다. 로봇이나 자율주행차는 별개의 단일목적 시스템을 이어붙이는 게 아니라, 하나의 모델 안에서 보고·듣고·추론해야 합니다 — 이것이 "피지컬 AI"가 챗봇형 텍스트 AI보다 더 어렵고 더 늦게 도달할 목표로 여겨지는 큰 이유 중 하나입니다.',
+        ],
+      },
+      ja: {
+        term: 'マルチモーダルAI',
+        short: 'テキストだけでなく、画像・音声・動画など二種類以上のデータを入力または生成できるモデル。',
+        body: [
+          '初期の大規模言語モデルはテキストの読み書きしかできませんでした。マルチモーダルモデルは写真を見て説明したり、音声を聞いたり、動画を理解したり、画像を生成したりもできます — 異なる種類のデータを、モデルが推論に使う同じ内部表現へと対応づけるよう学習されているからです。',
+          'AIが物理世界で実際に行動しなければならない瞬間、マルチモーダル性は単なるデモの見せ場ではなく、必須要件になります。ロボットや自動運転車は、別々の単機能システムをつなぎ合わせるのではなく、一つのモデルの中で見て、聞いて、推論する必要があります — これが「フィジカルAI」がチャットボット型のテキストAIよりも難しく、より先の目標とみなされる大きな理由の一つです。',
+        ],
+      },
+      es: {
+        term: 'IA multimodal',
+        short: 'Un modelo que puede recibir o generar más de un tipo de datos —texto, imágenes, audio, vídeo— en lugar de solo texto.',
+        body: [
+          'Los primeros modelos de lenguaje grandes solo leían y escribían texto. Un modelo multimodal también puede mirar una foto y describirla, escuchar voz, ver un vídeo o generar una imagen, porque ha sido entrenado para mapear distintos tipos de datos hacia la misma representación subyacente sobre la que razona el modelo.',
+          "La multimodalidad deja de ser un truco de demostración y se convierte en un requisito ineludible en el momento en que la IA tiene que actuar en el mundo físico: un robot o un vehículo autónomo necesita ver, oír y razonar dentro del mismo modelo, no encadenar sistemas separados de propósito único — una parte importante de por qué la 'IA física' se considera un hito más difícil y más lejano que la IA conversacional basada en texto.",
+        ],
+      },
+      zh: {
+        term: '多模态 AI',
+        short: '不局限于文本，而是能够接收或生成多种数据类型——文本、图像、音频、视频——的模型。',
+        body: [
+          '早期的大语言模型只能读写文本。多模态模型还能看一张照片并描述它、听懂语音、理解视频，或者生成图像——因为它被训练成能把不同类型的数据映射到同一套模型用来推理的底层表征上。',
+          '一旦 AI 需要在物理世界中真正行动，多模态就不再只是演示花招，而会变成硬性要求:机器人或自动驾驶汽车需要在同一个模型里完成看、听、推理，而不是把几个各司其职的单一系统拼接起来——这正是"具身智能/物理 AI"被视为比聊天机器人式文本 AI 更难、也来得更晚的一个重要原因。',
+        ],
+      },
+    },
+  },
+  {
+    slug: 'quantization',
+    category: 'process',
+    related: ['parameter', 'inference', 'moe'],
+    relatedPost: 'hbm-ai-bottleneck-2026',
+    copy: {
+      en: {
+        term: 'Quantization',
+        short: "Shrinking a model's internal numbers down to lower precision so it runs faster and fits in far less memory — often the difference between needing a data center and running on a phone.",
+        body: [
+          'A model trained with high-precision numbers (32-bit) can be converted to use lower-precision ones (16-, 8-, even 4-bit) after training. Each number takes less memory and less time to compute, so the same model runs faster and fits on cheaper hardware — usually at a small, often barely noticeable, cost in accuracy.',
+          "Quantization is the main reason a capable AI model can now run entirely on a phone or laptop with no server round-trip at all, and it's one of several efficiency techniques — alongside distillation and mixture-of-experts — that has narrowed the gap between what a small local model and a giant cloud model can actually do, which matters directly for the memory-supply crunch that HBM demand is built on.",
+        ],
+      },
+      ko: {
+        term: '양자화(Quantization)',
+        short: '모델 내부 숫자의 정밀도를 낮춰서 더 빠르게 돌아가고 훨씬 적은 메모리에 들어가게 만드는 기법 — 데이터센터가 필요한지, 휴대폰에서 돌아가는지를 가르는 경우가 많습니다.',
+        body: [
+          '높은 정밀도(32비트) 숫자로 학습된 모델을 학습이 끝난 뒤 더 낮은 정밀도(16비트, 8비트, 심지어 4비트)로 변환할 수 있습니다. 숫자 하나하나가 차지하는 메모리와 계산 시간이 줄어들기 때문에, 같은 모델이 더 빠르게 돌아가고 더 저렴한 하드웨어에도 들어갑니다 — 대개 정확도는 아주 조금, 눈에 띄지 않을 정도로만 낮아집니다.',
+          '양자화는 이제 상당한 성능의 AI 모델이 서버 왕복 없이 휴대폰이나 노트북에서 완전히 돌아갈 수 있게 된 주된 이유입니다. 지식 증류, 전문가 혼합(MoE)과 함께 이런 효율화 기법들은 작은 로컬 모델과 거대한 클라우드 모델이 실제로 할 수 있는 일의 격차를 좁혀왔고, 이는 HBM 수요를 떠받치는 메모리 공급난과도 직접 맞닿아 있습니다.',
+        ],
+      },
+      ja: {
+        term: '量子化(Quantization)',
+        short: 'モデル内部の数値の精度を下げて、より速く動作し、はるかに少ないメモリで済むようにする手法 — データセンターが必要か、スマートフォンで動くかを分けることも多い。',
+        body: [
+          '高精度(32ビット)の数値で学習されたモデルは、学習後により低精度(16ビット、8ビット、時には4ビット)へ変換できます。数値一つあたりのメモリと計算時間が減るため、同じモデルがより速く動作し、より安価なハードウェアにも収まります — 精度の低下は通常わずかで、ほとんど気づかない程度です。',
+          '量子化は、まともな性能のAIモデルがサーバーとの往復なしにスマートフォンやノートPCだけで完全に動作できるようになった主な理由です。蒸留や専門家混合(MoE)と並び、こうした効率化技術は小さなローカルモデルと巨大なクラウドモデルの間で実際にできることの差を縮めてきました。これはHBM需要を支えるメモリ供給の逼迫にも直接関わってきます。',
+        ],
+      },
+      es: {
+        term: 'Cuantización (Quantization)',
+        short: "Reducir la precisión de los números internos de un modelo para que se ejecute más rápido y ocupe mucha menos memoria — a menudo la diferencia entre necesitar un centro de datos o funcionar en un teléfono.",
+        body: [
+          'Un modelo entrenado con números de alta precisión (32 bits) puede convertirse, después del entrenamiento, para usar números de menor precisión (16, 8 o incluso 4 bits). Cada número ocupa menos memoria y requiere menos tiempo de cómputo, así que el mismo modelo se ejecuta más rápido y cabe en hardware más barato — normalmente a un costo pequeño, a menudo casi imperceptible, en precisión.',
+          'La cuantización es la razón principal por la que un modelo de IA capaz puede ahora ejecutarse enteramente en un teléfono o portátil sin ninguna conexión a un servidor, y es una de varias técnicas de eficiencia —junto con la destilación y la mezcla de expertos— que han reducido la brecha entre lo que un modelo local pequeño y un modelo gigante en la nube pueden hacer realmente, algo que incide directamente en la escasez de memoria sobre la que se sostiene la demanda de HBM.',
+        ],
+      },
+      zh: {
+        term: '量化(Quantization)',
+        short: '把模型内部数值的精度降低，使其运行更快、占用的内存也大幅减少——这往往决定了一个模型是必须跑在数据中心，还是能装进一部手机。',
+        body: [
+          '一个用高精度数值(32位)训练出来的模型，在训练完成后可以被转换成使用更低精度的数值(16位、8位甚至4位)。每个数字占用的内存和计算时间都变少了，于是同一个模型运行得更快，也能塞进更便宜的硬件里——代价通常很小，精度损失往往几乎察觉不到。',
+          '量化是如今一个能力尚可的 AI 模型能够完全脱离服务器往返、直接在手机或笔记本电脑上运行的主要原因。它和蒸馏、混合专家(MoE)一样，都是缩小"小型本地模型"与"庞大云端模型"实际能力差距的效率手段之一，而这也直接关系到支撑 HBM 需求的那场内存供应紧张。',
+        ],
+      },
+    },
+  },
+  {
+    slug: 'chain-of-thought',
+    category: 'behavior',
+    related: ['llm', 'hallucination', 'inference'],
+    relatedPost: 'moduui-ai-vs-gpt-gemini-claude-2026',
+    copy: {
+      en: {
+        term: 'Chain-of-Thought (Reasoning Model)',
+        short: 'A model that writes out intermediate reasoning steps before its final answer, which measurably improves accuracy on math, logic, and multi-step problems.',
+        body: [
+          "Instead of jumping straight from question to answer, a chain-of-thought model generates a scratchpad of intermediate steps first — breaking a problem down the way a person might work through it on paper — and only then produces a final answer. Forcing that intermediate step, whether through prompting or through training the model to do it by default, tends to catch errors that a direct jump to an answer would miss.",
+          "'Reasoning models' that think longer before answering have become one of the main axes labs compete on, alongside raw parameter count — and a big part of why comparing a challenger model to GPT, Gemini, or Claude head-to-head now means comparing not just what they know, but how long and how carefully each one is willing to think before answering.",
+        ],
+      },
+      ko: {
+        term: '체인 오브 소트(추론 모델)',
+        short: '최종 답을 내놓기 전에 중간 추론 과정을 글로 풀어내는 모델 방식으로, 수학·논리·다단계 문제의 정확도를 눈에 띄게 끌어올립니다.',
+        body: [
+          '질문에서 답으로 곧바로 건너뛰는 대신, 체인 오브 소트 방식의 모델은 먼저 중간 단계들을 메모하듯 풀어낸 뒤 — 사람이 종이 위에서 문제를 풀어나가는 것과 비슷하게 — 그다음에야 최종 답을 내놓습니다. 이 중간 단계를 프롬프트로 유도하든, 모델이 기본적으로 그렇게 하도록 학습시키든, 이 과정을 강제하면 곧바로 답으로 건너뛸 때 놓치기 쉬운 오류를 잡아내는 경향이 있습니다.',
+          '답을 내놓기 전에 더 오래 생각하는 "추론 모델"은 이제 단순 파라미터 수와 더불어 각 연구소가 경쟁하는 주요 축 중 하나가 됐습니다. 도전자 모델을 GPT·제미나이·클로드와 정면으로 비교한다는 게, 이제는 무엇을 아는지뿐 아니라 답하기 전에 각 모델이 얼마나 오래, 얼마나 신중하게 생각하려 하는지까지 비교한다는 뜻이 된 이유이기도 합니다.',
+        ],
+      },
+      ja: {
+        term: 'チェーン・オブ・ソート(推論モデル)',
+        short: '最終的な答えを出す前に中間の推論過程を書き出すモデルの方式で、数学・論理・多段階の問題における正確さを目に見えて高める。',
+        body: [
+          '質問から答えへ直接飛びつくのではなく、チェーン・オブ・ソート方式のモデルはまず中間ステップをメモのように書き出し — 人が紙の上で問題を解いていくのと似たやり方で — その後にようやく最終的な答えを出します。この中間ステップをプロンプトで促すにせよ、モデルがデフォルトでそうするよう学習させるにせよ、これを強制すると、答えに直接飛びついた場合には見逃してしまうような誤りを拾い上げやすくなります。',
+          '答える前により長く考える「推論モデル」は今や、単純なパラメータ数と並んで各研究所が競い合う主要な軸の一つになっています。挑戦者モデルをGPT、Gemini、Claudeと正面から比較するということが、今では何を知っているかだけでなく、答える前に各モデルがどれだけ長く、どれだけ慎重に考えようとするかまで比較することを意味するようになった大きな理由でもあります。',
+        ],
+      },
+      es: {
+        term: 'Cadena de pensamiento (modelo de razonamiento)',
+        short: 'Un modelo que escribe pasos de razonamiento intermedios antes de su respuesta final, lo que mejora de forma medible la precisión en matemáticas, lógica y problemas de varios pasos.',
+        body: [
+          'En lugar de saltar directamente de la pregunta a la respuesta, un modelo de cadena de pensamiento genera primero un borrador de pasos intermedios —descomponiendo el problema de forma parecida a como una persona lo resolvería en papel— y solo después produce una respuesta final. Forzar ese paso intermedio, ya sea mediante instrucciones o entrenando al modelo para que lo haga por defecto, tiende a detectar errores que un salto directo a la respuesta pasaría por alto.',
+          "Los 'modelos de razonamiento' que piensan más tiempo antes de responder se han convertido en uno de los principales ejes de competencia entre los laboratorios, junto al número bruto de parámetros — y es buena parte de por qué comparar a un modelo desafiante con GPT, Gemini o Claude cara a cara ahora significa comparar no solo lo que saben, sino cuánto tiempo y con cuánto cuidado está dispuesto a pensar cada uno antes de responder.",
+        ],
+      },
+      zh: {
+        term: '思维链(推理模型)',
+        short: '在给出最终答案之前，先把中间推理步骤写出来的模型方式，能显著提升在数学、逻辑和多步骤问题上的准确率。',
+        body: [
+          '思维链模型不会从问题直接跳到答案，而是先像人在纸上解题一样，把中间步骤当作草稿写出来，然后才给出最终答案。无论是通过提示词引导，还是把这种做法训练成模型的默认行为，强制加入这一中间环节，往往能捕捉到直接跳到答案时会漏掉的错误。',
+          '在回答前"想得更久"的"推理模型"，如今已经和单纯的参数量一样，成为各大实验室相互竞争的主要维度之一。这也是为什么如今把一个挑战者模型拿来和 GPT、Gemini、Claude 正面比较，比的已经不只是"知道什么"，还包括每个模型在回答前愿意想多久、想得多仔细。',
+        ],
+      },
+    },
+  },
+  {
+    slug: 'cuda',
+    category: 'infrastructure',
+    related: ['gpu', 'foundry'],
+    relatedPost: 'nvidia-antitrust-2026',
+    copy: {
+      en: {
+        term: 'CUDA',
+        short: "Nvidia's proprietary software platform for programming its GPUs — widely seen as the biggest reason Nvidia's hardware dominance has been so hard for rivals to dislodge.",
+        body: [
+          'A GPU on its own is just silicon; CUDA is the layer of tools, libraries, and programming interfaces that lets developers actually put that hardware to work for AI training and inference. Over more than a decade, an entire ecosystem of AI software has been built and optimized specifically against CUDA — which means switching to a competitor\'s chip often means rewriting or re-tuning a large amount of software, not just swapping a part.',
+          "That lock-in is exactly what sits at the center of the antitrust scrutiny Nvidia faces: whether its position rests on CUDA being a genuinely better product that rivals are free to match, or on switching costs high enough to function as a moat regardless of how good competing chips become.",
+        ],
+      },
+      ko: {
+        term: 'CUDA',
+        short: '엔비디아의 GPU를 프로그래밍하기 위한 자체 소프트웨어 플랫폼 — 엔비디아의 하드웨어 지배력이 경쟁사들에게 그토록 무너뜨리기 어려웠던 가장 큰 이유로 꼽힙니다.',
+        body: [
+          'GPU 자체는 그냥 실리콘일 뿐입니다. CUDA는 개발자들이 그 하드웨어를 실제로 AI 학습·추론에 활용할 수 있게 해주는 도구·라이브러리·프로그래밍 인터페이스 계층입니다. 10년이 넘는 세월 동안 AI 소프트웨어 생태계 전체가 CUDA에 맞춰 구축되고 최적화돼 왔습니다 — 그래서 경쟁사 칩으로 갈아탄다는 건 부품 하나를 바꾸는 게 아니라 방대한 소프트웨어를 다시 짜거나 다시 튜닝해야 한다는 뜻이 되는 경우가 많습니다.',
+          '이 잠금 효과가 바로 엔비디아가 받고 있는 반독점 조사의 핵심입니다. CUDA가 경쟁사들도 얼마든지 따라올 수 있는, 정말로 더 나은 제품이라서 지금의 지위를 유지하는 건지, 아니면 경쟁 칩이 아무리 좋아져도 전환 비용이 그 자체로 해자 역할을 할 만큼 높아서인지가 쟁점입니다.',
+        ],
+      },
+      ja: {
+        term: 'CUDA',
+        short: 'エヌビディアのGPUをプログラムするための独自ソフトウェアプラットフォーム — エヌビディアのハードウェア支配力がライバルにとってこれほど覆しにくい最大の理由とされている。',
+        body: [
+          'GPU単体はただのシリコンにすぎません。CUDAは、開発者がそのハードウェアを実際にAIの学習・推論に活用できるようにするツール・ライブラリ・プログラミングインターフェースの層です。10年以上にわたり、AIソフトウェアのエコシステム全体がCUDAに合わせて構築・最適化されてきました — そのため競合チップへ乗り換えるということは、部品を一つ交換するだけでなく、大量のソフトウェアを書き直す、あるいは再チューニングすることを意味する場合が多いのです。',
+          'このロックインこそ、エヌビディアが直面している独占禁止法上の審査の核心にあります。CUDAが競合他社も自由に追いつける、本当に優れた製品だからこの地位を保っているのか、それとも競合チップがどれほど良くなっても、乗り換えコストの高さ自体が堀として機能しているのかが争点です。',
+        ],
+      },
+      es: {
+        term: 'CUDA',
+        short: 'La plataforma de software propietaria de Nvidia para programar sus GPU — considerada ampliamente la principal razón por la que el dominio del hardware de Nvidia ha sido tan difícil de desplazar para los rivales.',
+        body: [
+          'Una GPU por sí sola es solo silicio; CUDA es la capa de herramientas, librerías e interfaces de programación que permite a los desarrolladores poner ese hardware realmente a trabajar en el entrenamiento e inferencia de IA. Durante más de una década, todo un ecosistema de software de IA se ha construido y optimizado específicamente en torno a CUDA — lo que significa que cambiar al chip de un competidor a menudo implica reescribir o reajustar una gran cantidad de software, no solo sustituir una pieza.',
+          'Ese bloqueo es exactamente lo que está en el centro del escrutinio antimonopolio que enfrenta Nvidia: si su posición se basa en que CUDA es un producto genuinamente mejor que los rivales pueden igualar libremente, o en unos costos de cambio lo bastante altos como para funcionar como un foso sin importar cuán buenos lleguen a ser los chips de la competencia.',
+        ],
+      },
+      zh: {
+        term: 'CUDA',
+        short: '英伟达用于对其 GPU 进行编程的专有软件平台——被普遍认为是英伟达硬件霸主地位如此难以被对手撼动的最主要原因。',
+        body: [
+          'GPU 本身只是一块硅片;CUDA 则是让开发者真正能把这块硬件用于 AI 训练和推理的工具、库和编程接口层。十多年来，整个 AI 软件生态都是专门围绕 CUDA 构建和优化的——这意味着改用竞争对手的芯片，往往不只是换一个零件那么简单，而是要重写或重新调优大量软件。',
+          '这种锁定效应，正是英伟达所面临反垄断审查的核心:它的地位究竟是建立在 CUDA 确实是一款竞争对手也能自由追赶的更优产品之上，还是建立在切换成本高到足以充当护城河、无论对手芯片做得多好都难以撼动之上。',
+        ],
+      },
+    },
+  },
+  {
+    slug: 'foundry',
+    category: 'infrastructure',
+    related: ['euv-lithography', 'hbm'],
+    relatedPost: 'asml-ai-hardware-bedrock-2026',
+    copy: {
+      en: {
+        term: 'Foundry (Semiconductor Foundry)',
+        short: 'A company that manufactures chips designed by other companies — TSMC and Samsung are the only two that can currently make the most advanced ones at scale.',
+        body: [
+          "Most chip designers — Nvidia, Apple, AMD, Qualcomm among them — don't own the factories that make their chips. They design the chip and hand the blueprint to a foundry, which owns the billion-dollar fabrication plants and does the actual manufacturing. This 'fabless' split lets a design company move fast without carrying the enormous fixed cost of a fab.",
+          "At the cutting edge, that division of labor concentrates enormous power in whichever handful of foundries can actually produce the most advanced chips — which in turn concentrates power further upstream, in the single company that makes the lithography machines those foundries all depend on to print those chips in the first place.",
+        ],
+      },
+      ko: {
+        term: '파운드리(반도체 위탁생산)',
+        short: '다른 회사가 설계한 칩을 대신 제조해주는 회사 — 현재 가장 앞선 공정을 대량으로 만들 수 있는 곳은 TSMC와 삼성 단 두 곳뿐입니다.',
+        body: [
+          '엔비디아, 애플, AMD, 퀄컴 같은 대부분의 칩 설계 회사는 자기 칩을 만드는 공장을 소유하지 않습니다. 이들은 칩을 설계해 설계도를 파운드리에 넘기고, 수십억 달러짜리 제조 설비를 소유한 파운드리가 실제 제조를 담당합니다. 이런 "팹리스" 분업 덕분에 설계 회사는 공장이라는 막대한 고정비를 짊어지지 않고도 빠르게 움직일 수 있습니다.',
+          '최첨단 영역에서는 이 분업 구조 때문에, 실제로 가장 앞선 칩을 만들 수 있는 극소수 파운드리에 막대한 힘이 집중됩니다. 그리고 그 힘은 다시 한 단계 더 위, 그 파운드리들이 애초에 칩을 찍어내기 위해 의존하는 노광 장비를 만드는 단 하나의 회사에게로 더 집중됩니다.',
+        ],
+      },
+      ja: {
+        term: 'ファウンドリ(半導体受託製造)',
+        short: '他社が設計したチップを製造する会社 — 現在、最先端プロセスを量産できるのはTSMCとサムスンの二社のみ。',
+        body: [
+          'エヌビディア、アップル、AMD、クアルコムなど、ほとんどのチップ設計会社は自社のチップを作る工場を所有していません。設計会社はチップを設計し、その設計図をファウンドリに渡します。ファウンドリは数十億ドル規模の製造設備を所有し、実際の製造を担います。この「ファブレス」型の分業のおかげで、設計会社は工場という巨大な固定費を抱えずに素早く動けます。',
+          '最先端の領域では、この分業構造ゆえに、実際に最も先進的なチップを作れるごく少数のファウンドリに莫大な力が集中します。そしてその力は、さらに一段階上流、それらのファウンドリがそもそもチップを刷るために依存している露光装置を作る、たった一社にさらに集中します。',
+        ],
+      },
+      es: {
+        term: 'Fundición (Fundición de semiconductores)',
+        short: 'Una empresa que fabrica chips diseñados por otras empresas — TSMC y Samsung son las únicas dos que actualmente pueden fabricar los más avanzados a gran escala.',
+        body: [
+          'La mayoría de los diseñadores de chips —Nvidia, Apple, AMD, Qualcomm entre ellos— no poseen las fábricas que fabrican sus chips. Diseñan el chip y entregan el plano a una fundición, que posee las plantas de fabricación de miles de millones de dólares y realiza la manufactura real. Esta división "fabless" permite a una empresa de diseño moverse rápido sin cargar con el enorme costo fijo de una fábrica.',
+          'En la vanguardia tecnológica, esa división del trabajo concentra un poder enorme en el puñado de fundiciones que realmente pueden producir los chips más avanzados — lo que a su vez concentra el poder más arriba en la cadena, en la única empresa que fabrica las máquinas de litografía de las que todas esas fundiciones dependen para poder imprimir esos chips en primer lugar.',
+        ],
+      },
+      zh: {
+        term: '晶圆代工厂',
+        short: '为其他公司设计的芯片进行代工生产的企业——目前能大规模量产最先进制程的，只有台积电和三星这两家。',
+        body: [
+          '英伟达、苹果、AMD、高通等大多数芯片设计公司并不拥有制造自家芯片的工厂。它们负责设计芯片，再把设计图交给晶圆代工厂——由代工厂拥有动辄数十亿美元的制造工厂，完成实际生产。这种"无厂"分工模式，让设计公司能够快速推进，而不必背负工厂那样巨大的固定成本。',
+          '在最前沿的制程上，这种分工把巨大的权力集中到了少数几家真正能生产最先进芯片的代工厂手中——而这份权力又进一步向上游集中，集中到那家所有代工厂都要依赖其光刻设备才能把芯片印出来的唯一一家公司身上。',
+        ],
+      },
+    },
+  },
+  {
+    slug: 'euv-lithography',
+    category: 'infrastructure',
+    related: ['foundry', 'gpu'],
+    relatedPost: 'asml-ai-hardware-bedrock-2026',
+    copy: {
+      en: {
+        term: 'EUV Lithography',
+        short: 'The extreme-ultraviolet light process used to print the smallest, most advanced features onto a chip — made by exactly one company in the world, ASML.',
+        body: [
+          "Lithography is how a chip's circuit pattern gets printed onto silicon: light is shone through a mask to etch a pattern, the same basic idea as a stencil, at a scale of nanometers. Below a certain size, ordinary light's wavelength is simply too long to draw features that small accurately, so the industry moved to EUV — light with a wavelength of about 13.5 nanometers, hard enough to generate and focus that it took decades and tens of billions of dollars to make it work at all.",
+          "That difficulty is exactly why only one company makes EUV machines at all, why every leading-edge foundry in the world — TSMC, Samsung, Intel — depends on that single supplier, and why export restrictions on EUV equipment have become one of the sharpest tools in the U.S.-China contest over advanced chipmaking.",
+        ],
+      },
+      ko: {
+        term: 'EUV 노광',
+        short: '칩에 가장 작고 가장 앞선 회로 패턴을 찍어내는 데 쓰이는 극자외선 공정 — 전 세계에서 딱 한 회사, ASML만이 만들 수 있습니다.',
+        body: [
+          '노광(리소그래피)은 칩의 회로 패턴을 실리콘 위에 찍어내는 공정입니다. 빛을 마스크에 통과시켜 패턴을 새기는데, 스텐실과 기본 원리는 같지만 스케일이 나노미터 단위입니다. 일정 크기 이하로 내려가면 일반적인 빛의 파장은 그만큼 작은 패턴을 정확히 그리기엔 너무 길어집니다. 그래서 업계는 파장이 약 13.5나노미터인 EUV(극자외선)로 넘어갔는데, 이 빛을 발생시키고 초점을 맞추는 게 너무 어려워서 아예 작동하게 만드는 데만 수십 년과 수백억 달러가 들었습니다.',
+          '바로 이 어려움 때문에 전 세계에서 단 한 회사만이 EUV 장비를 만들고, TSMC·삼성·인텔 같은 세계 최첨단 파운드리 전부가 그 유일한 공급사에 의존하며, EUV 장비에 대한 수출 규제가 미중 첨단반도체 경쟁에서 가장 날카로운 무기 중 하나가 된 것입니다.',
+        ],
+      },
+      ja: {
+        term: 'EUV露光',
+        short: 'チップに最も微細で最先端の回路パターンを刷り込むために使われる極端紫外線プロセス — 世界でただ一社、ASMLのみが製造できる。',
+        body: [
+          '露光(リソグラフィー)とは、チップの回路パターンをシリコン上に刷り込む工程です。光をマスクに通してパターンを刻む、原理自体はステンシルと同じですが、スケールはナノメートル単位です。ある大きさを下回ると、通常の光の波長ではそれほど微細なパターンを正確に描くには長すぎます。そこで業界は波長約13.5ナノメートルのEUV(極端紫外線)へと移行しましたが、この光を発生させ焦点を合わせること自体が非常に難しく、実用化までに数十年と数百億ドルを要しました。',
+          'この難しさゆえに、世界でEUV装置を作れるのはたった一社だけであり、TSMC、サムスン、インテルといった世界の最先端ファウンドリ全てがその唯一の供給元に依存しており、EUV装置への輸出規制が米中間の先端半導体競争における最も鋭い手段の一つとなっています。',
+        ],
+      },
+      es: {
+        term: 'Litografía EUV',
+        short: 'El proceso de luz ultravioleta extrema utilizado para imprimir las características más pequeñas y avanzadas en un chip — fabricado por una única empresa en el mundo, ASML.',
+        body: [
+          'La litografía es cómo se imprime el patrón del circuito de un chip sobre el silicio: se hace pasar luz a través de una máscara para grabar un patrón, la misma idea básica que una plantilla, a escala de nanómetros. Por debajo de cierto tamaño, la longitud de onda de la luz ordinaria es simplemente demasiado larga para dibujar rasgos tan pequeños con precisión, así que la industria pasó a la luz EUV — con una longitud de onda de unos 13,5 nanómetros, tan difícil de generar y enfocar que tardó décadas y decenas de miles de millones de dólares en siquiera funcionar.',
+          'Esa dificultad es precisamente la razón por la que solo una empresa fabrica máquinas EUV, por la que toda fundición de vanguardia del mundo —TSMC, Samsung, Intel— depende de ese único proveedor, y por la que las restricciones a la exportación de equipos EUV se han convertido en una de las herramientas más afiladas en la disputa entre EE. UU. y China por la fabricación de chips avanzados.',
+        ],
+      },
+      zh: {
+        term: 'EUV 光刻',
+        short: '用于在芯片上刻印最小、最先进电路特征的极紫外光工艺——全世界只有一家公司能够制造，那就是阿斯麦(ASML)。',
+        body: [
+          '光刻是把芯片的电路图案印刻到硅片上的工艺:让光穿过掩模刻出图案，原理和模板镂空类似，只不过尺度是纳米级。一旦特征尺寸小到一定程度，普通光的波长就太长了，根本没法精确画出那么细小的图案。于是行业转向了 EUV(极紫外光)——波长约 13.5 纳米，这种光难以产生和聚焦到这种程度，以至于花了几十年、投入了数百亿美元才让它真正能用。',
+          '正因为这份难度，全世界才只有一家公司能制造 EUV 设备，也正因如此，台积电、三星、英特尔这些全球最先进的代工厂无一例外都要依赖这唯一的供应商；而针对 EUV 设备的出口管制，也因此成了中美先进芯片制造博弈中最锋利的工具之一。',
         ],
       },
     },
