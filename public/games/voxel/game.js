@@ -810,44 +810,50 @@ document.addEventListener('mousemove', function (e) {
   pitch = Math.max(-1.55, Math.min(1.55, pitch));
 });
 
-canvas.addEventListener('mousedown', function (e) {
+// 좌클릭(공격/파괴)과 우클릭(설치)을 함수로 분리 — 마우스와 터치 버튼이 공용
+function attackAction() {
   if (!locked || dead) return;
-  if (e.button === 0) {
-    startSwing();
-    // 활: 화살 발사
-    if (tool === 2) {
-      shootArrow();
-      sound('bow');
-      return;
-    }
-    // 몬스터 우선 공격 (검 = 사거리·데미지 증가)
-    const mHit = pickMob(tool === 1 ? 5 : 4.5);
-    if (mHit) {
-      hurtMob(mHit, tool === 1 ? 7 : 4, mHit.pos.x - player.pos.x, mHit.pos.z - player.pos.z);
-      sound('hit');
-      return;
-    }
+  startSwing();
+  // 활: 화살 발사
+  if (tool === 2) {
+    shootArrow();
+    sound('bow');
+    return;
+  }
+  // 몬스터 우선 공격 (검 = 사거리·데미지 증가)
+  const mHit = pickMob(tool === 1 ? 5 : 4.5);
+  if (mHit) {
+    hurtMob(mHit, tool === 1 ? 7 : 4, mHit.pos.x - player.pos.x, mHit.pos.z - player.pos.z);
+    sound('hit');
+    return;
   }
   const hit = raycast(6);
   if (!hit) return;
-  if (e.button === 0) {
-    if (hit.id === 14) { showName(L.bedrock); return; }
-    setBlock(hit.x, hit.y, hit.z, 0);
-    questEvent('break', hit.id);
-    sound('break');
-  } else if (e.button === 2) {
-    startSwing();
-    const px = hit.x + hit.fx, py = hit.y + hit.fy, pz = hit.z + hit.fz;
-    const cur = getBlock(px, py, pz);
-    if (cur !== 0 && cur !== 7) return;
-    const p = player.pos;
-    if (px + 1 > p.x - P_HALF && px < p.x + P_HALF &&
-        pz + 1 > p.z - P_HALF && pz < p.z + P_HALF &&
-        py + 1 > p.y && py < p.y + P_H) return; // 자기 몸 위치엔 설치 금지
-    setBlock(px, py, pz, HOTBAR[sel]);
-    questEvent('place');
-    sound('place');
-  }
+  if (hit.id === 14) { showName(L.bedrock); return; }
+  setBlock(hit.x, hit.y, hit.z, 0);
+  questEvent('break', hit.id);
+  sound('break');
+}
+function placeAction() {
+  if (!locked || dead) return;
+  const hit = raycast(6);
+  if (!hit) return;
+  startSwing();
+  const px = hit.x + hit.fx, py = hit.y + hit.fy, pz = hit.z + hit.fz;
+  const cur = getBlock(px, py, pz);
+  if (cur !== 0 && cur !== 7) return;
+  const p = player.pos;
+  if (px + 1 > p.x - P_HALF && px < p.x + P_HALF &&
+      pz + 1 > p.z - P_HALF && pz < p.z + P_HALF &&
+      py + 1 > p.y && py < p.y + P_H) return; // 자기 몸 위치엔 설치 금지
+  setBlock(px, py, pz, HOTBAR[sel]);
+  questEvent('place');
+  sound('place');
+}
+canvas.addEventListener('mousedown', function (e) {
+  if (window._TOUCH) return; // 터치 모드: 탭이 만드는 호환 mouse 이벤트 무시
+  if (e.button === 0) attackAction();
+  else if (e.button === 2) placeAction();
 });
 canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
 
@@ -857,15 +863,26 @@ addEventListener('wheel', function (e) {
   selectSlot((sel + (e.deltaY > 0 ? 1 : -1) + HOTBAR.length) % HOTBAR.length);
 }, { passive: false });
 
-/* 포인터 락 */
+/* 포인터 락 (터치 기기는 포인터락 없이 가상 locked 상태로 플레이) */
+window._TOUCH = new URLSearchParams(location.search).get('touch') === '1' ||
+  matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+if (window._TOUCH) document.body.classList.add('touch');
+function setPlaying(on) {
+  locked = on;
+  overlay.style.display = (locked || dead) ? 'none' : 'flex';
+  if (!locked) for (const k in keys) keys[k] = false;
+  document.body.classList.toggle('playing', on);
+}
 const overlay = document.getElementById('overlay');
 overlay.addEventListener('click', function () {
+  if (window._TOUCH) { setPlaying(true); return; }
   try { canvas.requestPointerLock(); } catch (e) {}
 });
 document.addEventListener('pointerlockchange', function () {
   locked = document.pointerLockElement === canvas;
   overlay.style.display = (locked || dead) ? 'none' : 'flex';
   if (!locked) for (const k in keys) keys[k] = false;
+  document.body.classList.toggle('playing', locked);
 });
 document.getElementById('newBtn').addEventListener('click', function (e) {
   e.stopPropagation();
@@ -1044,6 +1061,7 @@ document.getElementById('respawnBtn').addEventListener('click', function () {
   hp = 20; dead = false; lastHurtT = tSec;
   updateHearts();
   document.getElementById('death').style.display = 'none';
+  if (window._TOUCH) { setPlaying(true); return; }
   try { canvas.requestPointerLock(); } catch (e) {}
 });
 
@@ -1690,3 +1708,156 @@ function tick(now) {
   renderer.render(scene, camera);
 }
 requestAnimationFrame(tick);
+
+/* ===== 모바일 터치 컨트롤 =====
+   가상 조이스틱(이동)·화면 드래그(시점)·버튼(점프/파괴/설치/비행/하강/도전과제/일시정지).
+   keys[] 상태와 attackAction/placeAction을 공유하므로 게임 로직은 그대로다. */
+(function () {
+  if (!window._TOUCH) return;
+
+  /* 조이스틱: 방향을 WASD 디지털 입력으로 변환, 끝까지 밀면 전력질주(Shift) */
+  const joy = document.getElementById('joy'), knob = document.getElementById('joyKnob');
+  let joyId = null, joyCx = 0, joyCy = 0;
+  function joyApply(dx, dy) {
+    const m = Math.hypot(dx, dy), R = 46;
+    const c = Math.min(m, R) / (m || 1);
+    knob.style.transform = 'translate(-50%,-50%) translate(' + (dx * c) + 'px,' + (dy * c) + 'px)';
+    const on = m > 12, nx = dx / (m || 1), ny = dy / (m || 1);
+    keys.KeyW = on && ny < -0.38;
+    keys.KeyS = on && ny > 0.38;
+    keys.KeyA = on && nx < -0.38;
+    keys.KeyD = on && nx > 0.38;
+    keys.ShiftLeft = on && m > R * 0.95 && keys.KeyW;
+  }
+  joy.addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    if (joyId !== null) return;
+    joyId = e.pointerId;
+    const r = joy.getBoundingClientRect();
+    joyCx = r.left + r.width / 2; joyCy = r.top + r.height / 2;
+    joyApply(e.clientX - joyCx, e.clientY - joyCy);
+  });
+  joy.addEventListener('pointermove', function (e) {
+    if (e.pointerId === joyId) joyApply(e.clientX - joyCx, e.clientY - joyCy);
+  });
+  function joyEnd(e) {
+    if (e.pointerId !== joyId) return;
+    joyId = null;
+    knob.style.transform = 'translate(-50%,-50%)';
+    keys.KeyW = keys.KeyA = keys.KeyS = keys.KeyD = keys.ShiftLeft = false;
+  }
+  joy.addEventListener('pointerup', joyEnd);
+  joy.addEventListener('pointercancel', joyEnd);
+
+  /* 시점: 캔버스 빈 곳 드래그 = 마우스룩 */
+  let lookId = null, lookX = 0, lookY = 0;
+  canvas.addEventListener('pointerdown', function (e) {
+    if (!locked || e.pointerType === 'mouse') return;
+    e.preventDefault(); // 탭이 호환 mousedown을 만들지 않게
+    if (lookId !== null) return;
+    lookId = e.pointerId; lookX = e.clientX; lookY = e.clientY;
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (e.pointerId !== lookId) return;
+    yaw -= (e.clientX - lookX) * 0.006;
+    pitch -= (e.clientY - lookY) * 0.006;
+    pitch = Math.max(-1.55, Math.min(1.55, pitch));
+    lookX = e.clientX; lookY = e.clientY;
+  });
+  function lookEnd(e) { if (e.pointerId === lookId) lookId = null; }
+  canvas.addEventListener('pointerup', lookEnd);
+  canvas.addEventListener('pointercancel', lookEnd);
+
+  /* 버튼 */
+  function el(id) { return document.getElementById(id); }
+  function bindHold(id, code) {
+    const b = el(id);
+    function down(e) { e.preventDefault(); b.classList.add('on'); keys[code] = true; }
+    function up(e) { e.preventDefault(); b.classList.remove('on'); keys[code] = false; }
+    b.addEventListener('pointerdown', down);
+    b.addEventListener('pointerup', up);
+    b.addEventListener('pointercancel', up);
+  }
+  // 누르고 있으면 반복 실행 (연속 파괴/설치)
+  function bindRepeat(id, fn) {
+    const b = el(id);
+    let timer = null;
+    function stop(e) { if (e) e.preventDefault(); b.classList.remove('on'); clearInterval(timer); timer = null; }
+    b.addEventListener('pointerdown', function (e) {
+      e.preventDefault(); b.classList.add('on');
+      fn();
+      timer = setInterval(fn, 280);
+    });
+    b.addEventListener('pointerup', stop);
+    b.addEventListener('pointercancel', stop);
+  }
+  function pressKey(code) {
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: code }));
+    window.dispatchEvent(new KeyboardEvent('keyup', { code: code }));
+  }
+  bindHold('tJump', 'Space');
+  bindHold('tDown', 'KeyC');
+  bindRepeat('tBreak', attackAction);
+  bindRepeat('tPlace', placeAction);
+  el('tFly').addEventListener('pointerdown', function (e) { e.preventDefault(); pressKey('KeyF'); });
+  el('tQuest').addEventListener('pointerdown', function (e) { e.preventDefault(); pressKey('KeyQ'); });
+  el('tPause').addEventListener('pointerdown', function (e) { e.preventDefault(); setPlaying(false); });
+
+  /* 핫바·툴바 탭 선택 (터치 모드에서 pointer-events 활성화됨) */
+  document.getElementById('hotbar').addEventListener('click', function (e) {
+    const s = e.target.closest ? e.target.closest('.slot') : null;
+    if (!s) return;
+    const i = Array.prototype.indexOf.call(s.parentNode.children, s);
+    if (i >= 0) selectSlot(i);
+  });
+  document.getElementById('toolbar').addEventListener('click', function (e) {
+    const s = e.target.closest ? e.target.closest('.tslot') : null;
+    if (!s) return;
+    const i = Array.prototype.indexOf.call(s.parentNode.children, s);
+    if (i >= 0 && i !== tool) {
+      tool = i;
+      updateToolUI();
+      showName(tool === 0 ? L.toolHand : (tool === 1 ? L.toolSword : L.toolBow));
+    }
+  });
+
+  /* ?test=touch : 합성 PointerEvent로 조이스틱/버튼/시점 검증 */
+  if (new URLSearchParams(location.search).get('test') === 'touch') {
+    setTimeout(function () {
+      const r = [];
+      setPlaying(true);
+      function fire(target, type, x, y, pid) {
+        target.dispatchEvent(new PointerEvent(type, {
+          pointerId: pid || 9, pointerType: 'touch', bubbles: true,
+          clientX: x, clientY: y
+        }));
+      }
+      // 조이스틱 위로 밀기 → KeyW
+      const jr = joy.getBoundingClientRect();
+      const jx = jr.left + jr.width / 2, jy = jr.top + jr.height / 2;
+      fire(joy, 'pointerdown', jx, jy, 11);
+      fire(joy, 'pointermove', jx, jy - 40, 11);
+      r.push('joyW=' + (keys.KeyW === true ? 'OK' : 'FAIL'));
+      fire(joy, 'pointerup', jx, jy - 40, 11);
+      r.push('joyRel=' + (keys.KeyW === false ? 'OK' : 'FAIL'));
+      // 점프 버튼
+      const jb = el('tJump').getBoundingClientRect();
+      fire(el('tJump'), 'pointerdown', jb.left + 5, jb.top + 5, 12);
+      r.push('jump=' + (keys.Space === true ? 'OK' : 'FAIL'));
+      fire(el('tJump'), 'pointerup', jb.left + 5, jb.top + 5, 12);
+      // 시점 드래그
+      const y0 = yaw;
+      fire(canvas, 'pointerdown', 500, 200, 13);
+      fire(canvas, 'pointermove', 460, 200, 13);
+      fire(canvas, 'pointerup', 460, 200, 13);
+      r.push('look=' + (Math.abs(yaw - y0) > 0.01 ? 'OK' : 'FAIL'));
+      // 파괴/설치 함수 존재
+      r.push('actions=' + (typeof attackAction === 'function' && typeof placeAction === 'function' ? 'OK' : 'FAIL'));
+      // 레이아웃 진단: 핫바가 화면 안에 들어가는지
+      const hb = document.getElementById('hotbar').getBoundingClientRect();
+      r.push('hotbar=' + Math.round(hb.left) + '..' + Math.round(hb.right) + '/' + innerWidth +
+        (hb.left >= 0 && hb.right <= innerWidth ? '=OK' : '=OVERFLOW'));
+      console.warn('[TOUCH-TEST] ' + r.join(' '));
+    }, 800);
+  }
+})();

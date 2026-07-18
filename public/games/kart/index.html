@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>MeNew Kart</title>
 <style>
@@ -67,7 +67,7 @@
   /* 캐릭터 선택 */
   #charGrid { display: grid; grid-template-columns: repeat(6, 104px); gap: 10px;
     max-width: 92vw; justify-content: center; }
-  @media (max-width: 720px) { #charGrid { grid-template-columns: repeat(4, 96px); } }
+  @media (max-width: 720px) { #charGrid { grid-template-columns: repeat(4, minmax(0, 96px)); width: 94vw; } }
   .charCard { background: rgba(0,0,0,.5); border: 3px solid #555; border-radius: 10px;
     padding: 9px 6px 7px; cursor: pointer; text-align: center; transition: transform .08s; }
   .charCard:hover { border-color: #ffe957; transform: translateY(-3px); }
@@ -97,6 +97,31 @@
 
   #err { display: none; position: fixed; left: 10px; bottom: 10px; z-index: 99;
     color: #fff; background: #b32; padding: 8px 12px; border-radius: 6px; font-size: 13px; }
+
+  /* ===== 모바일 터치 컨트롤 ===== */
+  #touch { display: none; }
+  body.touch.racing #touch { display: block; }
+  #touch .tbtn { position: fixed; z-index: 7; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.4); background: rgba(0,0,0,.38); color: #fff;
+    font-weight: 900; display: flex; align-items: center; justify-content: center;
+    touch-action: none; -webkit-user-select: none; user-select: none;
+    -webkit-tap-highlight-color: transparent; }
+  #touch .tbtn.on { background: rgba(255,255,255,.3); }
+  #tLeft  { left: 16px;  bottom: 22px; width: 74px; height: 74px; font-size: 28px; }
+  #tRight { left: 104px; bottom: 22px; width: 74px; height: 74px; font-size: 28px; }
+  #tGas   { right: 16px;  bottom: 22px; width: 80px; height: 80px; font-size: 30px;
+    background: rgba(40,160,70,.45); }
+  #tBrake { right: 112px; bottom: 22px; width: 60px; height: 60px; font-size: 22px;
+    background: rgba(180,50,50,.45); }
+  #tDrift { right: 26px;  bottom: 118px; width: 64px; height: 64px; font-size: 24px;
+    background: rgba(70,140,220,.45); }
+  #tItem  { right: 108px; bottom: 108px; width: 56px; height: 56px; font-size: 24px; }
+  #tQuit  { left: 12px; top: 8px; width: 40px; height: 40px; font-size: 17px;
+    border-radius: 10px; }
+  /* 터치 모드 HUD 재배치 (버튼과 겹침 방지) */
+  body.touch #hudPos { bottom: 112px; font-size: 38px; }
+  body.touch #hudSpeed { bottom: 196px; font-size: 24px; }
+  body.touch #hudLap { left: 62px; }
 </style>
 </head>
 <body>
@@ -149,6 +174,17 @@
       <button class="bigbtn" id="retryBtn"></button>
       <button class="graybtn" id="menuBtn"></button>
     </div>
+  </div>
+
+  <!-- 모바일 터치 컨트롤 -->
+  <div id="touch">
+    <div class="tbtn" id="tLeft">◀</div>
+    <div class="tbtn" id="tRight">▶</div>
+    <div class="tbtn" id="tGas">▲</div>
+    <div class="tbtn" id="tBrake">▼</div>
+    <div class="tbtn" id="tDrift">💨</div>
+    <div class="tbtn" id="tItem">🎁</div>
+    <div class="tbtn" id="tQuit">✕</div>
   </div>
 
   <div id="err"></div>

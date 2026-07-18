@@ -1014,6 +1014,64 @@ requestAnimationFrame(tick);
   else if (scr === 'records') showRecords();
 })();
 
+/* ===== 모바일 터치 컨트롤 =====
+   터치 기기(또는 ?touch=1 강제)에서 가상 버튼으로 keys[] 상태를 셋한다. */
+(function () {
+  const qs = new URLSearchParams(location.search);
+  const TOUCH = qs.get('touch') === '1' ||
+    (matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window);
+  if (!TOUCH) return;
+  document.body.classList.add('touch');
+
+  function bindHold(id, code) {
+    const el = document.getElementById(id);
+    function down(e) { e.preventDefault(); el.classList.add('on'); keys[code] = true; }
+    function up(e) { e.preventDefault(); el.classList.remove('on'); keys[code] = false; }
+    el.addEventListener('pointerdown', down);
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointercancel', up);
+    el.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  }
+  bindHold('tGas', 'ArrowUp');
+  bindHold('tBrake', 'ArrowDown');
+  bindHold('tLeft', 'ArrowLeft');
+  bindHold('tRight', 'ArrowRight');
+  bindHold('tDrift', 'Space');
+  document.getElementById('tItem').addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    if (state === 'race' && player) useItem(player);
+  });
+  document.getElementById('tQuit').addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    if ((state === 'race' || state === 'countdown' || state === 'finish') &&
+        confirm(L.quitConfirm)) { state = 'menu'; showScreen('menu'); }
+  });
+
+  // ?test=touch : 합성 PointerEvent로 버튼 → keys 상태 검증
+  if (qs.get('test') === 'touch') {
+    setTimeout(function () {
+      const r = [];
+      function fire(id, type) {
+        const el = document.getElementById(id);
+        const b = el.getBoundingClientRect();
+        el.dispatchEvent(new PointerEvent(type, {
+          pointerId: 9, pointerType: 'touch', bubbles: true,
+          clientX: b.left + b.width / 2, clientY: b.top + b.height / 2
+        }));
+      }
+      [['tGas', 'ArrowUp'], ['tBrake', 'ArrowDown'], ['tLeft', 'ArrowLeft'],
+       ['tRight', 'ArrowRight'], ['tDrift', 'Space']].forEach(function (p) {
+        fire(p[0], 'pointerdown');
+        const on = keys[p[1]] === true;
+        fire(p[0], 'pointerup');
+        const off = keys[p[1]] === false;
+        r.push(p[0] + '=' + (on && off ? 'OK' : 'FAIL(' + on + ',' + off + ')'));
+      });
+      console.warn('[TOUCH-TEST] ' + r.join(' '));
+    }, 500);
+  }
+})();
+
 /* ===== 테스트 모드 (?test=1 쇼케이스 / ?test=sim 시뮬 검증) ===== */
 if (new URLSearchParams(location.search).has('test')) {
   window._TEST = true;

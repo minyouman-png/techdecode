@@ -98,6 +98,14 @@ const ld = {
     border: 1px solid var(--border); background: #0a0e1a;
   }
   .play-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+  /* 폰 세로: 16:9는 너무 낮아 터치 조작이 힘듦 → 세로로 키움 */
+  @media (max-width: 700px) {
+    .play-frame { aspect-ratio: 4 / 5; }
+  }
+  /* 터치 기기: 마우스/ESC 안내는 무의미 */
+  @media (hover: none) {
+    .play-meta .hint { display: none; }
+  }
   .play-meta {
     display: flex; justify-content: space-between; align-items: center; gap: 14px;
     flex-wrap: wrap; margin: 12px 0 0;
