@@ -1,0 +1,179 @@
+---
+import type { Lang } from '../../i18n/ui';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+
+const L: Record<Lang, Record<string, string>> = {
+  en: {
+    revenue: 'Starting AI revenue, 2026 ($B)', capex: 'Starting AI capex, 2026 ($B)',
+    revenueGrowth: 'AI revenue growth (%/year)', capexGrowth: 'AI capex growth (%/year)',
+    capexLegend: 'AI capex', revenueLegend: 'AI revenue',
+    closesPrefix: 'On these assumptions, revenue catches up with capex in', neverClose: 'On these assumptions, revenue does not catch up with capex within this 10-year window.',
+    unitNote: 'Figures in $ billions, a simple compounding projection from the estimates in our AI bubble analysis — not a forecast.',
+  },
+  ko: {
+    revenue: '2026년 시작 AI 매출 (10억 달러)', capex: '2026년 시작 AI 자본지출 (10억 달러)',
+    revenueGrowth: 'AI 매출 성장률 (연 %)', capexGrowth: 'AI 자본지출 성장률 (연 %)',
+    capexLegend: 'AI 자본지출', revenueLegend: 'AI 매출',
+    closesPrefix: '이 가정대로라면, 매출이 자본지출을 따라잡는 해는', neverClose: '이 가정대로라면, 이 10년 구간 안에서 매출이 자본지출을 따라잡지 못합니다.',
+    unitNote: '단위는 10억 달러이며, 저희 AI 버블 분석 기사의 추정치를 바탕으로 만든 단순 복리 예측 모델입니다 — 실제 전망이 아닙니다.',
+  },
+  ja: {
+    revenue: '2026年の起点となるAI収益(10億ドル)', capex: '2026年の起点となるAI設備投資(10億ドル)',
+    revenueGrowth: 'AI収益成長率(年%)', capexGrowth: 'AI設備投資成長率(年%)',
+    capexLegend: 'AI設備投資', revenueLegend: 'AI収益',
+    closesPrefix: 'この前提では、収益が設備投資に追いつくのは', neverClose: 'この前提では、この10年間で収益は設備投資に追いつきません。',
+    unitNote: '単位は10億ドル。私たちのAIバブル分析記事の推定値をもとにした単純な複利予測モデルであり、実際の見通しではありません。',
+  },
+  es: {
+    revenue: 'Ingresos de IA iniciales, 2026 (miles de millones $)', capex: 'Capex de IA inicial, 2026 (miles de millones $)',
+    revenueGrowth: 'Crecimiento de ingresos de IA (%/año)', capexGrowth: 'Crecimiento del capex de IA (%/año)',
+    capexLegend: 'Capex de IA', revenueLegend: 'Ingresos de IA',
+    closesPrefix: 'Con estos supuestos, los ingresos alcanzan al capex en', neverClose: 'Con estos supuestos, los ingresos no alcanzan al capex dentro de esta ventana de 10 años.',
+    unitNote: 'Cifras en miles de millones de $, una simple proyección de interés compuesto a partir de las estimaciones de nuestro análisis de la burbuja de IA — no es una predicción.',
+  },
+  zh: {
+    revenue: '2026 年起始 AI 营收(十亿美元)', capex: '2026 年起始 AI 资本支出(十亿美元)',
+    revenueGrowth: 'AI 营收增长率(%/年)', capexGrowth: 'AI 资本支出增长率(%/年)',
+    capexLegend: 'AI 资本支出', revenueLegend: 'AI 营收',
+    closesPrefix: '按此假设，营收追上资本支出的年份是', neverClose: '按此假设，在这 10 年窗口内营收无法追上资本支出。',
+    unitNote: '单位为十亿美元，这是根据我们 AI 泡沫分析文章中的估算数字构建的简单复利推演模型——并非预测。',
+  },
+};
+const t = L[lang];
+---
+<div class="gap-explorer" data-tool="ai-capex-gap-explorer">
+  <div class="ge-grid">
+    <label>
+      <span>{t.revenue}</span>
+      <input type="number" id="ge-revenue" value="100" min="1" step="1" />
+    </label>
+    <label>
+      <span>{t.capex}</span>
+      <input type="number" id="ge-capex" value="700" min="1" step="1" />
+    </label>
+  </div>
+
+  <div class="ge-sliders">
+    <label class="slider-label">
+      <span>{t.revenueGrowth} — <b id="ge-rg-val">55</b>%</span>
+      <input type="range" id="ge-revenue-growth" min="0" max="120" value="55" step="1" />
+    </label>
+    <label class="slider-label">
+      <span>{t.capexGrowth} — <b id="ge-cg-val">18</b>%</span>
+      <input type="range" id="ge-capex-growth" min="0" max="60" value="18" step="1" />
+    </label>
+  </div>
+
+  <p class="ge-result" id="ge-result"></p>
+
+  <div class="ge-legend">
+    <span class="legend-item"><i class="swatch capex"></i>{t.capexLegend}</span>
+    <span class="legend-item"><i class="swatch revenue"></i>{t.revenueLegend}</span>
+  </div>
+  <div class="ge-chart" id="ge-chart"></div>
+
+  <p class="ge-note">{t.unitNote}</p>
+</div>
+
+<script define:vars={{ closesPrefix: t.closesPrefix, neverClose: t.neverClose, capexLegend: t.capexLegend, revenueLegend: t.revenueLegend }}>
+  const YEARS = 10;
+  const BASE_YEAR = 2026;
+
+  function recalc() {
+    const revenue0 = parseFloat(document.getElementById('ge-revenue').value) || 0;
+    const capex0 = parseFloat(document.getElementById('ge-capex').value) || 0;
+    const rg = parseFloat(document.getElementById('ge-revenue-growth').value) || 0;
+    const cg = parseFloat(document.getElementById('ge-capex-growth').value) || 0;
+
+    document.getElementById('ge-rg-val').textContent = String(rg);
+    document.getElementById('ge-cg-val').textContent = String(cg);
+
+    const revenues = [];
+    const capexes = [];
+    let crossYear = null;
+    for (let i = 0; i < YEARS; i++) {
+      const rev = revenue0 * Math.pow(1 + rg / 100, i);
+      const cap = capex0 * Math.pow(1 + cg / 100, i);
+      revenues.push(rev);
+      capexes.push(cap);
+      if (crossYear === null && rev >= cap) crossYear = BASE_YEAR + i;
+    }
+
+    const resultEl = document.getElementById('ge-result');
+    resultEl.textContent = crossYear !== null ? `${closesPrefix} ${crossYear}.` : neverClose;
+
+    const max = Math.max(...revenues, ...capexes, 1);
+    const chart = document.getElementById('ge-chart');
+    chart.innerHTML = '';
+    for (let i = 0; i < YEARS; i++) {
+      const col = document.createElement('div');
+      col.className = 'ge-col';
+
+      const bars = document.createElement('div');
+      bars.className = 'ge-bars';
+
+      const CHART_PX = 190;
+      const capBar = document.createElement('div');
+      capBar.className = 'ge-bar capex';
+      capBar.style.height = `${Math.max((capexes[i] / max) * CHART_PX, 2)}px`;
+      capBar.title = `${capexLegend} ${BASE_YEAR + i}: $${Math.round(capexes[i])}B`;
+
+      const revBar = document.createElement('div');
+      revBar.className = 'ge-bar revenue';
+      revBar.style.height = `${Math.max((revenues[i] / max) * CHART_PX, 2)}px`;
+      revBar.title = `${revenueLegend} ${BASE_YEAR + i}: $${Math.round(revenues[i])}B`;
+
+      bars.appendChild(capBar);
+      bars.appendChild(revBar);
+
+      const yearLabel = document.createElement('span');
+      yearLabel.className = 'ge-year';
+      yearLabel.textContent = String(BASE_YEAR + i).slice(2);
+
+      col.appendChild(bars);
+      col.appendChild(yearLabel);
+      chart.appendChild(col);
+    }
+  }
+
+  document.querySelectorAll('.gap-explorer input').forEach((el) => el.addEventListener('input', recalc));
+  recalc();
+</script>
+
+<style>
+  .gap-explorer { border: 1px solid var(--border); border-radius: 14px; padding: 28px; background: color-mix(in srgb, var(--fg-strong) 3%, transparent); }
+  .ge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 22px; }
+  .ge-grid label { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; color: var(--muted); }
+  .ge-grid input[type="number"] {
+    font-size: 1rem; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--fg-strong); font-family: var(--sans);
+  }
+  .ge-sliders { display: flex; flex-direction: column; gap: 18px; margin-bottom: 20px; }
+  .slider-label { display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; color: var(--fg); }
+  .slider-label b { color: var(--accent); }
+  .slider-label input[type="range"] { width: 100%; accent-color: var(--accent); }
+  .ge-result {
+    font-family: var(--serif); font-size: 1.1rem; color: var(--fg-strong); font-weight: 600;
+    padding: 14px 18px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border)); margin: 0 0 22px;
+  }
+  .ge-legend { display: flex; gap: 20px; margin-bottom: 10px; font-size: 0.85rem; color: var(--muted); }
+  .legend-item { display: flex; align-items: center; gap: 7px; }
+  .swatch { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+  .swatch.capex { background: var(--faint); }
+  .swatch.revenue { background: var(--accent); }
+  .ge-chart {
+    display: flex; align-items: flex-end; gap: 6px; height: 220px; padding: 12px 4px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  /* .ge-col/.ge-bars/.ge-bar/.ge-year are created client-side via document.createElement,
+     so they never receive Astro's data-astro-cid scoping attribute — these rules must stay global. */
+  :global(.ge-col) { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; }
+  :global(.ge-bars) { display: flex; align-items: flex-end; gap: 3px; justify-content: center; }
+  :global(.ge-bar) { width: 14px; border-radius: 3px 3px 0 0; min-height: 2px; }
+  :global(.ge-bar.capex) { background: var(--faint); }
+  :global(.ge-bar.revenue) { background: var(--accent); }
+  :global(.ge-year) { font-size: 0.72rem; color: var(--faint); }
+  .ge-note { margin: 16px 0 0; font-size: 0.85rem; color: var(--faint); line-height: 1.6; }
+</style>

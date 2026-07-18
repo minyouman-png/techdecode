@@ -1,0 +1,10 @@
+---
+import GlossaryTermPage from '../../components/GlossaryTermPage.astro';
+import { glossaryTerms } from '../../i18n/glossary';
+
+export function getStaticPaths() {
+  return glossaryTerms.map((t) => ({ params: { slug: t.slug } }));
+}
+const { slug } = Astro.params;
+---
+<GlossaryTermPage lang="en" slug={slug} />

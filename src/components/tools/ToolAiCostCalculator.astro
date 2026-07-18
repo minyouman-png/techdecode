@@ -1,0 +1,152 @@
+---
+import type { Lang } from '../../i18n/ui';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+
+const L: Record<Lang, Record<string, string>> = {
+  en: {
+    inputTokens: 'Input tokens per request', outputTokens: 'Output tokens per request',
+    requests: 'Requests per day', priceIn: 'Price per 1M input tokens ($)', priceOut: 'Price per 1M output tokens ($)',
+    presets: 'Illustrative pricing tiers (click to load)', presetBudget: 'Budget tier', presetMid: 'Mid tier', presetFrontier: 'Frontier tier',
+    results: 'Estimated cost', perRequest: 'Per request', perDay: 'Per day', perMonth: 'Per month (30 days)', perYear: 'Per year',
+    note: 'Prices above are illustrative starting points, not live figures for any specific product — always check your provider\'s current pricing page before budgeting.',
+  },
+  ko: {
+    inputTokens: '요청당 입력 토큰 수', outputTokens: '요청당 출력 토큰 수',
+    requests: '하루 요청 횟수', priceIn: '입력 토큰 100만 개당 가격 ($)', priceOut: '출력 토큰 100만 개당 가격 ($)',
+    presets: '예시 가격 등급 (클릭해서 불러오기)', presetBudget: '저가형', presetMid: '중급형', presetFrontier: '최상급형',
+    results: '예상 비용', perRequest: '요청당', perDay: '하루', perMonth: '한 달(30일)', perYear: '1년',
+    note: '위 가격은 예시용 출발점일 뿐 특정 제품의 실시간 가격이 아닙니다. 예산을 세우기 전에 반드시 제공사의 최신 가격 페이지를 확인하세요.',
+  },
+  ja: {
+    inputTokens: 'リクエストごとの入力トークン数', outputTokens: 'リクエストごとの出力トークン数',
+    requests: '1日あたりのリクエスト数', priceIn: '入力トークン100万件あたりの価格($)', priceOut: '出力トークン100万件あたりの価格($)',
+    presets: '例示価格帯(クリックで読み込み)', presetBudget: '廉価モデル', presetMid: '中位モデル', presetFrontier: '最上位モデル',
+    results: '推定コスト', perRequest: 'リクエストごと', perDay: '1日あたり', perMonth: '1か月(30日)', perYear: '1年あたり',
+    note: '上記の価格は例示的な出発点であり、特定製品のリアルタイムの価格ではありません。予算を組む前に必ずプロバイダーの最新の価格ページを確認してください。',
+  },
+  es: {
+    inputTokens: 'Tokens de entrada por petición', outputTokens: 'Tokens de salida por petición',
+    requests: 'Peticiones por día', priceIn: 'Precio por 1M de tokens de entrada ($)', priceOut: 'Precio por 1M de tokens de salida ($)',
+    presets: 'Niveles de precio ilustrativos (haz clic para cargar)', presetBudget: 'Nivel económico', presetMid: 'Nivel medio', presetFrontier: 'Nivel de vanguardia',
+    results: 'Coste estimado', perRequest: 'Por petición', perDay: 'Por día', perMonth: 'Por mes (30 días)', perYear: 'Por año',
+    note: 'Los precios anteriores son puntos de partida ilustrativos, no cifras en vivo de ningún producto específico — comprueba siempre la página de precios actual de tu proveedor antes de presupuestar.',
+  },
+  zh: {
+    inputTokens: '每次请求的输入 token 数', outputTokens: '每次请求的输出 token 数',
+    requests: '每天请求次数', priceIn: '每 100 万输入 token 价格($)', priceOut: '每 100 万输出 token 价格($)',
+    presets: '示例定价档位(点击加载)', presetBudget: '经济型', presetMid: '中端型', presetFrontier: '旗舰型',
+    results: '预估成本', perRequest: '每次请求', perDay: '每天', perMonth: '每月(30天)', perYear: '每年',
+    note: '以上价格仅为示例起点，并非任何特定产品的实时价格——预算前请务必查看服务商当前的定价页面。',
+  },
+};
+const t = L[lang];
+---
+<div class="cost-calc" data-tool="ai-cost-calculator">
+  <div class="calc-grid">
+    <label>
+      <span>{t.inputTokens}</span>
+      <input type="number" id="cc-input-tokens" value="500" min="0" step="1" />
+    </label>
+    <label>
+      <span>{t.outputTokens}</span>
+      <input type="number" id="cc-output-tokens" value="800" min="0" step="1" />
+    </label>
+    <label>
+      <span>{t.requests}</span>
+      <input type="number" id="cc-requests" value="1000" min="0" step="1" />
+    </label>
+    <label>
+      <span>{t.priceIn}</span>
+      <input type="number" id="cc-price-in" value="0.50" min="0" step="0.01" />
+    </label>
+    <label>
+      <span>{t.priceOut}</span>
+      <input type="number" id="cc-price-out" value="2.00" min="0" step="0.01" />
+    </label>
+  </div>
+
+  <div class="presets">
+    <span class="presets-label">{t.presets}</span>
+    <div class="preset-buttons">
+      <button type="button" data-in="0.15" data-out="0.60">{t.presetBudget}</button>
+      <button type="button" data-in="3" data-out="15">{t.presetMid}</button>
+      <button type="button" data-in="15" data-out="75">{t.presetFrontier}</button>
+    </div>
+  </div>
+
+  <div class="results">
+    <h3>{t.results}</h3>
+    <div class="result-grid">
+      <div class="result-cell"><span class="rlabel">{t.perRequest}</span><span class="rvalue" id="cc-r-request">$0.00</span></div>
+      <div class="result-cell"><span class="rlabel">{t.perDay}</span><span class="rvalue" id="cc-r-day">$0.00</span></div>
+      <div class="result-cell"><span class="rlabel">{t.perMonth}</span><span class="rvalue" id="cc-r-month">$0.00</span></div>
+      <div class="result-cell"><span class="rlabel">{t.perYear}</span><span class="rvalue" id="cc-r-year">$0.00</span></div>
+    </div>
+  </div>
+
+  <p class="calc-note">{t.note}</p>
+</div>
+
+<script>
+  function fmt(n: number): string {
+    if (n >= 1000) return '$' + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    return '$' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+  }
+  function recalc() {
+    const inTok = parseFloat((document.getElementById('cc-input-tokens') as HTMLInputElement).value) || 0;
+    const outTok = parseFloat((document.getElementById('cc-output-tokens') as HTMLInputElement).value) || 0;
+    const reqs = parseFloat((document.getElementById('cc-requests') as HTMLInputElement).value) || 0;
+    const priceIn = parseFloat((document.getElementById('cc-price-in') as HTMLInputElement).value) || 0;
+    const priceOut = parseFloat((document.getElementById('cc-price-out') as HTMLInputElement).value) || 0;
+
+    const perRequest = (inTok / 1_000_000) * priceIn + (outTok / 1_000_000) * priceOut;
+    const perDay = perRequest * reqs;
+    const perMonth = perDay * 30;
+    const perYear = perDay * 365;
+
+    (document.getElementById('cc-r-request') as HTMLElement).textContent = fmt(perRequest);
+    (document.getElementById('cc-r-day') as HTMLElement).textContent = fmt(perDay);
+    (document.getElementById('cc-r-month') as HTMLElement).textContent = fmt(perMonth);
+    (document.getElementById('cc-r-year') as HTMLElement).textContent = fmt(perYear);
+  }
+  document.querySelectorAll('.cost-calc input').forEach((el) => el.addEventListener('input', recalc));
+  document.querySelectorAll('.preset-buttons button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      (document.getElementById('cc-price-in') as HTMLInputElement).value = (btn as HTMLElement).dataset.in!;
+      (document.getElementById('cc-price-out') as HTMLInputElement).value = (btn as HTMLElement).dataset.out!;
+      recalc();
+    });
+  });
+  recalc();
+</script>
+
+<style>
+  .cost-calc { border: 1px solid var(--border); border-radius: 14px; padding: 28px; background: color-mix(in srgb, var(--fg-strong) 3%, transparent); }
+  .calc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 22px; }
+  .calc-grid label { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; color: var(--muted); }
+  .calc-grid input {
+    font-size: 1rem; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--fg-strong); font-family: var(--sans);
+  }
+  .calc-grid input:focus { outline: none; border-color: var(--accent); }
+  .presets { margin-bottom: 26px; }
+  .presets-label { display: block; font-size: 0.82rem; color: var(--faint); margin-bottom: 10px; }
+  .preset-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+  .preset-buttons button {
+    font-size: 0.88rem; font-weight: 600; color: var(--accent); background: transparent;
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border)); border-radius: 20px;
+    padding: 7px 16px; cursor: pointer; transition: background .15s ease;
+  }
+  .preset-buttons button:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .results { border-top: 1px solid var(--border); padding-top: 22px; }
+  .results h3 { font-family: var(--serif); font-size: 1.05rem; color: var(--fg-strong); margin: 0 0 16px; }
+  .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+  .result-cell {
+    display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--bg);
+  }
+  .rlabel { font-size: 0.78rem; color: var(--muted); }
+  .rvalue { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; color: var(--accent); }
+  .calc-note { margin: 20px 0 0; font-size: 0.85rem; color: var(--faint); line-height: 1.6; }
+</style>

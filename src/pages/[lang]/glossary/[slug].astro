@@ -1,0 +1,13 @@
+---
+import GlossaryTermPage from '../../../components/GlossaryTermPage.astro';
+import { languages, defaultLang, type Lang } from '../../../i18n/ui';
+import { glossaryTerms } from '../../../i18n/glossary';
+
+export function getStaticPaths() {
+  const langs = (Object.keys(languages) as Lang[]).filter((l) => l !== defaultLang);
+  return langs.flatMap((lang) => glossaryTerms.map((t) => ({ params: { lang, slug: t.slug } })));
+}
+const lang = Astro.params.lang as Lang;
+const { slug } = Astro.params;
+---
+<GlossaryTermPage lang={lang} slug={slug} />

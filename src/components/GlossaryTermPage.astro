@@ -1,0 +1,100 @@
+---
+// AI 용어사전 상세 페이지 (언어별 공용)
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { languages, type Lang } from '../i18n/ui';
+import { blogUrl } from '../i18n/utils';
+import {
+  glossaryUi,
+  glossaryTerms,
+  glossaryTerm,
+  glossaryCategoryLabels,
+  glossaryUrl,
+  glossaryIndexUrl,
+} from '../i18n/glossary';
+
+interface Props { lang: Lang; slug: string; }
+const { lang, slug } = Astro.props;
+const entry = glossaryTerm(slug)!;
+const c = entry.copy[lang];
+const g = glossaryUi[lang];
+const catLabel = glossaryCategoryLabels[entry.category][lang];
+const alternates = Object.fromEntries(
+  (Object.keys(languages) as Lang[]).map((l) => [l, glossaryUrl(slug, l)])
+) as Partial<Record<Lang, string>>;
+
+const relatedEntries = entry.related
+  .map((s) => glossaryTerms.find((t) => t.slug === s))
+  .filter((t): t is NonNullable<typeof t> => Boolean(t));
+
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'DefinedTerm',
+  name: c.term,
+  description: c.short,
+  inDefinedTermSet: new URL(glossaryIndexUrl(lang), Astro.site).href,
+};
+---
+<BaseLayout lang={lang} title={c.term} description={c.short} alternates={alternates}>
+  <article class="term-page">
+    <div class="wrap">
+      <p class="backlink"><a href={glossaryIndexUrl(lang)}>{g.backToList}</a></p>
+      <span class="chip">{catLabel}</span>
+      <h1>{c.term}</h1>
+      <p class="short">{c.short}</p>
+
+      <div class="body">
+        {c.body.map((p) => <p>{p}</p>)}
+      </div>
+
+      {entry.relatedPost && (
+        <a class="related-post" href={blogUrl(entry.relatedPost, lang)}>
+          <span class="rp-label">{g.relatedReadingLabel}</span>
+          <span class="rp-arrow">→</span>
+        </a>
+      )}
+
+      {relatedEntries.length > 0 && (
+        <section class="related-terms">
+          <h2>{g.relatedLabel}</h2>
+          <div class="related-grid">
+            {relatedEntries.map((rt) => (
+              <a class="related-chip" href={glossaryUrl(rt.slug, lang)}>{rt.copy[lang].term}</a>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  </article>
+  <script type="application/ld+json" set:html={JSON.stringify(ld)} />
+</BaseLayout>
+
+<style>
+  .term-page { padding: 56px 0 90px; }
+  .backlink { margin: 0 0 22px; font-size: 14px; }
+  .chip {
+    display: inline-block; font-size: 11px; letter-spacing: 0.08em; font-weight: 600; color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--border)); border-radius: 20px;
+    padding: 4px 11px; margin-bottom: 16px;
+  }
+  .term-page h1 {
+    font-family: var(--serif); font-weight: 600; font-size: clamp(1.7rem, 4vw, 2.6rem);
+    color: var(--fg-strong); margin: 0 0 14px; letter-spacing: -0.01em;
+  }
+  .short { color: var(--muted); font-size: 1.15rem; max-width: var(--readw); margin: 0 0 8px; line-height: 1.6; }
+  .body { max-width: var(--readw); padding-top: 18px; }
+  .body p { color: var(--fg); font-size: 1.04rem; line-height: 1.8; margin: 0 0 20px; }
+  .related-post {
+    display: inline-flex; align-items: center; gap: 8px; margin: 8px 0 12px;
+    color: var(--accent); font-weight: 600; font-size: 15px;
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border)); border-radius: 10px;
+    padding: 10px 16px; background: color-mix(in srgb, var(--accent) 6%, transparent);
+  }
+  .related-terms { max-width: var(--readw); padding-top: 30px; margin-top: 20px; border-top: 1px solid var(--border); }
+  .related-terms h2 { font-family: var(--serif); font-size: 1.15rem; color: var(--fg-strong); margin: 0 0 14px; }
+  .related-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+  .related-chip {
+    border: 1px solid var(--border); border-radius: 20px; padding: 7px 15px;
+    color: var(--fg); font-size: 0.92rem; transition: border-color .15s ease, color .15s ease;
+  }
+  .related-chip:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+</style>

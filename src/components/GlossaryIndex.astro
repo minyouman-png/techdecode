@@ -1,0 +1,84 @@
+---
+// AI 용어사전 목록 페이지 (언어별 공용, 카테고리별로 그룹핑)
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { languages, type Lang } from '../i18n/ui';
+import {
+  glossaryUi,
+  glossaryTerms,
+  glossaryCategoryOrder,
+  glossaryCategoryLabels,
+  glossaryUrl,
+  glossaryIndexUrl,
+} from '../i18n/glossary';
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const g = glossaryUi[lang];
+const alternates = Object.fromEntries(
+  (Object.keys(languages) as Lang[]).map((l) => [l, glossaryIndexUrl(l)])
+) as Partial<Record<Lang, string>>;
+
+const groups = glossaryCategoryOrder.map((cat) => ({
+  slug: cat,
+  label: glossaryCategoryLabels[cat][lang],
+  terms: glossaryTerms.filter((t) => t.category === cat),
+}));
+---
+<BaseLayout lang={lang} title={g.pageTitle} description={g.metaDescription} alternates={alternates}>
+  <section class="glossary-hero">
+    <div class="wrap">
+      <p class="kicker">{g.kicker}</p>
+      <h1>{g.pageTitle}</h1>
+      <p class="glossary-intro">{g.intro}</p>
+    </div>
+  </section>
+
+  <section class="glossary-list">
+    <div class="wrap">
+      {groups.map((group) => (
+        <div class="cat-group">
+          <h2 class="cat-heading">{group.label}</h2>
+          <div class="term-grid">
+            {group.terms.map((term) => {
+              const c = term.copy[lang];
+              return (
+                <a class="term-card" href={glossaryUrl(term.slug, lang)}>
+                  <h3>{c.term}</h3>
+                  <p>{c.short}</p>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .glossary-hero { padding: 72px 0 8px; }
+  .glossary-hero h1 {
+    font-family: var(--serif); font-weight: 600; font-size: clamp(2rem, 4.5vw, 3rem);
+    color: var(--fg-strong); margin: 0 0 20px; letter-spacing: -0.01em;
+  }
+  .glossary-intro { max-width: var(--readw); color: var(--muted); font-size: 1.08rem; margin: 0 0 14px; }
+  .glossary-list { padding: 30px 0 90px; }
+  .cat-group { margin-bottom: 44px; }
+  .cat-heading {
+    font-family: var(--serif); font-weight: 600; font-size: 1.35rem;
+    color: var(--fg-strong); margin: 0 0 18px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  .term-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+  .term-card {
+    display: block; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px;
+    background: color-mix(in srgb, var(--fg-strong) 3%, transparent);
+    transition: transform .15s ease, border-color .15s ease; color: inherit;
+  }
+  .term-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+  .term-card h3 {
+    font-family: var(--serif); font-size: 1.1rem; font-weight: 600;
+    color: var(--fg-strong); margin: 0 0 8px;
+  }
+  .term-card p { color: var(--muted); font-size: 0.92rem; margin: 0; line-height: 1.55; }
+</style>

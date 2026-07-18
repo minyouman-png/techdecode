@@ -1,0 +1,62 @@
+---
+// AI 도구 목록 페이지 (언어별 공용)
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { languages, type Lang } from '../i18n/ui';
+import { toolsUi, tools, toolUrl, toolsIndexUrl } from '../i18n/tools';
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const g = toolsUi[lang];
+const alternates = Object.fromEntries(
+  (Object.keys(languages) as Lang[]).map((l) => [l, toolsIndexUrl(l)])
+) as Partial<Record<Lang, string>>;
+---
+<BaseLayout lang={lang} title={g.pageTitle} description={g.metaDescription} alternates={alternates}>
+  <section class="tools-hero">
+    <div class="wrap">
+      <p class="kicker">{g.kicker}</p>
+      <h1>{g.pageTitle}</h1>
+      <p class="tools-intro">{g.intro}</p>
+    </div>
+  </section>
+
+  <section class="tools-list">
+    <div class="wrap">
+      <div class="tool-grid">
+        {tools.map((tool) => {
+          const c = tool.copy[lang];
+          return (
+            <a class="tool-card" href={toolUrl(tool.slug, lang)}>
+              <h2>{c.title}</h2>
+              <p class="tagline">{c.tagline}</p>
+              <span class="openlink">{g.openTool}</span>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .tools-hero { padding: 72px 0 8px; }
+  .tools-hero h1 {
+    font-family: var(--serif); font-weight: 600; font-size: clamp(2rem, 4.5vw, 3rem);
+    color: var(--fg-strong); margin: 0 0 20px; letter-spacing: -0.01em;
+  }
+  .tools-intro { max-width: var(--readw); color: var(--muted); font-size: 1.08rem; margin: 0 0 14px; }
+  .tools-list { padding: 44px 0 90px; }
+  .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 26px; }
+  .tool-card {
+    display: block; border: 1px solid var(--border); border-radius: 12px; padding: 26px 26px 24px;
+    background: color-mix(in srgb, var(--fg-strong) 3%, transparent);
+    transition: transform .15s ease, border-color .15s ease; color: inherit;
+  }
+  .tool-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+  .tool-card h2 {
+    font-family: var(--serif); font-size: 1.3rem; font-weight: 600;
+    color: var(--fg-strong); margin: 0 0 10px;
+  }
+  .tool-card .tagline { color: var(--muted); font-size: 0.95rem; margin: 0 0 16px; line-height: 1.6; }
+  .openlink { color: var(--accent); font-weight: 600; font-size: 15px; }
+</style>

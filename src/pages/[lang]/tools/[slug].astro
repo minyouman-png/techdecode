@@ -1,0 +1,13 @@
+---
+import ToolPage from '../../../components/ToolPage.astro';
+import { languages, defaultLang, type Lang } from '../../../i18n/ui';
+import { tools } from '../../../i18n/tools';
+
+export function getStaticPaths() {
+  const langs = (Object.keys(languages) as Lang[]).filter((l) => l !== defaultLang);
+  return langs.flatMap((lang) => tools.map((x) => ({ params: { lang, slug: x.slug } })));
+}
+const lang = Astro.params.lang as Lang;
+const { slug } = Astro.params;
+---
+<ToolPage lang={lang} slug={slug} />
