@@ -17,8 +17,10 @@ const [brandA, brandB] = SITE_NAME.split(' ');
     <nav class="nav">
       <a href={localizeUrl('/', lang)}>{t('nav_home')}</a>
       <a href={localizeUrl('/games/', lang)}>{t('nav_games')}</a>
-      <a href="/about/">{t('nav_about')}</a>
-      <a href="/contact/">{t('nav_contact')}</a>
+      <a href={localizeUrl('/tools/', lang)}>{t('nav_tools')}</a>
+      <a href={localizeUrl('/glossary/', lang)}>{t('nav_glossary')}</a>
+      <a href={localizeUrl('/about/', lang)}>{t('nav_about')}</a>
+      <a href={localizeUrl('/contact/', lang)}>{t('nav_contact')}</a>
       <LanguageSwitcher lang={lang} alternates={alternates} />
     </nav>
   </div>
