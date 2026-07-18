@@ -1,0 +1,23 @@
+---
+// About / Contact / Privacy 공용 렌더러 (언어별 콘텐츠는 i18n/pages.ts)
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { languages, type Lang } from '../i18n/ui';
+import { localizeUrl } from '../i18n/utils';
+import { pagesCopy } from '../i18n/pages';
+
+interface Props {
+  lang: Lang;
+  page: keyof typeof pagesCopy;
+}
+const { lang, page } = Astro.props;
+const c = pagesCopy[page](lang);
+
+const alternates = Object.fromEntries(
+  (Object.keys(languages) as Lang[]).map((l) => [l, localizeUrl(`/${page}/`, l)])
+) as Partial<Record<Lang, string>>;
+---
+<BaseLayout lang={lang} title={c.title} description={c.description} alternates={alternates}>
+  <div class="wrap">
+    <article class="page" set:html={c.html}></article>
+  </div>
+</BaseLayout>
