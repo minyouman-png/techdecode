@@ -30,12 +30,14 @@ const I18N = {
     emptyRec: 'No records yet — go save Joseon!',
     pauseT: '⏸ Paused', resume: '▶ Resume', quit: '🏳 Quit',
     quitConfirm: 'Quit to menu? You can continue from the start of this stage.',
-    stages: ['Thatched Village', 'Pine Forest', 'Palace Roofs', 'Underworld Road', "King Yeomra's Palace", 'Plum-Bamboo Grove', 'Snowy Pass', 'Sunset Shore', 'Cloud Skyway', "Queen JJOJJO's Sky Palace"],
+    stages: ['Thatched Village', 'Pine Forest', 'Palace Roofs', 'Underworld Road', "King Yeomra's Palace", 'Plum-Bamboo Grove', 'Snowy Pass', 'Sunset Shore', 'Cloud Skyway', "Queen JJOJJO's Sky Palace", 'Cherry Garden', 'Crimson Volcano', 'Aurora Glacier', 'Golden Harbor', "JJOJJO's Iron Fortress"],
     stageLbl: 'STAGE', gameOver: 'GAME OVER', stageClear: 'STAGE CLEAR!', timeBonus: 'Time bonus',
-    worldClear: '👑 Queen JJOJJO is defeated! Peace returns to Joseon!', newRecord: '🎉 New personal best!',
+    worldClear: "👑 JJOJJO's tank is destroyed! Peace returns to Joseon!", newRecord: '🎉 New personal best!',
     finalScore: 'Score', reachedStage: 'Reached', resTitle: '🍋 Result',
-    oneUp: '1UP!', mounted: '🦄 Uni joins you!', bossWarn: '⚡ King Yeomra appears!', bossWarn2: '⚡ Queen JJOJJO appears!',
+    oneUp: '1UP!', mounted: '🦄 Uni joins you!', bossWarn: '⚡ King Yeomra appears!', bossWarn2: '⚡ Queen JJOJJO appears!', bossWarn3: '⚡ JJOJJO rolls in on a tank!',
     lifeLost: 'Try again!', timeUp: "Time's up!",
+    contT: 'Continue?', contYes: '▶ Continue', contNo: '🏳 Give up',
+    contDesc: 'Spend half your score to carry on from this stage.', contScore: 'Score', contAfter: 'After',
   },
   ko: {
     sub: '조선 대모험', start: '▶ 게임 시작', cont: '▶ 이어하기', records: '🏆 기록실',
@@ -50,12 +52,14 @@ const I18N = {
     emptyRec: '아직 기록이 없습니다 — 조선을 구하러 가요!',
     pauseT: '⏸ 일시정지', resume: '▶ 계속하기', quit: '🏳 그만하기',
     quitConfirm: '메뉴로 나갈까요? 이 스테이지 시작부터 이어할 수 있습니다.',
-    stages: ['초가마을', '소나무 숲', '궁궐 지붕', '저승길', '염라대왕궁', '매화 대나무숲', '설산 고개', '노을 바닷가', '구름 하늘길', '쪼쪼 여왕의 하늘궁전'],
+    stages: ['초가마을', '소나무 숲', '궁궐 지붕', '저승길', '염라대왕궁', '매화 대나무숲', '설산 고개', '노을 바닷가', '구름 하늘길', '쪼쪼 여왕의 하늘궁전', '왕벚꽃 정원', '홍염 화산', '오로라 빙하', '황금 노을 포구', '쪼쪼의 강철 요새'],
     stageLbl: '스테이지', gameOver: '게임 오버', stageClear: '스테이지 클리어!', timeBonus: '시간 보너스',
-    worldClear: '👑 쪼쪼 여왕을 물리쳤다! 조선에 평화가!', newRecord: '🎉 개인 최고기록 갱신!',
+    worldClear: '👑 쪼쪼의 탱크를 파괴했다! 조선에 평화가!', newRecord: '🎉 개인 최고기록 갱신!',
     finalScore: '점수', reachedStage: '도달', resTitle: '🍋 결과',
-    oneUp: '생명 +1!', mounted: '🦄 유니가 함께합니다!', bossWarn: '⚡ 염라대왕 등장!', bossWarn2: '⚡ 쪼쪼 여왕 등장!',
+    oneUp: '생명 +1!', mounted: '🦄 유니가 함께합니다!', bossWarn: '⚡ 염라대왕 등장!', bossWarn2: '⚡ 쪼쪼 여왕 등장!', bossWarn3: '⚡ 탱크를 탄 쪼쪼 등장!',
     lifeLost: '다시 도전!', timeUp: '시간 초과!',
+    contT: '이어서 할까요?', contYes: '▶ 이어하기', contNo: '🏳 그만두기',
+    contDesc: '누적 점수의 절반을 사용해 이 스테이지부터 이어합니다.', contScore: '현재 점수', contAfter: '이어하기 후',
   },
   ja: {
     sub: '朝鮮大冒険', start: '▶ ゲーム開始', cont: '▶ つづきから', records: '🏆 記録室',
@@ -70,12 +74,14 @@ const I18N = {
     emptyRec: 'まだ記録がありません — 朝鮮を救いに行こう！',
     pauseT: '⏸ 一時停止', resume: '▶ つづける', quit: '🏳 やめる',
     quitConfirm: 'メニューに戻りますか？このステージの最初から再開できます。',
-    stages: ['わらぶきの村', '松の森', '宮殿の屋根', '冥途の道', '閻魔大王宮', '梅と竹の林', '雪山峠', '夕焼けの浜辺', '雲の空道', 'チョチョ女王の天空宮'],
+    stages: ['わらぶきの村', '松の森', '宮殿の屋根', '冥途の道', '閻魔大王宮', '梅と竹の林', '雪山峠', '夕焼けの浜辺', '雲の空道', 'チョチョ女王の天空宮', '八重桜の庭', '紅炎火山', 'オーロラ氷河', '黄金の夕焼け港', 'チョチョの鋼鉄要塞'],
     stageLbl: 'ステージ', gameOver: 'ゲームオーバー', stageClear: 'ステージクリア！', timeBonus: 'タイムボーナス',
-    worldClear: '👑 チョチョ女王を倒した！朝鮮に平和が！', newRecord: '🎉 自己ベスト更新！',
+    worldClear: '👑 チョチョの戦車を破壊した！朝鮮に平和が！', newRecord: '🎉 自己ベスト更新！',
     finalScore: 'スコア', reachedStage: '到達', resTitle: '🍋 リザルト',
-    oneUp: '残機 +1！', mounted: '🦄 ユニが仲間に！', bossWarn: '⚡ 閻魔大王あらわる！', bossWarn2: '⚡ チョチョ女王あらわる！',
+    oneUp: '残機 +1！', mounted: '🦄 ユニが仲間に！', bossWarn: '⚡ 閻魔大王あらわる！', bossWarn2: '⚡ チョチョ女王あらわる！', bossWarn3: '⚡ 戦車に乗ったチョチョ登場！',
     lifeLost: 'もう一度！', timeUp: 'タイムアップ！',
+    contT: 'つづけますか？', contYes: '▶ つづける', contNo: '🏳 やめる',
+    contDesc: 'スコアの半分を使ってこのステージから再開します。', contScore: '現在スコア', contAfter: '再開後',
   },
   es: {
     sub: 'AVENTURA EN JOSEON', start: '▶ Empezar', cont: '▶ Continuar', records: '🏆 Récords',
@@ -90,12 +96,14 @@ const I18N = {
     emptyRec: 'Aún no hay récords — ¡ve a salvar Joseon!',
     pauseT: '⏸ Pausa', resume: '▶ Continuar', quit: '🏳 Salir',
     quitConfirm: '¿Salir al menú? Podrás continuar desde el inicio de esta fase.',
-    stages: ['Aldea de paja', 'Bosque de pinos', 'Tejados de palacio', 'Camino al inframundo', 'Palacio del Rey Yeomra', 'Bosque de ciruelos y bambú', 'Paso nevado', 'Costa al atardecer', 'Camino de nubes', 'Palacio celestial de la Reina JJOJJO'],
+    stages: ['Aldea de paja', 'Bosque de pinos', 'Tejados de palacio', 'Camino al inframundo', 'Palacio del Rey Yeomra', 'Bosque de ciruelos y bambú', 'Paso nevado', 'Costa al atardecer', 'Camino de nubes', 'Palacio celestial de la Reina JJOJJO', 'Jardín de cerezos', 'Volcán carmesí', 'Glaciar de auroras', 'Puerto dorado', 'Fortaleza de hierro de JJOJJO'],
     stageLbl: 'FASE', gameOver: 'FIN DEL JUEGO', stageClear: '¡FASE SUPERADA!', timeBonus: 'Bono de tiempo',
-    worldClear: '👑 ¡La Reina JJOJJO ha caído! ¡La paz vuelve a Joseon!', newRecord: '🎉 ¡Nueva mejor marca!',
+    worldClear: '👑 ¡El tanque de JJOJJO ha caído! ¡La paz vuelve a Joseon!', newRecord: '🎉 ¡Nueva mejor marca!',
     finalScore: 'Puntuación', reachedStage: 'Alcanzado', resTitle: '🍋 Resultado',
-    oneUp: '¡Vida extra!', mounted: '🦄 ¡Uni se une a ti!', bossWarn: '⚡ ¡Aparece el Rey Yeomra!', bossWarn2: '⚡ ¡Aparece la Reina JJOJJO!',
+    oneUp: '¡Vida extra!', mounted: '🦄 ¡Uni se une a ti!', bossWarn: '⚡ ¡Aparece el Rey Yeomra!', bossWarn2: '⚡ ¡Aparece la Reina JJOJJO!', bossWarn3: '⚡ ¡JJOJJO llega en un tanque!',
     lifeLost: '¡Inténtalo de nuevo!', timeUp: '¡Se acabó el tiempo!',
+    contT: '¿Continuar?', contYes: '▶ Continuar', contNo: '🏳 Rendirse',
+    contDesc: 'Gasta la mitad de tu puntuación para seguir desde esta fase.', contScore: 'Puntuación', contAfter: 'Después',
   },
   zh: {
     sub: '朝鲜大冒险', start: '▶ 开始游戏', cont: '▶ 继续游戏', records: '🏆 记录室',
@@ -110,12 +118,14 @@ const I18N = {
     emptyRec: '还没有记录——快去拯救朝鲜吧！',
     pauseT: '⏸ 暂停', resume: '▶ 继续', quit: '🏳 退出',
     quitConfirm: '返回菜单？可以从本关开头继续。',
-    stages: ['草屋村', '松树林', '宫殿屋顶', '黄泉路', '阎罗大王宫', '梅花竹林', '雪山垭口', '落日海边', '云中天路', '啾啾女王的天空宫'],
+    stages: ['草屋村', '松树林', '宫殿屋顶', '黄泉路', '阎罗大王宫', '梅花竹林', '雪山垭口', '落日海边', '云中天路', '啾啾女王的天空宫', '樱花庭园', '赤焰火山', '极光冰川', '黄金落日港', '啾啾的钢铁要塞'],
     stageLbl: '关卡', gameOver: '游戏结束', stageClear: '过关！', timeBonus: '时间奖励',
-    worldClear: '👑 打败了啾啾女王！朝鲜恢复了和平！', newRecord: '🎉 刷新个人最佳！',
+    worldClear: '👑 摧毁了啾啾的坦克！朝鲜恢复了和平！', newRecord: '🎉 刷新个人最佳！',
     finalScore: '分数', reachedStage: '到达', resTitle: '🍋 结算',
-    oneUp: '生命 +1！', mounted: '🦄 Uni加入了！', bossWarn: '⚡ 阎罗大王出现！', bossWarn2: '⚡ 啾啾女王出现！',
+    oneUp: '生命 +1！', mounted: '🦄 Uni加入了！', bossWarn: '⚡ 阎罗大王出现！', bossWarn2: '⚡ 啾啾女王出现！', bossWarn3: '⚡ 啾啾驾驶坦克登场！',
     lifeLost: '再试一次！', timeUp: '时间到！',
+    contT: '要继续吗？', contYes: '▶ 继续', contNo: '🏳 放弃',
+    contDesc: '消耗一半分数，从本关继续。', contScore: '当前分数', contAfter: '继续后',
   },
 };
 let LANG = new URLSearchParams(location.search).get('lang');
@@ -214,6 +224,8 @@ const sfx = {
   warn() { tone(110, 0.5, 'sawtooth', 0.13, 90); tone(220, 0.5, 'sawtooth', 0.07, 180); },
   fire() { noiseS(0.12, 900, 0.1, 2200); tone(500, 0.09, 'square', 0.06, 900); },
   shot() { noiseS(0.06, 1600, 0.13, 350); tone(240, 0.05, 'square', 0.05, 110); },
+  cannon() { noiseS(0.28, 260, 0.22, 60); tone(150, 0.22, 'sawtooth', 0.14, 50); },
+  boom() { noiseS(0.34, 200, 0.2, 50); tone(110, 0.28, 'sine', 0.13, 40); },
 };
 /* BGM: A단조 펜타토닉(국악풍) + 장구 리듬 · 보스전 변주 */
 const PENTA = [220, 262, 294, 330, 392, 440, 523, 587];
@@ -781,6 +793,95 @@ function drawBullet(x, w, h) {
   x.fillStyle = 'rgba(255,255,255,.6)';
   x.fillRect(w * 0.45, h / 2 - 1.7, w * 0.3, 1);
 }
+/* 대포알 (탱크 포탄, 도화선 불꽃) */
+function drawShell(x, w, h) {
+  const g = x.createRadialGradient(w / 2 - 2, h / 2 - 2, 1, w / 2, h / 2, w / 2);
+  g.addColorStop(0, '#5a5e6e'); g.addColorStop(1, '#1a1c24');
+  x.fillStyle = g;
+  x.beginPath(); x.arc(w / 2, h / 2 + 1, w / 2 - 1, 0, 6.283); x.fill();
+  x.fillStyle = 'rgba(255,255,255,.35)';
+  x.beginPath(); x.arc(w / 2 - 2.4, h / 2 - 1.6, 1.6, 0, 6.283); x.fill();
+  // 도화선 + 불티
+  x.strokeStyle = '#8a6a3a'; x.lineWidth = 1.4;
+  x.beginPath(); x.moveTo(w / 2 + 3, 3); x.quadraticCurveTo(w / 2 + 6, 1, w / 2 + 5, -1); x.stroke();
+  x.fillStyle = '#ffd34d';
+  x.beginPath(); x.arc(w / 2 + 5, -1.4, 1.8, 0, 6.283); x.fill();
+  x.fillStyle = '#ff8a2e';
+  x.beginPath(); x.arc(w / 2 + 5, -1.4, 1, 0, 6.283); x.fill();
+}
+/* 쪼쪼 전차 (탱크 탄 쪼쪼 · 최종보스) frame 0/1 궤도 회전, 2 포격 */
+function drawJjojjoTank(x, w, h, frame) {
+  const roll = frame === 1 ? 1 : 0;
+  const firing = frame === 2;
+  // 궤도 (캐터필러)
+  x.fillStyle = '#1c1e26';
+  rr(x, 4, h - 20, w - 8, 18, 9); x.fill();
+  x.fillStyle = '#3a3e4c';
+  for (let i = 0; i < 6; i++) { x.beginPath(); x.arc(12 + i * ((w - 24) / 5), h - 11, 5.6, 0, 6.283); x.fill(); }
+  x.strokeStyle = '#54596a'; x.lineWidth = 2.4;
+  for (let i = 0; i < 9; i++) { const tx = 8 + ((i * 6 + roll * 3) % (w - 16)); x.beginPath(); x.moveTo(tx, h - 19); x.lineTo(tx, h - 3); x.stroke(); }
+  x.fillStyle = '#7a8090';
+  for (let i = 0; i < 6; i++) { x.beginPath(); x.arc(12 + i * ((w - 24) / 5), h - 11, 1.6, 0, 6.283); x.fill(); }
+  // 차체
+  const bg = x.createLinearGradient(0, h - 34, 0, h - 18);
+  bg.addColorStop(0, '#5c6272'); bg.addColorStop(1, '#3c4050');
+  x.fillStyle = bg;
+  rr(x, 8, h - 34, w - 16, 16, 4); x.fill();
+  x.strokeStyle = '#2a2e3a'; x.lineWidth = 1.4; rr(x, 8, h - 34, w - 16, 16, 4); x.stroke();
+  x.fillStyle = '#c89020'; x.fillRect(10, h - 33, w - 20, 2); // 금 몰딩
+  // 포탑 + 포신 (전방)
+  x.fillStyle = '#4a4e5e';
+  rr(x, w / 2 - 12, h - 44, 24, 12, 4); x.fill();
+  const gunY = h - 39;
+  x.fillStyle = '#3a3e4c';
+  x.fillRect(w / 2 + 8, gunY - 2.4, 26, 5.4);
+  x.fillStyle = '#2a2e38';
+  x.fillRect(w / 2 + 31, gunY - 3.2, 4, 7); // 포구
+  if (firing) {
+    x.fillStyle = '#fff0b0';
+    x.beginPath(); x.moveTo(w / 2 + 35, gunY); x.lineTo(w / 2 + 46, gunY - 5); x.lineTo(w / 2 + 42, gunY); x.lineTo(w / 2 + 46, gunY + 5); x.closePath(); x.fill();
+    x.fillStyle = '#ffab2e';
+    x.beginPath(); x.arc(w / 2 + 36, gunY, 3.2, 0, 6.283); x.fill();
+  }
+  // 쪼쪼 여왕 (포탑 위 상반신) — drawJjojjo 상반신 축소 재현
+  const cxm = w / 2 - 4, topY = h - 44;
+  x.save(); x.translate(0, topY - 30); // 상반신을 포탑 위로
+  // 긴 흑발
+  x.fillStyle = '#1c1020';
+  x.beginPath(); x.moveTo(cxm - 8, 14); x.quadraticCurveTo(cxm - 12, 26, cxm - 9, 33); x.lineTo(cxm - 5, 30); x.lineTo(cxm - 5, 16); x.closePath(); x.fill();
+  x.beginPath(); x.moveTo(cxm + 8, 14); x.quadraticCurveTo(cxm + 12, 26, cxm + 9, 33); x.lineTo(cxm + 5, 30); x.lineTo(cxm + 5, 16); x.closePath(); x.fill();
+  // 드레스 상의
+  const dg = x.createLinearGradient(0, 20, 0, 34);
+  dg.addColorStop(0, '#7a2a8e'); dg.addColorStop(1, '#4a125a');
+  x.fillStyle = dg;
+  x.beginPath(); x.moveTo(cxm - 7, 22); x.lineTo(cxm + 7, 22); x.lineTo(cxm + 10, 34); x.lineTo(cxm - 10, 34); x.closePath(); x.fill();
+  x.fillStyle = '#ffd34d'; x.fillRect(cxm - 7, 22.5, 14, 2);
+  // 얼굴
+  const fg = x.createRadialGradient(cxm - 2, 12, 2, cxm, 14, 8);
+  fg.addColorStop(0, '#fff4e8'); fg.addColorStop(1, '#f8dcc4');
+  x.fillStyle = fg;
+  x.beginPath(); x.ellipse(cxm, 14, 6.6, 7.4, 0, 0, 6.283); x.fill();
+  x.fillStyle = '#241428';
+  x.beginPath(); x.moveTo(cxm - 6.6, 12); x.quadraticCurveTo(cxm, 4.6, cxm + 6.6, 12); x.quadraticCurveTo(cxm + 3, 8, cxm, 7.6); x.quadraticCurveTo(cxm - 3, 8, cxm - 6.6, 12); x.closePath(); x.fill();
+  // 봉황 금관
+  x.fillStyle = '#ffd34d';
+  x.beginPath(); x.moveTo(cxm - 5, 5); x.lineTo(cxm - 3, 0.6); x.lineTo(cxm, 4); x.lineTo(cxm + 3, 0.6); x.lineTo(cxm + 5, 5); x.closePath(); x.fill();
+  x.fillStyle = '#e8556a'; x.beginPath(); x.arc(cxm, 2.6, 1.1, 0, 6.283); x.fill();
+  // 눈 + 입술
+  x.fillStyle = '#2c1a1e';
+  x.beginPath(); x.ellipse(cxm - 2.8, 13.4, 1.3, 1.7, 0, 0, 6.283); x.fill();
+  x.beginPath(); x.ellipse(cxm + 2.8, 13.4, 1.3, 1.7, 0, 0, 6.283); x.fill();
+  x.fillStyle = '#fff';
+  x.beginPath(); x.arc(cxm - 2.4, 12.9, 0.5, 0, 6.283); x.fill();
+  x.beginPath(); x.arc(cxm + 3.2, 12.9, 0.5, 0, 6.283); x.fill();
+  x.fillStyle = '#d8203a';
+  x.beginPath(); x.ellipse(cxm, 18, 1.7, 1, 0, 0, 6.283); x.fill();
+  // 조종간 잡은 팔
+  x.strokeStyle = '#6a2280'; x.lineWidth = 3.2;
+  x.beginPath(); x.moveTo(cxm + 5, 24); x.lineTo(cxm + 10, 30); x.stroke();
+  x.fillStyle = '#eec89a'; x.beginPath(); x.arc(cxm + 10.5, 30.5, 1.8, 0, 6.283); x.fill();
+  x.restore();
+}
 /* 유자 불꽃 (파이어볼) */
 function drawFireball(x, w, h) {
   const g = x.createRadialGradient(w / 2, h / 2, 1, w / 2, h / 2, w / 2);
@@ -1008,6 +1109,35 @@ function drawTileCloud(x) { // 구름 발판
   x.fillStyle = 'rgba(160,190,230,.35)';
   x.beginPath(); x.arc(12, 18, 3, 0, 6.283); x.arc(24, 22, 2.4, 0, 6.283); x.fill();
 }
+function drawTileLava(x) { // 화산암 (빛나는 균열)
+  x.fillStyle = '#2a1416'; x.fillRect(0, 0, 32, 32);
+  x.fillStyle = '#3c1e1c';
+  x.fillRect(4, 12, 6, 5); x.fillRect(18, 20, 7, 5); x.fillRect(10, 25, 5, 4);
+  x.fillStyle = '#6a2418'; x.fillRect(0, 0, 32, 6);
+  x.fillStyle = '#4a1a14';
+  for (let i = 0; i < 6; i++) { x.beginPath(); x.arc(3 + i * 5.4, 6, 3.2, Math.PI, 0); x.fill(); }
+  // 용암 균열
+  x.strokeStyle = '#ff6a1e'; x.lineWidth = 1.6;
+  x.beginPath(); x.moveTo(6, 10); x.lineTo(12, 18); x.lineTo(9, 26); x.stroke();
+  x.beginPath(); x.moveTo(22, 8); x.lineTo(26, 16); x.lineTo(21, 24); x.stroke();
+  x.strokeStyle = '#ffd34d'; x.lineWidth = 0.7;
+  x.beginPath(); x.moveTo(6, 10); x.lineTo(12, 18); x.stroke();
+  x.beginPath(); x.moveTo(22, 8); x.lineTo(26, 16); x.stroke();
+}
+function drawTileSteel(x) { // 강철 판 (리벳)
+  const g = x.createLinearGradient(0, 0, 0, 32);
+  g.addColorStop(0, '#5a5e6e'); g.addColorStop(1, '#3a3e4c');
+  x.fillStyle = g; x.fillRect(0, 0, 32, 32);
+  x.strokeStyle = '#2a2e3a'; x.lineWidth = 2;
+  x.strokeRect(1, 1, 30, 30);
+  x.beginPath(); x.moveTo(0, 16); x.lineTo(32, 16); x.stroke();
+  x.fillStyle = '#7a8090'; // 리벳
+  for (const [rx, ry] of [[5, 5], [27, 5], [5, 27], [27, 27], [16, 11], [16, 21]]) {
+    x.beginPath(); x.arc(rx, ry, 1.8, 0, 6.283); x.fill();
+  }
+  x.fillStyle = 'rgba(255,255,255,.12)'; x.fillRect(2, 2, 28, 3);
+  x.fillStyle = '#c89020'; x.fillRect(0, 0, 32, 2); // 금 테두리
+}
 function drawTilePalace(x) { // 궁궐 단청 바닥
   x.fillStyle = '#6a1420'; x.fillRect(0, 0, 32, 32);
   x.fillStyle = '#7c1c2a'; x.fillRect(0, 0, 32, 8);
@@ -1105,6 +1235,8 @@ function buildSprites() {
   SPR.uni = [0, 1].map(f => mk(36, 32, (x, w, h) => drawUnicorn(x, w, h, f)));
   SPR.boss = [0, 1].map(f => mk(56, 64, (x, w, h) => drawBoss(x, w, h, f)));
   SPR.jjo = [0, 1, 2].map(f => mk(60, 66, (x, w, h) => drawJjojjo(x, w, h, f)));
+  SPR.jjotank = [0, 1, 2].map(f => mk(96, 78, (x, w, h) => drawJjojjoTank(x, w, h, f)));
+  SPR.shell = [mk(18, 20, drawShell)];
   SPR.blt = [mk(18, 10, drawBullet)];
   SPR.fb = [mk(16, 16, drawFireball)];
   SPR.pepper = [mk(22, 26, drawPepper)];
@@ -1121,6 +1253,7 @@ function buildSprites() {
     grass: mk(32, 32, drawTileGround), dark: mk(32, 32, drawTileGroundDark),
     snow: mk(32, 32, drawTileSnow), sand: mk(32, 32, drawTileSand),
     cloud: mk(32, 32, drawTileCloud), palace: mk(32, 32, drawTilePalace),
+    lava: mk(32, 32, drawTileLava), steel: mk(32, 32, drawTileSteel),
   };
   SPR.tile = {
     1: SPR.ground.grass, 2: mk(32, 32, drawTileBrick), 3: mk(32, 32, drawTileQ),
@@ -1143,6 +1276,11 @@ const THEMES = [
   { sky: ['#f7a75c', '#ffe3b8'], hill: '#d87a4e', hill2: '#b85e38', deco: 'wave', light: 0.95, ground: 'sand', amb: 'sparkle', sea: 1 },
   { sky: ['#6fb4f0', '#d8ecff'], hill: '#c2daf4', hill2: '#a2c6ea', deco: 'cloudsea', light: 1, ground: 'cloud', amb: 'wind' },
   { sky: ['#2a1040', '#5c2470'], hill: '#3c1852', hill2: '#2a1040', deco: 'palace2', light: 0.7, lanterns: 1, ground: 'palace', amb: 'gold' },
+  { sky: ['#ffd2e2', '#fff2f8'], hill: '#8fce74', hill2: '#6cb45a', deco: 'cherry', light: 1, ground: 'grass', amb: 'petal' },
+  { sky: ['#3a0c10', '#8a2412'], hill: '#4a1410', hill2: '#2c0a08', deco: 'volcano', light: 0.72, ground: 'lava', amb: 'ember', lava: 1 },
+  { sky: ['#0a2044', '#16406a'], hill: '#9ec2da', hill2: '#7aa0c0', deco: 'snowpine', light: 0.82, moon: 1, ground: 'snow', amb: 'snow', aurora: 1 },
+  { sky: ['#f5934a', '#ffe0a8'], hill: '#c86a44', hill2: '#a44e30', deco: 'lighthouse', light: 0.95, ground: 'sand', amb: 'sparkle', sea: 1 },
+  { sky: ['#221a30', '#3c2c4e'], hill: '#2c2038', hill2: '#1a1226', deco: 'fortress', light: 0.7, lanterns: 1, ground: 'steel', amb: 'gold' },
 ];
 let LV = null; // {t:Uint8Array, W, ents:[], goalX, theme, qc:Map, deco:[], bossArena}
 function ti(x, y) { return (x < 0 || x >= LV.W) ? 5 : (y < 0 ? 0 : y >= ROWS ? 0 : LV.t[y * LV.W + x]); }
@@ -1151,7 +1289,7 @@ const SOLID = [false, true, true, true, true, true, false]; // 6=플랫폼(반�
 
 function genLevel(stage) {
   const rng = mulberry32(4200 + stage * 131);
-  const W = [150, 165, 175, 185, 150, 180, 185, 190, 195, 155][stage - 1];
+  const W = [150, 165, 175, 185, 150, 180, 185, 190, 195, 155, 185, 190, 195, 200, 165][stage - 1];
   const t = new Uint8Array(W * ROWS);
   const ents = [];
   const qc = new Map();
@@ -1167,9 +1305,14 @@ function genLevel(stage) {
     ['fox', 'ghost', 'reaper', 'egg'],
     ['egg', 'dok', 'fox'],
     ['fox', 'reaper', 'dok', 'fox'],
+    ['ghost', 'fox', 'dok', 'egg'],
+    ['reaper', 'dok', 'fox', 'reaper'],
+    ['fox', 'egg', 'reaper', 'dok'],
+    ['dok', 'fox', 'reaper', 'egg', 'fox'],
+    ['fox', 'reaper', 'dok', 'fox', 'reaper'],
   ][stage - 1];
-  const bossStage = stage === 5 || stage === 10;
-  const flowery = [1, 2, 6, 8, 9].includes(stage); // 아기자기 꽃/풀 장식 테마
+  const bossStage = stage === 5 || stage === 10 || stage === 15;
+  const flowery = [1, 2, 6, 8, 9, 11].includes(stage); // 아기자기 꽃/풀 장식 테마
   const gapMax = stage <= 1 ? 3 : 4;
   const eDen = 0.16 + Math.min(stage, 7) * 0.035;
   let x = 0, gh = 2; // gh = 지면 높이(타일 수)
@@ -1254,12 +1397,13 @@ function genLevel(stage) {
   }
   gh = 2;
   let goalX, bossArena = null;
-  if (bossStage) { // 보스 아레나 (5 염라대왕 · 10 쪼쪼 여왕)
+  if (bossStage) { // 보스 아레나 (5 염라대왕 · 10 쪼쪼 여왕 · 15 탱크 쪼쪼)
     ground(x, W, gh);
     const ax = x + 4;
     bossArena = { x0: ax * TILE, x1: (W - 2) * TILE, entered: false };
     for (let r = 0; r < ROWS; r++) setT(t, W, W - 1, r, 5); // 끝벽
-    ents.push({ type: stage === 10 ? 'jjojjo' : 'boss', tx: W - 12, ty: ROWS - gh - 1 });
+    const bossType = stage === 15 ? 'jjotank' : stage === 10 ? 'jjojjo' : 'boss';
+    ents.push({ type: bossType, tx: W - 13, ty: ROWS - gh - 1 });
     goalX = (W - 5) * TILE; // 보스 처치 후 등장
   } else {
     ground(x, W, gh);
@@ -1316,6 +1460,10 @@ function spawnEnts() {
     else if (s.type === 'jjojjo') ents.push({
       type: 'jjojjo', x: s.tx * TILE, y: (s.ty + 1) * TILE - 60, w: 44, h: 58,
       vx: 0, vy: 0, dir: -1, hp: 6, maxHp: 6, burstT: 2.6, burstN: 0, shotT: 0, flash: 0, stun: 0, inv: 0, dead: false,
+    });
+    else if (s.type === 'jjotank') ents.push({
+      type: 'jjotank', x: s.tx * TILE, y: (s.ty + 1) * TILE - 78, w: 92, h: 74,
+      vx: 0, vy: 0, dir: -1, hp: 8, maxHp: 8, throwT: 2.4, mgN: 0, shotT: 0, flash: 0, stun: 0, inv: 0, dead: false,
     });
   }
   LV.goalActive = !LV.bossArena;
@@ -1483,7 +1631,7 @@ function updatePlayer(dt) {
   if (ba && !ba.entered && p.x > ba.x0 + 40) {
     ba.entered = true;
     bgmStart(true); sfx.warn();
-    G.msg = G.stage === 10 ? L.bossWarn2 : L.bossWarn; G.msgT = 2.2;
+    G.msg = G.stage === 15 ? L.bossWarn3 : G.stage === 10 ? L.bossWarn2 : L.bossWarn; G.msgT = 2.2;
   }
   if (ba && ba.entered && p.x < ba.x0) p.x = ba.x0;
 }
@@ -1506,11 +1654,40 @@ function spawnItem(tx, ty, kind) {
 function checkCoinLife() {
   if (G.coins >= 100) { G.coins -= 100; G.lives++; popup(player.x + 10, player.y - 20, L.oneUp, '#8ef78a'); sfx.oneUp(); }
 }
+const CONTINUE_MIN = 500; // 이어하기 최소 점수 (절반 소모가 유의미해지는 하한)
 function respawn() {
   G.lives--;
-  if (G.lives < 0) { finishGame(false); return; }
+  if (G.lives < 0) { gameOver(); return; }
   G.msg = L.lifeLost; G.msgT = 1.4;
   startStage(G.stage, true);
+}
+function gameOver() {
+  // 보너스 생명 소진 → 점수 절반을 소모해 이어하기 제안
+  if (!G.won && G.score >= CONTINUE_MIN) {
+    G.paused = true; // 프레임 업데이트 정지 (렌더는 프리즈 유지)
+    bgmStop();
+    const after = G.score - Math.floor(G.score * 0.5);
+    $('contInfo').innerHTML =
+      `<div class="contDesc">${L.contDesc}</div>` +
+      `<div class="contRow"><span>${L.contScore}</span><b>${G.score.toLocaleString()}</b></div>` +
+      `<div class="contRow contArrow">↓ −50%</div>` +
+      `<div class="contRow"><span>${L.contAfter}</span><b class="contHi">${after.toLocaleString()}</b></div>`;
+    showScreen('continue');
+    return;
+  }
+  finishGame(false);
+}
+function doContinue() {
+  G.score -= Math.floor(G.score * 0.5); // 점수 50% 소모
+  G.lives = 3;
+  G.paused = false;
+  G.recorded = false;
+  showScreen(null);
+  startStage(G.stage);
+}
+function giveUp() {
+  G.paused = false;
+  finishGame(false);
 }
 
 /* ===== 엔티티 ===== */
@@ -1638,7 +1815,7 @@ function updateEnts(dt) {
           if (['ghost', 'reaper', 'dok', 'egg', 'fox', 'hat'].includes(o.type) && overlap(e, o)) {
             killEnemy(o, 200, true); e.dead = true; break;
           }
-          if ((o.type === 'boss' || o.type === 'jjojjo') && o.inv <= 0 && overlap(e, o)) {
+          if ((o.type === 'boss' || o.type === 'jjojjo' || o.type === 'jjotank') && o.inv <= 0 && overlap(e, o)) {
             bossHurt(o); e.dead = true; break;
           }
         }
@@ -1669,15 +1846,27 @@ function updateEnts(dt) {
         if (e.onG || e.y > VH + 60) { e.dead = true; poof(e.x + 8, e.y + 8, '#f5e6b8'); }
         break;
       }
+      case 'shell': { // 탱크 포탄 (포물선)
+        e.t += dt;
+        e.grav = GRAV * 0.5;
+        e.hitWall = 0;
+        tileCollide(e, dt);
+        if (e.onG || e.y > VH + 60 || e.t > 4) {
+          e.dead = true; poof(e.x + 9, e.y + 9, '#ffa83c'); sfx.boom();
+        }
+        break;
+      }
       case 'boss': updateBoss(e, dt); break;
       case 'jjojjo': updateJjojjo(e, dt); break;
+      case 'jjotank': updateJjotank(e, dt); break;
     }
     // 플레이어 상호작용 (적 계열)
-    if (!e.dead && !p.dead && ['ghost', 'reaper', 'dok', 'egg', 'fox', 'hat', 'tal', 'boss', 'jjojjo', 'blt'].includes(e.type)) {
+    if (!e.dead && !p.dead && ['ghost', 'reaper', 'dok', 'egg', 'fox', 'hat', 'tal', 'boss', 'jjojjo', 'jjotank', 'blt', 'shell'].includes(e.type)) {
       if (!overlap(e, p)) continue;
       if (e.type === 'hat' && e.t < 0.3) continue;
-      const isBoss = e.type === 'boss' || e.type === 'jjojjo';
-      const stomp = p.vy > 130 && p.prevB <= e.y + 10 && e.type !== 'tal' && e.type !== 'blt';
+      const isBoss = e.type === 'boss' || e.type === 'jjojjo' || e.type === 'jjotank';
+      const proj = e.type === 'tal' || e.type === 'blt' || e.type === 'shell';
+      const stomp = p.vy > 130 && p.prevB <= e.y + 10 && !proj;
       if (stomp) {
         p.vy = keys.j ? -500 : -330;
         if (isBoss) { bossStomp(e); }
@@ -1691,7 +1880,7 @@ function updateEnts(dt) {
         killEnemy(e, 200, true);
       } else if (!isBoss || e.inv <= 0) {
         damagePlayer();
-        if (e.type === 'blt') { e.dead = true; sparkle(e.x + 5, e.y + 5, '#ffd34d'); }
+        if (e.type === 'blt' || e.type === 'shell') { e.dead = true; sparkle(e.x + 5, e.y + 5, '#ffd34d'); if (e.type === 'shell') sfx.boom(); }
       }
     }
   }
@@ -1730,10 +1919,11 @@ function bossHurt(e) { // 공통 보스 피해 (밟기·불꽃)
   sfx.bossHit();
   if (e.hp <= 0) {
     e.dead = true;
-    const col = e.type === 'jjojjo' ? '#7a2a8e' : '#8a1a28';
-    for (let i = 0; i < 4; i++)
-      setTimeout(() => poof(e.x + 10 + Math.random() * 40, e.y + 10 + Math.random() * 40, i % 2 ? col : '#ffd34d'), i * 130);
-    addScore(5000, e.x + e.w / 2, e.y - 20);
+    const col = e.type === 'jjojjo' ? '#7a2a8e' : e.type === 'jjotank' ? '#4a5060' : '#8a1a28';
+    const n = e.type === 'jjotank' ? 7 : 4;
+    for (let i = 0; i < n; i++)
+      setTimeout(() => { poof(e.x + 10 + Math.random() * (e.w - 20), e.y + 10 + Math.random() * (e.h - 20), i % 2 ? col : '#ffd34d'); if (e.type === 'jjotank') sfx.boom(); }, i * 130);
+    addScore(e.type === 'jjotank' ? 8000 : 5000, e.x + e.w / 2, e.y - 20);
     sfx.bossDie();
     LV.goalActive = true;
     bgmStart(false);
@@ -1789,6 +1979,57 @@ function updateJjojjo(e, dt) {
   tileCollide(e, dt);
 }
 
+/* ===== 최종보스 II: 탱크를 탄 쪼쪼 — 포격 + 기관총 ===== */
+function updateJjotank(e, dt) {
+  const p = player;
+  const ba = LV.bossArena;
+  if (!ba || !ba.entered) return;
+  e.inv = Math.max(0, e.inv - dt);
+  e.flash = Math.max(0, e.flash - dt);
+  if (e.stun > 0) { e.stun -= dt; e.vx = 0; tileCollide(e, dt); return; }
+  e.dir = p.x > e.x ? 1 : -1;
+  const hpLost = e.maxHp - e.hp;
+  if (e.mgN > 0) {
+    // 기관총 연사 (저체력 광폭화)
+    e.vx = 0;
+    e.shotT -= dt;
+    if (e.shotT <= 0) {
+      e.shotT = 0.12; e.mgN--;
+      const gy = e.y + 16;
+      const dx = p.x + p.w / 2 - (e.x + e.w / 2), dy = p.y + p.h / 2 - gy;
+      const d = Math.max(60, Math.hypot(dx, dy));
+      const sp = 350;
+      ents.push({
+        type: 'blt', x: e.x + e.w / 2 + e.dir * 34, y: gy, w: 14, h: 8,
+        vx: dx / d * sp, vy: dy / d * sp * 0.5 + (Math.random() - 0.5) * 45, t: 0, dir: e.dir,
+      });
+      e.flash = 0.1; sfx.shot();
+    }
+  } else {
+    // 전차 전진 (체력 줄수록 빠름)
+    e.vx = e.dir * (28 + hpLost * 9);
+    e.throwT -= dt;
+    if (e.throwT <= 0) {
+      e.throwT = Math.max(1.3, 2.8 - hpLost * 0.18);
+      if (hpLost >= 3 && Math.random() < 0.42) {
+        // 기관총 버스트
+        e.mgN = 5 + Math.min(5, hpLost); e.shotT = 0.3; sfx.throwP();
+      } else {
+        // 대포 (포물선 포탄, 플레이어 거리 겨냥)
+        const dx = p.x - e.x, dist = Math.abs(dx);
+        ents.push({
+          type: 'shell', x: e.x + e.w / 2 + e.dir * 40, y: e.y + 6, w: 18, h: 20,
+          vx: Math.sign(dx) * Math.min(300, 90 + dist * 0.55), vy: -360, dir: e.dir, t: 0,
+        });
+        e.flash = 0.14; sfx.cannon();
+      }
+    }
+  }
+  e.animT = (e.animT || 0) + dt * (2 + hpLost * 0.25);
+  e.hitWall = 0;
+  tileCollide(e, dt);
+}
+
 /* ===== 스테이지 플로우 ===== */
 function startStage(n, isRespawn) {
   G.stage = n;
@@ -1813,7 +2054,7 @@ function stageClear() {
   bgmStop();
 }
 function afterClear() {
-  if (G.stage >= 10) { G.won = true; finishGame(true); }
+  if (G.stage >= 15) { G.won = true; finishGame(true); }
   else startStage(G.stage + 1);
 }
 function finishGame(won) {
@@ -2032,6 +2273,43 @@ function drawBG(th, vw, t) {
       cx.closePath(); cx.fill();
       cx.fillStyle = '#ffd34d';
       cx.beginPath(); cx.arc(bx + 44, by - 40, 3, 0, 6.283); cx.fill();
+    } else if (th.deco === 'cherry') { // 왕벚꽃 나무
+      cx.fillStyle = '#7a5238'; cx.fillRect(bx + 26, by + 6, 8, 50);
+      cx.strokeStyle = '#7a5238'; cx.lineWidth = 3;
+      cx.beginPath(); cx.moveTo(bx + 30, by + 24); cx.lineTo(bx + 18, by + 12); cx.moveTo(bx + 30, by + 20); cx.lineTo(bx + 44, by + 8); cx.stroke();
+      for (const [cxp, cyp, r] of [[bx + 30, by + 2, 16], [bx + 16, by + 12, 11], [bx + 46, by + 8, 12], [bx + 34, by + 16, 10]]) {
+        cx.fillStyle = '#ffc0d8'; cx.beginPath(); cx.arc(cxp, cyp, r, 0, 6.283); cx.fill();
+        cx.fillStyle = '#ffd8e8'; cx.beginPath(); cx.arc(cxp - r * 0.3, cyp - r * 0.3, r * 0.5, 0, 6.283); cx.fill();
+      }
+    } else if (th.deco === 'volcano') { // 화산 원경 (용암 흘러내림)
+      cx.fillStyle = '#2c0e0a';
+      cx.beginPath(); cx.moveTo(bx - 10, by + 58); cx.lineTo(bx + 30, by - 30); cx.lineTo(bx + 70, by + 58); cx.closePath(); cx.fill();
+      cx.fillStyle = '#ff5a1e';
+      cx.beginPath(); cx.moveTo(bx + 22, by - 22); cx.lineTo(bx + 30, by - 30); cx.lineTo(bx + 38, by - 22);
+      cx.lineTo(bx + 34, by - 12); cx.lineTo(bx + 26, by - 12); cx.closePath(); cx.fill();
+      cx.strokeStyle = '#ff7a2e'; cx.lineWidth = 2;
+      cx.beginPath(); cx.moveTo(bx + 30, by - 14); cx.lineTo(bx + 26, by + 20); cx.stroke();
+      cx.fillStyle = 'rgba(255,120,40,.5)';
+      cx.beginPath(); cx.arc(bx + 30, by - 30, 5 + Math.sin(t * 3 + k) * 2, 0, 6.283); cx.fill();
+    } else if (th.deco === 'lighthouse') { // 등대 + 갈매기
+      cx.fillStyle = '#f4ede0'; cx.fillRect(bx + 22, by - 34, 14, 90);
+      cx.fillStyle = '#d84838';
+      for (let s2 = 0; s2 < 4; s2++) cx.fillRect(bx + 22, by - 34 + s2 * 24, 14, 12);
+      cx.fillStyle = '#2a2e3a'; cx.fillRect(bx + 20, by - 44, 18, 12);
+      cx.fillStyle = '#ffe9a8';
+      cx.beginPath(); cx.arc(bx + 29, by - 38, 5, 0, 6.283); cx.fill();
+      cx.fillStyle = 'rgba(255,233,168,.3)';
+      cx.beginPath(); cx.moveTo(bx + 29, by - 38); cx.lineTo(bx + 70, by - 52); cx.lineTo(bx + 70, by - 24); cx.closePath(); cx.fill();
+    } else if (th.deco === 'fortress') { // 강철 요새 (성벽 + 대포)
+      cx.fillStyle = '#2c3040'; cx.fillRect(bx, by + 4, 68, 54);
+      cx.fillStyle = '#3a3e50';
+      for (let s2 = 0; s2 < 5; s2++) cx.fillRect(bx + s2 * 14, by - 4, 8, 8);
+      cx.strokeStyle = '#1c2028'; cx.lineWidth = 1.4;
+      for (let s2 = 1; s2 < 4; s2++) { cx.beginPath(); cx.moveTo(bx, by + 4 + s2 * 14); cx.lineTo(bx + 68, by + 4 + s2 * 14); cx.stroke(); }
+      cx.fillStyle = '#c89020'; cx.fillRect(bx + 28, by + 24, 12, 34); // 금 성문
+      cx.fillStyle = '#1a1c24';
+      cx.beginPath(); cx.arc(bx + 34, by + 24, 6, Math.PI, 0); cx.fill();
+      cx.fillRect(bx + 28, by + 24, 12, 20);
     }
   }
   // 구름 (밝은 테마)
@@ -2045,6 +2323,26 @@ function drawBG(th, vw, t) {
       cx.arc(cxp, cyp, 15, 0, 6.283); cx.arc(cxp + 18, cyp - 7, 12, 0, 6.283); cx.arc(cxp + 34, cyp, 13, 0, 6.283);
       cx.fill();
     }
+  }
+  // 오로라 (빙하 테마) — 상단 물결 리본
+  if (th.aurora) {
+    for (let b2 = 0; b2 < 3; b2++) {
+      const col = ['rgba(120,240,200,', 'rgba(150,180,255,', 'rgba(220,150,255,'][b2];
+      cx.strokeStyle = col + (0.14 + 0.06 * Math.sin(t * 0.7 + b2)) + ')';
+      cx.lineWidth = 18 - b2 * 4;
+      cx.beginPath();
+      for (let sx = -20; sx <= vw + 20; sx += 24) {
+        const yy = 40 + b2 * 26 + Math.sin(sx * 0.012 + t * 0.6 + b2) * 22 + Math.sin(sx * 0.03 - t) * 8;
+        sx === -20 ? cx.moveTo(sx, yy) : cx.lineTo(sx, yy);
+      }
+      cx.stroke();
+    }
+  }
+  // 용암 협곡 (화산 테마) — 하단 붉은 광원
+  if (th.lava) {
+    const lg = cx.createLinearGradient(0, VH - 90, 0, VH);
+    lg.addColorStop(0, 'rgba(255,90,20,0)'); lg.addColorStop(1, 'rgba(255,90,20,.35)');
+    cx.fillStyle = lg; cx.fillRect(0, VH - 90, vw, 90);
   }
   // 어두운 테마 비네트
   if (th.light < 0.8) {
@@ -2189,6 +2487,11 @@ function render(nowS) {
         break;
       }
       case 'blt': flip(SPR.blt[0], ex, e.y - 1, 18, 10, e.vx >= 0 ? 1 : -1); break;
+      case 'shell': {
+        cx.save(); cx.translate(ex + 9, e.y + 10); cx.rotate((e.t || 0) * 6 * (e.dir || 1));
+        cx.drawImage(SPR.shell[0], -9, -10, 18, 20); cx.restore();
+        break;
+      }
       case 'tal': cx.drawImage(SPR.tal[0], ex, e.y, 20, 22); break;
       case 'boss': {
         if (e.inv > 0 && Math.floor(nowS * 14) % 2) break;
@@ -2199,6 +2502,12 @@ function render(nowS) {
         if (e.inv > 0 && Math.floor(nowS * 14) % 2) break;
         const jf = e.flash > 0 ? 2 : Math.floor((e.animT || 0) * 3) % 2;
         flip(SPR.jjo[jf], ex - 8, e.y - 7, 60, 66, e.dir);
+        break;
+      }
+      case 'jjotank': {
+        if (e.inv > 0 && Math.floor(nowS * 14) % 2) break;
+        const tf = e.flash > 0 ? 2 : Math.floor((e.animT || 0) * 5) % 2;
+        flip(SPR.jjotank[tf], ex - 2, e.y - 2, 96, 78, e.dir);
         break;
       }
     }
@@ -2247,17 +2556,18 @@ function render(nowS) {
   }
   cx.globalAlpha = 1;
   // 보스 HP
-  const boss = ents.find(e => e.type === 'boss' || e.type === 'jjojjo');
+  const boss = ents.find(e => e.type === 'boss' || e.type === 'jjojjo' || e.type === 'jjotank');
   if (boss && LV.bossArena && LV.bossArena.entered) {
     const bw = 200, bx = vw / 2 - bw / 2;
     cx.fillStyle = 'rgba(0,0,0,.5)';
     cx.beginPath(); cx.roundRect(bx - 6, 14, bw + 12, 22, 10); cx.fill();
     cx.fillStyle = '#3a3a44';
     cx.beginPath(); cx.roundRect(bx, 20, bw, 10, 5); cx.fill();
-    cx.fillStyle = boss.type === 'jjojjo' ? '#e858a8' : '#d8425a';
+    cx.fillStyle = boss.type === 'jjotank' ? '#c89020' : boss.type === 'jjojjo' ? '#e858a8' : '#d8425a';
     cx.beginPath(); cx.roundRect(bx, 20, bw * boss.hp / boss.maxHp, 10, 5); cx.fill();
     cx.font = '900 11px sans-serif'; cx.fillStyle = '#ffe28a';
-    cx.fillText((boss.type === 'jjojjo' ? '👑 ' : '☠ ') + L.stages[G.stage - 1], vw / 2, 10);
+    const icon = boss.type === 'jjotank' ? '🛡 ' : boss.type === 'jjojjo' ? '👑 ' : '☠ ';
+    cx.fillText(icon + L.stages[G.stage - 1], vw / 2, 10);
   }
   // 스테이지 인트로 / 메시지
   if (G.introT > 0) {
@@ -2372,6 +2682,9 @@ function uiInit() {
   $('quitBtn').textContent = L.quit;
   $('retryBtn').textContent = L.retry;
   $('menuBtn').textContent = L.menu;
+  $('contTitle').textContent = L.contT;
+  $('doContBtn').textContent = L.contYes;
+  $('giveupBtn').textContent = L.contNo;
   applyMute();
   let hasSave = false;
   try { hasSave = !!localStorage.getItem(GAME_KEY); } catch (e) {}
@@ -2391,6 +2704,8 @@ function uiInit() {
   };
   $('retryBtn').onclick = () => startGame(true);
   $('menuBtn').onclick = () => { G.mode = 'menu'; showScreen('menu'); };
+  $('doContBtn').onclick = doContinue;
+  $('giveupBtn').onclick = giveUp;
   $('pauseBtn').onclick = togglePause;
   $('muteBtn').onclick = () => { REC.muted = !REC.muted; storeRec(); applyMute(); };
   $('exportBtn').onclick = () => {
@@ -2437,9 +2752,9 @@ function runSim() {
     console.warn(`[SIM] ${ok ? 'PASS' : 'FAIL'} ${name}${extra ? ' — ' + extra : ''}`);
   };
   buildSprites();
-  T('sprites built', !!(SPR.uja && SPR.uja[0].width && SPR.boss && SPR.jjo && SPR.jjo[2].width && SPR.pepper && SPR.tiger && SPR.ground.snow && SPR.tile[1]));
-  // 레벨 10종 정적 검증
-  for (let s = 1; s <= 10; s++) {
+  T('sprites built', !!(SPR.uja && SPR.uja[0].width && SPR.boss && SPR.jjo && SPR.jjo[2].width && SPR.jjotank && SPR.jjotank[2].width && SPR.shell && SPR.pepper && SPR.tiger && SPR.ground.snow && SPR.ground.lava && SPR.ground.steel && SPR.tile[1]));
+  // 레벨 15종 정적 검증
+  for (let s = 1; s <= 15; s++) {
     const lv = genLevel(s);
     // 표면 높이/구멍 검사 (바닥에서 연속된 지면만 = 걷는 표면, 공중 블록 제외)
     const surf = [];
@@ -2461,11 +2776,12 @@ function runSim() {
         prev = surf[x2];
       }
     }
-    const enemies = lv.ents.filter(e => !['coin', 'uni', 'boss', 'jjojjo'].includes(e.type)).length;
+    const enemies = lv.ents.filter(e => !['coin', 'uni', 'boss', 'jjojjo', 'jjotank'].includes(e.type)).length;
     const hasUni = lv.ents.some(e => e.type === 'uni');
     const hasPower = [...lv.qc.values()].some(c => c === 'fruit' || c === 'pepper' || c === 'tiger');
     const okBoss = s === 5 ? lv.ents.some(e => e.type === 'boss')
       : s === 10 ? lv.ents.some(e => e.type === 'jjojjo')
+      : s === 15 ? lv.ents.some(e => e.type === 'jjotank')
       : !lv.bossArena;
     T(`stage ${s} valid`, maxGap <= 4 && maxStep <= 3 && enemies > 3 && hasUni && hasPower && okBoss && lv.goalX < lv.W * TILE,
       `gap=${maxGap} step=${maxStep} foes=${enemies} uni=${hasUni} power=${hasPower}`);
@@ -2585,10 +2901,26 @@ function runSim() {
   for (let k = 0; k < 6; k++) { jjo.inv = 0; bossStomp(jjo); }
   T('jjojjo dies after 6 hits → goal appears', jjo.hp <= 0 && jjo.dead && LV.goalActive === true);
   G.stage = 1;
+  // 탱크 쪼쪼(스테이지15): 포탄/기관총 발사 + 8회 타격 처치
+  LV = makeTestLevel(90);
+  LV.stage = 15; G.stage = 15;
+  LV.bossArena = { x0: 2 * TILE, x1: 88 * TILE, entered: true };
+  LV.goalActive = false;
+  G.introT = 0;
+  const tank = { type: 'jjotank', x: 46 * TILE, y: (ROWS - 2) * TILE - 74, w: 92, h: 74, vx: 0, vy: 0, dir: -1, hp: 8, maxHp: 8, throwT: 0.05, mgN: 0, shotT: 0, flash: 0, stun: 0, inv: 0, dead: false };
+  ents = [tank];
+  player = mkPlayer(12 * TILE, (ROWS - 4) * TILE);
+  player.inv = 999;
+  let tankFired = false;
+  for (let i = 0; i < 200 && !tankFired; i++) { update(1 / 60); if (ents.some(e => e.type === 'shell' || e.type === 'blt')) tankFired = true; }
+  T('jjotank fires shells/MG', tankFired, `fired=${tankFired}`);
+  for (let k = 0; k < 8; k++) { tank.inv = 0; bossStomp(tank); }
+  T('jjotank dies after 8 hits → goal appears', tank.hp <= 0 && tank.dead && LV.goalActive === true && G.score >= 8000);
+  G.stage = 1;
   // 시작 안전지대: 각 스테이지 스폰 후 2초간 정지해도 죽지 않아야 (공중 달걀·근접 적 사전차단)
   {
     let allSafe = true, badStage = 0;
-    for (let s = 1; s <= 10; s++) {
+    for (let s = 1; s <= 15; s++) {
       G.mode = 'play'; G.introT = 0; G.clearT = 0; G.lives = 5; G.time = 300;
       G.stage = s; LV = genLevel(s); spawnEnts();
       player = mkPlayer(3 * TILE, (ROWS - 4) * TILE);
@@ -2597,7 +2929,26 @@ function runSim() {
       simSteps(120); // 2초 정지
       if (player.dead) { allSafe = false; badStage = s; break; }
     }
-    T('spawn-safe: idle 2s at start survives (all 10 stages)', allSafe, badStage ? `died on stage ${badStage}` : 'ok');
+    T('spawn-safe: idle 2s at start survives (all 15 stages)', allSafe, badStage ? `died on stage ${badStage}` : 'ok');
+  }
+  // 이어하기: 생명 소진 → 점수 50% 소모 후 이어하기, 스테이지 유지
+  {
+    G.mode = 'play'; G.won = false; G.recorded = false; G.paused = false;
+    G.stage = 7; G.lives = 0; G.score = 4000; G.coins = 0;
+    LV = genLevel(7); spawnEnts();
+    player = mkPlayer(3 * TILE, (ROWS - 4) * TILE);
+    respawn(); // lives 0 → -1 → gameOver
+    const offered = G.paused === true;
+    doContinue();
+    T('continue: spends 50% score, restores lives, same stage',
+      offered && G.score === 2000 && G.lives === 3 && G.stage === 7 && !G.paused,
+      `score=${G.score} lives=${G.lives} stage=${G.stage}`);
+    // 저점수(<500)면 이어하기 미제공 → 바로 결과
+    G.recorded = true; // finishGame 부작용 차단
+    G.mode = 'play'; G.paused = false; G.score = 300; G.lives = 0; G.stage = 3;
+    respawn();
+    T('continue: below min score → no offer', G.paused === false);
+    G.recorded = false; G.mode = 'play';
   }
   G.stage = 1;
   // 골인 → 클리어
@@ -2605,7 +2956,7 @@ function runSim() {
   LV.goalActive = true;
   ents = [];
   player = mkPlayer(LV.goalX - 40, (ROWS - 3) * TILE - 4);
-  G.clearT = 0; G.stage = 1;
+  G.clearT = 0; G.stage = 1; G.introT = 0;
   keys.r = true; simSteps(60); keys.r = false;
   T('goal touch → stage clear', G.clearT > 0 || G.stage === 2, `clearT=${G.clearT.toFixed(2)} stage=${G.stage}`);
   G.clearT = 0;
@@ -2660,6 +3011,32 @@ function setupShot() {
     G.stage = 9; LV = genLevel(9); spawnEnts();
     player.x = 34 * TILE; player.y = (ROWS - 6) * TILE;
   }
+  if (qs.get('shot') === '11') { // 왕벚꽃 정원
+    G.stage = 11; LV = genLevel(11); spawnEnts();
+    player.x = 28 * TILE; player.y = (ROWS - 5) * TILE; player.pw = 2;
+  }
+  if (qs.get('shot') === '12') { // 홍염 화산
+    G.stage = 12; LV = genLevel(12); spawnEnts();
+    player.x = 30 * TILE; player.y = (ROWS - 5) * TILE;
+  }
+  if (qs.get('shot') === '13') { // 오로라 빙하
+    G.stage = 13; LV = genLevel(13); spawnEnts();
+    player.x = 32 * TILE; player.y = (ROWS - 6) * TILE; player.pw = 3;
+  }
+  if (qs.get('shot') === '14') { // 황금 노을 포구
+    G.stage = 14; LV = genLevel(14); spawnEnts();
+    player.x = 30 * TILE; player.y = (ROWS - 5) * TILE;
+  }
+  if (qs.get('shot') === '15') { // 탱크 쪼쪼 보스전
+    G.stage = 15; LV = genLevel(15); spawnEnts();
+    const tk = ents.find(e => e.type === 'jjotank');
+    LV.bossArena.entered = true;
+    player.pw = 2; player.x = tk.x - 300; player.y = (ROWS - 4) * TILE; player.dir = 1;
+    tk.hp = 5; tk.flash = 1; tk.animT = 0; tk.dir = -1;
+    ents.push({ type: 'shell', x: tk.x - 90, y: player.y - 70, w: 18, h: 20, vx: -180, vy: -40, dir: -1, t: 0.5 });
+    for (let k = 0; k < 2; k++) ents.push({ type: 'blt', x: tk.x - 60 - k * 70, y: tk.y + 16 + k * 10, w: 14, h: 8, vx: -350, vy: 20, t: 0, dir: -1 });
+    ents.push({ type: 'fb', x: player.x + 50, y: player.y + 6, w: 14, h: 14, vx: 360, vy: 0, t: 0.4, dir: 1 });
+  }
   if (qs.get('shot') === '9s') { // 스테이지9 실제 스폰지점 (시작 안전 확인)
     G.stage = 9; LV = genLevel(9); spawnEnts();
     player = mkPlayer(3 * TILE, (ROWS - 4) * TILE); player.dir = 1;
@@ -2674,6 +3051,10 @@ function setupShot() {
   G.introT = 0;
   sparkle(player.x + 20, player.y + 30, '#ffe28a');
   updateHUD();
+  if (qs.get('shot') === 'cont') { // 이어하기 화면 검수
+    G.stage = 12; G.score = 24800; G.lives = 0;
+    gameOver();
+  }
   window._SHOT_READY = true;
 }
 
@@ -2703,15 +3084,17 @@ function drawSheet() {
   g.drawImage(SPR.fruit[0], 960, 195, 72, 78);
   g.drawImage(SPR.fb[0], 1050, 200, 64, 64);
   g.drawImage(SPR.blt[0], 1120, 210, 90, 50);
-  // 요괴들
+  g.drawImage(SPR.shell[0], 1150, 130, 54, 60);
+  // 요괴들 + 탱크 쪼쪼
   [SPR.ghost[0], SPR.reaper[0], SPR.dok[0], SPR.egg[0], SPR.fox[0], SPR.boss[0]].forEach((s, i) =>
-    g.drawImage(s, 25 + i * 130, 380, s.width * 0.9, s.height * 0.9));
-  // 지면 타일 6종 + 장식
-  ['grass', 'dark', 'snow', 'sand', 'cloud', 'palace'].forEach((k, i) =>
-    g.drawImage(SPR.ground[k], 25 + i * 90, 560, 80, 80));
-  g.drawImage(SPR.flower[0], 590, 560, 48, 54);
-  g.drawImage(SPR.flower[1], 650, 560, 48, 54);
-  g.drawImage(SPR.grass[0], 710, 575, 48, 36);
+    g.drawImage(s, 25 + i * 105, 400, s.width * 0.8, s.height * 0.8));
+  g.drawImage(SPR.jjotank[0], 700, 380, 240, 195);
+  // 지면 타일 8종 + 장식
+  ['grass', 'dark', 'snow', 'sand', 'cloud', 'palace', 'lava', 'steel'].forEach((k, i) =>
+    g.drawImage(SPR.ground[k], 25 + i * 68, 590, 60, 60));
+  g.drawImage(SPR.flower[0], 590, 592, 48, 54);
+  g.drawImage(SPR.flower[1], 650, 592, 48, 54);
+  g.drawImage(SPR.grass[0], 710, 605, 48, 36);
 }
 
 /* ===== 부팅 ===== */

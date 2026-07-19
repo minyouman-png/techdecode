@@ -66,6 +66,13 @@
   #resStats { color: #fff; font-size: 17px; font-weight: 800; text-align: center; line-height: 1.9;
     background: rgba(0,0,0,.5); padding: 12px 28px; border-radius: 12px; }
   #resStats .big { font-size: 30px; color: #ffe28a; }
+  #contInfo { color: #fff; background: rgba(0,0,0,.5); padding: 14px 30px; border-radius: 12px;
+    text-align: center; min-width: 240px; }
+  #contInfo .contDesc { font-size: 13px; color: #cfd6dd; margin-bottom: 10px; line-height: 1.5; }
+  #contInfo .contRow { display: flex; justify-content: space-between; gap: 24px; font-weight: 800;
+    font-size: 17px; padding: 3px 0; }
+  #contInfo .contArrow { justify-content: center; color: #ff9a8a; font-size: 14px; }
+  #contInfo .contHi { color: #ffe28a; font-size: 20px; }
 
   /* ===== 터치 컨트롤 ===== */
   #touch { display: none; }
@@ -139,6 +146,16 @@
     <div class="panel" id="recPanel"></div>
     <div class="note" id="recNote"></div>
     <button class="graybtn" id="recBackBtn"></button>
+  </div>
+
+  <!-- 이어하기 (점수 50% 소모) -->
+  <div class="screen" id="continue">
+    <h2 id="contTitle"></h2>
+    <div id="contInfo"></div>
+    <div class="btnrow">
+      <button class="bigbtn" id="doContBtn"></button>
+      <button class="graybtn" id="giveupBtn"></button>
+    </div>
   </div>
 
   <!-- 결과 -->
