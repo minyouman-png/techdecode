@@ -140,6 +140,23 @@ const REC_KEY = 'uja_save', GAME_KEY = 'uja_game';
 const qs = new URLSearchParams(location.search);
 const SHOT = qs.has('shot');
 
+/* ===== HD 스프라이트 (SDXL 픽사풍 렌더 PNG) — 미로드 시 벡터 폴백 ===== */
+const HD = {};
+// 아트 기본 방향: 1=오른쪽을 봄, -1=왼쪽을 봄
+const HD_FACE = {
+  uja0: 1, uja1: 1, uja2: 1, uja3: 1, uni: 1,
+  ghost: -1, reaper: -1, dok: -1, egg: -1, fox: -1,
+  boss: -1, jjo: -1, jjotank: -1,
+};
+function loadHD() {
+  if (typeof Image === 'undefined' || qs.get('hd') === '0') return;
+  for (const n of Object.keys(HD_FACE)) {
+    const im = new Image();
+    im.onload = () => { if (im.naturalWidth > 0) HD[n] = im; };
+    im.src = 'img/' + n + '.png';
+  }
+}
+
 function mulberry32(a) {
   return function () {
     a |= 0; a = (a + 0x6D2B79F5) | 0;
@@ -2501,6 +2518,20 @@ function drawAmbient(th, vw, t) {
   }
 }
 const SHADOWED = new Set(['ghost', 'reaper', 'dok', 'fox', 'uni', 'uniFlee', 'boss', 'jjojjo', 'jjotank', 'fruit', 'pepper', 'tiger']);
+/* HD 스프라이트 드로잉: 발밑 중앙 앵커·비율 유지·방향/기울기 지원. 미로드 시 false */
+function hdDraw(name, cxp, bottomY, targetH, faceDir, rot) {
+  const im = HD[name];
+  if (!im) return false;
+  const w = targetH * im.width / im.height;
+  const mirror = (HD_FACE[name] === 1) ? faceDir < 0 : faceDir > 0;
+  cx.save();
+  cx.translate(cxp, bottomY);
+  if (rot) cx.rotate(rot);
+  if (mirror) cx.scale(-1, 1);
+  cx.drawImage(im, -w / 2, -targetH, w, targetH);
+  cx.restore();
+  return true;
+}
 function render(nowS) {
   cx.setTransform(DPR, 0, 0, DPR, 0, 0);
   cx.fillStyle = '#08060e'; cx.fillRect(0, 0, SW, SH);
@@ -2569,14 +2600,46 @@ function render(nowS) {
         cx.drawImage(SPR.coin[0], -10, -10, 20, 20); cx.restore();
         break;
       }
-      case 'ghost': cx.globalAlpha = 0.92; flip(SPR.ghost[fr], ex - 3, e.y - 2, 28, 30, -e.dir); cx.globalAlpha = 1; break;
-      case 'reaper': flip(SPR.reaper[fr], ex - 3, e.y - 2, 28, 32, -e.dir); break;
+      case 'ghost': {
+        cx.globalAlpha = 0.94;
+        if (!hdDraw('ghost', ex + e.w / 2, e.y + e.h + 2, 35, e.dir, Math.sin(nowS * 3 + e.x * 0.02) * 0.07))
+          flip(SPR.ghost[fr], ex - 3, e.y - 2, 28, 30, -e.dir);
+        cx.globalAlpha = 1;
+        break;
+      }
+      case 'reaper': {
+        if (!hdDraw('reaper', ex + e.w / 2, e.y + e.h + 2, 37, e.dir, Math.sin((e.animT || 0) * 9) * 0.05))
+          flip(SPR.reaper[fr], ex - 3, e.y - 2, 28, 32, -e.dir);
+        break;
+      }
       case 'hat': flip(SPR.hat[0], ex, e.y, 26, 16, e.dir); break;
-      case 'dok': flip(SPR.dok[e.onG ? 0 : 1], ex - 2, e.y - 2, 28, 30, -e.dir); break;
-      case 'egg': cx.globalAlpha = 0.94; cx.drawImage(SPR.egg[fr], ex - 2, e.y - 2, 26, 32); cx.globalAlpha = 1; break;
-      case 'fox': flip(SPR.fox[fr], ex - 3, e.y - 2, 36, 28, -e.dir); break;
-      case 'uni': flip(SPR.uni[0], ex - 3, e.y - 2 + Math.sin(e.bob * 3) * 2, 36, 32, -e.dir); break;
-      case 'uniFlee': flip(SPR.uni[fr], ex - 3, e.y - 2, 36, 32, -e.dir); break;
+      case 'dok': {
+        if (!hdDraw('dok', ex + e.w / 2, e.y + e.h + 2, 35, e.dir, e.onG ? 0 : -0.1 * e.dir))
+          flip(SPR.dok[e.onG ? 0 : 1], ex - 2, e.y - 2, 28, 30, -e.dir);
+        break;
+      }
+      case 'egg': {
+        cx.globalAlpha = 0.94;
+        if (!hdDraw('egg', ex + e.w / 2, e.y + e.h + 2, 33, 1, Math.sin((e.t || 0) * 2) * 0.09))
+          cx.drawImage(SPR.egg[fr], ex - 2, e.y - 2, 26, 32);
+        cx.globalAlpha = 1;
+        break;
+      }
+      case 'fox': {
+        if (!hdDraw('fox', ex + e.w / 2, e.y + e.h + 2, 31, e.dir, Math.sin((e.animT || 0) * 10) * 0.06))
+          flip(SPR.fox[fr], ex - 3, e.y - 2, 36, 28, -e.dir);
+        break;
+      }
+      case 'uni': {
+        if (!hdDraw('uni', ex + e.w / 2, e.y + e.h + 2 + Math.sin(e.bob * 3) * 2, 40, e.dir, 0))
+          flip(SPR.uni[0], ex - 3, e.y - 2 + Math.sin(e.bob * 3) * 2, 36, 32, -e.dir);
+        break;
+      }
+      case 'uniFlee': {
+        if (!hdDraw('uni', ex + e.w / 2, e.y + e.h + 2, 40, e.dir, Math.sin((e.t || 0) * 14) * 0.12))
+          flip(SPR.uni[fr], ex - 3, e.y - 2, 36, 32, -e.dir);
+        break;
+      }
       case 'fruit': cx.drawImage(SPR.fruit[0], ex, e.y, 24, 26); break;
       case 'pepper': cx.drawImage(SPR.pepper[0], ex, e.y, 20, 24); break;
       case 'tiger': cx.drawImage(SPR.tiger[0], ex, e.y, 22, 22); break;
@@ -2595,19 +2658,37 @@ function render(nowS) {
       case 'tal': cx.drawImage(SPR.tal[0], ex, e.y, 20, 22); break;
       case 'boss': {
         if (e.inv > 0 && Math.floor(nowS * 14) % 2) break;
-        flip(SPR.boss[Math.floor((e.animT || 0) * 4) % 2], ex - 4, e.y - 3, 56, 64, -e.dir);
+        if (!hdDraw('boss', ex + e.w / 2, e.y + e.h + 2, 72, e.dir, Math.sin((e.animT || 0) * 6) * 0.03))
+          flip(SPR.boss[Math.floor((e.animT || 0) * 4) % 2], ex - 4, e.y - 3, 56, 64, -e.dir);
         break;
       }
       case 'jjojjo': {
         if (e.inv > 0 && Math.floor(nowS * 14) % 2) break;
         const jf = e.flash > 0 ? 2 : Math.floor((e.animT || 0) * 3) % 2;
-        flip(SPR.jjo[jf], ex - 8, e.y - 7, 60, 66, e.dir);
+        // 발사 반동: flash 중 살짝 뒤로
+        if (!hdDraw('jjo', ex + e.w / 2 - (e.flash > 0 ? e.dir * 2.5 : 0), e.y + e.h + 2, 72, e.dir, Math.sin((e.animT || 0) * 5) * 0.03))
+          flip(SPR.jjo[jf], ex - 8, e.y - 7, 60, 66, e.dir);
+        else if (e.flash > 0) { // HD 총구 화염
+          const mx = ex + e.w / 2 + e.dir * 34, my = e.y + 26;
+          const mg = cx.createRadialGradient(mx, my, 1, mx, my, 9);
+          mg.addColorStop(0, '#fff0b0'); mg.addColorStop(0.5, '#ffab2e'); mg.addColorStop(1, 'rgba(255,171,46,0)');
+          cx.fillStyle = mg;
+          cx.beginPath(); cx.arc(mx, my, 9, 0, 6.283); cx.fill();
+        }
         break;
       }
       case 'jjotank': {
         if (e.inv > 0 && Math.floor(nowS * 14) % 2) break;
         const tf = e.flash > 0 ? 2 : Math.floor((e.animT || 0) * 5) % 2;
-        flip(SPR.jjotank[tf], ex - 2, e.y - 2, 96, 78, e.dir);
+        if (!hdDraw('jjotank', ex + e.w / 2, e.y + e.h + 2, 86, e.dir, e.flash > 0 ? -e.dir * 0.03 : 0))
+          flip(SPR.jjotank[tf], ex - 2, e.y - 2, 96, 78, e.dir);
+        else if (e.flash > 0) { // HD 포구 화염
+          const mx = ex + e.w / 2 + e.dir * 46, my = e.y + 34;
+          const mg = cx.createRadialGradient(mx, my, 1, mx, my, 12);
+          mg.addColorStop(0, '#fff0b0'); mg.addColorStop(0.5, '#ffab2e'); mg.addColorStop(1, 'rgba(255,171,46,0)');
+          cx.fillStyle = mg;
+          cx.beginPath(); cx.arc(mx, my, 12, 0, 6.283); cx.fill();
+        }
         break;
       }
     }
@@ -2628,10 +2709,17 @@ function render(nowS) {
       cx.fillStyle = gg;
       cx.beginPath(); cx.arc(px + 15, py + 17, 30, 0, 6.283); cx.fill();
     }
+    const hdName = 'uja' + Math.max(0, Math.min(3, p.pw));
+    // 걷기 워블 + 공중 기울기 (HD 단일 이미지의 프로시저럴 애니메이션)
+    const walkRot = p.onG && Math.abs(p.vx) > 12 ? Math.sin(p.animT * 3.1) * 0.09 : 0;
+    const airRot = !p.onG ? p.dir * Math.max(-0.12, Math.min(0.17, p.vy * 0.00028)) : 0;
+    const pcx = p.x - camX + p.w / 2;
     if (p.riding) {
-      flip(SPR.uni[p.onG && Math.abs(p.vx) > 12 ? Math.floor(p.animT) % 2 : 0], p.x - camX - 6, p.y + p.h - 30, 36, 32, p.dir);
-      flip(set[fr], px, py - 16, 30, 34, p.dir);
-    } else {
+      const uniOk = hdDraw('uni', pcx, p.y + p.h + 2, 42, p.dir, walkRot * 0.6);
+      if (!uniOk) flip(SPR.uni[p.onG && Math.abs(p.vx) > 12 ? Math.floor(p.animT) % 2 : 0], p.x - camX - 6, p.y + p.h - 30, 36, 32, p.dir);
+      if (!hdDraw(hdName, pcx - p.dir * 1, p.y + p.h - (uniOk ? 24 : 22), 36, p.dir, walkRot + airRot))
+        flip(set[fr], px, py - 16, 30, 34, p.dir);
+    } else if (!hdDraw(hdName, pcx, p.y + p.h + 2, 40, p.dir, walkRot + airRot)) {
       flip(set[fr], px, py, 30, 34, p.dir);
     }
   }
@@ -3216,6 +3304,7 @@ function frame(tms) {
   if (window._SHEET) drawSheet();
   else if (G.mode === 'play' || SHOT) render(tms / 1000);
 }
+loadHD();
 if (qs.get('test') === 'sim') { runSim(); }
 else if (qs.get('shot') === 'z') { setupSheet(); }
 else if (SHOT) { setupShot(); }
