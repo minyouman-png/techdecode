@@ -1175,6 +1175,7 @@ function genLevel(stage) {
   let x = 0, gh = 2; // gh = 지면 높이(타일 수)
   let firstQ = true, uniPlaced = false, powerCnt = 0;
   const uniAt = Math.floor(W * 0.35);
+  const SAFE_START = 10; // 플레이어 스폰(타일3) 주변: 이 타일 전에는 적/공중달걀 미스폰
   const ground = (from, to, h) => {
     for (let i = from; i < to; i++)
       for (let r = ROWS - h; r < ROWS; r++) setT(t, W, i, r, r === ROWS - h ? 1 : 5);
@@ -1186,8 +1187,8 @@ function genLevel(stage) {
       const gx = x + i;
       // 유니콘
       if (!uniPlaced && gx >= uniAt) { ents.push({ type: 'uni', tx: gx, ty: top }); uniPlaced = true; continue; }
-      // 적
-      if (rng() < eDen && n >= 4) {
+      // 적 (시작 안전지대 이후에만)
+      if (rng() < eDen && n >= 4 && gx >= SAFE_START) {
         ents.push({ type: mix[(rng() * mix.length) | 0], tx: gx, ty: top });
         continue;
       }
@@ -2584,6 +2585,21 @@ function runSim() {
   for (let k = 0; k < 6; k++) { jjo.inv = 0; bossStomp(jjo); }
   T('jjojjo dies after 6 hits → goal appears', jjo.hp <= 0 && jjo.dead && LV.goalActive === true);
   G.stage = 1;
+  // 시작 안전지대: 각 스테이지 스폰 후 2초간 정지해도 죽지 않아야 (공중 달걀·근접 적 사전차단)
+  {
+    let allSafe = true, badStage = 0;
+    for (let s = 1; s <= 10; s++) {
+      G.mode = 'play'; G.introT = 0; G.clearT = 0; G.lives = 5; G.time = 300;
+      G.stage = s; LV = genLevel(s); spawnEnts();
+      player = mkPlayer(3 * TILE, (ROWS - 4) * TILE);
+      keys.l = keys.r = keys.j = keys.run = false;
+      if (LV.bossArena) LV.bossArena.entered = false; // 보스전 미개시 상태
+      simSteps(120); // 2초 정지
+      if (player.dead) { allSafe = false; badStage = s; break; }
+    }
+    T('spawn-safe: idle 2s at start survives (all 10 stages)', allSafe, badStage ? `died on stage ${badStage}` : 'ok');
+  }
+  G.stage = 1;
   // 골인 → 클리어
   LV = makeTestLevel(40);
   LV.goalActive = true;
@@ -2644,7 +2660,15 @@ function setupShot() {
     G.stage = 9; LV = genLevel(9); spawnEnts();
     player.x = 34 * TILE; player.y = (ROWS - 6) * TILE;
   }
-  cam.x = player.x - 200;
+  if (qs.get('shot') === '9s') { // 스테이지9 실제 스폰지점 (시작 안전 확인)
+    G.stage = 9; LV = genLevel(9); spawnEnts();
+    player = mkPlayer(3 * TILE, (ROWS - 4) * TILE); player.dir = 1;
+  }
+  if (qs.get('shot') === '10s') { // 스테이지10 실제 스폰지점
+    G.stage = 10; LV = genLevel(10); spawnEnts();
+    player = mkPlayer(3 * TILE, (ROWS - 4) * TILE); player.dir = 1;
+  }
+  cam.x = qs.get('shot') && qs.get('shot').endsWith('s') ? 0 : player.x - 200;
   showScreen(null);
   document.body.classList.add('playing');
   G.introT = 0;
