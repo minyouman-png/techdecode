@@ -2307,6 +2307,7 @@ function storyEnd() {
   if (!STORY) return;
   const cb = STORY.onEnd;
   STORY = null;
+  G.mode = 'play'; // 스토리 모드 해제 (콜백이 startStage/finishGame으로 이어감)
   document.body.classList.add('playing');
   cb();
 }
@@ -3526,11 +3527,10 @@ function runSim() {
     playStory('intro', () => ended++);
     T('story mode starts', G.mode === 'story' && !!STORY);
     STORY.t = 999; storyNext(); STORY.t = 999; storyNext(); STORY.t = 999; storyNext();
-    T('story advances to end → callback', ended === 1 && STORY === null);
+    T('story advances to end → callback + play mode restored', ended === 1 && STORY === null && G.mode === 'play');
     playStory('after5', () => ended++);
     storyEnd();
-    T('story skip → callback', ended === 2);
-    G.mode = 'play';
+    T('story skip → callback + play mode restored', ended === 2 && G.mode === 'play');
   }
   // 기록 라운드트립
   {
