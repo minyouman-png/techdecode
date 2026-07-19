@@ -2290,6 +2290,8 @@ let STORY = null; // {key, def, texts, idx, t, onEnd}
 function playStory(key, onEnd) {
   const def = SCENE_DEFS[key], texts = (L.story || {})[key];
   if (!def || !texts) { onEnd(); return; }
+  // 버튼 포커스 제거 — 안 하면 Space가 시작 버튼을 재클릭해 컷씬이 계속 리셋됨
+  try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) {}
   STORY = { key, def, texts, idx: 0, t: 0, onEnd };
   G.mode = 'story';
   document.body.classList.remove('playing');
@@ -3180,6 +3182,7 @@ function togglePause() {
   else { showScreen(null); bgmStart(bgmCur); }
 }
 function startGame(fresh) {
+  if (G.mode === 'story') return; // 컷씬 중 버튼 재발동(포커스 잔류 Space) 방지
   const nick = ($('nick').value || '').trim() || 'UJA';
   REC.nick = nick; storeRec();
   audioInit();
