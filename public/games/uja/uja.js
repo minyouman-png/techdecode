@@ -144,7 +144,7 @@ const SHOT = qs.has('shot');
 const HD = {};
 // 아트 기본 방향: 1=오른쪽을 봄, -1=왼쪽을 봄
 const HD_FACE = {
-  uja0: 1, uja1: 1, uja2: 1, uja3: 1, uni: 1,
+  uja0: 1, uja1: 1, uja2: 1, uja3: 1, uja2atk: 1, uja3glide: 1, uni: -1,
   ghost: -1, reaper: -1, dok: -1, egg: -1, fox: -1,
   boss: -1, jjo: -1, jjotank: -1,
 };
@@ -1550,7 +1550,7 @@ function mkPlayer(px, py) {
   return {
     x: px, y: py, w: 20, h: 30, vx: 0, vy: 0, dir: 1,
     onG: false, coyote: 0, pw: 0, inv: 0, star: 0, riding: false, airJump: false,
-    animT: 0, dead: false, deadT: 0, prevB: py + 30,
+    animT: 0, dead: false, deadT: 0, prevB: py + 30, atkT: 0, gliding: false,
   };
 }
 function spawnEnts() {
@@ -1661,6 +1661,12 @@ function damagePlayer() {
 }
 function killEnemy(e, pts, byStar) {
   e.dead = true;
+  // 사망 모션: 밟기=납작 찌부, 불꽃/무적/갓=빙글 날아감
+  ents.push({
+    type: 'corpse', name: e.type, x: e.x, y: e.y, w: e.w, h: e.h,
+    dir: e.dir || 1, t: 0, fly: !!byStar,
+    vx: byStar ? (player && player.x > e.x ? -1 : 1) * 140 : 0, vy: byStar ? -330 : 0,
+  });
   poof(e.x + e.w / 2, e.y + e.h / 2, e.type === 'ghost' ? '#e8ecf4' : e.type === 'fox' ? '#f5a256' : '#cfc4d8');
   addScore(pts, e.x + e.w / 2, e.y);
   if (byStar) sfx.kick(); else sfx.stomp();
@@ -1698,16 +1704,20 @@ function updatePlayer(dt) {
     }
   }
   // 불꽃 발사 (고추 폼, 달리기 버튼 탭 = 마리오 방식)
+  p.atkT = Math.max(0, p.atkT - dt);
   if (keys.run && !runWasDown && p.pw === 2) {
     if (ents.filter(e => e.type === 'fb' && !e.dead).length < 2) {
       ents.push({ type: 'fb', x: p.x + (p.dir > 0 ? p.w - 2 : -12), y: p.y + 8, w: 14, h: 14, vx: p.dir * 360, vy: -60, t: 0, dir: p.dir });
+      p.atkT = 0.32; // 공격 포즈 유지 시간
       sfx.fire();
     }
   }
   runWasDown = keys.run;
   // 가변 점프 (홀드) + 호랑이 활강
   p.grav = (p.vy < 0 && keys.j) ? GRAV * 0.52 : GRAV;
-  if (p.pw === 3 && keys.j && p.vy > 0 && !p.onG) p.grav = GRAV * 0.3;
+  const glideNow = p.pw === 3 && keys.j && p.vy > 0 && !p.onG;
+  if (glideNow) p.grav = GRAV * 0.3;
+  p.gliding = glideNow;
   p.prevB = p.y + p.h;
   p.hitWall = 0;
   const head = tileCollide(p, dt);
@@ -1845,8 +1855,7 @@ function updateEnts(dt) {
         e.t += dt;
         if (e.t > 8 || e.y > VH + 60) e.dead = true;
         for (const o of ents) {
-          if (o === e || o.dead || ['coin', 'uni', 'fruit', 'flame', 'hat', 'uniFlee', 'tal'].includes(o.type)) continue;
-          if (o.type === 'boss') continue;
+          if (o === e || o.dead || !['ghost', 'reaper', 'dok', 'egg', 'fox'].includes(o.type)) continue;
           if (overlap(e, o)) killEnemy(o, 100, true);
         }
         break;
@@ -1957,6 +1966,15 @@ function updateEnts(dt) {
         if (e.onG || e.y > VH + 60) { e.dead = true; poof(e.x + 8, e.y + 8, '#f5e6b8'); }
         break;
       }
+      case 'corpse': { // 사망 모션 (찌부·날아감)
+        e.t += dt;
+        if (e.fly) {
+          e.vy += GRAV * 0.85 * dt;
+          e.x += e.vx * dt; e.y += e.vy * dt;
+        }
+        if (e.t > (e.fly ? 1.1 : 0.55) || e.y > VH + 80) e.dead = true;
+        break;
+      }
       case 'shell': { // 탱크 포탄 (포물선)
         e.t += dt;
         e.grav = GRAV * 0.5;
@@ -1983,6 +2001,7 @@ function updateEnts(dt) {
         if (isBoss) { bossStomp(e); }
         else if (e.type === 'reaper') {
           e.dead = true;
+          ents.push({ type: 'corpse', name: 'reaper', x: e.x, y: e.y, w: e.w, h: e.h, dir: e.dir || 1, t: 0, fly: false, vx: 0, vy: 0 });
           poof(e.x + 11, e.y + 10, '#cfd6de');
           addScore(100, e.x, e.y); sfx.stomp();
           ents.push({ type: 'hat', x: e.x, y: e.y + e.h - 16, w: 24, h: 15, dir: p.x + p.w / 2 > e.x + e.w / 2 ? -1 : 1, vy: 0, t: 0 });
@@ -2613,6 +2632,45 @@ function render(nowS) {
         break;
       }
       case 'hat': flip(SPR.hat[0], ex, e.y, 26, 16, e.dir); break;
+      case 'corpse': {
+        const life = e.fly ? 1.1 : 0.55;
+        const k = Math.min(1, e.t / life);
+        const im = HD[e.name] || (SPR[e.name] || [])[0];
+        if (!im) break;
+        const hh = e.h + 6, ww = hh * im.width / im.height;
+        if (!e.fly) { // 어질어질 별 (찌부 주위 궤도)
+          cx.globalAlpha = 1 - k;
+          cx.fillStyle = '#ffe28a';
+          for (let s2 = 0; s2 < 2; s2++) {
+            const a2 = e.t * 9 + s2 * Math.PI;
+            const sxp = ex + e.w / 2 + Math.cos(a2) * 13, syp = e.y + e.h - 8 + Math.sin(a2) * 3.5;
+            cx.beginPath();
+            for (let v2 = 0; v2 < 5; v2++) {
+              const aa = a2 + v2 * 1.2566;
+              cx.lineTo(sxp + Math.cos(aa) * 2.6, syp + Math.sin(aa) * 2.6);
+              cx.lineTo(sxp + Math.cos(aa + 0.628) * 1.1, syp + Math.sin(aa + 0.628) * 1.1);
+            }
+            cx.closePath(); cx.fill();
+          }
+          cx.globalAlpha = 1;
+        }
+        cx.save();
+        cx.globalAlpha = 1 - k * k;
+        if (e.fly) { // 빙글 날아감 (뒤집힌 채 회전)
+          cx.translate(ex + e.w / 2, e.y + e.h / 2);
+          cx.rotate(e.t * 8 * (e.vx > 0 ? 1 : -1));
+          cx.scale(1, -1);
+          cx.drawImage(im, -ww / 2, -hh / 2, ww, hh);
+        } else { // 납작 찌부 (바닥 앵커)
+          const sy = Math.max(0.16, 1 - k * 1.7), sx = 1 + k * 0.65;
+          cx.translate(ex + e.w / 2, e.y + e.h + 2);
+          cx.scale(sx, sy);
+          cx.drawImage(im, -ww / 2, -hh, ww, hh);
+        }
+        cx.restore();
+        cx.globalAlpha = 1;
+        break;
+      }
       case 'dok': {
         if (!hdDraw('dok', ex + e.w / 2, e.y + e.h + 2, 35, e.dir, e.onG ? 0 : -0.1 * e.dir))
           flip(SPR.dok[e.onG ? 0 : 1], ex - 2, e.y - 2, 28, 30, -e.dir);
@@ -2709,16 +2767,25 @@ function render(nowS) {
       cx.fillStyle = gg;
       cx.beginPath(); cx.arc(px + 15, py + 17, 30, 0, 6.283); cx.fill();
     }
-    const hdName = 'uja' + Math.max(0, Math.min(3, p.pw));
-    // 걷기 워블 + 공중 기울기 (HD 단일 이미지의 프로시저럴 애니메이션)
+    // 포즈 선택: 공격(불꽃 발사 직후) > 활강(호랑이 폼) > 기본 폼
+    let hdName = 'uja' + Math.max(0, Math.min(3, p.pw));
+    if (p.pw === 2 && p.atkT > 0 && HD.uja2atk) hdName = 'uja2atk';
+    else if (p.gliding && HD.uja3glide) hdName = 'uja3glide';
+    // 걷기 워블 + 공중 기울기 + 활강 전방 기울기 (프로시저럴 애니메이션)
     const walkRot = p.onG && Math.abs(p.vx) > 12 ? Math.sin(p.animT * 3.1) * 0.09 : 0;
-    const airRot = !p.onG ? p.dir * Math.max(-0.12, Math.min(0.17, p.vy * 0.00028)) : 0;
+    const airRot = p.gliding ? p.dir * 0.14
+      : !p.onG ? p.dir * Math.max(-0.12, Math.min(0.17, p.vy * 0.00028)) : 0;
     const pcx = p.x - camX + p.w / 2;
     if (p.riding) {
-      const uniOk = hdDraw('uni', pcx, p.y + p.h + 2, 42, p.dir, walkRot * 0.6);
-      if (!uniOk) flip(SPR.uni[p.onG && Math.abs(p.vx) > 12 ? Math.floor(p.animT) % 2 : 0], p.x - camX - 6, p.y + p.h - 30, 36, 32, p.dir);
-      if (!hdDraw(hdName, pcx - p.dir * 1, p.y + p.h - (uniOk ? 24 : 22), 36, p.dir, walkRot + airRot))
+      // 옆모습 유니콘 위 안장 자리에 라이더 (유니콘 먼저 → 라이더가 앞)
+      const rideRot = p.gliding ? p.dir * 0.12 : walkRot;
+      if (HD.uni) {
+        hdDraw('uni', pcx + p.dir * 2, p.y + p.h + 2, 42, p.dir, rideRot * 0.7);
+        hdDraw(hdName, pcx - p.dir * 6, p.y + p.h - 15, 30, p.dir, rideRot + (p.atkT > 0 ? -p.dir * 0.08 : 0));
+      } else {
+        flip(SPR.uni[p.onG && Math.abs(p.vx) > 12 ? Math.floor(p.animT) % 2 : 0], p.x - camX - 6, p.y + p.h - 30, 36, 32, p.dir);
         flip(set[fr], px, py - 16, 30, 34, p.dir);
+      }
     } else if (!hdDraw(hdName, pcx, p.y + p.h + 2, 40, p.dir, walkRot + airRot)) {
       flip(set[fr], px, py, 30, 34, p.dir);
     }
@@ -3006,8 +3073,13 @@ function runSim() {
   LV = makeTestLevel(60); ents = [{ type: 'ghost', x: 8 * TILE, y: (ROWS - 2) * TILE - 28, w: 22, h: 28, vx: 0, vy: 0, dir: -1 }];
   player = mkPlayer(8 * TILE - 10, (ROWS - 2) * TILE - 160);
   const sc0 = G.score;
-  simSteps(60);
+  let sawCorpse = false;
+  for (let i = 0; i < 60; i++) { update(1 / 60); if (ents.some(e => e.type === 'corpse' && !e.fly)) sawCorpse = true; }
   T('stomp kills enemy', ents.every(e => e.type !== 'ghost') && G.score > sc0, `score+${G.score - sc0}`);
+  // 밟기 사망 모션: 찌부 corpse 스폰 → 0.55초 후 소멸
+  T('stomp spawns squash corpse', sawCorpse);
+  simSteps(45);
+  T('corpse expires', ents.every(e => e.type !== 'corpse'));
   // 데미지 체인: 불꽃폼 → 파워 → 일반 → 사망
   LV = makeTestLevel(60); ents = [];
   player = mkPlayer(5 * TILE, (ROWS - 4) * TILE);
@@ -3228,6 +3300,26 @@ function setupShot() {
     ents.push({ type: 'shell', x: tk.x - 90, y: player.y - 70, w: 18, h: 20, vx: -180, vy: -40, dir: -1, t: 0.5 });
     for (let k = 0; k < 2; k++) ents.push({ type: 'blt', x: tk.x - 60 - k * 70, y: tk.y + 16 + k * 10, w: 14, h: 8, vx: -350, vy: 20, t: 0, dir: -1 });
     ents.push({ type: 'fb', x: player.x + 50, y: player.y + 6, w: 14, h: 14, vx: 360, vy: 0, t: 0.4, dir: 1 });
+  }
+  if (qs.get('shot') === 'a') { // 공격 포즈 (불꽃 폼, 정지 프레임)
+    G.stage = 12; LV = genLevel(12); spawnEnts();
+    player.x = 30 * TILE; player.y = (ROWS - 4) * TILE; player.pw = 2; player.dir = 1;
+    player.atkT = 0.3; player.onG = true; player.vy = 0;
+    ents.push({ type: 'fb', x: player.x + 44, y: player.y + 4, w: 14, h: 14, vx: 360, vy: -20, t: 0.1, dir: 1 });
+    G.paused = true;
+  }
+  if (qs.get('shot') === 'g') { // 활강 포즈 (호랑이 폼, 정지 프레임)
+    G.stage = 9; LV = genLevel(9); spawnEnts();
+    player.x = 34 * TILE; player.y = (ROWS - 9) * TILE; player.pw = 3; player.dir = 1;
+    player.gliding = true; player.onG = false; player.vy = 120;
+    G.paused = true;
+  }
+  if (qs.get('shot') === 'k') { // 밟기/날아감 사망 모션 (정지 프레임)
+    G.stage = 1; LV = genLevel(1); spawnEnts();
+    player.x = 26 * TILE; player.y = (ROWS - 4) * TILE - 44; player.vy = 300; player.onG = false;
+    ents.push({ type: 'corpse', name: 'ghost', x: player.x + 44, y: (ROWS - 3) * TILE + 4, w: 22, h: 28, dir: 1, t: 0.16, fly: false, vx: 0, vy: 0 });
+    ents.push({ type: 'corpse', name: 'dok', x: player.x + 120, y: (ROWS - 6) * TILE, w: 24, h: 28, dir: 1, t: 0.3, fly: true, vx: 140, vy: -60 });
+    G.paused = true;
   }
   if (qs.get('shot') === '9s') { // 스테이지9 실제 스폰지점 (시작 안전 확인)
     G.stage = 9; LV = genLevel(9); spawnEnts();
