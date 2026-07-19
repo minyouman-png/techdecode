@@ -38,6 +38,15 @@ const I18N = {
     lifeLost: 'Try again!', timeUp: "Time's up!",
     contT: 'Continue?', contYes: '▶ Continue', contNo: '🏳 Give up',
     contDesc: 'Spend half your score to carry on from this stage.', contScore: 'Score', contAfter: 'After',
+    storyHint: '▶ Continue (Space/Tap)', storySkip: 'Skip: ESC',
+    chars: { uja: 'Yuja', uni: 'Uni', yeomra: 'King Yeomra', jjo: 'Queen JJOJJO' },
+    story: {
+      intro: ["In a little mountain village, Yuja missed her mother, who had gone to the sky.", "I'm going to find Mom. Uni, will you come with me?", "And so Yuja and her unicorn Uni set off on a journey to the Underworld."],
+      after5: ["A child of the living, here? ...Your courage impresses me.", "Take this Underworld Pass. But beware — the queen there has lost her memory.", "Clutching the pass, Yuja walked deeper into the Underworld."],
+      before10: ["On the throne of the Sky Palace... that face was unmistakably her mother's.", "Mom!! It's me, Yuja!", "...Who are you? Insolent child. Begone!"],
+      after10: ["The fallen queen still did not recognize her daughter.", "Come to the Iron Fortress. We finish this there!"],
+      ending: ["As the tank crumbled... the fog lifted from the queen's eyes.", "...Yuja? My little Yuja... is it really you?", "Mom!! I missed you so much!!", "Hand in hand, the three returned together to the warm world of the living. — The End —"],
+    },
   },
   ko: {
     sub: '조선 대모험', start: '▶ 게임 시작', cont: '▶ 이어하기', records: '🏆 기록실',
@@ -60,6 +69,15 @@ const I18N = {
     lifeLost: '다시 도전!', timeUp: '시간 초과!',
     contT: '이어서 할까요?', contYes: '▶ 이어하기', contNo: '🏳 그만두기',
     contDesc: '누적 점수의 절반을 사용해 이 스테이지부터 이어합니다.', contScore: '현재 점수', contAfter: '이어하기 후',
+    storyHint: '▶ 계속 (Space·터치)', storySkip: '건너뛰기: ESC',
+    chars: { uja: '유자', uni: '유니', yeomra: '염라대왕', jjo: '쪼쪼 여왕' },
+    story: {
+      intro: ['산골 마을의 소녀 유자는 하늘로 떠난 엄마가 사무치게 그리웠어요.', '엄마를 꼭 만나러 갈 거야. 유니, 함께 가 줄래?', '그렇게 유자와 유니콘 유니는 저승을 향한 모험을 떠났습니다.'],
+      after5: ['이승의 아이가 여기까지 오다니… 그 용기, 인정하마.', '저승 출입권을 주마. 허나 조심하거라 — 그곳의 여왕은 기억을 잃었으니.', '출입권을 꼭 쥔 유자는 더 깊은 저승으로 나아갔습니다.'],
+      before10: ['하늘궁전의 옥좌 위… 그 얼굴은 분명, 그리운 엄마였습니다.', '엄마!! 나야, 유자야!', '…누구냐? 무엄한 꼬마 같으니. 물러가라!'],
+      after10: ['쓰러진 여왕은 끝내 유자를 알아보지 못했습니다.', '강철 요새로 오너라. 거기서 끝장을 내주마!'],
+      ending: ['탱크가 부서지고… 여왕의 눈에서 안개가 걷혔습니다.', '…유자? 우리 딸… 유자 맞니?', '엄마!! 보고 싶었어!!', '셋은 손을 잡고, 따뜻한 이승으로 함께 돌아갔답니다. — 끝 —'],
+    },
   },
   ja: {
     sub: '朝鮮大冒険', start: '▶ ゲーム開始', cont: '▶ つづきから', records: '🏆 記録室',
@@ -82,6 +100,15 @@ const I18N = {
     lifeLost: 'もう一度！', timeUp: 'タイムアップ！',
     contT: 'つづけますか？', contYes: '▶ つづける', contNo: '🏳 やめる',
     contDesc: 'スコアの半分を使ってこのステージから再開します。', contScore: '現在スコア', contAfter: '再開後',
+    storyHint: '▶ つづく (Space・タップ)', storySkip: 'スキップ: ESC',
+    chars: { uja: 'ユジャ', uni: 'ユニ', yeomra: '閻魔大王', jjo: 'チョチョ女王' },
+    story: {
+      intro: ['山里の少女ユジャは、空へ旅立ったお母さんが恋しくてたまりませんでした。', 'お母さんに会いに行くの。ユニ、一緒に来てくれる？', 'こうしてユジャとユニコーンのユニは、冥界への冒険に旅立ちました。'],
+      after5: ['この世の子供がここまで来るとは…その勇気、認めよう。', '冥界通行証を授けよう。だが気をつけよ、あの女王は記憶を失っておる。', '通行証を握りしめ、ユジャはさらに深い冥界へと進みました。'],
+      before10: ['天空宮の玉座の上…その顔は、確かに恋しい母でした。', 'お母さん!! 私よ、ユジャよ！', '…何者だ？無礼な子め。去れ！'],
+      after10: ['倒れた女王は、ついに娘に気づきませんでした。', '鋼鉄要塞に来い。そこで決着をつけてやる！'],
+      ending: ['戦車が壊れると…女王の瞳から霧が晴れました。', '…ユジャ？私の娘…ユジャなの？', 'お母さん!! 会いたかった!!', '三人は手を取り合い、温かいこの世へ帰っていきました。― おしまい ―'],
+    },
   },
   es: {
     sub: 'AVENTURA EN JOSEON', start: '▶ Empezar', cont: '▶ Continuar', records: '🏆 Récords',
@@ -104,6 +131,15 @@ const I18N = {
     lifeLost: '¡Inténtalo de nuevo!', timeUp: '¡Se acabó el tiempo!',
     contT: '¿Continuar?', contYes: '▶ Continuar', contNo: '🏳 Rendirse',
     contDesc: 'Gasta la mitad de tu puntuación para seguir desde esta fase.', contScore: 'Puntuación', contAfter: 'Después',
+    storyHint: '▶ Continuar (Espacio/Toque)', storySkip: 'Saltar: ESC',
+    chars: { uja: 'Yuja', uni: 'Uni', yeomra: 'Rey Yeomra', jjo: 'Reina JJOJJO' },
+    story: {
+      intro: ['En una aldea de montaña, Yuja extrañaba a su madre, que se había ido al cielo.', '¡Voy a buscar a mamá! Uni, ¿me acompañas?', 'Y así, Yuja y su unicornio Uni partieron hacia el Inframundo.'],
+      after5: ['¿Una niña de los vivos, aquí? ...Tu valor me impresiona.', 'Toma este pase del Inframundo. Pero cuidado: la reina de allí perdió la memoria.', 'Con el pase en la mano, Yuja se adentró en el Inframundo.'],
+      before10: ['En el trono del palacio celestial... ese rostro era, sin duda, el de su madre.', '¡¡Mamá!! ¡Soy yo, Yuja!', '...¿Quién eres? Niña insolente. ¡Fuera!'],
+      after10: ['La reina caída seguía sin reconocer a su hija.', 'Ven a la Fortaleza de Hierro. ¡Allí acabaremos esto!'],
+      ending: ['Cuando el tanque se destruyó... la niebla se disipó de los ojos de la reina.', '...¿Yuja? Mi pequeña Yuja... ¿de verdad eres tú?', '¡¡Mamá!! ¡¡Te extrañé tanto!!', 'Tomados de la mano, los tres volvieron juntos al cálido mundo de los vivos. — Fin —'],
+    },
   },
   zh: {
     sub: '朝鲜大冒险', start: '▶ 开始游戏', cont: '▶ 继续游戏', records: '🏆 记录室',
@@ -126,6 +162,15 @@ const I18N = {
     lifeLost: '再试一次！', timeUp: '时间到！',
     contT: '要继续吗？', contYes: '▶ 继续', contNo: '🏳 放弃',
     contDesc: '消耗一半分数，从本关继续。', contScore: '当前分数', contAfter: '继续后',
+    storyHint: '▶ 继续 (空格/点击)', storySkip: '跳过: ESC',
+    chars: { uja: '柚子', uni: 'Uni', yeomra: '阎罗大王', jjo: '啾啾女王' },
+    story: {
+      intro: ['山村的少女柚子，非常想念去了天上的妈妈。', '我要去见妈妈！Uni，陪我一起去好吗？', '就这样，柚子和独角兽Uni踏上了前往冥界的冒险。'],
+      after5: ['阳间的孩子竟敢来到这里…你的勇气，我认可了。', '给你冥界通行证。但要小心——那里的女王失去了记忆。', '柚子紧握通行证，走向更深的冥界。'],
+      before10: ['天空宫的王座上…那张脸分明就是思念的妈妈。', '妈妈!!是我，柚子啊！', '…你是谁？无礼的小家伙，退下！'],
+      after10: ['倒下的女王，终究没有认出女儿。', '来钢铁要塞吧。在那里做个了断！'],
+      ending: ['坦克碎裂时…女王眼中的迷雾散去了。', '…柚子？我的女儿…真的是柚子吗？', '妈妈!!我好想你!!', '三人手牵着手，一起回到了温暖的人间。——完——'],
+    },
   },
 };
 let LANG = new URLSearchParams(location.search).get('lang');
@@ -186,7 +231,7 @@ function addRecord(score, stage) {
 /* ============================================================
    오디오 (국악풍 합성)
    ============================================================ */
-let AC = null, bgmGain = null, bgmTimer = null, bgmBeat = 0, bgmBoss = false;
+let AC = null, bgmGain = null, bgmTimer = null, bgmBeat = 0, bgmBoss = false, bgmCur = false;
 function audioInit() {
   if (AC) { if (AC.state === 'suspended') AC.resume(); return; }
   try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
@@ -242,6 +287,7 @@ const sfx = {
   fire() { noiseS(0.12, 900, 0.1, 2200); tone(500, 0.09, 'square', 0.06, 900); },
   shot() { noiseS(0.06, 1600, 0.13, 350); tone(240, 0.05, 'square', 0.05, 110); },
   cannon() { noiseS(0.28, 260, 0.22, 60); tone(150, 0.22, 'sawtooth', 0.14, 50); },
+  flagSlide() { tone(1568, 0.85, 'triangle', 0.09, 330); tone(2093, 0.5, 'sine', 0.04, 523); },
   boom() { noiseS(0.34, 200, 0.2, 50); tone(110, 0.28, 'sine', 0.13, 40); },
 };
 /* BGM: 디즈니풍 — C장조 6/8 스윙 왈츠 (베이스+왈츠 코드+멜로디+벨 더블링) · 보스전 단조 변주 */
@@ -264,6 +310,20 @@ const BGM_MEL = [
 const BGM_MEL_AT = new Map();
 BGM_MEL.forEach(([b, p, s, l]) => BGM_MEL_AT.set(b * 6 + p, [s, l]));
 const BGM_MINOR = { 4: 3, 9: 8, 16: 15 }; // 장→단 3·6음 플랫
+// 스토리 테마 (감동 발라드): F · Dm · Bb · C 진행, 하프 아르페지오 + 오르골 멜로디
+const BGM_CHORDS_S = [[5, 9, 12, 17], [2, 5, 9, 14], [-2, 2, 5, 10], [0, 4, 7, 12], [5, 9, 12, 17], [2, 5, 9, 14], [0, 4, 7, 12], [5, 9, 12, 17]];
+const BGM_MEL_S = [
+  [0, 0, 12, 3], [0, 3, 14, 2], [0, 5, 12, 1],
+  [1, 0, 9, 4], [1, 4, 7, 2],
+  [2, 0, 10, 3], [2, 3, 9, 2], [2, 5, 7, 1],
+  [3, 0, 4, 4], [3, 4, 7, 2],
+  [4, 0, 12, 3], [4, 3, 16, 3],
+  [5, 0, 14, 3], [5, 3, 12, 2], [5, 5, 10, 1],
+  [6, 0, 9, 2], [6, 2, 10, 2], [6, 4, 12, 2],
+  [7, 0, 17, 6],
+];
+const BGM_MEL_S_AT = new Map();
+BGM_MEL_S.forEach(([b, p, s, l]) => BGM_MEL_S_AT.set(b * 6 + p, [s, l]));
 function bgmVoice(f, t, dur, type, gain) {
   const o = AC.createOscillator(), gn = AC.createGain();
   o.type = type; o.frequency.value = f;
@@ -274,10 +334,25 @@ function bgmVoice(f, t, dur, type, gain) {
 }
 function bgmSchedule() {
   if (!AC) return;
-  const stepDur = bgmBoss ? 0.125 : 0.152;
+  const story = bgmCur === 'story';
+  const stepDur = story ? 0.21 : bgmBoss ? 0.125 : 0.152;
   const ahead = AC.currentTime + 0.4;
   while (bgmSchedule.next < ahead) {
     const t = bgmSchedule.next, i = bgmBeat % 48, bar = (i / 6) | 0, pos = i % 6;
+    if (story) { // 감동 발라드: 하프 아르페지오 + 오르골 멜로디 (퍼커션 없음)
+      const CH = BGM_CHORDS_S[bar];
+      if (pos === 0) bgmVoice(NOTE(CH[0]) / 2, t, stepDur * 5.5, 'triangle', 0.07);
+      if (pos < 4) bgmVoice(NOTE(CH[pos === 0 ? 1 : pos]), t, stepDur * 2.2, 'sine', 0.03); // 하프 분산화음
+      const m = BGM_MEL_S_AT.get(i);
+      if (m) {
+        const f = NOTE(m[0]);
+        bgmVoice(f, t, stepDur * m[1] * 0.95, 'triangle', 0.075);
+        bgmVoice(f * 2.002, t, stepDur * m[1] * 0.7, 'sine', 0.04); // 오르골
+        bgmVoice(f * 1.002, t, stepDur * m[1] * 0.9, 'sine', 0.025); // 온기 디튠
+      }
+      bgmSchedule.next += stepDur; bgmBeat++;
+      continue;
+    }
     const CH = (bgmBoss ? BGM_CHORDS_B : BGM_CHORDS)[bar];
     // 베이스 (움-파-파의 '움')
     if (pos === 0) bgmVoice(NOTE(CH[0]) / 2, t, stepDur * 2.6, bgmBoss ? 'sawtooth' : 'triangle', bgmBoss ? 0.075 : 0.095);
@@ -313,8 +388,9 @@ function bgmSchedule() {
     bgmSchedule.next += stepDur; bgmBeat++;
   }
 }
-function bgmStart(boss) {
-  bgmBoss = !!boss;
+function bgmStart(mode) { // false=일반 true=보스 'story'=감동 발라드
+  bgmCur = mode;
+  bgmBoss = mode === true;
   if (!AC) return;
   if (!bgmTimer) {
     bgmSchedule.next = AC.currentTime + 0.05; bgmBeat = 0;
@@ -1550,7 +1626,7 @@ function mkPlayer(px, py) {
   return {
     x: px, y: py, w: 20, h: 30, vx: 0, vy: 0, dir: 1,
     onG: false, coyote: 0, pw: 0, inv: 0, star: 0, riding: false, airJump: false,
-    animT: 0, dead: false, deadT: 0, prevB: py + 30, atkT: 0, gliding: false,
+    animT: 0, dead: false, deadT: 0, prevB: py + 30, atkT: 0, gliding: false, flag: null,
   };
 }
 function spawnEnts() {
@@ -1647,7 +1723,7 @@ function addScore(n, x, y) { G.score += n; if (x !== undefined) popup(x, y, '+' 
 /* ===== 플레이어 ===== */
 function damagePlayer() {
   const p = player;
-  if (p.inv > 0 || p.star > 0 || p.dead) return;
+  if (p.inv > 0 || p.star > 0 || p.dead || p.flag) return;
   if (p.riding) {
     p.riding = false; p.airJump = false;
     ents.push({ type: 'uniFlee', x: p.x - 6, y: p.y, w: 30, h: 30, vx: p.dir * -240, vy: -220, dir: -p.dir, t: 0 });
@@ -1677,6 +1753,13 @@ function updatePlayer(dt) {
     p.deadT += dt;
     p.vy += GRAV * dt; p.y += p.vy * dt;
     if (p.deadT > 1.6) respawn();
+    return;
+  }
+  if (p.flag) { // 깃대 슬라이드 → 착지 후 클리어
+    p.flag.t += dt;
+    const base = VH - 2 * TILE;
+    if (p.y + p.h < base) p.y = Math.min(base - p.h, p.y + 250 * dt);
+    else if (p.flag.t > 0.35 && !G.clearT) stageClear();
     return;
   }
   p.inv = Math.max(0, p.inv - dt);
@@ -1745,8 +1828,20 @@ function updatePlayer(dt) {
   if (target !== 0 && p.onG) p.animT += dt * Math.abs(p.vx) / 26;
   // 낙사
   if (p.y > VH + 80) { p.inv = 0; p.star = 0; p.pw = 0; p.riding = false; p.dead = true; p.deadT = 1.0; sfx.die(); bgmStop(); }
-  // 골인
-  if (LV.goalActive && p.x + p.w > LV.goalX + 8 && !G.clearT) stageClear();
+  // 골인: 깃대 잡기 (마리오식 — 높이 비례 점수)
+  if (LV.goalActive && !p.flag && p.x + p.w > LV.goalX + 8 && !G.clearT) {
+    const base = VH - 2 * TILE, poleTop = base - 7 * TILE;
+    const grabY = Math.max(poleTop, Math.min(p.y, base - p.h));
+    const frac = (base - p.h - grabY) / (base - p.h - poleTop); // 0=바닥 1=꼭대기
+    const tier = Math.max(0, Math.min(6, (frac * 7) | 0));
+    const pts = [100, 200, 500, 1000, 2000, 4000, 5000][tier];
+    p.flag = { t: 0 };
+    p.x = LV.goalX + 8 - p.w / 2; p.y = grabY; p.vx = 0; p.vy = 0;
+    p.riding = false; p.gliding = false;
+    addScore(pts, p.x + p.w / 2, p.y - 8);
+    if (frac >= 0.95) { G.lives++; popup(p.x, p.y - 26, L.oneUp, '#8ef78a'); sfx.oneUp(); }
+    sfx.flagSlide();
+  }
   // 보스 아레나 진입
   const ba = LV.bossArena;
   if (ba && !ba.entered && p.x > ba.x0 + 40) {
@@ -2160,6 +2255,156 @@ function updateJjotank(e, dt) {
   tileCollide(e, dt);
 }
 
+/* ============================================================
+   스토리 모드 (만화 컷씬) — 유자와 엄마 쪼쪼 여왕의 이야기
+   ============================================================ */
+const SCENE_DEFS = {
+  intro: { bg: 'dawn', panels: [
+    { a: [['uja0', 0.36, 170], ['uni', 0.63, 140]], sp: null },
+    { a: [['uja0', 0.5, 190]], sp: 'uja' },
+    { a: [['uja0', 0.34, 160], ['uni', 0.6, 135]], sp: null },
+  ] },
+  after5: { bg: 'palace', panels: [
+    { a: [['uja0', 0.3, 140], ['boss', 0.65, 210]], sp: 'yeomra' },
+    { a: [['boss', 0.56, 220]], sp: 'yeomra' },
+    { a: [['uja0', 0.5, 170]], sp: null },
+  ] },
+  before10: { bg: 'skypal', panels: [
+    { a: [['jjo', 0.6, 220]], sp: null },
+    { a: [['uja0', 0.32, 150], ['jjo', 0.67, 210]], sp: 'uja' },
+    { a: [['uja0', 0.3, 140], ['jjo', 0.65, 220]], sp: 'jjo' },
+  ] },
+  after10: { bg: 'skypal', panels: [
+    { a: [['jjo', 0.55, 200]], sp: null },
+    { a: [['jjo', 0.6, 215]], sp: 'jjo' },
+  ] },
+  ending: { bg: 'dawn2', panels: [
+    { a: [['jjotank', 0.58, 210]], sp: null },
+    { a: [['jjo', 0.58, 210]], sp: 'jjo' },
+    { a: [['uja0', 0.42, 160], ['jjo', 0.61, 210]], sp: 'uja' },
+    { a: [['uja0', 0.32, 150], ['jjo', 0.51, 200], ['uni', 0.73, 130]], sp: null },
+  ] },
+};
+const SPEAKER_ACTOR = { uja: 'uja', jjo: 'jjo', yeomra: 'boss', uni: 'uni' };
+let STORY = null; // {key, def, texts, idx, t, onEnd}
+function playStory(key, onEnd) {
+  const def = SCENE_DEFS[key], texts = (L.story || {})[key];
+  if (!def || !texts) { onEnd(); return; }
+  STORY = { key, def, texts, idx: 0, t: 0, onEnd };
+  G.mode = 'story';
+  document.body.classList.remove('playing');
+  showScreen(null);
+  bgmStart('story');
+}
+function storyNext() {
+  if (!STORY) return;
+  const txt = STORY.texts[STORY.idx] || '';
+  if (STORY.t * 36 < txt.length) { STORY.t = 999; return; } // 타자 진행 중 → 전체 공개
+  STORY.idx++; STORY.t = 0;
+  if (STORY.idx >= STORY.def.panels.length) storyEnd();
+}
+function storyEnd() {
+  if (!STORY) return;
+  const cb = STORY.onEnd;
+  STORY = null;
+  document.body.classList.add('playing');
+  cb();
+}
+function wrapText(txt, x0, y0, maxW, lh) { // CJK 대응 글자 단위 줄바꿈
+  let line = '', yy = y0;
+  for (const ch of txt) {
+    if (cx.measureText(line + ch).width > maxW) { cx.fillText(line, x0, yy); line = ch; yy += lh; }
+    else line += ch;
+  }
+  if (line) cx.fillText(line, x0, yy);
+}
+function renderStory(nowS) {
+  if (!STORY) return;
+  cx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  cx.fillStyle = '#0b0812'; cx.fillRect(0, 0, SW, SH);
+  cx.save();
+  cx.translate(0, offY); cx.scale(scaleF, scaleF);
+  const vw = viewW();
+  const pn = STORY.def.panels[STORY.idx];
+  if (!pn) { cx.restore(); return; }
+  const mx = Math.min(70, vw * 0.07), my = 34;
+  const px0 = mx, py0 = my, pw2 = vw - mx * 2, ph2 = VH - my * 2;
+  // 패널 배경 (만화 컷)
+  const bgc = { dawn: ['#2a3f6e', '#f2a56a'], palace: ['#38101c', '#883042'], skypal: ['#2a1040', '#6c2c80'], dawn2: ['#f7a75c', '#ffe9c8'] }[STORY.def.bg] || ['#223', '#446'];
+  cx.save();
+  cx.beginPath(); cx.roundRect(px0, py0, pw2, ph2, 14); cx.clip();
+  const g = cx.createLinearGradient(0, py0, 0, py0 + ph2);
+  g.addColorStop(0, bgc[0]); g.addColorStop(1, bgc[1]);
+  cx.fillStyle = g; cx.fillRect(px0, py0, pw2, ph2);
+  // 반짝이
+  for (let i = 0; i < 14; i++) {
+    const sx = px0 + ((i * 379) % pw2), sy = py0 + ((i * 173) % (ph2 * 0.55));
+    cx.globalAlpha = 0.15 + ((Math.sin(nowS * 2 + i) + 1) / 2) * 0.5;
+    cx.fillStyle = '#fff'; cx.fillRect(sx, sy, 2, 2);
+  }
+  cx.globalAlpha = 1;
+  // 바닥 그림자 밴드
+  cx.fillStyle = 'rgba(0,0,0,.22)';
+  cx.fillRect(px0, py0 + ph2 - 24, pw2, 24);
+  // 배우들 (호흡 바운스, 중앙을 바라봄)
+  const floorY = py0 + ph2 - 16;
+  const actorX = {};
+  for (const [n, xr, hh] of pn.a) {
+    const ax2 = px0 + pw2 * xr;
+    actorX[n] = ax2;
+    const bob = Math.sin(nowS * 2.2 + xr * 9) * 2.5;
+    if (!hdDraw(n, ax2, floorY, hh + bob, xr < 0.5 ? 1 : -1, 0)) {
+      cx.fillStyle = 'rgba(255,255,255,.25)';
+      cx.beginPath(); cx.ellipse(ax2, floorY - hh / 2, hh * 0.28, hh / 2, 0, 0, 6.283); cx.fill();
+    }
+  }
+  cx.restore();
+  // 컷 테두리
+  cx.strokeStyle = '#fff'; cx.lineWidth = 4;
+  cx.beginPath(); cx.roundRect(px0, py0, pw2, ph2, 14); cx.stroke();
+  // 대사/나레이션 (타자 효과)
+  const full = STORY.texts[STORY.idx] || '';
+  const shown = full.slice(0, Math.ceil(STORY.t * 36));
+  cx.textAlign = 'left'; cx.textBaseline = 'middle';
+  if (pn.sp) { // 말풍선 (상단)
+    const bh = 72, bx3 = px0 + 20, bw3 = pw2 - 40, by3 = py0 + 16;
+    cx.fillStyle = 'rgba(255,255,255,.97)';
+    cx.beginPath(); cx.roundRect(bx3, by3, bw3, bh, 14); cx.fill();
+    // 꼬리 → 화자 방향
+    const actor = SPEAKER_ACTOR[pn.sp];
+    let tx2 = px0 + pw2 / 2;
+    for (const k of Object.keys(actorX)) if (k.startsWith(actor)) tx2 = actorX[k];
+    tx2 = Math.max(bx3 + 30, Math.min(bx3 + bw3 - 30, tx2));
+    cx.beginPath();
+    cx.moveTo(tx2 - 10, by3 + bh); cx.lineTo(tx2 + 8, by3 + bh); cx.lineTo(tx2, by3 + bh + 15);
+    cx.closePath(); cx.fill();
+    cx.fillStyle = '#c2405a'; cx.font = '900 13px sans-serif';
+    cx.fillText(L.chars[pn.sp], bx3 + 16, by3 + 17);
+    cx.fillStyle = '#211a1e'; cx.font = '700 15px sans-serif';
+    wrapText(shown, bx3 + 16, by3 + 42, bw3 - 32, 19);
+  } else { // 나레이션 (하단)
+    const bh = 58, bx3 = px0 + 26, bw3 = pw2 - 52, by3 = py0 + ph2 - bh - 14;
+    cx.fillStyle = 'rgba(10,8,18,.8)';
+    cx.beginPath(); cx.roundRect(bx3, by3, bw3, bh, 10); cx.fill();
+    cx.strokeStyle = 'rgba(255,226,138,.55)'; cx.lineWidth = 1.5; cx.stroke();
+    cx.fillStyle = '#ffeccc'; cx.font = 'italic 700 15px sans-serif';
+    wrapText(shown, bx3 + 16, by3 + 21, bw3 - 32, 19);
+  }
+  // 힌트/스킵/컷 번호
+  cx.font = '800 12px sans-serif';
+  cx.textAlign = 'right';
+  cx.globalAlpha = 0.4 + ((Math.sin(nowS * 4) + 1) / 2) * 0.6;
+  cx.fillStyle = '#fff';
+  cx.fillText(L.storyHint, px0 + pw2 - 10, py0 + ph2 + 16);
+  cx.globalAlpha = 0.7;
+  cx.textAlign = 'left';
+  cx.fillText(L.storySkip, px0 + 10, py0 + ph2 + 16);
+  cx.globalAlpha = 1;
+  cx.textAlign = 'center'; cx.fillStyle = '#ffe28a';
+  cx.fillText(`${STORY.idx + 1} / ${STORY.def.panels.length}`, px0 + pw2 / 2, py0 - 12);
+  cx.restore();
+}
+
 /* ===== 스테이지 플로우 ===== */
 function startStage(n, isRespawn) {
   G.stage = n;
@@ -2184,7 +2429,11 @@ function stageClear() {
   bgmStop();
 }
 function afterClear() {
-  if (G.stage >= 15) { G.won = true; finishGame(true); }
+  // 스토리 컷씬: 5(염라·출입권)→6, 9→10(엄마와 재회), 10(1차전 후)→11, 15=엔딩
+  if (G.stage === 5) playStory('after5', () => startStage(6));
+  else if (G.stage === 9) playStory('before10', () => startStage(10));
+  else if (G.stage === 10) playStory('after10', () => startStage(11));
+  else if (G.stage >= 15) playStory('ending', () => { G.won = true; finishGame(true); });
   else startStage(G.stage + 1);
 }
 function finishGame(won) {
@@ -2598,9 +2847,36 @@ function render(nowS) {
     }
     cx.drawImage(SPR.lantern[0], dx, d.y * TILE, 20, 28);
   }
-  // 골 장승
+  // 골 깃대 (마리오식 — 깃발이 플레이어와 함께 하강)
   if (LV.goalActive) {
-    cx.drawImage(SPR.goal[0], LV.goalX - camX, VH - 2 * TILE - 96, 40, 96);
+    const gx = LV.goalX - camX + 8;
+    const base = VH - 2 * TILE, poleTop = base - 7 * TILE;
+    // 받침돌
+    cx.fillStyle = '#8a8f9a';
+    cx.beginPath(); cx.roundRect(gx - 8, base - 8, 16, 8, 3); cx.fill();
+    // 기둥 (금속 광택)
+    const pg = cx.createLinearGradient(gx - 2.5, 0, gx + 2.5, 0);
+    pg.addColorStop(0, '#e8f0e8'); pg.addColorStop(0.5, '#9aa89a'); pg.addColorStop(1, '#5a685a');
+    cx.fillStyle = pg;
+    cx.fillRect(gx - 2.5, poleTop, 5, base - poleTop - 6);
+    // 꼭대기 금구슬
+    const bg3 = cx.createRadialGradient(gx - 2, poleTop - 6, 1, gx, poleTop - 4, 7);
+    bg3.addColorStop(0, '#fff0b0'); bg3.addColorStop(1, '#d8a020');
+    cx.fillStyle = bg3;
+    cx.beginPath(); cx.arc(gx, poleTop - 4, 6, 0, 6.283); cx.fill();
+    // 깃발 (플레이어 슬라이드 시 함께 하강 + 펄럭임)
+    const fy = (player && player.flag) ? Math.max(poleTop + 4, Math.min(player.y + 2, base - 40)) : poleTop + 4;
+    const wav = Math.sin(nowS * 7) * 2.5;
+    cx.fillStyle = '#e8556a';
+    cx.beginPath();
+    cx.moveTo(gx - 2, fy);
+    cx.quadraticCurveTo(gx - 16, fy + 5 + wav * 0.4, gx - 30 + wav, fy + 11);
+    cx.lineTo(gx - 2, fy + 22);
+    cx.closePath(); cx.fill();
+    cx.fillStyle = '#ffd34d'; // 유자 문양
+    cx.beginPath(); cx.arc(gx - 13, fy + 11, 4, 0, 6.283); cx.fill();
+    cx.fillStyle = '#7aa834';
+    cx.beginPath(); cx.ellipse(gx - 10.5, fy + 6.5, 2.4, 1.2, 0.6, 0, 6.283); cx.fill();
   }
   // 엔티티
   for (const e of ents) {
@@ -2859,6 +3135,11 @@ function updateHUD() {
    입력
    ============================================================ */
 window.addEventListener('keydown', (e) => {
+  if (G.mode === 'story') { // 스토리 컷씬 진행/스킵
+    if ([' ', 'Enter', 'ArrowRight'].includes(e.key)) { e.preventDefault(); storyNext(); }
+    else if (e.key === 'Escape') storyEnd();
+    return;
+  }
   if (['ArrowLeft', 'a', 'A'].includes(e.key)) keys.l = true;
   if (['ArrowRight', 'd', 'D'].includes(e.key)) keys.r = true;
   if ([' ', 'ArrowUp', 'w', 'W', 'z', 'Z'].includes(e.key)) { keys.j = true; e.preventDefault(); }
@@ -2895,7 +3176,7 @@ function showScreen(id) {
 function togglePause() {
   G.paused = !G.paused;
   if (G.paused) { showScreen('pause'); bgmStop(); }
-  else { showScreen(null); bgmStart(bgmBoss); }
+  else { showScreen(null); bgmStart(bgmCur); }
 }
 function startGame(fresh) {
   const nick = ($('nick').value || '').trim() || 'UJA';
@@ -2912,7 +3193,8 @@ function startGame(fresh) {
   if (fresh) { G.lives = 3; G.score = 0; G.coins = 0; }
   showScreen(null);
   document.body.classList.add('playing');
-  startStage(st);
+  if (fresh) playStory('intro', () => startStage(1)); // 새 게임 → 프롤로그
+  else startStage(st);
 }
 function recordsTable() {
   if (!REC.top10.length) return `<div class="note">${L.emptyRec}</div>`;
@@ -2990,6 +3272,7 @@ function uiInit() {
     };
     rd.readAsText(f);
   });
+  cvs.addEventListener('pointerdown', () => { if (G.mode === 'story') { audioInit(); storyNext(); } });
   bindTouch('tLeft', 'l'); bindTouch('tRight', 'r');
   bindTouch('tJump', 'j'); bindTouch('tRun', 'run');
   document.addEventListener('pointerdown', audioInit, { once: true });
@@ -3215,15 +3498,40 @@ function runSim() {
     G.recorded = false; G.mode = 'play';
   }
   G.stage = 1;
-  // 골인 → 클리어
+  // 깃대: 꼭대기 잡기 → 고득점 + 1UP
+  LV = makeTestLevel(40);
+  LV.goalActive = true;
+  ents = [];
+  G.clearT = 0; G.stage = 1; G.introT = 0;
+  player = mkPlayer(LV.goalX + 1, 3 * TILE); // 깃대 상단 높이에서 교차
+  const scFH = G.score, lvFH = G.lives;
+  simSteps(3);
+  T('flagpole high grab → 5000 + 1UP', !!player.flag && G.score - scFH >= 5000 && G.lives === lvFH + 1, `pts=${G.score - scFH}`);
+  // 깃대: 바닥 잡기 → 최소 점수, 슬라이드 후 클리어
   LV = makeTestLevel(40);
   LV.goalActive = true;
   ents = [];
   player = mkPlayer(LV.goalX - 40, (ROWS - 3) * TILE - 4);
-  G.clearT = 0; G.stage = 1; G.introT = 0;
-  keys.r = true; simSteps(60); keys.r = false;
-  T('goal touch → stage clear', G.clearT > 0 || G.stage === 2, `clearT=${G.clearT.toFixed(2)} stage=${G.stage}`);
+  G.clearT = 0; G.introT = 0;
+  const scFL = G.score;
+  keys.r = true; simSteps(30); keys.r = false;
+  const lowPts = G.score - scFL;
+  T('flagpole low grab → small points', !!player.flag && lowPts >= 100 && lowPts <= 200, `pts=${lowPts}`);
+  simSteps(40);
+  T('flag slide → stage clear', G.clearT > 0 || G.stage === 2, `clearT=${G.clearT.toFixed(2)} stage=${G.stage}`);
   G.clearT = 0;
+  // 스토리 컷씬: 진행 → 콜백, 스킵 → 콜백
+  {
+    let ended = 0;
+    playStory('intro', () => ended++);
+    T('story mode starts', G.mode === 'story' && !!STORY);
+    STORY.t = 999; storyNext(); STORY.t = 999; storyNext(); STORY.t = 999; storyNext();
+    T('story advances to end → callback', ended === 1 && STORY === null);
+    playStory('after5', () => ended++);
+    storyEnd();
+    T('story skip → callback', ended === 2);
+    G.mode = 'play';
+  }
   // 기록 라운드트립
   {
     const bak = localStorage.getItem(REC_KEY);
@@ -3300,6 +3608,15 @@ function setupShot() {
     ents.push({ type: 'shell', x: tk.x - 90, y: player.y - 70, w: 18, h: 20, vx: -180, vy: -40, dir: -1, t: 0.5 });
     for (let k = 0; k < 2; k++) ents.push({ type: 'blt', x: tk.x - 60 - k * 70, y: tk.y + 16 + k * 10, w: 14, h: 8, vx: -350, vy: 20, t: 0, dir: -1 });
     ents.push({ type: 'fb', x: player.x + 50, y: player.y + 6, w: 14, h: 14, vx: 360, vy: 0, t: 0.4, dir: 1 });
+  }
+  if (qs.get('shot') === 'fl') { // 깃대 슬라이드 (정지 프레임)
+    G.stage = 1; LV = genLevel(1); spawnEnts();
+    const base = VH - 2 * TILE;
+    player.x = LV.goalX + 8 - player.w / 2; player.y = base - 7 * TILE + 60;
+    player.vx = 0; player.vy = 0; player.onG = false;
+    player.flag = { t: 0.1 };
+    cam.x = LV.goalX - 260;
+    G.paused = true;
   }
   if (qs.get('shot') === 'a') { // 공격 포즈 (불꽃 폼, 정지 프레임)
     G.stage = 12; LV = genLevel(12); spawnEnts();
@@ -3394,11 +3711,17 @@ function frame(tms) {
     while (acc >= 1 / 60) { update(1 / 60); acc -= 1 / 60; }
   }
   if (window._SHEET) drawSheet();
+  else if (G.mode === 'story' && STORY) { STORY.t += dt; renderStory(tms / 1000); }
   else if (G.mode === 'play' || SHOT) render(tms / 1000);
 }
 loadHD();
 if (qs.get('test') === 'sim') { runSim(); }
 else if (qs.get('shot') === 'z') { setupSheet(); }
+else if (qs.get('shot') === 'st') { // 스토리 컷 검수: ?shot=st&scene=ending&p=2
+  buildSprites();
+  playStory(qs.get('scene') || 'intro', () => {});
+  if (STORY) { STORY.idx = Math.min(+(qs.get('p') || 0), STORY.def.panels.length - 1); STORY.t = 999; }
+}
 else if (SHOT) { setupShot(); }
 else { buildSprites(); }
 requestAnimationFrame((t) => { lastT = t; requestAnimationFrame(frame); });
