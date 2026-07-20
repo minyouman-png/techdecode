@@ -145,6 +145,100 @@ export interface GameEntry {
 
 export const games: GameEntry[] = [
   {
+    slug: 'ppanggeul-adventure',
+    released: '2026-07',
+    tech: 'Canvas 2D · Web Audio',
+    playPath: '/games/ppanggeul/index.html',
+    cover: '/games/ppanggeul/cover.jpg',
+    copy: {
+      en: {
+        title: "PPANGGEUL'S ADVENTURE",
+        tagline: 'A cute side-scrolling platformer across the Moon, Venus and Mars — 15 stages, cute alien critters, a piggyback ride from Dad, and a little brother who has to be found before he can be brought back to his senses.',
+        about: [
+          "Ppanggeul's Adventure is a side-scrolling platformer built on the same engine as our earlier mascot game, sent on a brand-new journey: little Ppanggeul's search for her mischievous 6-year-old brother Gwiyomi, who vanished chasing a shooting star. The trail leads across three worlds and fifteen hand-built stages — quiet lunar craters and ice caves, the toxic yellow clouds and lava plains of Venus, and the dusty red canyons of Mars.",
+          "Instead of the usual enemies, cute chibi space critters block the way: a glowing star ghost drifts toward you, a helmeted cosmo imp leaves behind a sliding cap when stomped, a hopping alien bounces around, a sleepy space egg bobs in the air, and a comet fox dashes past in a streak of light. Stomp them the classic way — and when Dad catches up to give Ppanggeul a piggyback ride, she gets a sparkly mid-air double jump to match.",
+          'Collect star candy (100 for an extra life), smash lucky blocks for a Ppanggeul Fruit or a Comet Chili power-up, and grab a Shooting Star for brief invincibility. Reach the flag at the end of each stage, and face three bosses along the way: the Moon Rabbit King at the end of world one, and Gwiyomi himself — twice — first alone, screaming and out of his senses, then again on Mars wielding a toy blaster in each hand. Your score and stage are saved under your nickname in a local top-10 leaderboard, and progress auto-saves so you can continue where you left off.',
+          'Like everything on this shelf, this game was built entirely by AI in July 2026 from a single prompt — the physics, the level design, the alien artwork, the soundtrack. A playable snapshot of what AI could build at that moment.',
+        ],
+        how: [
+          '← → — move · Space / ↑ — jump (hold for a higher jump) · Shift — run',
+          'Stomp on aliens to defeat them · the cosmo imp drops a sliding cap',
+          'Get a piggyback ride from Dad for a sparkly double jump',
+          '100 star candy = 1 extra life · lucky blocks hide power-ups · ESC pauses',
+          '📱 Mobile — on-screen buttons: move, jump and run',
+        ],
+      },
+      ko: {
+        title: '빵글이의 모험',
+        tagline: '달·금성·화성을 가로지르는 아기자기한 횡스크롤 플랫포머 — 15스테이지, 귀여운 외계 몬스터, 아빠가 업어주는 2단 점프, 그리고 정신을 차려야 할 어린 동생까지.',
+        about: [
+          '빵글이의 모험은 이전 마스코트 게임과 같은 엔진으로 만든 완전히 새로운 여정입니다. 별똥별을 쫓아가다 사라진 6살 장난꾸러기 동생 귀요미를 찾아 나선 빵글이의 이야기죠. 그 흔적은 세 개의 행성, 손으로 설계한 15개 스테이지로 이어집니다. 고요한 달의 크레이터와 얼음 동굴, 금성의 노란 유독 구름과 용암 평원, 그리고 화성의 붉은 먼지 협곡까지.',
+          '흔한 적 대신 이 세계엔 귀여운 외계 생명체들이 출몰합니다. 스르륵 다가오는 반짝이는 별 유령, 밟으면 미끄러지는 모자를 남기는 헬멧 쓴 우주 임프, 폴짝대는 호핑 에일리언, 허공에 둥실대는 졸린 우주알, 그리고 빛줄기처럼 스쳐가는 혜성 여우까지. 고전 방식 그대로 밟아서 물리치세요. 그리고 아빠가 따라와 빵글이를 업어주면, 반짝이는 공중 2단 점프까지 쓸 수 있습니다.',
+          '별사탕을 모으고(100개면 생명 +1), 복주머니 블록을 쳐서 빵글열매나 별똥고추 파워업을 얻고, 별똥별을 먹으면 잠깐 무적이 됩니다. 각 스테이지 끝의 깃발에 도달하고, 도중에 보스 셋을 만나게 됩니다. 1세계 끝의 달나라 토끼왕, 그리고 귀요미 본인을 두 번 — 처음엔 정신을 잃은 채 홀로 소리를 지르고, 화성에서 다시 만날 땐 양손에 장난감을 든 채로요. 점수와 도달 스테이지는 닉네임과 함께 로컬 Top10 랭킹에 저장되고, 진행 상황이 자동 저장되어 이어할 수 있습니다.',
+          '이 선반의 다른 게임처럼, 이 게임도 2026년 7월 단 하나의 프롬프트로 AI가 전부 만들었습니다 — 물리, 레벨 디자인, 외계 생명체 그래픽, 사운드트랙까지. 그 시점의 AI가 만들 수 있었던 것의 플레이 가능한 기록입니다.',
+        ],
+        how: [
+          '← → — 이동 · Space / ↑ — 점프(길게 누르면 더 높이) · Shift — 달리기',
+          '외계생명체는 밟아서 물리치세요 · 우주 임프는 미끄러지는 모자를 남깁니다',
+          '아빠가 업어주면 반짝이는 2단 점프!',
+          '별사탕 100개 = 생명 +1 · 복주머니 블록엔 파워업이 · ESC로 일시정지',
+          '📱 모바일 — 화면 버튼: 이동·점프·달리기',
+        ],
+      },
+      ja: {
+        title: 'パングリの冒険',
+        tagline: '月・金星・火星をめぐるかわいい横スクロールアクション — 15ステージ、キュートな宇宙生物、パパにおんぶしてもらう2段ジャンプ、そして正気を取り戻すべき幼い弟まで。',
+        about: [
+          'パングリの冒険は、以前作ったマスコットゲームと同じエンジンで作られた、まったく新しい旅です。流れ星を追いかけて姿を消した6歳のいたずら好きな弟グィヨミを探す、パングリの物語。その手がかりは三つの惑星、手作りの15ステージへと続きます。静かな月のクレーターと氷の洞窟、金星の黄色い有毒な雲と溶岩平原、そして火星の赤い砂埃の峡谷まで。',
+          'ありふれた敵の代わりに、この世界にはかわいい宇宙生物が出没します。すっと近づくキラキラ光る星の幽霊、踏むと滑る帽子を残すヘルメット姿の宇宙インプ、跳ね回るホッピングエイリアン、宙をふわふわ漂う眠そうな宇宙卵、そして光の筋のように駆け抜ける彗星ギツネ。古典どおり踏んで倒しましょう。そしてパパが追いついてパングリをおんぶしてくれれば、キラキラの空中二段ジャンプも使えます。',
+          '星のキャンディを集め(100個で残機+1)、ラッキーブロックを叩いてパングリの実や彗星唐辛子のパワーアップを得て、流れ星を取れば短時間無敵に。各ステージの旗に到達し、途中で3体のボスと対峙します。第一世界の終わりのウサギ王、そしてグィヨミ本人と二度 — 最初は正気を失いひとりで叫び、火星で再会する時には両手におもちゃの武器を持って。スコアと到達ステージはニックネームと共にローカルTop10ランキングに保存され、進行は自動セーブされるので続きから再開できます。',
+          'この棚の他のゲームと同じく、このゲームも2026年7月にたった一つのプロンプトからAIがすべて作りました — 物理、レベルデザイン、宇宙生物のアート、サウンドトラックまで。その時点のAIに何が作れたかの、遊べる記録です。',
+        ],
+        how: [
+          '← → — 移動 · Space / ↑ — ジャンプ(長押しで高く) · Shift — ダッシュ',
+          'エイリアンは踏んで倒そう · 宇宙インプは滑る帽子を残す',
+          'パパにおんぶしてもらうとキラキラ二段ジャンプ！',
+          '星のキャンディ100個 = 残機+1 · ラッキーブロックにパワーアップが · ESCで一時停止',
+          '📱 モバイル — 画面ボタン: 移動・ジャンプ・ダッシュ',
+        ],
+      },
+      es: {
+        title: 'LA AVENTURA DE PPANGGEUL',
+        tagline: 'Un adorable plataformas de scroll lateral por la Luna, Venus y Marte — 15 fases, criaturas alienígenas adorables, un paseo a caballito de Papá y un hermanito al que hay que encontrar antes de que recupere el sentido.',
+        about: [
+          'La Aventura de Ppanggeul es un plataformas de scroll lateral construido sobre el mismo motor que nuestro anterior juego mascota, lanzado a un viaje completamente nuevo: la búsqueda de la pequeña Ppanggeul de su travieso hermano de 6 años, Gwiyomi, que desapareció persiguiendo una estrella fugaz. El rastro atraviesa tres mundos y quince fases construidas a mano: tranquilos cráteres lunares y cuevas de hielo, las nubes amarillas tóxicas y llanuras de lava de Venus, y los polvorientos cañones rojos de Marte.',
+          'En lugar de los enemigos habituales, adorables criaturas espaciales chibi bloquean el camino: un fantasma estelar brillante flota hacia ti, un duende cósmico con casco deja caer su gorro al ser pisoteado, un alienígena saltarín rebota por ahí, un huevo espacial somnoliento flota en el aire, y un zorro cometa pasa a toda velocidad dejando un rastro de luz. Písalos a la manera clásica — y cuando Papá alcanza a Ppanggeul para llevarla a caballito, ella obtiene un reluciente doble salto en el aire.',
+          'Recolecta caramelos estelares (100 para una vida extra), rompe bloques de la suerte para conseguir una Fruta de Ppanggeul o un Chile Cometa, y agarra una Estrella Fugaz para invencibilidad breve. Llega a la bandera al final de cada fase, y enfréntate a tres jefes por el camino: el Rey Conejo Lunar al final del primer mundo, y al propio Gwiyomi — dos veces — primero solo, gritando y fuera de sí, y luego de nuevo en Marte empuñando un lanzador de juguetes en cada mano. Tu puntuación y fase se guardan bajo tu apodo en una clasificación local top-10, y el progreso se guarda automáticamente para continuar donde lo dejaste.',
+          'Como todo en esta estantería, este juego fue creado enteramente por IA en julio de 2026 a partir de un único prompt — la física, el diseño de niveles, el arte alienígena, la banda sonora. Una instantánea jugable de lo que la IA podía construir en ese momento.',
+        ],
+        how: [
+          '← → — moverse · Espacio / ↑ — saltar (mantén para saltar más alto) · Shift — correr',
+          'Pisa a los alienígenas para vencerlos · el duende cósmico deja caer un gorro deslizante',
+          '¡Sube a caballito con Papá para un reluciente doble salto!',
+          '100 caramelos estelares = 1 vida extra · los bloques de la suerte esconden power-ups · ESC pausa',
+          '📱 Móvil — botones en pantalla: mover, saltar y correr',
+        ],
+      },
+      zh: {
+        title: '胖圆儿大冒险',
+        tagline: '穿越月球、金星与火星的可爱横版平台游戏——15个关卡、可爱的外星小怪、爸爸背着走的二段跳，还有一个需要先找到才能唤醒理智的小弟弟。',
+        about: [
+          '《胖圆儿大冒险》采用与我们此前的吉祥物游戏相同的引擎打造，但踏上了一段全新的旅程：小胖圆儿寻找追着流星跑丢的6岁调皮弟弟归尤米。线索贯穿三个星球、十五个手工搭建的关卡——寂静的月球陨石坑与冰洞、金星的黄色毒云与熔岩平原，一直到火星尘土飞扬的红色峡谷。',
+          '取代常见敌人的，是这个世界里出没的可爱奇布风外星生物：发光的星星幽灵朝你飘来，戴头盔的宇宙小妖被踩到会掉落一顶会滑动的帽子，蹦蹦跳跳的外星怪四处跳跃，昏昏欲睡的太空蛋悬浮在空中，还有一道光痕般疾驰而过的彗星狐狸。用经典的方式踩扁它们——当爸爸追上来把胖圆儿背在背上时，她还能获得一个闪闪发光的空中二段跳。',
+          '收集星星糖果(集齐100颗可获得一条额外生命)，敲开幸运方块获取胖圆儿果实或彗星辣椒的能力提升道具，拿到流星可获得短暂无敌。到达每一关终点的旗杆，途中还会遇上三场Boss战：第一世界末尾的兔子王，以及归尤米本人——两次——第一次他独自一人、神志不清地尖叫，第二次在火星再次相遇时，他双手各持一把玩具发射器。你的分数和到达的关卡会以你的昵称保存在本地前十排行榜中，进度也会自动保存，方便你随时接着玩。',
+          '和这个书架上的其他游戏一样，这款游戏也是在2026年7月由AI仅凭一句提示词从头到尾完成的——物理引擎、关卡设计、外星生物美术、配乐，全部如此。这是当时的AI能够做到什么程度的一份可玩记录。',
+        ],
+        how: [
+          '← → — 移动 · 空格 / ↑ — 跳跃(长按跳得更高) · Shift — 奔跑',
+          '踩到外星怪就能打倒它们 · 宇宙小妖会掉落一顶会滑动的帽子',
+          '让爸爸背着走，可以获得闪闪发光的二段跳！',
+          '100颗星星糖果 = 1条额外生命 · 幸运方块中藏有能力提升道具 · ESC暂停',
+          '📱 移动端 — 屏幕按钮:移动、跳跃、奔跑',
+        ],
+      },
+    },
+  },
+  {
     slug: 'super-uja',
     released: '2026-07',
     tech: 'Canvas 2D · Web Audio',
