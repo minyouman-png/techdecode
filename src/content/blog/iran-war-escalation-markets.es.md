@@ -1,0 +1,48 @@
+---
+title: "La guerra de Irán acaba de empeorar — ¿por qué los mercados globales parecen casi indiferentes?"
+description: "Irán ha suspendido sus compromisos de alto el fuego, los ataques de EE. UU. han llegado a una novena noche consecutiva, y una guerra que ya dura casi cinco meses acaba de entrar en su fase más intensa. Sin embargo, los futuros estadounidenses suben esta mañana y el oro baja. Esto es lo que está pasando sobre el terreno, lo que le ha hecho hasta ahora a los mercados, y por qué la reacción esta vez parece distinta."
+date: 2026-07-20T09:00:00
+lang: es
+key: iran-war-escalation-markets-2026
+author: menew
+category: markets
+---
+
+El líder supremo de Irán calificó este fin de semana la firma de Donald Trump como "sin valor", y Teherán suspendió formalmente sus compromisos bajo la tregua alcanzada con Washington el mes pasado. Las fuerzas estadounidenses ya han atacado objetivos iraníes durante nueve noches consecutivas. Se ha confirmado la muerte de un tercer militar estadounidense. Misiles iraníes alcanzaron Jordania; un ataque iraní contra Kuwait dejó fuera de servicio parte de una planta de energía y desalinización. Leído en sus propios términos, la guerra que estalló por primera vez alrededor del 5 de marzo —y que por un momento pareció que podría estar terminando— acaba de entrar en su peor fase hasta ahora.
+
+Y aun así, a esta hora de la mañana, los futuros del Dow suben un 0,2%, los del S&P 500 un 0,3%, los del Nasdaq-100 casi un 0,7%, y el oro —el activo que se supone debería moverse precisamente con este tipo de noticias— cotiza ligeramente a la baja, en 4.013 dólares. Esa brecha entre los titulares y la cinta de cotizaciones merece que nos detengamos en ella, porque revela algo sobre cómo están valorando realmente los mercados este conflicto, cinco meses después.
+
+## Cómo llegamos de nuevo hasta aquí
+
+La guerra se ha movido en ciclos más que en línea recta. Se intensificó bruscamente a principios de julio, cuando el Kospi cayó un 5,54% en un día y luego un 8,29% al siguiente —su tercer disparador de circuit breaker del año— mientras se reavivaban las tensiones en Ormuz y el petróleo subía cerca de un 9%. El "índice del miedo" de Corea del Sur, la medida de volatilidad del Kospi 200, alcanzó un máximo intradía histórico de 91,94. Luego, ante la esperanza de que un memorando de entendimiento para el alto el fuego estuviera cerca, el sentimiento cambió por completo: el Kospi se disparó casi un 9% intradía en una sola sesión después de que Trump insinuara avances. El crudo Brent retrocedió a unos 87 dólares por barril, su nivel más bajo desde principios de marzo.
+
+Esa calma no duró. Irán y EE. UU. discreparon sobre cómo interpretar ese memorando casi de inmediato, y para el 18 de julio Teherán declaró que lo suspendía por completo. La racha actual —nueve noches seguidas de ataques estadounidenses, represalias iraníes contra Jordania y Kuwait, una planta desalinizadora dañada que ha dejado a 20 aldeas iraníes sin agua, y un número de muertos estadounidenses en la guerra que llega a 17 en casi cinco meses— representa el intercambio militar más sostenido desde que comenzó el conflicto.
+
+## Lo que realmente le ha hecho a los precios
+
+El petróleo ha sido el canal de transmisión principal, y se ha movido con volatilidad en ambas direcciones en lugar de simplemente subir. El Brent superó brevemente los 90 dólares por barril intradía esta semana antes de retroceder a unos 88,50 dólares; el WTI ronda los 82,35. Es una banda notablemente más alta que la calma de mediados de julio en torno a los 87 dólares, pero está lejos de un movimiento de pánico unidireccional: los operadores han estado valorando la escalada y la desescalada casi en tiempo real, incluyendo un retroceso después de que Irán sugiriera que las conversaciones "basadas en el interés nacional" aún podrían ser posibles.
+
+Las bolsas asiáticas han sufrido el golpe más directo. El Nikkei 225 de Japón cayó un 4,03% el viernes hasta cerrar en 64.140, con el Topix general bajando un 2,72% (los mercados japoneses cerraron el lunes por festivo). El Kospi ha sido el caso más extremo a nivel mundial: Bloomberg lo describe ahora como el principal índice bursátil más volátil del mundo, con una volatilidad realizada que supera el 60% —casi el doble que la del Nikkei—, y la Bolsa de Corea ha activado su circuit breaker siete veces en lo que va de año, más de la mitad de ellas ligadas a este conflicto.
+
+## La parte que no encaja con los titulares
+
+Aquí está lo genuinamente interesante: los futuros de acciones estadounidenses están en verde esta mañana, y el oro —la cobertura de manual contra este tipo exacto de shock geopolítico— baja en el día. Si la escalada bélica estuviera provocando una simple huida hacia la seguridad, no es esto lo que se esperaría ver.
+
+Parte de la explicación está en lo que realmente dicen los estrategas de mercado: los inversores "parecen estar distinguiendo entre un riesgo geopolítico elevado y la probabilidad de un shock sistémico más amplio". El mecanismo de transmisión que vigilan los mercados no es "la guerra se expande", sino "los precios de la energía se trasladan a la inflación" —y con el Brent todavía muy por debajo de sus máximos anteriores, y el petróleo cediendo hoy parte de su repunte intradía, ese temor específico no se ha reactivado con la misma intensidad que a principios de julio. La otra parte es simple fatiga y narrativas que compiten entre sí: cinco meses después de una guerra que ya ha pasado por varios ciclos de crisis y calma, los inversores estadounidenses tienen esta semana la atención dividida con una agenda cargada de resultados empresariales —Alphabet, Intel, IBM y Tesla presentan resultados en los próximos días—, y están posicionándose según lo que esas cifras digan sobre la monetización de la IA, no solo según el próximo titular sobre Ormuz.
+
+## Qué cambiaría realmente el panorama
+
+Vale la pena vigilar tres cosas por encima de las cifras de víctimas en los titulares: si Irán realmente sigue adelante con la insinuación de que las conversaciones siguen siendo posibles, o si el actual ciclo de ataques produce en cambio otro intento de cerrar físicamente el tráfico por Ormuz o de imponerle un peaje, que fue exactamente lo que sacudió con violencia al Kospi y al petróleo a principios de julio; si el crudo Brent rompe de forma significativa por encima de los 90 dólares y se mantiene ahí, ya que ese es el nivel en el que el relato de transmisión hacia la inflación que los mercados hoy están dispuestos a ignorar probablemente dejaría de poder ignorarse; y si el patrón de circuit breakers del Kospi se repite, dado que se ha convertido en el indicador más claro en tiempo real de cuán en serio se están tomando realmente los mercados globales esta guerra en concreto, en contraste con cuán en serio sugieren los titulares que deberían tomársela.
+
+*Este artículo tiene fines informativos y no constituye asesoramiento financiero o de inversión. Las cifras de víctimas, los niveles de precios y los datos de mercado provienen de reportes públicos vigentes a la fecha de publicación y cambian rápido en un conflicto activo; verifique las cifras actuales antes de actuar sobre ellas.*
+
+### Fuentes
+
+- [NPR — The U.S. and Iran blow past red lines as they lurch back toward all-out war](https://www.npr.org/2026/07/18/nx-s1-5898916/us-iran-escalate-strikes)
+- [Al Jazeera — Iran suggests MoU 'suspended' as 50 killed in US strikes in July](https://www.aljazeera.com/news/2026/7/18/iran-accuses-us-of-striking-critical-infrastructure-as-war-intensifies)
+- [CNN — July 19, 2026: US begins ninth night of strikes, Iran claims new wave of missiles launched](https://www.cnn.com/2026/07/19/world/live-news/iran-war-trump)
+- [CNBC — Oil prices erase gains after Iran says U.S. talks could be pursued based on national interests](https://www.cnbc.com/2026/07/20/oil-prices-today-brent-wti-crude-us-iran-centcom-hormuz.html)
+- [Bloomberg — Oil Jumps, Bonds Fall as US-Iran Attacks Escalate: Markets Wrap](https://www.bloomberg.com/news/articles/2026-07-19/oil-climbs-as-middle-east-conflict-escalates-markets-wrap)
+- [Bloomberg — South Korea Stock Boom: Why Kospi Is World's Most Volatile Benchmark Stock Index](https://www.bloomberg.com/news/articles/2026-07-20/south-korea-stock-boom-why-kospi-is-world-s-most-volatile-benchmark-stock-index)
+- [Financial News (Corea) — [Market Insight] ¿Termina lo peor de la guerra de Irán?… se espera que continúe el repunte del Kospi](https://www.fnnews.com/news/202606140702140811)
+- [Yahoo Finance — Stock market today: Dow, S&P 500, Nasdaq futures edge up as oil turns lower](https://finance.yahoo.com/markets/live/stock-market-today-monday-july-20-dow-sp-500-nasdaq-111429441.html)
