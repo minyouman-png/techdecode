@@ -148,8 +148,8 @@ export const games: GameEntry[] = [
     slug: 'yuja-knight',
     released: '2026-07',
     tech: 'Canvas 2D · Web Audio · AI-generated realistic art',
-    playPath: '/games/yuja-knight/index.html',
-    cover: '/games/yuja-knight/cover.jpg',
+    playPath: '/games/yknight/index.html',
+    cover: '/games/yknight/cover.jpg',
     copy: {
       en: {
         title: 'YUJA KNIGHT I',
