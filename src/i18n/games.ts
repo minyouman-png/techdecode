@@ -145,6 +145,100 @@ export interface GameEntry {
 
 export const games: GameEntry[] = [
   {
+    slug: 'yuja-knight',
+    released: '2026-07',
+    tech: 'Canvas 2D · Web Audio · AI-generated realistic art',
+    playPath: '/games/yuja-knight/index.html',
+    cover: '/games/yuja-knight/cover.jpg',
+    copy: {
+      en: {
+        title: 'YUJA KNIGHT I',
+        tagline: 'A classic first-person dungeon crawler RPG in the spirit of retro tower-climbing classics — 5 floors of the Starlight Tower, turn-based battles, photorealistic AI art, and a story about a lonely dragon who only wanted to be remembered.',
+        about: [
+          'One night, every star in the sky goes out: the Black Dragon has sealed the starlight and the spirits of the four seasons inside the Starlight Tower. While the royal knights turn back at its gates, squire Yuja takes her father\'s first sword and walks in alone. Yuja Knight I is a loving homage to the classic first-person grid dungeon crawlers of the early 90s — you step and turn through torch-lit corridors, watch the walls slide past in perspective, and fight whatever steps out of the dark.',
+          'Each of the five floors is a seeded labyrinth with its own realistic wall textures and battle backdrops — a mossy grotto, a flooded cavern, a corridor of flames, a frozen undercastle, and the throne of stars. Explore with the auto-mapping minimap, find the golden key hidden in the depths, unlock the boss door, and free the season spirit imprisoned on every floor. Each rescued spirit teaches Yuja a new skill, from Blossom Heal to the Starlight Burst.',
+          'Combat is proper turn-based RPG fare: attack, skills, potions and a not-always-successful escape, critical hits, level-ups, and a wandering peddler grandma who sells five tiers of swords and armor. Random encounters feature twenty photorealistic monsters drawn from Korean folklore — dokkaebi soldiers, water ghosts in white hanbok, snow maidens, jangseung golems — every one of them AI-generated. Your progress auto-saves, and if you fall, a spirit light simply carries you back to the floor entrance.',
+          'Like everything on this shelf, this game was built entirely by AI in July 2026 — the dungeon renderer, the battle system, the story in five languages, the synthesized soundtrack, and all 42 pieces of realistic artwork. A playable snapshot of what AI could build at that moment.',
+        ],
+        how: [
+          '↑↓ — step forward / back · ←→ — turn · Space/Enter — confirm',
+          'Battle: ↑↓ select command · Enter confirm · ESC cancel submenu',
+          'Find the 🗝 key on each floor to open the boss door, defeat the boss, rescue the spirit',
+          'Chests hold gold and potions · healing springs restore you · the peddler sells gear',
+          '📱 Mobile — tap left/right edges to turn, center to walk, tap menus directly',
+        ],
+      },
+      ko: {
+        title: '유자의 기사 I',
+        tagline: '고전 탑 등반 던전 크롤러의 정통 계승 — 별빛 탑 5층, 턴제 전투, 실사풍 AI 아트, 그리고 기억되고 싶었던 외로운 용의 이야기.',
+        about: [
+          '어느 날 밤, 하늘의 별이 모두 꺼집니다. 흑룡이 별빛과 사계절의 정령을 «별빛 탑»에 봉인한 것. 왕국 기사단마저 탑 앞에서 물러설 때, 견습 기사 유자는 아빠의 첫 검을 들고 홀로 탑에 들어섭니다. 유자의 기사 I은 90년대 초 1인칭 그리드 던전 크롤러 명작들에 바치는 오마주입니다 — 횃불이 흔들리는 복도를 한 칸씩 걷고 돌며, 원근으로 미끄러지는 벽 사이에서 어둠 속 무언가와 마주칩니다.',
+          '다섯 개 층은 각각 고유한 실사 벽 텍스처와 전투 배경을 가진 미궁입니다 — 이끼의 석굴, 물의 동굴, 화염의 회랑, 얼음의 지하성, 그리고 별의 옥좌. 자동 기록되는 미니맵으로 탐험하고, 깊숙이 숨겨진 황금 열쇠를 찾아 보스의 문을 열고, 층마다 갇힌 계절의 정령을 구출하세요. 구출한 정령은 유자에게 «꽃빛 치유»부터 «별빛 폭발»까지 새로운 스킬을 가르쳐 줍니다.',
+          '전투는 정통 턴제 RPG입니다: 공격·스킬·아이템·(항상 성공하진 않는) 도망, 회심의 일격, 레벨업, 그리고 검과 갑옷을 5단계씩 파는 떠돌이 상인 할멈까지. 랜덤 인카운터에는 한국 설화에서 온 실사풍 몬스터 20종이 등장합니다 — 도깨비 병사, 소복의 물귀신, 설녀, 장승 골렘 — 전부 AI가 생성했습니다. 진행은 자동 저장되고, 쓰러져도 정령의 빛이 층 입구로 데려다줄 뿐입니다.',
+          '이 선반의 다른 게임처럼, 이 게임도 2026년 7월 AI가 전부 만들었습니다 — 던전 렌더러, 전투 시스템, 5개 언어의 스토리, 합성 사운드트랙, 그리고 42장의 실사 아트까지. 그 시점의 AI가 만들 수 있었던 것의 플레이 가능한 기록입니다.',
+        ],
+        how: [
+          '↑↓ — 전진·후퇴 · ←→ — 회전 · Space/Enter — 결정',
+          '전투: ↑↓ 명령 선택 · Enter 결정 · ESC 하위메뉴 취소',
+          '층마다 🗝 열쇠를 찾아 보스의 문을 열고, 보스를 물리쳐 정령을 구출하세요',
+          '보물상자엔 엽전과 물약이 · 치유의 샘은 완전 회복 · 상인 할멈은 장비 판매',
+          '📱 모바일 — 화면 좌/우 가장자리 터치로 회전, 중앙 터치로 전진, 메뉴는 직접 터치',
+        ],
+      },
+      ja: {
+        title: 'ユジャの騎士 I',
+        tagline: 'レトロな塔登りダンジョンクロウラーの正統継承 — 星明かりの塔5階層、ターン制バトル、実写風AIアート、そして「覚えていてほしかった」孤独な竜の物語。',
+        about: [
+          'ある夜、空の星がすべて消える。黒竜が星明かりと四季の精霊を«星明かりの塔»に封じたのだ。王国騎士団すら塔の前で引き返す中、見習い騎士ユジャは父の最初の剣を手に、ひとり塔へ足を踏み入れる。ユジャの騎士 Iは、90年代初頭の一人称グリッド式ダンジョンRPGの名作たちへのオマージュだ — 松明の揺れる回廊を一歩ずつ進み、曲がり、遠近法で流れる壁の間で闇の中の何かと対峙する。',
+          '5つの階層はそれぞれ固有の実写風壁テクスチャと戦闘背景を持つ迷宮 — 苔の石窟、水の洞窟、炎の回廊、氷の地下城、そして星の玉座。自動記録されるミニマップで探索し、奥深くに隠された黄金の鍵を見つけてボスの扉を開け、各階に囚われた季節の精霊を救出しよう。救った精霊は«花光の癒し»から«星光爆発»まで、新しいスキルを教えてくれる。',
+          '戦闘は正統派ターン制RPG: 攻撃・スキル・アイテム・(必ず成功するとは限らない)逃走、会心の一撃、レベルアップ、そして剣と鎧を5段階ずつ売る行商のばあさんも。ランダムエンカウントには韓国の民話から来た実写風モンスター20種が登場 — トッケビ兵、白装束の水の幽霊、雪女、チャンスンゴーレム — すべてAIが生成した。進行は自動セーブされ、倒れても精霊の光が階の入口へ運んでくれるだけだ。',
+          'この棚の他のゲームと同じく、このゲームも2026年7月にAIがすべて作った — ダンジョンレンダラー、戦闘システム、5言語のストーリー、合成サウンドトラック、そして42枚の実写風アートまで。その時点のAIに何が作れたかの、遊べる記録である。',
+        ],
+        how: [
+          '↑↓ — 前進・後退 · ←→ — 回転 · Space/Enter — 決定',
+          '戦闘: ↑↓ コマンド選択 · Enter 決定 · ESC サブメニュー取消',
+          '各階で 🗝 鍵を見つけてボスの扉を開け、ボスを倒して精霊を救出',
+          '宝箱にはゴールドと薬 · 癒しの泉で全回復 · 行商ばあさんが装備を販売',
+          '📱 モバイル — 画面の左右端タップで回転、中央タップで前進、メニューは直接タップ',
+        ],
+      },
+      es: {
+        title: 'YUJA KNIGHT I',
+        tagline: 'Un dungeon crawler clásico en primera persona al estilo de los clásicos retro de escalar torres: 5 pisos de la Torre Estelar, combates por turnos, arte fotorrealista de IA y la historia de un dragón solitario que solo quería ser recordado.',
+        about: [
+          'Una noche, todas las estrellas del cielo se apagan: el Dragón Negro ha sellado la luz estelar y a los espíritus de las cuatro estaciones dentro de la Torre Estelar. Mientras los caballeros reales retroceden ante sus puertas, la escudera Yuja toma la primera espada de su padre y entra sola. Yuja Knight I es un homenaje a los clásicos dungeon crawlers de cuadrícula en primera persona de principios de los 90: avanzas y giras por pasillos iluminados por antorchas, ves las paredes deslizarse en perspectiva y luchas contra lo que salga de la oscuridad.',
+          'Cada uno de los cinco pisos es un laberinto con sus propias texturas realistas y fondos de batalla: una gruta musgosa, una caverna inundada, un corredor de llamas, un subcastillo helado y el trono de las estrellas. Explora con el minimapa automático, encuentra la llave dorada oculta en las profundidades, abre la puerta del jefe y libera al espíritu de cada piso. Cada espíritu rescatado enseña a Yuja una nueva habilidad, desde la Sanación Floral hasta el Estallido Estelar.',
+          'El combate es RPG por turnos de pura cepa: ataque, habilidades, pociones y una huida que no siempre funciona, golpes críticos, subidas de nivel y una buhonera errante que vende cinco niveles de espadas y armaduras. En los encuentros aleatorios aparecen veinte monstruos fotorrealistas del folclore coreano — soldados dokkaebi, fantasmas del agua en hanbok blanco, doncellas de nieve, gólems jangseung — todos generados por IA. El progreso se guarda automáticamente, y si caes, una luz espiritual te devuelve a la entrada del piso.',
+          'Como todo en esta estantería, este juego fue creado enteramente por IA en julio de 2026: el renderizador del calabozo, el sistema de combate, la historia en cinco idiomas, la banda sonora sintetizada y las 42 obras de arte realistas. Una instantánea jugable de lo que la IA podía construir en ese momento.',
+        ],
+        how: [
+          '↑↓ — avanzar / retroceder · ←→ — girar · Espacio/Enter — confirmar',
+          'Combate: ↑↓ elegir comando · Enter confirmar · ESC cancelar submenú',
+          'Encuentra la 🗝 llave de cada piso para abrir la puerta del jefe y rescatar al espíritu',
+          'Los cofres guardan oro y pociones · los manantiales curan · la buhonera vende equipo',
+          '📱 Móvil — toca los bordes para girar, el centro para avanzar, y los menús directamente',
+        ],
+      },
+      zh: {
+        title: '柚子骑士 I',
+        tagline: '向经典爬塔迷宫RPG致敬的第一人称地牢探索游戏——星光之塔5层、回合制战斗、写实风AI美术，以及一条只想被人记住的孤独之龙的故事。',
+        about: [
+          '一天夜里，天上的星星全部熄灭：黑龙把星光和四季精灵封印在了星光之塔中。当王国骑士团都在塔前折返时，见习骑士柚子带着爸爸的第一把剑，独自走进了塔门。《柚子骑士 I》是对90年代初第一人称网格式地牢RPG经典的致敬——你在火把摇曳的回廊中一步步前进、转向，看着墙壁在透视中滑过，与黑暗中出现的怪物战斗。',
+          '五个楼层各是一座迷宫，拥有独特的写实墙壁纹理和战斗背景——青苔石窟、水之洞窟、烈焰回廊、寒冰地下城，以及星之王座。借助自动记录的小地图探索，找到深处隐藏的黄金钥匙，打开Boss之门，救出每层被囚禁的季节精灵。获救的精灵会教柚子新技能，从«花光治愈»到«星光爆发»。',
+          '战斗是正统回合制RPG：攻击、技能、道具、不一定成功的逃跑、会心一击、升级，还有出售五档武器防具的流浪商贩婆婆。随机遇敌中登场的是20种源自韩国民间传说的写实风怪物——独角鬼士兵、白衣水鬼、雪女、石像哥雷姆——全部由AI生成。进度自动保存，就算倒下，精灵之光也只是把你送回本层入口而已。',
+          '和这个书架上的其他游戏一样，这款游戏也是2026年7月由AI从头到尾完成的——地牢渲染器、战斗系统、五种语言的剧情、合成配乐，以及42幅写实美术。这是当时的AI能够做到什么程度的一份可玩记录。',
+        ],
+        how: [
+          '↑↓ — 前进/后退 · ←→ — 转向 · 空格/Enter — 确认',
+          '战斗: ↑↓ 选择指令 · Enter 确认 · ESC 取消子菜单',
+          '在每层找到 🗝 钥匙打开Boss之门，打倒Boss救出精灵',
+          '宝箱里有金钱和药水 · 治愈之泉完全恢复 · 商贩婆婆出售装备',
+          '📱 移动端 — 点按屏幕左右边缘转向，中央前进，菜单直接点按',
+        ],
+      },
+    },
+  },
+  {
     slug: 'ppanggeul-adventure',
     released: '2026-07',
     tech: 'Canvas 2D · Web Audio',

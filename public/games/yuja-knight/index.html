@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>유자의 기사 I · YUJA KNIGHT I</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #080603;
+    font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Hiragino Sans', serif;
+    user-select: none; -webkit-user-select: none; touch-action: none; }
+  canvas { display: block; }
+  #game { position: fixed; inset: 0; z-index: 1; touch-action: none; }
+  button { font-family: inherit; }
+
+  .screen { position: fixed; inset: 0; z-index: 10; display: none; flex-direction: column;
+    align-items: center; justify-content: center; gap: 16px;
+    background: radial-gradient(ellipse at center, rgba(20,14,7,.55), rgba(5,3,1,.88)); }
+  #menu { background-image: url('img/title.jpg'); background-size: cover; background-position: center; }
+  #menu::before { content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(5,3,1,.25), rgba(5,3,1,.78)); }
+  #menu > * { position: relative; }
+  .screen h1 { color: #ffe9c0; font-size: 56px; letter-spacing: 8px; font-weight: 900; text-align: center;
+    text-shadow: 0 2px 0 #5a3a10, 0 6px 24px rgba(0,0,0,.9); font-family: serif; }
+  .screen h1 span { display: block; font-size: 14px; letter-spacing: 12px; color: #c8a35a;
+    margin-top: 12px; text-shadow: 0 2px 8px rgba(0,0,0,.9); }
+  .bigbtn { padding: 14px 44px; font-size: 17px; font-weight: bold; cursor: pointer;
+    color: #ffe9c0; background: linear-gradient(to bottom, #4a3618, #2a1d0c); border: 2px solid #8a6a2a;
+    border-radius: 4px; letter-spacing: 2px; box-shadow: 0 4px 14px rgba(0,0,0,.6); }
+  .bigbtn:hover { background: linear-gradient(to bottom, #5e4620, #34240e); border-color: #c8a35a; }
+  .graybtn { padding: 10px 24px; font-size: 14px; font-weight: bold; cursor: pointer;
+    color: #c8b078; background: rgba(20,14,7,.8); border: 1px solid #6a532a; border-radius: 4px; }
+  .graybtn:hover { border-color: #c8a35a; color: #ffe9c0; }
+  .btnrow { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .help { color: #e8d8b8; font-size: 14px; line-height: 2.1; background: rgba(10,7,3,.85);
+    padding: 20px 34px; border-radius: 8px; max-width: 90vw; text-align: center; border: 1px solid #6a532a; }
+  .help b { color: #ffd34d; }
+  .credit { color: #b8a888; font-size: 12px; background: rgba(10,7,3,.6);
+    padding: 6px 16px; border-radius: 20px; }
+  .credit a { color: #ffd34d; text-decoration: none; }
+  #err { display: none; position: fixed; left: 10px; bottom: 10px; z-index: 99;
+    color: #fff; background: #b32; padding: 8px 12px; border-radius: 6px; font-size: 13px; }
+  @media (max-width: 560px) { .screen h1 { font-size: 34px; letter-spacing: 4px; } }
+</style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- 메인 메뉴 -->
+  <div class="screen" id="menu" style="display:flex">
+    <h1>⚔ 유자의 기사 I<span id="subT"></span></h1>
+    <div class="btnrow">
+      <button class="bigbtn" id="startBtn"></button>
+      <button class="bigbtn" id="contBtn" style="display:none"></button>
+    </div>
+    <div class="btnrow">
+      <button class="graybtn" id="helpBtn"></button>
+    </div>
+    <div class="credit" id="credit"></div>
+  </div>
+
+  <!-- 조작법 -->
+  <div class="screen" id="helpScr">
+    <div class="help" id="helpBox"></div>
+    <button class="graybtn" id="backBtn"></button>
+  </div>
+
+  <div id="err"></div>
+  <script src="yk-data.js?v=1"></script>
+  <script src="yk.js?v=1"></script>
+</body>
+</html>
