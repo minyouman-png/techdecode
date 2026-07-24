@@ -179,6 +179,7 @@ function loadGame() {
    ============================================================ */
 let DLG = null;
 function playDlg(lines, onEnd) {
+  if (!lines || !lines.length) { if (onEnd) onEnd(); return; } // 존재하지 않는 스토리 키 방어
   try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) {}
   DLG = { lines, idx: 0, t: 0, onEnd: onEnd || (() => {}), prevMode: G.mode };
   G.mode = 'dialog';
@@ -350,7 +351,7 @@ function tryMove(fwd) {
     return;
   }
   if (c === 'B') {
-    story('b' + G.f + 'pre', () => battleStart(FLOOR_BOSS[G.f - 1], true));
+    story(G.f === 5 ? 'drgpre' : 'b' + G.f + 'pre', () => battleStart(FLOOR_BOSS[G.f - 1], true));
     return;
   }
   if (c === '>') {
@@ -441,7 +442,7 @@ function closeShop() { SHOP = null; G.mode = 'dungeon'; saveGame(); }
 
 /* ===== 엔딩 ===== */
 function startEnding() {
-  story('drgpost_dummy' in L.story ? 'drgpost_dummy' : 'ending', () => {
+  story('ending', () => {
     G.mode = 'ending';
     bgmStart('ending');
     try { localStorage.setItem(SAVE_KEY + '_clear', '1'); } catch (e) {}
@@ -1315,6 +1316,35 @@ function runSim() {
     const bossLocked = bossPos && dist2[bossPos[1]][bossPos[0]] < 0; // 문 없이 보스방 도달 불가
     T(`floor ${f} maze valid`, reach && has.B === 1 && has.D === 1 && has.K === 1 && has.M >= 1 && has.E >= 1 && (has.T || 0) >= 1 && keyOk && bossLocked,
       `B=${has.B} D=${has.D} K=${has.K} M=${has.M} E=${has.E} T=${has.T} keyOk=${keyOk} locked=${bossLocked}`);
+  }
+  // 런타임에서 참조하는 모든 스토리 키가 5개 언어에 존재하는지
+  {
+    const KEYS = ['intro', 'f1', 'f2', 'f3', 'f4', 'f5', 'b1pre', 'b2pre', 'b3pre', 'b4pre', 'drgpre',
+      'b1post', 'b2post', 'b3post', 'b4post', 'f1hint', 'f2hint', 'f3hint', 'f4hint', 'sp5ev', 'ending'];
+    let missing = [];
+    for (const lg of Object.keys(I18N)) for (const k of KEYS) {
+      const st = I18N[lg].story[k];
+      if (!st || !st.length || st.some(l => !Array.isArray(l) || typeof l[1] !== 'string')) missing.push(lg + ':' + k);
+    }
+    T('all story keys exist in all languages', missing.length === 0, missing.join(','));
+  }
+  // E 이벤트 칸 (1층): 힌트 다이얼로그가 정상 재생·종료되는지
+  {
+    P = mkPlayer();
+    FLAGS.boss = [false, false, false, false, false]; FLAGS.opened = [];
+    G.f = 1; G.mode = 'dungeon'; G.steps = 0;
+    let ePos1 = null;
+    for (let y = 0; y < MZ; y++) for (let x = 0; x < MZ; x++) if (cell(x, y) === 'E') ePos1 = [x, y];
+    for (let d2 = 0; d2 < 4; d2++) {
+      const ax = ePos1[0] - DX[d2], ay = ePos1[1] - DY[d2];
+      if (cell(ax, ay) !== '#') { G.x = ax; G.y = ay; G.dir = d2; break; }
+    }
+    RNG = () => 0.99;
+    tryMove(true);
+    const dlgOk = G.mode === 'dialog' && DLG && Array.isArray(DLG.lines) && DLG.lines.length > 0;
+    while (DLG) dlgNext0();
+    T('floor1 event tile → hint dialog plays & ends', dlgOk && G.mode === 'dungeon' && cell(ePos1[0], ePos1[1]) === '.');
+    RNG = Math.random;
   }
   // 전투: 공격 데미지·처치·보상·레벨업
   P = mkPlayer();
