@@ -41,7 +41,7 @@ const I18N = {
     stageLbl: 'STAGE', gameOver: 'GAME OVER', stageClear: 'STAGE CLEAR!', timeBonus: 'Time bonus',
     worldClear: "👑 JJOJJO's tank is destroyed! Peace returns to Joseon!", worldClear2: '🌟 Eoduksini is defeated! Every stolen memory has returned!', newRecord: '🎉 New personal best!',
     finalScore: 'Score', reachedStage: 'Reached', resTitle: '🍋 Result',
-    oneUp: '1UP!', mounted: '🦄 Uni joins you!', mounted2: '👑 Fly with Mom JJOJJO!', bossWarn: '⚡ King Yeomra appears!', bossWarn2: '⚡ Queen JJOJJO appears!', bossWarn3: '⚡ JJOJJO rolls in on a tank!',
+    oneUp: '1UP!', mounted: '🦄 Uni joins you!', mounted2: '👑 Fly with Mom JJOJJO!', mounted3: '🗡️ Dad MENU joins you!', bossWarn: '⚡ King Yeomra appears!', bossWarn2: '⚡ Queen JJOJJO appears!', bossWarn3: '⚡ JJOJJO rolls in on a tank!',
     bossWarns: { 20: '⚡ A swordsman with no memory!', 25: '⚡ MENU, puppet of the shadows!', 30: '⚡ Bulgasari the iron-eater!', 35: '⚡ Imugi of the Black Lake!', 40: '⚡ The Shadow Tiger General!', 45: '⚡ Another Yuja…?!', 50: '⚡ Eoduksini, King of Shadows!!' },
     lifeLost: 'Try again!', timeUp: "Time's up!",
     contT: 'Continue?', contYes: '▶ Continue', contNo: '🏳 Give up',
@@ -91,7 +91,7 @@ const I18N = {
     stageLbl: '스테이지', gameOver: '게임 오버', stageClear: '스테이지 클리어!', timeBonus: '시간 보너스',
     worldClear: '👑 쪼쪼의 탱크를 파괴했다! 조선에 평화가!', worldClear2: '🌟 어둑시니를 물리쳤다! 세상의 모든 기억이 돌아왔다!', newRecord: '🎉 개인 최고기록 갱신!',
     finalScore: '점수', reachedStage: '도달', resTitle: '🍋 결과',
-    oneUp: '생명 +1!', mounted: '🦄 유니가 함께합니다!', mounted2: '👑 엄마 쪼쪼와 함께 날아요!', bossWarn: '⚡ 염라대왕 등장!', bossWarn2: '⚡ 쪼쪼 여왕 등장!', bossWarn3: '⚡ 탱크를 탄 쪼쪼 등장!',
+    oneUp: '생명 +1!', mounted: '🦄 유니가 함께합니다!', mounted2: '👑 엄마 쪼쪼와 함께 날아요!', mounted3: '🗡️ 아빠 미뉴가 함께합니다!', bossWarn: '⚡ 염라대왕 등장!', bossWarn2: '⚡ 쪼쪼 여왕 등장!', bossWarn3: '⚡ 탱크를 탄 쪼쪼 등장!',
     bossWarns: { 20: '⚡ 기억을 잃은 검객 등장!', 25: '⚡ 어둠에 조종당하는 미뉴!', 30: '⚡ 무쇠 먹는 불가사리 등장!', 35: '⚡ 검은 호수의 이무기 등장!', 40: '⚡ 그림자 산군 등장!', 45: '⚡ 또 하나의 유자…?!', 50: '⚡ 그림자 왕 어둑시니!!' },
     lifeLost: '다시 도전!', timeUp: '시간 초과!',
     contT: '이어서 할까요?', contYes: '▶ 이어하기', contNo: '🏳 그만두기',
@@ -141,7 +141,7 @@ const I18N = {
     stageLbl: 'ステージ', gameOver: 'ゲームオーバー', stageClear: 'ステージクリア！', timeBonus: 'タイムボーナス',
     worldClear: '👑 チョチョの戦車を破壊した！朝鮮に平和が！', worldClear2: '🌟 オドゥクシニを倒した！世界中の記憶が戻ってきた！', newRecord: '🎉 自己ベスト更新！',
     finalScore: 'スコア', reachedStage: '到達', resTitle: '🍋 リザルト',
-    oneUp: '残機 +1！', mounted: '🦄 ユニが仲間に！', mounted2: '👑 ママのチョチョと一緒に飛ぼう！', bossWarn: '⚡ 閻魔大王あらわる！', bossWarn2: '⚡ チョチョ女王あらわる！', bossWarn3: '⚡ 戦車に乗ったチョチョ登場！',
+    oneUp: '残機 +1！', mounted: '🦄 ユニが仲間に！', mounted2: '👑 ママのチョチョと一緒に飛ぼう！', mounted3: '🗡️ パパのミニュが仲間に！', bossWarn: '⚡ 閻魔大王あらわる！', bossWarn2: '⚡ チョチョ女王あらわる！', bossWarn3: '⚡ 戦車に乗ったチョチョ登場！',
     bossWarns: { 20: '⚡ 記憶を失った剣士が現れた！', 25: '⚡ 闇に操られるミニュ！', 30: '⚡ 鉄を食うプルガサリ出現！', 35: '⚡ 黒い湖のイムギ出現！', 40: '⚡ 影の山君あらわる！', 45: '⚡ もう一人のユジャ…？！', 50: '⚡ 影の王オドゥクシニ！！' },
     lifeLost: 'もう一度！', timeUp: 'タイムアップ！',
     contT: 'つづけますか？', contYes: '▶ つづける', contNo: '🏳 やめる',
@@ -191,7 +191,7 @@ const I18N = {
     stageLbl: 'FASE', gameOver: 'FIN DEL JUEGO', stageClear: '¡FASE SUPERADA!', timeBonus: 'Bono de tiempo',
     worldClear: '👑 ¡El tanque de JJOJJO ha caído! ¡La paz vuelve a Joseon!', worldClear2: '🌟 ¡Eoduksini ha sido derrotado! ¡Todos los recuerdos han vuelto!', newRecord: '🎉 ¡Nueva mejor marca!',
     finalScore: 'Puntuación', reachedStage: 'Alcanzado', resTitle: '🍋 Resultado',
-    oneUp: '¡Vida extra!', mounted: '🦄 ¡Uni se une a ti!', mounted2: '👑 ¡Vuela con mamá JJOJJO!', bossWarn: '⚡ ¡Aparece el Rey Yeomra!', bossWarn2: '⚡ ¡Aparece la Reina JJOJJO!', bossWarn3: '⚡ ¡JJOJJO llega en un tanque!',
+    oneUp: '¡Vida extra!', mounted: '🦄 ¡Uni se une a ti!', mounted2: '👑 ¡Vuela con mamá JJOJJO!', mounted3: '🗡️ ¡Papá MENU se une a ti!', bossWarn: '⚡ ¡Aparece el Rey Yeomra!', bossWarn2: '⚡ ¡Aparece la Reina JJOJJO!', bossWarn3: '⚡ ¡JJOJJO llega en un tanque!',
     bossWarns: { 20: '⚡ ¡Un espadachín sin recuerdos!', 25: '⚡ ¡MENU, títere de las sombras!', 30: '⚡ ¡Bulgasari, el comehierro!', 35: '⚡ ¡Imugi del Lago Negro!', 40: '⚡ ¡El Tigre de las Sombras!', 45: '⚡ ¿Otra Yuja…?', 50: '⚡ ¡¡Eoduksini, Rey de las Sombras!!' },
     lifeLost: '¡Inténtalo de nuevo!', timeUp: '¡Se acabó el tiempo!',
     contT: '¿Continuar?', contYes: '▶ Continuar', contNo: '🏳 Rendirse',
@@ -241,7 +241,7 @@ const I18N = {
     stageLbl: '关卡', gameOver: '游戏结束', stageClear: '过关！', timeBonus: '时间奖励',
     worldClear: '👑 摧毁了啾啾的坦克！朝鲜恢复了和平！', worldClear2: '🌟 打败了黑暗王！世界上所有的记忆都回来了！', newRecord: '🎉 刷新个人最佳！',
     finalScore: '分数', reachedStage: '到达', resTitle: '🍋 结算',
-    oneUp: '生命 +1！', mounted: '🦄 Uni加入了！', mounted2: '👑 和妈妈啾啾一起飞翔！', bossWarn: '⚡ 阎罗大王出现！', bossWarn2: '⚡ 啾啾女王出现！', bossWarn3: '⚡ 啾啾驾驶坦克登场！',
+    oneUp: '生命 +1！', mounted: '🦄 Uni加入了！', mounted2: '👑 和妈妈啾啾一起飞翔！', mounted3: '🗡️ 爸爸米纽加入了！', bossWarn: '⚡ 阎罗大王出现！', bossWarn2: '⚡ 啾啾女王出现！', bossWarn3: '⚡ 啾啾驾驶坦克登场！',
     bossWarns: { 20: '⚡ 失去记忆的剑客出现！', 25: '⚡ 被黑暗操控的米纽！', 30: '⚡ 吃铁的不可杀离登场！', 35: '⚡ 黑湖的螭龙登场！', 40: '⚡ 暗影山君登场！', 45: '⚡ 另一个柚子…？！', 50: '⚡ 暗影之王登场！！' },
     lifeLost: '再试一次！', timeUp: '时间到！',
     contT: '要继续吗？', contYes: '▶ 继续', contNo: '🏳 放弃',
@@ -288,6 +288,9 @@ const HD_FACE = {
   ghost: -1, reaper: -1, dok: -1, egg: -1, fox: -1,
   boss: -1, jjo: -1, jjotank: -1,
   minyu: -1, minyudark: -1, jjor: -1, bulga: -1, imugi: -1, sangun: -1, ujadark: -1, eoduk: -1,
+  minyurun: -1, jjorun: -1, archer: -1, crow: -1, firedok: -1, jangseung: -1,
+  uja0run: 1, uja1run: 1, uja2run: 1, uja3run: 1,
+  uja0jump: 1, uja1jump: 1, uja2jump: 1, uja3jump: 1,
 };
 function loadHD() {
   if (typeof Image === 'undefined' || qs.get('hd') === '0') return;
@@ -1541,7 +1544,43 @@ function buildSprites() {
   SPR.tile = {
     1: SPR.ground.grass, 2: mk(32, 32, drawTileBrick), 3: mk(32, 32, drawTileQ),
     4: mk(32, 32, drawTileUsed), 5: mk(32, 32, drawTileStone), 6: mk(32, 32, drawTilePlat),
+    7: mk(32, 32, drawTileThorn), 8: mk(32, 32, drawTileGate),
   };
+}
+/* 가시덤불 (밟으면 아야!) */
+function drawTileThorn(x, w, h) {
+  x.strokeStyle = '#4a2a52'; x.lineWidth = 2;
+  for (const [bx, hh] of [[5, 14], [11, 20], [17, 12], [23, 18], [28, 13]]) {
+    x.beginPath(); x.moveTo(bx, h); x.quadraticCurveTo(bx + 2, h - hh * 0.6, bx, h - hh); x.stroke();
+    x.beginPath(); x.moveTo(bx, h - hh * 0.5); x.lineTo(bx + 4, h - hh * 0.5 - 4); x.stroke();
+    x.beginPath(); x.moveTo(bx, h - hh * 0.7); x.lineTo(bx - 4, h - hh * 0.7 - 3); x.stroke();
+  }
+  x.fillStyle = '#7a3a8e';
+  for (const [px2, py2] of [[7, 20], [14, 12], [21, 22], [26, 16]]) {
+    x.beginPath();
+    for (let v = 0; v < 5; v++) {
+      const a = v * 1.2566 - 1.57;
+      x.lineTo(px2 + Math.cos(a) * 3.4, py2 + Math.sin(a) * 3.4);
+      x.lineTo(px2 + Math.cos(a + 0.628) * 1.5, py2 + Math.sin(a + 0.628) * 1.5);
+    }
+    x.closePath(); x.fill();
+  }
+}
+/* 황금 자물쇠 문 (열쇠 필요) */
+function drawTileGate(x, w, h) {
+  const g = x.createLinearGradient(0, 0, w, 0);
+  g.addColorStop(0, '#a87818'); g.addColorStop(0.5, '#ffd34d'); g.addColorStop(1, '#a87818');
+  x.fillStyle = g;
+  x.fillRect(6, 0, 6, h); x.fillRect(20, 0, 6, h);
+  x.fillStyle = '#c89020';
+  x.fillRect(0, 4, w, 5); x.fillRect(0, 23, w, 5);
+  x.fillStyle = '#8a5a10';
+  x.fillRect(6, 4, 6, 1.5); x.fillRect(20, 4, 6, 1.5);
+  x.fillStyle = '#5e430e';
+  x.beginPath(); x.arc(16, 16, 4.5, 0, 6.283); x.fill();
+  x.fillStyle = '#ffe9a0';
+  x.beginPath(); x.arc(16, 15, 2, 0, 6.283); x.fill();
+  x.fillRect(15, 15, 2, 5);
 }
 
 /* ============================================================
@@ -1604,7 +1643,7 @@ const THEMES = [
 let LV = null; // {t:Uint8Array, W, ents:[], goalX, theme, qc:Map, deco:[], bossArena}
 function ti(x, y) { return (x < 0 || x >= LV.W) ? 5 : (y < 0 ? 0 : y >= ROWS ? 0 : LV.t[y * LV.W + x]); }
 function setT(t, W, x, y, v) { if (x >= 0 && x < W && y >= 0 && y < ROWS) t[y * W + x] = v; }
-const SOLID = [false, true, true, true, true, true, false]; // 6=플랫폼(반통과)
+const SOLID = [false, true, true, true, true, true, false, false, true]; // 6=플랫폼(반통과) 7=가시(통과·피해) 8=자물쇠문(열쇠로 개방)
 
 const MAX_STAGE = 50;
 const BOSS_AT = { 5: 'boss', 10: 'jjojjo', 15: 'jjotank', 20: 'm20', 25: 'm25', 30: 'b30', 35: 'b35', 40: 'b40', 45: 'b45', 50: 'b50' };
@@ -1618,7 +1657,12 @@ function genLevel(stage) {
   const ents = [];
   const qc = new Map();
   const deco = [];
+  // 몬스터 해금 밴드: 16+ 그림자 궁수(원거리) · 21+ 요괴 까마귀(급강하) · 26+ 불도깨비(불덩이 투척) · 36+ 돌장승(밟기 무효)
   const POOL = ['ghost', 'reaper', 'dok', 'egg', 'fox'];
+  if (stage >= 16) POOL.push('archer');
+  if (stage >= 21) POOL.push('crow');
+  if (stage >= 26) POOL.push('firedok');
+  if (stage >= 36) POOL.push('jangseung');
   const mix = stage <= 15 ? [
     ['ghost'],
     ['ghost', 'egg', 'ghost'],
@@ -1636,10 +1680,15 @@ function genLevel(stage) {
     ['dok', 'fox', 'reaper', 'egg', 'fox'],
     ['fox', 'reaper', 'dok', 'fox', 'reaper'],
   ][stage - 1]
-    : Array.from({ length: 4 + (stage >= 30 ? 1 : 0) }, () => POOL[(rng() * POOL.length) | 0]);
+    : (() => {
+      const m = Array.from({ length: 4 + (stage >= 30 ? 1 : 0) }, () => POOL[(rng() * POOL.length) | 0]);
+      const newest = stage >= 36 ? 'jangseung' : stage >= 26 ? 'firedok' : stage >= 21 ? 'crow' : 'archer';
+      if (!m.includes(newest)) m[0] = newest; // 새 밴드 몬스터는 반드시 등장
+      return m;
+    })();
   const flowery = [1, 2, 6, 8, 9, 11, 16, 26, 36, 37, 41].includes(stage); // 아기자기 꽃/풀 장식 테마
   const gapMax = stage <= 1 ? 3 : 4;
-  const eDen = Math.min(0.46, 0.16 + Math.min(stage, 7) * 0.035 + (stage > 15 ? (stage - 15) * 0.0022 : 0));
+  const eDen = Math.min(0.5, 0.16 + Math.min(stage, 7) * 0.035 + (stage > 15 ? (stage - 15) * 0.0035 : 0));
   let x = 0, gh = 2; // gh = 지면 높이(타일 수)
   let firstQ = true, uniPlaced = false, powerCnt = 0;
   const uniAt = Math.floor(W * 0.35);
@@ -1658,8 +1707,13 @@ function genLevel(stage) {
       // 적 (시작 안전지대 이후에만)
       if (rng() < eDen && n >= 4 && gx >= SAFE_START) {
         let et = mix[(rng() * mix.length) | 0];
-        if (et === 'fox' && gx < SAFE_START + 8) et = 'ghost'; // 구미호는 돌진이 빨라 안전거리 추가
+        if ((et === 'fox' || et === 'archer') && gx < SAFE_START + 8) et = 'ghost'; // 구미호·궁수는 안전거리 추가
         ents.push({ type: et, tx: gx, ty: top });
+        continue;
+      }
+      // 가시덤불 (21탄~): 밟으면 아야 — 점프 컨트롤 요구
+      if (stage >= 21 && rng() < 0.045 && gx > SAFE_START + 4 && n >= 5) {
+        setT(t, W, gx, top, 7);
         continue;
       }
       // 엽전 아치
@@ -1698,6 +1752,12 @@ function genLevel(stage) {
   const gap = (n) => {
     // 절벽 위 엽전 (점프 유도)
     for (let k = 0; k < n; k++) ents.push({ type: 'coin', tx: x + k, ty: ROWS - gh - 4 });
+    // 2부: 절벽 위 발판 — 16+ 움직이는 발판, 31+ 무너지는 발판 (건너기 도우미 + 퍼즐 재미)
+    if (stage >= 16 && n >= 3 && rng() < 0.6) {
+      const py = (ROWS - gh - 3) * TILE + 8;
+      if (stage >= 31 && rng() < 0.5) ents.push({ type: 'fplat', tx: x + (n >> 1), py });
+      else ents.push({ type: 'mplat', tx: x + (n >> 1), py, vert: rng() < 0.5, range: 46 + rng() * 40 });
+    }
     x += n;
   };
   const plats = () => { // 떠 있는 마루 (보너스)
@@ -1723,7 +1783,7 @@ function genLevel(stage) {
     } else plats();
   }
   gh = 2;
-  let goalX, bossArena = null;
+  let goalX, bossArena = null, gateX = 0;
   if (bossStage) { // 보스 아레나 (5탄마다)
     ground(x, W, gh);
     const ax = x + 4;
@@ -1735,18 +1795,43 @@ function genLevel(stage) {
     ground(x, W, gh);
     goalX = (W - 6) * TILE;
     deco.push({ x: W - 4, y: ROWS - gh - 2, k: 'lantern' });
+    // 열쇠-자물쇠 퍼즐 (17탄~, 3스테이지마다): 골 앞 황금문 + 중반부 높은 발판 위 열쇠
+    if (stage >= 17 && stage % 3 === 2) {
+      gateX = W - 10;
+      for (let r = 0; r < ROWS - gh; r++) setT(t, W, gateX, r, 8); // 하늘까지 잠긴 문 (탑승 점프로도 못 넘음)
+      let kx = Math.floor(W * 0.55);
+      const surfY = (col) => {
+        if (!SOLID[t[(ROWS - 1) * W + col]]) return -1;
+        let sy = ROWS - 1;
+        while (sy > 0 && SOLID[t[(sy - 1) * W + col]]) sy--;
+        return sy;
+      };
+      while (kx < W - 20 && surfY(kx) < 0) kx++; // 절벽 위 회피
+      const sy = surfY(kx);
+      if (sy > 5) {
+        setT(t, W, kx - 1, sy - 4, 6); setT(t, W, kx, sy - 4, 6); setT(t, W, kx + 1, sy - 4, 6); // 열쇠 발판
+        ents.push({ type: 'key', tx: kx, ty: sy - 6 });
+      } else {
+        ents.push({ type: 'key', tx: kx, ty: Math.max(1, sy - 3) });
+      }
+    }
   }
   // 유니콘 미배치 시 시작 지점 근처에
   if (!uniPlaced) ents.push({ type: 'uni', tx: 12, ty: ROWS - 3 });
-  // 2부(16탄~): 엄마 쪼쪼 여왕도 탑승 가능 — 시작 지점에서 선택
+  // 2부(16탄~): 엄마 쪼쪼 여왕 탑승 가능 · 26탄~ 아빠 미뉴도 대기 (동행 선택)
   if (stage >= 16) ents.push({ type: 'jjor', tx: 6, ty: ROWS - 3 });
+  if (stage >= 26) ents.push({ type: 'minyur', tx: 9, ty: ROWS - 3 });
   // 파워업 블록 보장 (시드 운으로 없을 때)
   if (![...qc.values()].some(c => c === 'fruit' || c === 'pepper' || c === 'tiger')) {
     const first = qc.keys().next();
     if (!first.done) qc.set(first.value, stage < 3 ? 'fruit' : 'pepper');
     else { const by = ROWS - 6, bx2 = 6; setT(t, W, bx2, by, 3); qc.set(by * W + bx2, stage < 3 ? 'fruit' : 'pepper'); }
   }
-  return { t, W, ents, qc, deco, goalX, theme: THEMES[stage - 1], stage, bossArena };
+  return {
+    t, W, ents, qc, deco, goalX, theme: THEMES[stage - 1], stage, bossArena, gateX,
+    spdMul: 1 + Math.max(0, stage - 15) * 0.012, // 2부 난이도: 적 이속 최대 +42%
+    ice: stage >= 36 && THEMES[stage - 1].ground === 'snow' ? 1 : 0, // 후반 설원 = 빙판
+  };
 }
 
 /* ============================================================
@@ -1781,7 +1866,7 @@ function mkPlayer(px, py) {
   return {
     x: px, y: py, w: 20, h: 30, vx: 0, vy: 0, dir: 1,
     onG: false, coyote: 0, pw: 0, inv: 0, star: 0, riding: false, airJump: false,
-    animT: 0, dead: false, deadT: 0, prevB: py + 30, atkT: 0, gliding: false, flag: null,
+    animT: 0, dead: false, deadT: 0, prevB: py + 30, atkT: 0, gliding: false, flag: null, hasKey: false,
   };
 }
 function spawnEnts() {
@@ -1796,6 +1881,14 @@ function spawnEnts() {
     else if (s.type === 'fox') ents.push({ type: 'fox', x: px, y: py - 28, w: 30, h: 26, vx: -110, vy: 0, dir: -1 });
     else if (s.type === 'uni') ents.push({ type: 'uni', x: px, y: py - 32, w: 30, h: 30, vx: 0, vy: 0, dir: -1, bob: 0 });
     else if (s.type === 'jjor') ents.push({ type: 'jjor', x: px, y: py - 34, w: 32, h: 32, vx: 0, vy: 0, dir: -1, bob: 0 });
+    else if (s.type === 'minyur') ents.push({ type: 'minyur', x: px, y: py - 38, w: 28, h: 38, vx: 0, vy: 0, dir: -1, bob: 0 });
+    else if (s.type === 'archer') ents.push({ type: 'archer', x: px, y: py - 30, w: 22, h: 30, vx: -20, vy: 0, dir: -1, shootT: 1.5 + Math.random(), aimT: 0 });
+    else if (s.type === 'crow') ents.push({ type: 'crow', x: px, y: py - 105, w: 26, h: 22, base: py - 105, t: Math.random() * 6, dir: -1, diveT: 2 + Math.random() * 2, dive: 0, dvx: 0, dvy: 0 });
+    else if (s.type === 'firedok') ents.push({ type: 'firedok', x: px, y: py - 28, w: 24, h: 28, vx: 0, vy: 0, dir: -1, shootT: 2 + Math.random() });
+    else if (s.type === 'jangseung') ents.push({ type: 'jangseung', x: px, y: py - 38, w: 24, h: 38, vx: -16, vy: 0, dir: -1 });
+    else if (s.type === 'key') ents.push({ type: 'key', x: s.tx * TILE + 6, y: s.ty * TILE + 4, w: 20, h: 24, t: 0 });
+    else if (s.type === 'mplat') ents.push({ type: 'mplat', x: s.tx * TILE - 20, y: s.py, w: 72, h: 13, ox: s.tx * TILE - 20, oy: s.py, vert: s.vert, range: s.range, t: Math.random() * 6, dx: 0, dy: 0 });
+    else if (s.type === 'fplat') ents.push({ type: 'fplat', x: s.tx * TILE - 20, y: s.py, w: 72, h: 13, oy: s.py, state: 0, t: 0, vy: 0 });
     else if (BOSS_TYPES.has(s.type)) {
       const d = BOSS_DEF[s.type];
       ents.push({
@@ -1878,7 +1971,7 @@ function damagePlayer() {
   const p = player;
   if (p.inv > 0 || p.star > 0 || p.dead || p.flag) return;
   if (p.riding) {
-    ents.push({ type: 'uniFlee', name: p.riding === 'jjo' ? 'jjor' : 'uni', x: p.x - 6, y: p.y, w: 30, h: 30, vx: p.dir * -240, vy: -220, dir: -p.dir, t: 0 });
+    ents.push({ type: 'uniFlee', name: p.riding === 'jjo' ? 'jjor' : p.riding === 'minyu' ? 'minyu' : 'uni', x: p.x - 6, y: p.y, w: 30, h: 30, vx: p.dir * -240, vy: -220, dir: -p.dir, t: 0 });
     p.riding = false; p.airJump = false;
     p.inv = 1.6; sfx.hurt();
     return;
@@ -1920,8 +2013,8 @@ function updatePlayer(dt) {
   // 이동
   const spd = (keys.run ? RUN : WALK) * (p.riding ? 1.12 : 1);
   const target = (keys.r ? 1 : 0) - (keys.l ? 1 : 0);
-  if (target !== 0) { p.dir = target; p.vx += target * 1500 * dt; }
-  else p.vx *= Math.pow(0.0008, dt);
+  if (target !== 0) { p.dir = target; p.vx += target * (LV.ice ? 950 : 1500) * dt; }
+  else p.vx *= Math.pow(LV.ice ? 0.06 : 0.0008, dt); // 빙판(36+ 설원)은 쭈욱 미끄러짐
   p.vx = Math.max(-spd, Math.min(spd, p.vx));
   // 점프 (버퍼+코요테)
   if (keys.j && !jumpWasDown) jumpBuf = 0.11;
@@ -1942,7 +2035,13 @@ function updatePlayer(dt) {
   // 불꽃 발사 (고추 폼, 달리기 버튼 탭 = 마리오 방식) · 쪼쪼 탑승 중엔 황금 탄환
   p.atkT = Math.max(0, p.atkT - dt);
   if (keys.run && !runWasDown) {
-    if (p.riding === 'jjo') {
+    if (p.riding === 'minyu') { // 아빠의 검격!
+      if (!ents.some(e => e.type === 'slash' && !e.dead)) {
+        ents.push({ type: 'slash', x: p.x + (p.dir > 0 ? p.w + 1 : -31), y: p.y - 4, w: 30, h: 36, t: 0, dir: p.dir });
+        p.atkT = 0.25;
+        sfx.kick();
+      }
+    } else if (p.riding === 'jjo') {
       if (ents.filter(e => e.type === 'gblt' && !e.dead).length < 2) {
         ents.push({ type: 'gblt', x: p.x + (p.dir > 0 ? p.w + 2 : -18), y: p.y + 6, w: 16, h: 9, vx: p.dir * 430, vy: 0, t: 0, dir: p.dir });
         p.atkT = 0.28;
@@ -1987,6 +2086,28 @@ function updatePlayer(dt) {
     }
   }
   if (target !== 0 && p.onG) p.animT += dt * Math.abs(p.vx) / 26;
+  // 가시덤불 피해 (발밑·몸 접촉)
+  if (p.inv <= 0 && !p.dead) {
+    const thy = Math.floor((p.y + p.h - 6) / TILE);
+    for (let tx2 = Math.floor((p.x + 4) / TILE); tx2 <= Math.floor((p.x + p.w - 4) / TILE); tx2++) {
+      if (ti(tx2, thy) === 7) { damagePlayer(); break; }
+    }
+  }
+  // 열쇠로 황금문 열기
+  if (LV.gateX && p.hasKey && Math.abs(p.x + p.w / 2 - (LV.gateX + 0.5) * TILE) < 84) {
+    for (let r = 0; r < ROWS; r++) {
+      if (LV.t[r * LV.W + LV.gateX] === 8) {
+        LV.t[r * LV.W + LV.gateX] = 0;
+        if (r % 3 === 0) poof(LV.gateX * TILE + 16, r * TILE + 16, '#ffd34d');
+      }
+    }
+    p.hasKey = false;
+    LV.gateX = 0;
+    popup(p.x + p.w / 2, p.y - 26, '🔓', '#ffd34d');
+    addScore(500, p.x + p.w / 2, p.y - 10);
+    sfx.clear();
+    updateHUD();
+  }
   // 낙사
   if (p.y > VH + 80) { p.inv = 0; p.star = 0; p.pw = 0; p.riding = false; p.dead = true; p.deadT = 1.0; sfx.die(); bgmStop(); }
   // 골인: 깃대 잡기 (마리오식 — 높이 비례 점수)
@@ -2067,6 +2188,20 @@ function giveUp() {
   finishGame(false);
 }
 
+/* ===== 발판 탑승 (움직이는/무너지는 발판 공용) ===== */
+function platCarry(e, p) {
+  if (!p || p.dead || p.flag) return false;
+  const pb = p.y + p.h;
+  if (p.vy >= 0 && pb >= e.y - 2 && p.prevB <= e.y + 8 && p.x + p.w > e.x + 4 && p.x < e.x + e.w - 4) {
+    p.y = e.y - p.h - 0.01;
+    p.vy = 0; p.onG = true; p.coyote = 0.09;
+    p.x += e.dx || 0;
+    if ((e.dy || 0) > 0) p.y += e.dy;
+    return true;
+  }
+  return false;
+}
+
 /* ===== 엔티티 ===== */
 function updateEnts(dt) {
   const p = player;
@@ -2074,7 +2209,7 @@ function updateEnts(dt) {
     if (e.dead) continue;
     switch (e.type) {
       case 'ghost': case 'reaper': {
-        e.vx = e.dir * (e.type === 'ghost' ? 40 : 55);
+        e.vx = e.dir * (e.type === 'ghost' ? 40 : 55) * (LV.spdMul || 1);
         e.hitWall = 0;
         tileCollide(e, dt);
         if (e.hitWall || (e.onG && !groundAhead(e))) e.dir *= -1;
@@ -2082,7 +2217,7 @@ function updateEnts(dt) {
         break;
       }
       case 'fox': {
-        e.vx = e.dir * 110;
+        e.vx = e.dir * 110 * (LV.spdMul || 1);
         e.hitWall = 0;
         tileCollide(e, dt);
         if (e.hitWall || (e.onG && !groundAhead(e))) e.dir *= -1;
@@ -2091,10 +2226,142 @@ function updateEnts(dt) {
       }
       case 'dok': {
         e.hopT -= dt;
-        if (e.onG) { e.vx = 0; if (e.hopT <= 0) { e.hopT = 1.3; e.vy = -430; e.dir = p.x > e.x ? 1 : -1; e.vx = e.dir * 95; } }
+        if (e.onG) { e.vx = 0; if (e.hopT <= 0) { e.hopT = 1.3; e.vy = -430; e.dir = p.x > e.x ? 1 : -1; e.vx = e.dir * 95 * (LV.spdMul || 1); } }
         e.hitWall = 0;
         tileCollide(e, dt);
         e.animT = e.onG ? 0 : 1;
+        break;
+      }
+      case 'archer': { // 그림자 궁수 (원거리) — 천천히 순찰, 사거리 안이면 화살
+        e.aimT = Math.max(0, (e.aimT || 0) - dt);
+        e.vx = e.dir * 20 * (LV.spdMul || 1);
+        e.hitWall = 0;
+        tileCollide(e, dt);
+        if (e.hitWall || (e.onG && !groundAhead(e))) e.dir *= -1;
+        e.shootT -= dt;
+        const adx = p.x - e.x;
+        if (e.shootT <= 0 && Math.abs(adx) < 300 && Math.abs(p.y - e.y) < 90 && !p.dead) {
+          e.shootT = Math.max(1.4, 2.3 - (LV.stage - 16) * 0.02);
+          e.dir = adx > 0 ? 1 : -1;
+          ents.push({ type: 'arrow', x: e.x + (e.dir > 0 ? e.w : -16), y: e.y + 12, w: 16, h: 6, vx: e.dir * (230 + ((LV.spdMul || 1) - 1) * 120), t: 0, dir: e.dir });
+          e.aimT = 0.22;
+          sfx.throwP();
+        }
+        e.animT = (e.animT || 0) + dt;
+        break;
+      }
+      case 'arrow': { // 궁수의 화살 (직선)
+        e.t += dt;
+        e.x += e.vx * dt;
+        const rtx = Math.floor((e.x + e.w / 2) / TILE), rty = Math.floor((e.y + e.h / 2) / TILE);
+        if (SOLID[ti(rtx, rty)] || e.t > 2.2) { e.dead = true; if (e.t <= 2.2) poof(e.x + 8, e.y + 3, '#c8b8a0'); }
+        break;
+      }
+      case 'crow': { // 요괴 까마귀 — 상공 활공, 플레이어 급강하
+        e.t += dt;
+        if (e.dive > 0) {
+          e.dive -= dt;
+          e.x += e.dvx * dt; e.y += e.dvy * dt;
+          if (e.dive <= 0 || e.y > VH - 70) e.dive = 0;
+        } else {
+          e.dir = p.x > e.x ? 1 : -1;
+          e.x += e.dir * 30 * dt;
+          e.y += (e.base + Math.sin(e.t * 2.4) * 16 - e.y) * Math.min(1, dt * 2.5);
+          e.diveT -= dt;
+          if (e.diveT <= 0 && Math.abs(p.x - e.x) < 210 && p.y > e.y + 30 && !p.dead) {
+            e.diveT = 2.4 + Math.random();
+            const cdx = p.x - e.x, cdy = p.y - e.y, cd = Math.max(40, Math.hypot(cdx, cdy));
+            const csp = 215 * (LV.spdMul || 1);
+            e.dvx = cdx / cd * csp; e.dvy = cdy / cd * csp; e.dive = 0.75;
+            sfx.kick();
+          }
+        }
+        e.animT = (e.animT || 0) + dt * 3;
+        break;
+      }
+      case 'firedok': { // 불도깨비 — 제자리 콩콩 + 포물선 불덩이
+        e.hitWall = 0;
+        tileCollide(e, dt);
+        if (e.onG && Math.random() < dt * 0.9) e.vy = -170;
+        e.dir = p.x > e.x ? 1 : -1;
+        e.shootT -= dt;
+        if (e.shootT <= 0 && Math.abs(p.x - e.x) < 380 && !p.dead) {
+          e.shootT = Math.max(1.6, 2.6 - (LV.stage - 26) * 0.025);
+          const fdx = p.x - e.x;
+          ents.push({ type: 'embr', x: e.x + e.w / 2, y: e.y + 4, w: 12, h: 12, vx: Math.sign(fdx) * Math.min(210, 60 + Math.abs(fdx) * 0.42), vy: -310, t: 0 });
+          sfx.throwP();
+        }
+        e.animT = (e.animT || 0) + dt * 2;
+        break;
+      }
+      case 'embr': { // 불도깨비 불덩이 (포물선)
+        e.t += dt;
+        e.grav = GRAV * 0.5;
+        e.hitWall = 0;
+        tileCollide(e, dt);
+        if (e.onG || e.hitWall || e.t > 3 || e.y > VH + 40) { e.dead = true; poof(e.x + 6, e.y + 6, '#6ac8ff'); }
+        break;
+      }
+      case 'jangseung': { // 돌장승 — 밟기 무효! 불꽃·황금탄·검으로만 처치
+        e.vx = e.dir * 16 * (LV.spdMul || 1);
+        e.hitWall = 0;
+        tileCollide(e, dt);
+        if (e.hitWall || (e.onG && !groundAhead(e))) e.dir *= -1;
+        e.animT = (e.animT || 0) + dt * 0.7;
+        break;
+      }
+      case 'key': { // 퍼즐 열쇠
+        e.t += dt;
+        if (Math.random() < 0.06) sparkle(e.x + 10, e.y + 10, '#ffd34d');
+        if (!p.dead && overlap(e, p)) {
+          e.dead = true;
+          p.hasKey = true;
+          popup(e.x, e.y - 12, '🔑', '#ffd34d');
+          sparkle(e.x + 10, e.y + 10, '#ffd34d');
+          sfx.power();
+          updateHUD();
+        }
+        break;
+      }
+      case 'mplat': { // 움직이는 발판 (사인 왕복) — 플레이어 태우고 이동
+        e.t += dt;
+        const ph2 = Math.sin(e.t * 1.4) * e.range;
+        const nx = e.vert ? e.ox : e.ox + ph2;
+        const ny = e.vert ? e.oy + ph2 : e.oy;
+        e.dx = nx - e.x; e.dy = ny - e.y;
+        e.x = nx; e.y = ny;
+        platCarry(e, p);
+        break;
+      }
+      case 'fplat': { // 무너지는 발판 — 밟으면 0.5초 후 낙하, 3초 뒤 재생
+        if (e.state === 2) {
+          e.vy += GRAV * 0.6 * dt;
+          e.y += e.vy * dt;
+          if (e.y > VH + 60) { e.state = 3; e.t = 0; }
+        } else if (e.state === 3) {
+          e.t += dt;
+          if (e.t > 2.5) { e.state = 0; e.t = 0; e.vy = 0; e.y = e.oy; sparkle(e.x + 36, e.y + 6, '#c8b078'); }
+        } else {
+          if (e.state === 1) {
+            e.t += dt;
+            if (e.t > 0.5) { e.state = 2; e.vy = 40; sfx.brk(); }
+          }
+          e.dx = 0; e.dy = 0;
+          if (platCarry(e, p) && e.state === 0) { e.state = 1; e.t = 0; sfx.bump(); }
+        }
+        break;
+      }
+      case 'slash': { // 미뉴의 검격 — 플레이어 앞 히트박스 (투사체도 쳐냄)
+        e.t += dt;
+        e.x = p.x + (p.dir > 0 ? p.w + 1 : -e.w - 1);
+        e.y = p.y - 4;
+        if (e.t > 0.22) { e.dead = true; break; }
+        for (const o of ents) {
+          if (o.dead || o === e) continue;
+          if (['ghost', 'reaper', 'dok', 'egg', 'fox', 'hat', 'archer', 'crow', 'firedok', 'jangseung'].includes(o.type) && overlap(e, o)) killEnemy(o, 200, true);
+          else if (BOSS_TYPES.has(o.type) && o.inv <= 0 && overlap(e, o)) bossHurt(o);
+          else if (['arrow', 'embr', 'sorb', 'tal', 'blt'].includes(o.type) && overlap(e, o)) { o.dead = true; sparkle(o.x + 5, o.y + 5, '#9ac8ff'); sfx.kick(); }
+        }
         break;
       }
       case 'egg': {
@@ -2111,19 +2378,21 @@ function updateEnts(dt) {
         e.t += dt;
         if (e.t > 8 || e.y > VH + 60) e.dead = true;
         for (const o of ents) {
-          if (o === e || o.dead || !['ghost', 'reaper', 'dok', 'egg', 'fox'].includes(o.type)) continue;
+          if (o === e || o.dead || !['ghost', 'reaper', 'dok', 'egg', 'fox', 'archer', 'crow', 'firedok', 'jangseung'].includes(o.type)) continue;
           if (overlap(e, o)) killEnemy(o, 100, true);
         }
         break;
       }
-      case 'uni': case 'jjor': {
+      case 'uni': case 'jjor': case 'minyur': {
         e.bob += dt;
         tileCollide(e, dt);
         if (!p.riding && !p.dead && overlap(e, p)) {
           e.dead = true;
-          p.riding = e.type === 'jjor' ? 'jjo' : 'uni'; p.airJump = false;
-          popup(p.x, p.y - 24, e.type === 'jjor' ? L.mounted2 : L.mounted, e.type === 'jjor' ? '#ffd34d' : '#ff9cc8');
-          sparkle(p.x + 10, p.y + 10, e.type === 'jjor' ? '#ffd34d' : '#ff9cc8');
+          p.riding = e.type === 'jjor' ? 'jjo' : e.type === 'minyur' ? 'minyu' : 'uni';
+          p.airJump = false;
+          const mcol = e.type === 'jjor' ? '#ffd34d' : e.type === 'minyur' ? '#7ab0ff' : '#ff9cc8';
+          popup(p.x, p.y - 24, e.type === 'jjor' ? L.mounted2 : e.type === 'minyur' ? L.mounted3 : L.mounted, mcol);
+          sparkle(p.x + 10, p.y + 10, mcol);
           sfx.mount();
         }
         break;
@@ -2188,7 +2457,7 @@ function updateEnts(dt) {
         }
         for (const o of ents) {
           if (o.dead || o === e) continue;
-          if (['ghost', 'reaper', 'dok', 'egg', 'fox', 'hat'].includes(o.type) && overlap(e, o)) {
+          if (['ghost', 'reaper', 'dok', 'egg', 'fox', 'hat', 'archer', 'crow', 'firedok', 'jangseung'].includes(o.type) && overlap(e, o)) {
             killEnemy(o, 200, true); e.dead = true; break;
           }
           if (BOSS_TYPES.has(o.type) && o.inv <= 0 && overlap(e, o)) {
@@ -2204,7 +2473,7 @@ function updateEnts(dt) {
         if (SOLID[ti(gtx, gty)] || e.t > 1.8) { e.dead = true; sparkle(e.x + 6, e.y + 4, '#ffd34d'); break; }
         for (const o of ents) {
           if (o.dead || o === e) continue;
-          if (['ghost', 'reaper', 'dok', 'egg', 'fox', 'hat'].includes(o.type) && overlap(e, o)) {
+          if (['ghost', 'reaper', 'dok', 'egg', 'fox', 'hat', 'archer', 'crow', 'firedok', 'jangseung'].includes(o.type) && overlap(e, o)) {
             killEnemy(o, 200, true); e.dead = true; break;
           }
           if (BOSS_TYPES.has(o.type) && o.inv <= 0 && overlap(e, o)) {
@@ -2294,15 +2563,21 @@ function updateEnts(dt) {
       case 'b50': updateB50(e, dt); break;
     }
     // 플레이어 상호작용 (적 계열)
-    if (!e.dead && !p.dead && (BOSS_TYPES.has(e.type) || ['ghost', 'reaper', 'dok', 'egg', 'fox', 'hat', 'tal', 'blt', 'shell', 'sorb', 'swave', 'shock'].includes(e.type))) {
+    if (!e.dead && !p.dead && (BOSS_TYPES.has(e.type) || ['ghost', 'reaper', 'dok', 'egg', 'fox', 'hat', 'archer', 'crow', 'firedok', 'jangseung', 'tal', 'blt', 'shell', 'sorb', 'swave', 'shock', 'arrow', 'embr'].includes(e.type))) {
       if (!overlap(e, p)) continue;
       if (e.type === 'hat' && e.t < 0.3) continue;
       const isBoss = BOSS_TYPES.has(e.type);
-      const proj = ['tal', 'blt', 'shell', 'sorb', 'swave', 'shock'].includes(e.type);
+      const proj = ['tal', 'blt', 'shell', 'sorb', 'swave', 'shock', 'arrow', 'embr'].includes(e.type);
       const stomp = p.vy > 130 && p.prevB <= e.y + 10 && !proj;
       if (stomp) {
         p.vy = keys.j ? -500 : -330;
         if (isBoss) { bossStomp(e); }
+        else if (e.type === 'jangseung') { // 돌장승은 밟아도 끄떡없다 (통!)
+          sfx.bump();
+          sparkle(e.x + e.w / 2, e.y - 4, '#c8b078');
+          popup(e.x + e.w / 2, e.y - 14, '🛡', '#c8b078');
+          p.inv = Math.max(p.inv, 0.6); // 바운스 직후 접촉 피해 방지
+        }
         else if (e.type === 'reaper') {
           e.dead = true;
           ents.push({ type: 'corpse', name: 'reaper', x: e.x, y: e.y, w: e.w, h: e.h, dir: e.dir || 1, t: 0, fly: false, vx: 0, vy: 0 });
@@ -3396,7 +3671,7 @@ function drawAmbient(th, vw, t) {
     }
   }
 }
-const SHADOWED = new Set(['ghost', 'reaper', 'dok', 'fox', 'uni', 'jjor', 'uniFlee', 'boss', 'jjojjo', 'jjotank', 'fruit', 'pepper', 'tiger', 'm20', 'm25', 'b30', 'b40', 'b45']);
+const SHADOWED = new Set(['ghost', 'reaper', 'dok', 'fox', 'uni', 'jjor', 'minyur', 'uniFlee', 'boss', 'jjojjo', 'jjotank', 'fruit', 'pepper', 'tiger', 'm20', 'm25', 'b30', 'b40', 'b45', 'archer', 'firedok', 'jangseung']);
 /* HD 스프라이트 드로잉: 발밑 중앙 앵커·비율 유지·방향/기울기 지원. 미로드 시 false */
 function hdDraw(name, cxp, bottomY, targetH, faceDir, rot) {
   const im = HD[name];
@@ -3630,6 +3905,120 @@ function render(nowS) {
         cx.restore();
         break;
       }
+      case 'archer': {
+        if (!hdDraw('archer', ex + e.w / 2, e.y + e.h + 2, 35, e.dir, e.aimT > 0 ? -e.dir * 0.08 : Math.sin((e.animT || 0) * 6) * 0.04)) {
+          cx.fillStyle = '#2c2438';
+          cx.beginPath(); cx.ellipse(ex + e.w / 2, e.y + e.h / 2 + 3, e.w / 2, e.h / 2 - 2, 0, 0, 6.283); cx.fill();
+          cx.fillStyle = '#ffd34d';
+          cx.beginPath(); cx.arc(ex + e.w / 2 + e.dir * 4, e.y + 10, 2.4, 0, 6.283); cx.fill();
+        }
+        break;
+      }
+      case 'crow': {
+        const crot = e.dive > 0 ? Math.atan2(e.dvy, Math.abs(e.dvx)) * 0.5 * (e.dvx >= 0 ? 1 : 1) : Math.sin((e.animT || 0) * 4) * 0.12;
+        if (!hdDraw('crow', ex + e.w / 2, e.y + e.h + 2, 30, e.dive > 0 ? (e.dvx > 0 ? 1 : -1) : e.dir, crot)) {
+          cx.fillStyle = '#1c1824';
+          cx.beginPath(); cx.ellipse(ex + e.w / 2, e.y + e.h / 2, e.w / 2, e.h / 2 - 2, 0, 0, 6.283); cx.fill();
+          cx.fillStyle = '#e84a3a';
+          cx.beginPath(); cx.arc(ex + e.w / 2 + 5, e.y + 8, 2.2, 0, 6.283); cx.fill();
+        }
+        break;
+      }
+      case 'firedok': {
+        if (!hdDraw('firedok', ex + e.w / 2, e.y + e.h + 2, 33, e.dir, e.onG ? Math.sin((e.animT || 0) * 7) * 0.05 : -0.08 * e.dir)) {
+          cx.fillStyle = '#b8422a';
+          cx.beginPath(); cx.ellipse(ex + e.w / 2, e.y + e.h / 2 + 2, e.w / 2, e.h / 2 - 2, 0, 0, 6.283); cx.fill();
+        }
+        // 손 위 파란 불꽃 일렁임
+        const ffx = ex + e.w / 2 + e.dir * 10, ffy = e.y + 8 + Math.sin(nowS * 8 + e.x * 0.05) * 1.5;
+        const ffg = cx.createRadialGradient(ffx, ffy, 0.5, ffx, ffy, 6);
+        ffg.addColorStop(0, 'rgba(190,235,255,.9)'); ffg.addColorStop(1, 'rgba(90,170,255,0)');
+        cx.fillStyle = ffg;
+        cx.beginPath(); cx.arc(ffx, ffy, 6, 0, 6.283); cx.fill();
+        break;
+      }
+      case 'jangseung': {
+        if (!hdDraw('jangseung', ex + e.w / 2, e.y + e.h + 2, 44, e.dir, Math.sin((e.animT || 0) * 5) * 0.05)) {
+          cx.fillStyle = '#6a5238';
+          cx.fillRect(ex + 4, e.y, e.w - 8, e.h);
+          cx.fillStyle = '#40301e';
+          cx.fillRect(ex + 6, e.y + 6, e.w - 12, 5);
+          cx.fillRect(ex + 6, e.y + 16, e.w - 12, 4);
+        }
+        break;
+      }
+      case 'arrow': { // 화살
+        cx.save();
+        cx.translate(ex + e.w / 2, e.y + e.h / 2);
+        cx.scale(e.dir, 1);
+        cx.strokeStyle = '#8a6a48'; cx.lineWidth = 2.4;
+        cx.beginPath(); cx.moveTo(-8, 0); cx.lineTo(6, 0); cx.stroke();
+        cx.fillStyle = '#d8dde4';
+        cx.beginPath(); cx.moveTo(9, 0); cx.lineTo(3, -3); cx.lineTo(3, 3); cx.closePath(); cx.fill();
+        cx.strokeStyle = '#e8e0d0'; cx.lineWidth = 1.6;
+        cx.beginPath(); cx.moveTo(-8, 0); cx.lineTo(-11, -3); cx.moveTo(-8, 0); cx.lineTo(-11, 3); cx.stroke();
+        cx.restore();
+        break;
+      }
+      case 'embr': { // 파란 불덩이
+        const eg2 = cx.createRadialGradient(ex + 6, e.y + 6, 1, ex + 6, e.y + 6, 9);
+        eg2.addColorStop(0, '#fff'); eg2.addColorStop(0.4, '#8ad4ff'); eg2.addColorStop(1, 'rgba(60,140,255,0)');
+        cx.fillStyle = eg2;
+        cx.beginPath(); cx.arc(ex + 6, e.y + 6, 9, 0, 6.283); cx.fill();
+        break;
+      }
+      case 'key': { // 퍼즐 황금 열쇠 (둥실둥실)
+        const kb = Math.sin(nowS * 3 + e.x * 0.02) * 3;
+        const kg = cx.createRadialGradient(ex + 10, e.y + 12 + kb, 2, ex + 10, e.y + 12 + kb, 18);
+        kg.addColorStop(0, 'rgba(255,224,130,.5)'); kg.addColorStop(1, 'rgba(255,224,130,0)');
+        cx.fillStyle = kg;
+        cx.beginPath(); cx.arc(ex + 10, e.y + 12 + kb, 18, 0, 6.283); cx.fill();
+        cx.font = '20px sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+        cx.fillText('🔑', ex + 10, e.y + 12 + kb);
+        break;
+      }
+      case 'mplat': case 'fplat': { // 나무 발판 (이동/무너짐)
+        const shake = e.type === 'fplat' && e.state === 1 ? Math.sin(nowS * 45) * 2 : 0;
+        if (e.type === 'fplat' && e.state === 3) break; // 재생 대기 중
+        cx.save();
+        cx.translate(ex + shake, e.y);
+        if (e.type === 'fplat' && e.state === 2) cx.rotate(0.06);
+        const pg2 = cx.createLinearGradient(0, 0, 0, e.h);
+        pg2.addColorStop(0, '#c89a58'); pg2.addColorStop(1, '#8a6438');
+        cx.fillStyle = pg2;
+        cx.beginPath(); cx.roundRect(0, 0, e.w, e.h, 5); cx.fill();
+        cx.strokeStyle = 'rgba(70,45,20,.6)'; cx.lineWidth = 1.4;
+        cx.stroke();
+        for (let k = 1; k < 3; k++) { cx.beginPath(); cx.moveTo(e.w / 3 * k, 2); cx.lineTo(e.w / 3 * k, e.h - 2); cx.stroke(); }
+        if (e.type === 'mplat') { // 이동 방향 표시 금테
+          cx.fillStyle = 'rgba(255,224,130,.7)';
+          cx.beginPath(); cx.arc(6, e.h / 2, 2, 0, 6.283); cx.arc(e.w - 6, e.h / 2, 2, 0, 6.283); cx.fill();
+        }
+        cx.restore();
+        break;
+      }
+      case 'minyur': { // 대기 중인 아빠 미뉴 (동행 선택)
+        if (Math.random() < 0.04) sparkle(e.x + e.w / 2, e.y + 8, '#7ab0ff');
+        if (!hdDraw('minyu', ex + e.w / 2, e.y + e.h + 2 + Math.sin(e.bob * 3) * 2, 50, e.dir, 0)) {
+          cx.fillStyle = '#2a3a6e';
+          cx.beginPath(); cx.ellipse(ex + e.w / 2, e.y + e.h / 2, e.w / 2, e.h / 2, 0, 0, 6.283); cx.fill();
+        }
+        break;
+      }
+      case 'slash': { // 검격 이펙트 (하얀 참격 호)
+        const sk = 1 - e.t / 0.22;
+        cx.save();
+        cx.translate(ex + e.w / 2, e.y + e.h / 2);
+        cx.scale(e.dir, 1);
+        cx.globalAlpha = 0.4 + sk * 0.6;
+        cx.strokeStyle = '#eaf4ff'; cx.lineWidth = 5; cx.lineCap = 'round';
+        cx.beginPath(); cx.arc(-8, 0, 17, -1.25, 1.25); cx.stroke();
+        cx.strokeStyle = 'rgba(122,176,255,.8)'; cx.lineWidth = 9;
+        cx.beginPath(); cx.arc(-12, 0, 17, -1.0, 1.0); cx.stroke();
+        cx.restore();
+        cx.globalAlpha = 1;
+        break;
+      }
       case 'shock': { // 지면 충격파
         cx.fillStyle = 'rgba(240,168,60,.9)';
         const sh = e.h * (0.7 + Math.abs(Math.sin((e.t || 0) * 18)) * 0.5);
@@ -3742,21 +4131,43 @@ function render(nowS) {
       cx.fillStyle = gg;
       cx.beginPath(); cx.arc(px + 15, py + 17, 30, 0, 6.283); cx.fill();
     }
-    // 포즈 선택: 공격(불꽃 발사 직후) > 활강(호랑이 폼) > 기본 폼
-    let hdName = 'uja' + Math.max(0, Math.min(3, p.pw));
+    // 포즈 선택: 공격 > 활강 > 점프(공중) > 달리기(2프레임 사이클) > 기본
+    const pwc = Math.max(0, Math.min(3, p.pw));
+    let hdName = 'uja' + pwc;
     if (p.pw === 2 && p.atkT > 0 && HD.uja2atk) hdName = 'uja2atk';
     else if (p.gliding && HD.uja3glide) hdName = 'uja3glide';
+    else if (!p.onG && HD['uja' + pwc + 'jump']) hdName = 'uja' + pwc + 'jump';
+    else if (p.onG && Math.abs(p.vx) > 30 && HD['uja' + pwc + 'run'] && Math.floor(p.animT) % 2) hdName = 'uja' + pwc + 'run';
     // 걷기 워블 + 공중 기울기 + 활강 전방 기울기 (프로시저럴 애니메이션)
     const walkRot = p.onG && Math.abs(p.vx) > 12 ? Math.sin(p.animT * 3.1) * 0.09 : 0;
     const airRot = p.gliding ? p.dir * 0.14
       : !p.onG ? p.dir * Math.max(-0.12, Math.min(0.17, p.vy * 0.00028)) : 0;
     const pcx = p.x - camX + p.w / 2;
-    if (p.riding === 'jjo') {
-      // 엄마 쪼쪼가 업고 날기: 여왕 먼저 → 유자가 등 위쪽에
+    if (p.riding === 'minyu') {
+      // 아빠 미뉴 목말 태우기: 아빠 먼저 (달리기 사이클) → 유자가 어깨 위에
+      const movingM = p.onG && Math.abs(p.vx) > 30;
+      const mName = movingM && HD.minyurun && Math.floor(p.animT) % 2 ? 'minyurun' : 'minyu';
+      const mRot = !p.onG ? p.dir * 0.08 : movingM ? Math.sin(p.animT * 3.1) * 0.05 : 0;
+      if (HD.minyu) {
+        hdDraw(mName, pcx + p.dir * 1, p.y + p.h + 2, 50, p.dir, mRot);
+        hdDraw(hdName, pcx - p.dir * 3, p.y + p.h - 40, 24, p.dir, mRot + (p.atkT > 0 ? -p.dir * 0.06 : 0));
+        if (p.atkT > 0.16) { // 검격 잔광
+          const sx2 = pcx + p.dir * 26, sy2 = p.y + 12;
+          const sg2 = cx.createRadialGradient(sx2, sy2, 1, sx2, sy2, 9);
+          sg2.addColorStop(0, '#eaf4ff'); sg2.addColorStop(1, 'rgba(122,176,255,0)');
+          cx.fillStyle = sg2;
+          cx.beginPath(); cx.arc(sx2, sy2, 9, 0, 6.283); cx.fill();
+        }
+      } else {
+        flip(set[fr], px, py - 12, 30, 34, p.dir);
+      }
+    } else if (p.riding === 'jjo') {
+      // 엄마 쪼쪼가 업고 날기: 여왕 먼저 (지상 달리기 사이클 · 공중 활공) → 유자가 등 위쪽에
       const moving = Math.abs(p.vx) > 12 || !p.onG;
       const rideRot = (moving ? p.dir * 0.1 : 0) + Math.sin(nowS * 4) * 0.02;
+      const jName = p.onG && Math.abs(p.vx) > 30 && HD.jjorun && Math.floor(p.animT) % 2 ? 'jjorun' : 'jjor';
       if (HD.jjor) {
-        hdDraw('jjor', pcx + p.dir * 2, p.y + p.h + 2, 46, p.dir, rideRot);
+        hdDraw(jName, pcx + p.dir * 2, p.y + p.h + 2, 46, p.dir, rideRot);
         hdDraw(hdName, pcx - p.dir * 8, p.y + p.h - 22, 28, p.dir, rideRot + (p.atkT > 0 ? -p.dir * 0.08 : 0));
         if (p.atkT > 0.14) { // 황금탄 총구 섬광
           const mx = pcx + p.dir * 24, my = p.y + 10;
@@ -3842,7 +4253,8 @@ function updateHUD() {
   document.getElementById('hScore').textContent = `⭐ ${G.score.toLocaleString()}`;
   document.getElementById('hCoin').textContent = `🪙 ${G.coins}`;
   document.getElementById('hLife').textContent = `💗 ${Math.max(0, G.lives)}` +
-    (player && player.pw === 2 ? ' · 🌶️' : player && player.pw === 3 ? ' · 🐯' : '');
+    (player && player.pw === 2 ? ' · 🌶️' : player && player.pw === 3 ? ' · 🐯' : '') +
+    (player && player.hasKey ? ' · 🔑' : '');
   const tEl = document.getElementById('hTime');
   tEl.textContent = `⏱ ${Math.ceil(G.time)}`;
   tEl.classList.toggle('low', G.time < 60);
@@ -4017,12 +4429,13 @@ function runSim() {
   for (let s = 1; s <= MAX_STAGE; s++) {
     const lv = genLevel(s);
     // 표면 높이/구멍 검사 (바닥에서 연속된 지면만 = 걷는 표면, 공중 블록 제외)
+    const solidNotGate = (v) => SOLID[v] && v !== 8; // 자물쇠문은 열리므로 지형 검사에서 제외
     const surf = [];
     for (let x2 = 0; x2 < lv.W; x2++) {
       let sY = -1;
-      if (SOLID[lv.t[(ROWS - 1) * lv.W + x2]]) {
+      if (solidNotGate(lv.t[(ROWS - 1) * lv.W + x2])) {
         sY = ROWS - 1;
-        while (sY > 0 && SOLID[lv.t[(sY - 1) * lv.W + x2]]) sY--;
+        while (sY > 0 && solidNotGate(lv.t[(sY - 1) * lv.W + x2])) sY--;
       }
       surf.push(sY);
     }
@@ -4036,13 +4449,16 @@ function runSim() {
         prev = surf[x2];
       }
     }
-    const enemies = lv.ents.filter(e => !['coin', 'uni', 'jjor'].includes(e.type) && !BOSS_TYPES.has(e.type)).length;
+    const enemies = lv.ents.filter(e => !['coin', 'uni', 'jjor', 'minyur', 'key', 'mplat', 'fplat'].includes(e.type) && !BOSS_TYPES.has(e.type)).length;
     const hasUni = lv.ents.some(e => e.type === 'uni');
     const hasJjor = s < 16 || lv.ents.some(e => e.type === 'jjor'); // 2부는 쪼쪼 탑승 배치 필수
+    const hasMinyu = s < 26 || lv.ents.some(e => e.type === 'minyur'); // 26+ 아빠 동행 대기 필수
     const hasPower = [...lv.qc.values()].some(c => c === 'fruit' || c === 'pepper' || c === 'tiger');
     const okBoss = BOSS_AT[s] ? lv.ents.some(e => e.type === BOSS_AT[s]) : !lv.bossArena;
-    T(`stage ${s} valid`, maxGap <= 4 && maxStep <= 3 && enemies > 3 && hasUni && hasJjor && hasPower && okBoss && lv.goalX < lv.W * TILE,
-      `gap=${maxGap} step=${maxStep} foes=${enemies} uni=${hasUni} jjor=${hasJjor} power=${hasPower}`);
+    const isPuzzle = s >= 17 && s % 3 === 2 && !BOSS_AT[s];
+    const okPuzzle = !isPuzzle || (lv.gateX > 0 && lv.ents.some(e => e.type === 'key') && Array.prototype.some.call(lv.t, v => v === 8));
+    T(`stage ${s} valid`, maxGap <= 4 && maxStep <= 3 && enemies > 3 && hasUni && hasJjor && hasMinyu && hasPower && okBoss && okPuzzle && lv.goalX < lv.W * TILE,
+      `gap=${maxGap} step=${maxStep} foes=${enemies} uni=${hasUni} jjor=${hasJjor} minyu=${hasMinyu} power=${hasPower} puzzle=${okPuzzle}`);
   }
   // 물리: 점프 높이·활강 거리
   G.mode = 'play'; G.introT = 0; G.lives = 3; G.score = 0; G.coins = 0; G.time = 300;
@@ -4253,6 +4669,116 @@ function runSim() {
     bossFire('b45', 45, ['sorb']);
     bossFire('b50', 50, ['sorb']);
     G.stage = 1;
+  }
+  // ===== 신규 몬스터 4종 =====
+  // 그림자 궁수: 사거리 안 화살 발사 → 불꽃으로 처치
+  {
+    G.mode = 'play'; G.introT = 0; G.clearT = 0; G.time = 300;
+    LV = makeTestLevel(60); LV.stage = 20;
+    ents = [{ type: 'archer', x: 12 * TILE, y: (ROWS - 2) * TILE - 30, w: 22, h: 30, vx: 0, vy: 0, dir: -1, shootT: 0.05, aimT: 0 }];
+    player = mkPlayer(6 * TILE, (ROWS - 3) * TILE);
+    player.inv = 9999;
+    let sawArrow = false;
+    for (let i = 0; i < 120 && !sawArrow; i++) { update(1 / 60); if (ents.some(e => e.type === 'arrow')) sawArrow = true; }
+    T('archer fires arrow at player', sawArrow);
+    player.pw = 2; player.dir = 1;
+    keys.run = false; runWasDown = false; simSteps(2);
+    keys.run = true; simSteps(2); keys.run = false;
+    simSteps(90);
+    T('fireball kills archer', ents.every(e => e.type !== 'archer'));
+  }
+  // 불도깨비: 포물선 불덩이
+  {
+    LV = makeTestLevel(60); LV.stage = 30;
+    ents = [{ type: 'firedok', x: 13 * TILE, y: (ROWS - 2) * TILE - 28, w: 24, h: 28, vx: 0, vy: 0, dir: -1, shootT: 0.05 }];
+    player = mkPlayer(6 * TILE, (ROWS - 3) * TILE);
+    player.inv = 9999;
+    let sawEmbr = false;
+    for (let i = 0; i < 120 && !sawEmbr; i++) { update(1 / 60); if (ents.some(e => e.type === 'embr')) sawEmbr = true; }
+    T('firedok lobs ember', sawEmbr);
+  }
+  // 까마귀: 밟아서 처치
+  {
+    LV = makeTestLevel(60); LV.stage = 25;
+    ents = [{ type: 'crow', x: 8 * TILE, y: (ROWS - 2) * TILE - 40, w: 26, h: 22, base: (ROWS - 2) * TILE - 40, t: 0, dir: -1, diveT: 99, dive: 0, dvx: 0, dvy: 0 }];
+    player = mkPlayer(8 * TILE - 4, (ROWS - 2) * TILE - 170);
+    simSteps(60);
+    T('stomp kills crow', ents.every(e => e.type !== 'crow'));
+  }
+  // 돌장승: 밟기 무효 → 불꽃으로만 처치
+  {
+    G.introT = 0; G.paused = false; G.lives = 5;
+    LV = makeTestLevel(60); LV.stage = 40;
+    const js = { type: 'jangseung', x: 8 * TILE, y: (ROWS - 2) * TILE - 38, w: 24, h: 38, vx: 0, vy: 0, dir: -1 };
+    ents = [js];
+    player = mkPlayer(8 * TILE - 4, (ROWS - 2) * TILE - 190);
+    player.inv = 0;
+    simSteps(50);
+    T('jangseung immune to stomp', !js.dead && ents.some(e => e.type === 'jangseung') && !player.dead);
+    player.x = 5 * TILE; player.y = (ROWS - 3) * TILE - 10; player.pw = 2; player.dir = 1; player.inv = 9999; player.vy = 0;
+    keys.run = false; runWasDown = false; simSteps(10);
+    keys.run = true; simSteps(2); keys.run = false;
+    simSteps(100);
+    T('fireball kills jangseung', ents.every(e => e.type !== 'jangseung'));
+  }
+  // ===== 퍼즐: 열쇠 → 황금문 개방 =====
+  {
+    G.introT = 0; G.paused = false; G.lives = 5; G.mode = 'play';
+    LV = makeTestLevel(60); LV.stage = 17;
+    LV.gateX = 40;
+    for (let r = 0; r < ROWS - 2; r++) setT(LV.t, LV.W, 40, r, 8);
+    ents = [{ type: 'key', x: 10 * TILE, y: (ROWS - 3) * TILE, w: 20, h: 24, t: 0 }];
+    player = mkPlayer(10 * TILE - 4, (ROWS - 3) * TILE);
+    simSteps(10);
+    T('key pickup', player.hasKey === true);
+    player.x = 38 * TILE; // 문 앞으로
+    simSteps(5);
+    const gateOpen = ![...LV.t].some(v => v === 8);
+    T('key opens golden gate', gateOpen && player.hasKey === false && LV.gateX === 0);
+  }
+  // ===== 발판: 이동발판 탑승·운반 / 무너지는 발판 =====
+  {
+    G.introT = 0; G.paused = false; G.lives = 5;
+    LV = makeTestLevel(60); LV.stage = 20;
+    ents = [{ type: 'mplat', x: 8 * TILE, y: (ROWS - 5) * TILE, w: 72, h: 13, ox: 8 * TILE, oy: (ROWS - 5) * TILE, vert: false, range: 60, t: 0, dx: 0, dy: 0 }];
+    player = mkPlayer(8 * TILE + 20, (ROWS - 5) * TILE - 80);
+    simSteps(30);
+    const x0m = player.x;
+    simSteps(40);
+    T('moving platform carries player', player.onG && Math.abs(player.x - x0m) > 8, `dx=${(player.x - x0m).toFixed(1)}`);
+    LV = makeTestLevel(60); LV.stage = 35;
+    const fp = { type: 'fplat', x: 8 * TILE, y: (ROWS - 5) * TILE, w: 72, h: 13, oy: (ROWS - 5) * TILE, state: 0, t: 0, vy: 0, dx: 0, dy: 0 };
+    ents = [fp];
+    player = mkPlayer(8 * TILE + 20, (ROWS - 5) * TILE - 80);
+    simSteps(30);
+    const stood = fp.state >= 1;
+    simSteps(60);
+    T('crumbling platform falls after stand', stood && fp.state >= 2, `state=${fp.state}`);
+  }
+  // ===== 미뉴 동행: 목말 + 검격 =====
+  {
+    G.introT = 0; G.paused = false; G.lives = 5;
+    LV = makeTestLevel(60); LV.stage = 30;
+    ents = [
+      { type: 'minyur', x: 6 * TILE, y: (ROWS - 2) * TILE - 38, w: 28, h: 38, vx: 0, vy: 0, dir: 1, bob: 0 },
+      { type: 'ghost', x: 20 * TILE, y: (ROWS - 2) * TILE - 28, w: 22, h: 28, vx: 0, vy: 0, dir: -1 },
+    ];
+    player = mkPlayer(6 * TILE - 6, (ROWS - 2) * TILE - 40);
+    simSteps(20);
+    T('minyu mount → riding minyu', player.riding === 'minyu');
+    const gh2 = ents.find(e => e.type === 'ghost');
+    player.x = gh2.x - 44; player.dir = 1; player.inv = 9999;
+    keys.run = false; runWasDown = false; simSteps(2);
+    keys.run = true; simSteps(2); keys.run = false;
+    const sawSlash = ents.some(e => e.type === 'slash');
+    simSteps(30);
+    T('minyu slash kills enemy', sawSlash && ents.every(e => e.type !== 'ghost'), `slash=${sawSlash}`);
+  }
+  // ===== 난이도 스케일: 후반 이속 배율·빙판 =====
+  {
+    const l50 = genLevel(50), l16 = genLevel(16), l5 = genLevel(5);
+    T('difficulty: speed multiplier scales', l5.spdMul === 1 && l16.spdMul > 1 && l50.spdMul > 1.4, `s16=${l16.spdMul.toFixed(2)} s50=${l50.spdMul.toFixed(2)}`);
+    T('ice on late snow stages', genLevel(38).ice === 1 && genLevel(7).ice === 0);
   }
   // 어둑시니 페이즈 2: 그림자 부하 소환
   {
@@ -4491,6 +5017,34 @@ function setupShot() {
   }
   if (qs.get('shot') === '16s') { // 스테이지16 스폰지점 (쪼쪼 대기 확인)
     G.stage = 16; LV = genLevel(16); spawnEnts();
+    player = mkPlayer(3 * TILE, (ROWS - 4) * TILE); player.dir = 1;
+  }
+  if (qs.get('shot') === '26s') { // 스테이지26 스폰지점 (쪼쪼+미뉴 동행 선택 대기)
+    G.stage = 26; LV = genLevel(26); spawnEnts();
+    player = mkPlayer(3 * TILE, (ROWS - 4) * TILE); player.dir = 1;
+  }
+  if (qs.get('shot') === 'mr') { // 미뉴 목말 + 검격 (정지 프레임)
+    G.stage = 27; LV = genLevel(27); spawnEnts();
+    player.x = 30 * TILE; player.y = (ROWS - 4) * TILE - 20; player.riding = 'minyu'; player.dir = 1;
+    player.vx = 120; player.onG = true; player.atkT = 0.2; player.animT = 1;
+    ents.push({ type: 'slash', x: player.x + 22, y: player.y - 4, w: 30, h: 36, t: 0.05, dir: 1 });
+    ents.push({ type: 'ghost', x: player.x + 60, y: (ROWS - 2) * TILE - 28, w: 22, h: 28, vx: 0, vy: 0, dir: -1 });
+    G.paused = true;
+  }
+  if (qs.get('shot') === 'pz') { // 열쇠-자물쇠 퍼즐 (황금문 앞)
+    G.stage = 23; LV = genLevel(23); spawnEnts();
+    player.x = (LV.gateX - 7) * TILE; player.y = (ROWS - 4) * TILE; player.dir = 1; player.hasKey = true;
+    cam.x = player.x - 200;
+    G.paused = true;
+  }
+  if (qs.get('shot') === 'run') { // 유자 달리기 모션 (정지 프레임)
+    G.stage = 26; LV = genLevel(26); spawnEnts();
+    player.x = 24 * TILE; player.y = (ROWS - 4) * TILE; player.dir = 1;
+    player.vx = 230; player.onG = true; player.animT = 1; // run 프레임
+    G.paused = true;
+  }
+  if (qs.get('shot') === '38s') { // 빙판 설원 + 장승·이동발판 구간
+    G.stage = 38; LV = genLevel(38); spawnEnts();
     player = mkPlayer(3 * TILE, (ROWS - 4) * TILE); player.dir = 1;
   }
   cam.x = qs.get('shot') && qs.get('shot').endsWith('s') ? 0 : player.x - 200;
