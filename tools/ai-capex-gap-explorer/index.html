@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AI Capex-vs-Revenue Gap Explorer — Tech Decode</title><meta name="description" content="Adjust the growth assumptions behind the 2026 &#34;AI bubble&#34; debate and see in which year — if any — AI revenue catches up with AI infrastructure spending."><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/tools/ai-capex-gap-explorer/"><link rel="alternate" hreflang="en" href="https://menewsoft.com/tools/ai-capex-gap-explorer/"><link rel="alternate" hreflang="ko" href="https://menewsoft.com/ko/tools/ai-capex-gap-explorer/"><link rel="alternate" hreflang="ja" href="https://menewsoft.com/ja/tools/ai-capex-gap-explorer/"><link rel="alternate" hreflang="es" href="https://menewsoft.com/es/tools/ai-capex-gap-explorer/"><link rel="alternate" hreflang="zh" href="https://menewsoft.com/zh/tools/ai-capex-gap-explorer/"><link rel="alternate" hreflang="x-default" href="https://menewsoft.com/tools/ai-capex-gap-explorer/"><meta property="og:type" content="website"><meta property="og:title" content="AI Capex-vs-Revenue Gap Explorer — Tech Decode"><meta property="og:description" content="Adjust the growth assumptions behind the 2026 &#34;AI bubble&#34; debate and see in which year — if any — AI revenue catches up with AI infrastructure spending."><meta property="og:url" content="https://menewsoft.com/tools/ai-capex-gap-explorer/"><meta property="og:site_name" content="Tech Decode"><meta name="twitter:card" content="summary_large_image"><link rel="sitemap" href="/sitemap-index.xml"><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Tech Decode","alternateName":["menewsoft","menewsoft.com","MeNew Soft","미뉴소프트","메뉴소프트"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/_slug_.B7bVH-pF.css">
+<link rel="stylesheet" href="/_astro/_slug_.BJI8U4p-.css"></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/">Tech<span>Decode</span></a> <nav class="nav"> <a href="/">Home</a> <a href="/games/">Games</a> <a href="/tools/">Tools</a> <a href="/glossary/">Glossary</a> <a href="/about/">About</a> <a href="/contact/">Contact</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul> <li> <a href="/tools/ai-capex-gap-explorer/" class="active" hreflang="en">English</a> </li><li> <a href="/ko/tools/ai-capex-gap-explorer/" class hreflang="ko">한국어</a> </li><li> <a href="/ja/tools/ai-capex-gap-explorer/" class hreflang="ja">日本語</a> </li><li> <a href="/es/tools/ai-capex-gap-explorer/" class hreflang="es">Español</a> </li><li> <a href="/zh/tools/ai-capex-gap-explorer/" class hreflang="zh">中文</a> </li> </ul> </div> </nav> </div> </header> <main>  <article class="tool-page" data-astro-cid-aphhe2a6> <div class="wrap" data-astro-cid-aphhe2a6> <p class="backlink" data-astro-cid-aphhe2a6><a href="/tools/" data-astro-cid-aphhe2a6>← All tools</a></p> <h1 data-astro-cid-aphhe2a6>AI Capex-vs-Revenue Gap Explorer</h1> <p class="tagline" data-astro-cid-aphhe2a6>Adjust the growth assumptions behind the 2026 &quot;AI bubble&quot; debate and see in which year — if any — AI revenue catches up with AI infrastructure spending.</p> <div class="tool-widget" data-astro-cid-aphhe2a6>  <div class="gap-explorer" data-tool="ai-capex-gap-explorer" data-astro-cid-lermryfr> <div class="ge-grid" data-astro-cid-lermryfr> <label data-astro-cid-lermryfr> <span data-astro-cid-lermryfr>Starting AI revenue, 2026 ($B)</span> <input type="number" id="ge-revenue" value="100" min="1" step="1" data-astro-cid-lermryfr> </label> <label data-astro-cid-lermryfr> <span data-astro-cid-lermryfr>Starting AI capex, 2026 ($B)</span> <input type="number" id="ge-capex" value="700" min="1" step="1" data-astro-cid-lermryfr> </label> </div> <div class="ge-sliders" data-astro-cid-lermryfr> <label class="slider-label" data-astro-cid-lermryfr> <span data-astro-cid-lermryfr>AI revenue growth (%/year) — <b id="ge-rg-val" data-astro-cid-lermryfr>55</b>%</span> <input type="range" id="ge-revenue-growth" min="0" max="120" value="55" step="1" data-astro-cid-lermryfr> </label> <label class="slider-label" data-astro-cid-lermryfr> <span data-astro-cid-lermryfr>AI capex growth (%/year) — <b id="ge-cg-val" data-astro-cid-lermryfr>18</b>%</span> <input type="range" id="ge-capex-growth" min="0" max="60" value="18" step="1" data-astro-cid-lermryfr> </label> </div> <p class="ge-result" id="ge-result" data-astro-cid-lermryfr></p> <div class="ge-legend" data-astro-cid-lermryfr> <span class="legend-item" data-astro-cid-lermryfr><i class="swatch capex" data-astro-cid-lermryfr></i>AI capex</span> <span class="legend-item" data-astro-cid-lermryfr><i class="swatch revenue" data-astro-cid-lermryfr></i>AI revenue</span> </div> <div class="ge-chart" id="ge-chart" data-astro-cid-lermryfr></div> <p class="ge-note" data-astro-cid-lermryfr>Figures in $ billions, a simple compounding projection from the estimates in our AI bubble analysis — not a forecast.</p> </div> <script>(function(){const closesPrefix = "On these assumptions, revenue catches up with capex in";
+const neverClose = "On these assumptions, revenue does not catch up with capex within this 10-year window.";
+const capexLegend = "AI capex";
+const revenueLegend = "AI revenue";
+
+  const YEARS = 10;
+  const BASE_YEAR = 2026;
+
+  function recalc() {
+    const revenue0 = parseFloat(document.getElementById('ge-revenue').value) || 0;
+    const capex0 = parseFloat(document.getElementById('ge-capex').value) || 0;
+    const rg = parseFloat(document.getElementById('ge-revenue-growth').value) || 0;
+    const cg = parseFloat(document.getElementById('ge-capex-growth').value) || 0;
+
+    document.getElementById('ge-rg-val').textContent = String(rg);
+    document.getElementById('ge-cg-val').textContent = String(cg);
+
+    const revenues = [];
+    const capexes = [];
+    let crossYear = null;
+    for (let i = 0; i < YEARS; i++) {
+      const rev = revenue0 * Math.pow(1 + rg / 100, i);
+      const cap = capex0 * Math.pow(1 + cg / 100, i);
+      revenues.push(rev);
+      capexes.push(cap);
+      if (crossYear === null && rev >= cap) crossYear = BASE_YEAR + i;
+    }
+
+    const resultEl = document.getElementById('ge-result');
+    resultEl.textContent = crossYear !== null ? `${closesPrefix} ${crossYear}.` : neverClose;
+
+    const max = Math.max(...revenues, ...capexes, 1);
+    const chart = document.getElementById('ge-chart');
+    chart.innerHTML = '';
+    for (let i = 0; i < YEARS; i++) {
+      const col = document.createElement('div');
+      col.className = 'ge-col';
+
+      const bars = document.createElement('div');
+      bars.className = 'ge-bars';
+
+      const CHART_PX = 190;
+      const capBar = document.createElement('div');
+      capBar.className = 'ge-bar capex';
+      capBar.style.height = `${Math.max((capexes[i] / max) * CHART_PX, 2)}px`;
+      capBar.title = `${capexLegend} ${BASE_YEAR + i}: $${Math.round(capexes[i])}B`;
+
+      const revBar = document.createElement('div');
+      revBar.className = 'ge-bar revenue';
+      revBar.style.height = `${Math.max((revenues[i] / max) * CHART_PX, 2)}px`;
+      revBar.title = `${revenueLegend} ${BASE_YEAR + i}: $${Math.round(revenues[i])}B`;
+
+      bars.appendChild(capBar);
+      bars.appendChild(revBar);
+
+      const yearLabel = document.createElement('span');
+      yearLabel.className = 'ge-year';
+      yearLabel.textContent = String(BASE_YEAR + i).slice(2);
+
+      col.appendChild(bars);
+      col.appendChild(yearLabel);
+      chart.appendChild(col);
+    }
+  }
+
+  document.querySelectorAll('.gap-explorer input').forEach((el) => el.addEventListener('input', recalc));
+  recalc();
+})();</script>  </div> <section class="tool-about" data-astro-cid-aphhe2a6> <h2 data-astro-cid-aphhe2a6>About this tool</h2> <p data-astro-cid-aphhe2a6>Our piece on the AI bubble debate centers on one uncomfortable number: hyperscalers are spending an estimated $700B or more a year on AI infrastructure while AI-attributable revenue runs closer to $50–150B. Whether that gap is a temporary, self-correcting investment cycle or a structural problem depends entirely on how fast each side grows from here — and reasonable people disagree.</p><p data-astro-cid-aphhe2a6>This tool projects both lines forward from 2026 using growth rates you choose, and shows the year they cross, if they do within the time horizon. It is a simple compounding model built from the estimates in our article, not a forecast — moving the sliders is a way to stress-test the bull case and the bear case yourself, not to predict the future.</p> </section> <a class="related-post" href="/blog/ai-bubble-2026-debate/" data-astro-cid-aphhe2a6> Read analysis <span class="rp-arrow" data-astro-cid-aphhe2a6>→</span> </a> <p class="disclosure" data-astro-cid-aphhe2a6>This article may contain affiliate links. Nothing here is financial or investment advice.</p> </div> </article>  </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>Tech Decode</span> <div class="links" data-astro-cid-sz7xmlte> <a href="/" data-astro-cid-sz7xmlte>Home</a> <a href="/games/" data-astro-cid-sz7xmlte>Games</a> <a href="/tools/" data-astro-cid-sz7xmlte>Tools</a> <a href="/glossary/" data-astro-cid-sz7xmlte>Glossary</a> <a href="/about/" data-astro-cid-sz7xmlte>About</a> <a href="/contact/" data-astro-cid-sz7xmlte>Contact</a> <a href="/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 Tech Decode · menewsoft.com — Independent analysis. Not investment advice.</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 Today <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · Total <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html> 

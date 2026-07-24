@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MeNew Write</title>
+<link rel="stylesheet" href="../apps.css">
+<style>
+  :root { --toolbar-h: 44px; }
+  body { background: #eceae4; }
+  .fmtbar {
+    position: fixed; top: var(--topbar-h); left: 0; right: 0; height: var(--toolbar-h); z-index: 490;
+    display: flex; align-items: center; gap: 4px; padding: 0 10px;
+    background: #faf8f4; border-bottom: 1px solid var(--line);
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .fmtbar::-webkit-scrollbar { display: none; }
+  .tb {
+    appearance: none; border: none; background: transparent; color: #3d3a33;
+    min-width: 32px; height: 32px; border-radius: 6px; font-size: 15px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto;
+  }
+  .tb:hover { background: #eae5da; }
+  .tb.b { font-weight: 800; }
+  .tb.i { font-style: italic; font-family: Georgia, serif; }
+  .tb.u { text-decoration: underline; }
+  .tb.s { text-decoration: line-through; }
+  .tbsep { width: 1px; height: 22px; background: var(--line); margin: 0 4px; flex: 0 0 auto; }
+  select.tbsel {
+    border: 1px solid var(--line); background: #fff; color: #3d3a33; border-radius: 6px;
+    height: 30px; font-size: 13px; flex: 0 0 auto;
+  }
+  input.tbcolor { width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 6px; padding: 1px; background: #fff; cursor: pointer; flex: 0 0 auto; }
+  .pagewrap {
+    position: absolute; top: calc(var(--topbar-h) + var(--toolbar-h)); left: 0; right: 0;
+    min-height: calc(100% - var(--topbar-h) - var(--toolbar-h));
+    padding: 28px 12px 80px;
+  }
+  .page {
+    max-width: 800px; margin: 0 auto; background: #fff; min-height: 950px;
+    box-shadow: 0 2px 14px rgba(40,35,20,.14); border-radius: 3px;
+    padding: 72px 76px; outline: none;
+    font-family: Georgia, "Times New Roman", "Noto Serif KR", serif;
+    font-size: 12pt; line-height: 1.7; color: #1c1a16;
+    overflow-wrap: break-word;
+  }
+  .page:focus { box-shadow: 0 2px 18px rgba(160,117,10,.22); }
+  .page h1 { font-size: 20pt; margin: 0.6em 0 0.4em; }
+  .page h2 { font-size: 16pt; margin: 0.6em 0 0.35em; }
+  .page h3 { font-size: 13pt; margin: 0.6em 0 0.3em; }
+  .page p { margin: 0 0 0.6em; }
+  .page table { border-collapse: collapse; margin: 0.6em 0; width: 100%; }
+  .page td, .page th { border: 1px solid #999; padding: 4px 8px; min-width: 40px; }
+  .page img { max-width: 100%; height: auto; }
+  .page blockquote { border-left: 3px solid #c9b26a; margin: 0.6em 0; padding: 2px 14px; color: #555; font-style: italic; }
+  .page a { color: #a0750a; }
+  @media (max-width: 640px) {
+    .page { padding: 34px 22px; min-height: 70vh; }
+    .pagewrap { padding: 14px 6px 70px; }
+  }
+  @media print {
+    .apptop, .fmtbar, .privnote { display: none !important; }
+    body { background: #fff; }
+    .pagewrap { position: static; padding: 0; }
+    .page { box-shadow: none; max-width: none; padding: 0; min-height: 0; }
+  }
+</style>
+</head>
+<body>
+<header class="apptop">
+  <a class="back" id="backLink" href="/tools/">←</a>
+  <span class="brand">MeNew <em>Write</em></span>
+  <span class="fname" id="fname"></span>
+  <span class="spacer"></span>
+  <input type="file" id="fileInput" accept=".docx" hidden>
+  <input type="file" id="imgInput" accept="image/png,image/jpeg,image/gif" hidden>
+  <button class="btn" id="btnNew"></button>
+  <button class="btn" id="btnOpen"></button>
+  <button class="btn primary" id="btnSave"></button>
+  <button class="btn" id="btnPrint"></button>
+</header>
+<div class="fmtbar" id="fmtbar">
+  <button class="tb" data-cmd="undo" title="Undo">↶</button>
+  <button class="tb" data-cmd="redo" title="Redo">↷</button>
+  <span class="tbsep"></span>
+  <select class="tbsel" id="selBlock">
+    <option value="p"></option>
+    <option value="h1"></option>
+    <option value="h2"></option>
+    <option value="h3"></option>
+  </select>
+  <span class="tbsep"></span>
+  <button class="tb b" data-cmd="bold" title="Bold">B</button>
+  <button class="tb i" data-cmd="italic" title="Italic">I</button>
+  <button class="tb u" data-cmd="underline" title="Underline">U</button>
+  <button class="tb s" data-cmd="strikeThrough" title="Strike">S</button>
+  <input class="tbcolor" type="color" id="foreColor" value="#1c1a16" title="Text color">
+  <span class="tbsep"></span>
+  <button class="tb" data-cmd="insertUnorderedList" title="Bullets">•≡</button>
+  <button class="tb" data-cmd="insertOrderedList" title="Numbered">1≡</button>
+  <span class="tbsep"></span>
+  <button class="tb" data-cmd="justifyLeft" title="Left">⇤</button>
+  <button class="tb" data-cmd="justifyCenter" title="Center">↔</button>
+  <button class="tb" data-cmd="justifyRight" title="Right">⇥</button>
+  <span class="tbsep"></span>
+  <button class="tb" id="btnTable" title="Table">▦</button>
+  <button class="tb" id="btnImage" title="Image">🖼</button>
+  <button class="tb" id="btnLink" title="Link">🔗</button>
+  <button class="tb" data-cmd="removeFormat" title="Clear">⌫ᴬ</button>
+</div>
+<div class="pagewrap">
+  <div class="page" id="page" contenteditable="true" spellcheck="true"></div>
+</div>
+<div class="privnote" id="privnote"></div>
+<script src="../vendor/jszip.min.js"></script>
+<script src="../vendor/mammoth.browser.min.js"></script>
+<script src="write.js"></script>
+<script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
