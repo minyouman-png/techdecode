@@ -30,22 +30,41 @@ const I18N = {
     emptyRec: 'No records yet — go save Joseon!',
     pauseT: '⏸ Paused', resume: '▶ Resume', quit: '🏳 Quit',
     quitConfirm: 'Quit to menu? You can continue from the start of this stage.',
-    stages: ['Thatched Village', 'Pine Forest', 'Palace Roofs', 'Underworld Road', "King Yeomra's Palace", 'Plum-Bamboo Grove', 'Snowy Pass', 'Sunset Shore', 'Cloud Skyway', "Queen JJOJJO's Sky Palace", 'Cherry Garden', 'Crimson Volcano', 'Aurora Glacier', 'Golden Harbor', "JJOJJO's Iron Fortress"],
+    stages: ['Thatched Village', 'Pine Forest', 'Palace Roofs', 'Underworld Road', "King Yeomra's Palace", 'Plum-Bamboo Grove', 'Snowy Pass', 'Sunset Shore', 'Cloud Skyway', "Queen JJOJJO's Sky Palace", 'Cherry Garden', 'Crimson Volcano', 'Aurora Glacier', 'Golden Harbor', "JJOJJO's Iron Fortress",
+      'Moonlit Reed Field', 'Misty Gorge', 'Firefly Marsh', 'Storm Ridge', 'Moonlight Duel Ground',
+      'Thornbush Woods', 'Ashen Ruins', 'Goblin Night Market', 'Dark Rampart Road', 'Shadow Throne',
+      'Dawn Silvergrass Plain', 'Iron Mine', 'Cogwheel Cavern', 'Furnace Bridge', 'Iron Courtyard',
+      'Rainy Ferry Dock', 'Black Lake', 'Sunken Temple', 'Foggy Lighthouse Road', 'Storm Lake',
+      'Night Maple Pass', 'Starlight Cliffs', 'Blizzard Peak', 'Tiger Rock Mountain', "The Tiger's Hunting Ground",
+      'Violet Sky Stairs', 'Mirror Corridor', 'Upside-Down Palace', 'Dream Maze', 'Mirror Throne Room',
+      'Shadow Castle Gate', 'Corridor of Memories', 'Shadow Spire', 'Prison of Stars', "Eoduksini's Throne"],
     stageLbl: 'STAGE', gameOver: 'GAME OVER', stageClear: 'STAGE CLEAR!', timeBonus: 'Time bonus',
-    worldClear: "👑 JJOJJO's tank is destroyed! Peace returns to Joseon!", newRecord: '🎉 New personal best!',
+    worldClear: "👑 JJOJJO's tank is destroyed! Peace returns to Joseon!", worldClear2: '🌟 Eoduksini is defeated! Every stolen memory has returned!', newRecord: '🎉 New personal best!',
     finalScore: 'Score', reachedStage: 'Reached', resTitle: '🍋 Result',
-    oneUp: '1UP!', mounted: '🦄 Uni joins you!', bossWarn: '⚡ King Yeomra appears!', bossWarn2: '⚡ Queen JJOJJO appears!', bossWarn3: '⚡ JJOJJO rolls in on a tank!',
+    oneUp: '1UP!', mounted: '🦄 Uni joins you!', mounted2: '👑 Fly with Mom JJOJJO!', bossWarn: '⚡ King Yeomra appears!', bossWarn2: '⚡ Queen JJOJJO appears!', bossWarn3: '⚡ JJOJJO rolls in on a tank!',
+    bossWarns: { 20: '⚡ A swordsman with no memory!', 25: '⚡ MENU, puppet of the shadows!', 30: '⚡ Bulgasari the iron-eater!', 35: '⚡ Imugi of the Black Lake!', 40: '⚡ The Shadow Tiger General!', 45: '⚡ Another Yuja…?!', 50: '⚡ Eoduksini, King of Shadows!!' },
     lifeLost: 'Try again!', timeUp: "Time's up!",
     contT: 'Continue?', contYes: '▶ Continue', contNo: '🏳 Give up',
     contDesc: 'Spend half your score to carry on from this stage.', contScore: 'Score', contAfter: 'After',
     storyHint: '▶ Continue (Space/Tap)', storySkip: 'Skip: ESC',
-    chars: { uja: 'Yuja', uni: 'Uni', yeomra: 'King Yeomra', jjo: 'Queen JJOJJO' },
+    chars: { uja: 'Yuja', uni: 'Uni', yeomra: 'King Yeomra', jjo: 'Queen JJOJJO', minyu: 'MENU', eoduk: 'Eoduksini', bulga: 'Bulgasari', imugi: 'Imugi', sangun: 'Tiger General', ujadark: 'Shadow Yuja' },
     story: {
       intro: ["In a little mountain village, Yuja missed her mother, who had gone to the sky.", "I'm going to find Mom. Uni, will you come with me?", "And so Yuja and her unicorn Uni set off on a journey to the Underworld."],
       after5: ["A child of the living, here? ...Your courage impresses me.", "Take this Underworld Pass. But beware — the queen there has lost her memory.", "Clutching the pass, Yuja walked deeper into the Underworld."],
       before10: ["On the throne of the Sky Palace... that face was unmistakably her mother's.", "Mom!! It's me, Yuja!", "...Who are you? Insolent child. Begone!"],
       after10: ["The fallen queen still did not recognize her daughter.", "Come to the Iron Fortress. We finish this there!"],
-      ending: ["As the tank crumbled... the fog lifted from the queen's eyes.", "...Yuja? My little Yuja... is it really you?", "Mom!! I missed you so much!!", "Hand in hand, the three returned together to the warm world of the living. — The End —"],
+      ending: ["As the tank crumbled... the fog lifted from the queen's eyes.", "...Yuja? My little Yuja... is it really you?", "Mom!! I missed you so much!!", "Hand in hand, the three returned together to the warm world of the living."],
+      intro2: ["With Mom home, laughter filled Yuja's house every day. But one seat at the table stayed empty.", "Yuja... your father never went to the sky. He left alone to protect us from Eoduksini, the shadow king who steals memories. It was Eoduksini who stole my memory too.", "Then Dad is alive?! I'm going to find him and bring him home!", "And so Yuja, Uni, and Queen JJOJJO set off on a brand-new adventure toward the Shadow Lands."],
+      before20: ["In the middle of the moonlit duel ground stood a swordsman with a hauntingly familiar back.", "...Dad?! It's you, isn't it?!", "Dad...? I know no such word. Draw your sword, little one!"],
+      after20: ['Tears fell from the fallen swordsman\'s eyes. "Yu...ja...? That name... from where..."', "At that moment, black fog swept in, wrapped around Dad, and carried him away!", "DAD!! Hold on just a little longer — I WILL save you!!"],
+      before25: ["Upon the shadow throne, Dad looked down coldly with glowing violet eyes.", "Kekeke... this man is my knight now. My knight — destroy that little girl!"],
+      after25: ["CRACK! The black memory orb controlling Dad shattered into a thousand pieces.", "Yuja! My love! I'm sorry... so sorry... and thank you, my brave girl!", "Eoduksini is a shadow king who grows stronger by stealing precious memories. To his castle — and this time, Dad fights with you!", "Now the four of them, together at last — the real adventure begins!"],
+      after30: ["From the iron heap Bulgasari had swallowed, sparkling memory shards of the villagers fluttered up into the sky.", "The memory shards are all flowing toward Eoduksini's castle. Hurry, Yuja!"],
+      after35: ["I... only ever wanted to become a dragon... Eoduksini stole my thousand years of memories...", "Wait, Mr. Imugi! I promise I'll get your memories back!"],
+      after40: ['Freed from the shadows, the Tiger General bowed his head. "I never forget a kindness. Climb on my back!"', "Riding the great tiger, the family raced over the mountains like the wind."],
+      after45: ["You... you shine so brightly. I was your shadow... until Eoduksini tore me away from you.", "So that's who you are! Then come back to me — let's go together, as one!", "The shadow smiled softly and slipped back to Yuja's feet, right where it belonged."],
+      before50: ["So you made it here, little one. But you are too late. Every memory in the world will soon be MINE!", "Yuja, don't be afraid. Dad is here. Mom is here. We are all together.", "Yes! Our family is the strongest in the whole world! Let's GO!!"],
+      ending2: ["As Eoduksini fell, thousands of captive memories rose into the sky as lights.", "I... no one ever remembered me... not even one... so I had no choice but to steal...", "Then I will remember you! Every night, when I look at the sky! So... let's be friends!", "Eoduksini shed a single warm tear — and became the brightest star in the night sky.", "My Yuja, the bravest girl in the whole world! Dad is so, so proud of you!", "The village threw a great feast, and everyone laughed among their returned memories. And Yuja's family stayed together — forever and ever. — The End —"],
     },
   },
   ko: {
@@ -61,22 +80,41 @@ const I18N = {
     emptyRec: '아직 기록이 없습니다 — 조선을 구하러 가요!',
     pauseT: '⏸ 일시정지', resume: '▶ 계속하기', quit: '🏳 그만하기',
     quitConfirm: '메뉴로 나갈까요? 이 스테이지 시작부터 이어할 수 있습니다.',
-    stages: ['초가마을', '소나무 숲', '궁궐 지붕', '저승길', '염라대왕궁', '매화 대나무숲', '설산 고개', '노을 바닷가', '구름 하늘길', '쪼쪼 여왕의 하늘궁전', '왕벚꽃 정원', '홍염 화산', '오로라 빙하', '황금 노을 포구', '쪼쪼의 강철 요새'],
+    stages: ['초가마을', '소나무 숲', '궁궐 지붕', '저승길', '염라대왕궁', '매화 대나무숲', '설산 고개', '노을 바닷가', '구름 하늘길', '쪼쪼 여왕의 하늘궁전', '왕벚꽃 정원', '홍염 화산', '오로라 빙하', '황금 노을 포구', '쪼쪼의 강철 요새',
+      '달빛 갈대밭', '안개 골짜기', '반딧불 늪', '폭풍 능선', '달빛 결투장',
+      '가시덤불 숲', '잿빛 폐허', '도깨비 야시장', '어둠 성벽길', '그림자 옥좌',
+      '새벽 억새평원', '무쇠 광산', '톱니바퀴 동굴', '용광로 다리', '무쇠 안마당',
+      '비 내리는 나루터', '검은 호수', '물에 잠긴 사원', '안개 등대길', '폭풍의 호수',
+      '밤의 단풍고개', '별빛 절벽', '눈보라 봉우리', '호랑이 바위산', '산군의 사냥터',
+      '보랏빛 하늘계단', '거울 회랑', '뒤집힌 궁전', '꿈의 미로', '거울 옥좌의 방',
+      '어둑시니 성문', '기억의 회랑', '그림자 첨탑', '별이 갇힌 감옥', '어둑시니의 옥좌'],
     stageLbl: '스테이지', gameOver: '게임 오버', stageClear: '스테이지 클리어!', timeBonus: '시간 보너스',
-    worldClear: '👑 쪼쪼의 탱크를 파괴했다! 조선에 평화가!', newRecord: '🎉 개인 최고기록 갱신!',
+    worldClear: '👑 쪼쪼의 탱크를 파괴했다! 조선에 평화가!', worldClear2: '🌟 어둑시니를 물리쳤다! 세상의 모든 기억이 돌아왔다!', newRecord: '🎉 개인 최고기록 갱신!',
     finalScore: '점수', reachedStage: '도달', resTitle: '🍋 결과',
-    oneUp: '생명 +1!', mounted: '🦄 유니가 함께합니다!', bossWarn: '⚡ 염라대왕 등장!', bossWarn2: '⚡ 쪼쪼 여왕 등장!', bossWarn3: '⚡ 탱크를 탄 쪼쪼 등장!',
+    oneUp: '생명 +1!', mounted: '🦄 유니가 함께합니다!', mounted2: '👑 엄마 쪼쪼와 함께 날아요!', bossWarn: '⚡ 염라대왕 등장!', bossWarn2: '⚡ 쪼쪼 여왕 등장!', bossWarn3: '⚡ 탱크를 탄 쪼쪼 등장!',
+    bossWarns: { 20: '⚡ 기억을 잃은 검객 등장!', 25: '⚡ 어둠에 조종당하는 미뉴!', 30: '⚡ 무쇠 먹는 불가사리 등장!', 35: '⚡ 검은 호수의 이무기 등장!', 40: '⚡ 그림자 산군 등장!', 45: '⚡ 또 하나의 유자…?!', 50: '⚡ 그림자 왕 어둑시니!!' },
     lifeLost: '다시 도전!', timeUp: '시간 초과!',
     contT: '이어서 할까요?', contYes: '▶ 이어하기', contNo: '🏳 그만두기',
     contDesc: '누적 점수의 절반을 사용해 이 스테이지부터 이어합니다.', contScore: '현재 점수', contAfter: '이어하기 후',
     storyHint: '▶ 계속 (Space·터치)', storySkip: '건너뛰기: ESC',
-    chars: { uja: '유자', uni: '유니', yeomra: '염라대왕', jjo: '쪼쪼 여왕' },
+    chars: { uja: '유자', uni: '유니', yeomra: '염라대왕', jjo: '쪼쪼 여왕', minyu: '미뉴', eoduk: '어둑시니', bulga: '불가사리', imugi: '이무기', sangun: '산군', ujadark: '그림자 유자' },
     story: {
       intro: ['산골 마을의 소녀 유자는 하늘로 떠난 엄마가 사무치게 그리웠어요.', '엄마를 꼭 만나러 갈 거야. 유니, 함께 가 줄래?', '그렇게 유자와 유니콘 유니는 저승을 향한 모험을 떠났습니다.'],
       after5: ['이승의 아이가 여기까지 오다니… 그 용기, 인정하마.', '저승 출입권을 주마. 허나 조심하거라 — 그곳의 여왕은 기억을 잃었으니.', '출입권을 꼭 쥔 유자는 더 깊은 저승으로 나아갔습니다.'],
       before10: ['하늘궁전의 옥좌 위… 그 얼굴은 분명, 그리운 엄마였습니다.', '엄마!! 나야, 유자야!', '…누구냐? 무엄한 꼬마 같으니. 물러가라!'],
       after10: ['쓰러진 여왕은 끝내 유자를 알아보지 못했습니다.', '강철 요새로 오너라. 거기서 끝장을 내주마!'],
-      ending: ['탱크가 부서지고… 여왕의 눈에서 안개가 걷혔습니다.', '…유자? 우리 딸… 유자 맞니?', '엄마!! 보고 싶었어!!', '셋은 손을 잡고, 따뜻한 이승으로 함께 돌아갔답니다. — 끝 —'],
+      ending: ['탱크가 부서지고… 여왕의 눈에서 안개가 걷혔습니다.', '…유자? 우리 딸… 유자 맞니?', '엄마!! 보고 싶었어!!', '셋은 손을 잡고, 따뜻한 이승으로 함께 돌아갔답니다.'],
+      intro2: ['엄마와 함께한 봄, 유자네 집엔 매일 웃음꽃이 피었어요. 하지만 딱 한 자리가 비어 있었죠.', '유자야… 사실 네 아빠는 하늘로 떠난 게 아니란다. 기억을 훔치는 그림자 왕 어둑시니에게서 우릴 지키려고 홀로 떠나셨어. 엄마의 기억을 훔쳐간 것도 바로 어둑시니야.', '그럼 아빠가 살아 계신 거야?! 내가 아빠를 꼭 찾아올게!', '그렇게 유자와 유니, 그리고 쪼쪼 여왕은 그림자 나라를 향해 새로운 모험을 떠났습니다.'],
+      before20: ['달빛 결투장 한가운데, 낯익은 뒷모습의 검객이 서 있었습니다.', '…아빠?! 아빠 맞지?!', '아빠…? 나는 그런 말 모른다. 검을 들어라, 꼬마야!'],
+      after20: ['쓰러진 검객의 눈에서 눈물이 흘렀습니다. "유…자…? 그 이름, 어디서…"', '그 순간! 검은 안개가 몰려와 아빠를 휘감아 데려가 버렸습니다.', '아빠!! 조금만 기다려, 내가 꼭 구해줄게!!'],
+      before25: ['그림자 옥좌 위, 보랏빛 눈을 한 아빠가 차갑게 내려다보았습니다.', '크크크… 이 자는 이제 나의 기사다. 나의 기사여, 저 꼬마를 없애라!'],
+      after25: ['쨍그랑! 아빠를 조종하던 검은 기억구슬이 산산이 부서졌습니다.', '유자야! 여보! 미안해… 정말 미안해… 그리고 고맙다, 우리 딸!', '어둑시니는 사람들의 소중한 기억을 훔쳐 힘을 키우는 그림자 왕이야. 놈의 성으로 가자. 이번엔 아빠가 함께다!', '이제 넷이 함께! 진짜 모험이 시작되었습니다!'],
+      after30: ['불가사리가 삼켰던 무쇠 더미 속에서, 마을 사람들의 기억 조각들이 반짝이며 날아올랐습니다.', '기억 조각들이 전부 어둑시니 성으로 흘러가고 있어. 서두르자, 유자야!'],
+      after35: ['나는… 그저 용이 되고 싶었을 뿐이야… 내 천 년의 기억을 어둑시니가 훔쳐갔어…', '이무기 아저씨, 기다려! 아저씨의 기억, 내가 꼭 되찾아줄게!'],
+      after40: ['그림자가 걷힌 산군이 고개를 숙였습니다. "은혜는 잊지 않는다. 내 등에 타거라!"', '가족은 산군의 등에 올라, 바람처럼 산맥을 내달렸습니다.'],
+      after45: ['너는… 참 밝게 빛나는구나. 나는 네 그림자였는데… 어둑시니가 나를 억지로 떼어냈어.', '그랬구나! 그럼 이제 다시 나랑 하나가 되자. 같이 가는 거야!', '그림자는 방긋 웃으며, 유자의 발밑 그림자로 사르르 돌아왔습니다.'],
+      before50: ['잘도 여기까지 왔구나, 꼬마야. 허나 늦었다. 세상의 모든 기억은 곧 내 것이 된다!', '유자야, 무서워하지 마. 아빠가, 엄마가, 우리 모두가 함께 있단다.', '응! 우리 가족은 세상에서 제일 강하니까! 가자!!'],
+      ending2: ['어둑시니가 쓰러지자, 성에 갇혀 있던 수천 개의 기억이 빛이 되어 하늘로 날아올랐습니다.', '나는… 아무도 기억해 주는 이가 없었다… 그래서… 남의 기억을 훔칠 수밖에 없었어…', '이제 내가 널 기억할게! 매일 밤 하늘을 보면서! 그러니까… 우리 친구 하자!', '어둑시니는 따뜻한 눈물을 흘리며, 밤하늘에서 가장 밝게 빛나는 별이 되었습니다.', '우리 유자, 세상에서 가장 용감한 우리 딸! 아빠는 네가 정말 자랑스럽다!', '마을엔 큰 잔치가 열렸고, 되찾은 기억 속에서 모두가 웃었습니다. 그리고 유자네 가족은 언제까지나, 언제까지나 함께였답니다. — 끝 —'],
     },
   },
   ja: {
@@ -92,22 +130,41 @@ const I18N = {
     emptyRec: 'まだ記録がありません — 朝鮮を救いに行こう！',
     pauseT: '⏸ 一時停止', resume: '▶ つづける', quit: '🏳 やめる',
     quitConfirm: 'メニューに戻りますか？このステージの最初から再開できます。',
-    stages: ['わらぶきの村', '松の森', '宮殿の屋根', '冥途の道', '閻魔大王宮', '梅と竹の林', '雪山峠', '夕焼けの浜辺', '雲の空道', 'チョチョ女王の天空宮', '八重桜の庭', '紅炎火山', 'オーロラ氷河', '黄金の夕焼け港', 'チョチョの鋼鉄要塞'],
+    stages: ['わらぶきの村', '松の森', '宮殿の屋根', '冥途の道', '閻魔大王宮', '梅と竹の林', '雪山峠', '夕焼けの浜辺', '雲の空道', 'チョチョ女王の天空宮', '八重桜の庭', '紅炎火山', 'オーロラ氷河', '黄金の夕焼け港', 'チョチョの鋼鉄要塞',
+      '月夜の葦原', '霧の谷', '蛍の沼', '嵐の尾根', '月光の決闘場',
+      'いばらの森', '灰色の廃墟', 'トッケビ夜市', '闇の城壁道', '影の玉座',
+      '夜明けのすすき野原', '鉄の鉱山', '歯車の洞窟', '溶鉱炉の橋', '鉄の中庭',
+      '雨の渡し場', '黒い湖', '水没した寺院', '霧の灯台道', '嵐の湖',
+      '夜の紅葉峠', '星明かりの断崖', '吹雪の峰', '虎岩山', '山君の狩り場',
+      '紫の空階段', '鏡の回廊', '逆さまの宮殿', '夢の迷宮', '鏡の玉座の間',
+      'オドゥクシニ城門', '記憶の回廊', '影の尖塔', '星の牢獄', 'オドゥクシニの玉座'],
     stageLbl: 'ステージ', gameOver: 'ゲームオーバー', stageClear: 'ステージクリア！', timeBonus: 'タイムボーナス',
-    worldClear: '👑 チョチョの戦車を破壊した！朝鮮に平和が！', newRecord: '🎉 自己ベスト更新！',
+    worldClear: '👑 チョチョの戦車を破壊した！朝鮮に平和が！', worldClear2: '🌟 オドゥクシニを倒した！世界中の記憶が戻ってきた！', newRecord: '🎉 自己ベスト更新！',
     finalScore: 'スコア', reachedStage: '到達', resTitle: '🍋 リザルト',
-    oneUp: '残機 +1！', mounted: '🦄 ユニが仲間に！', bossWarn: '⚡ 閻魔大王あらわる！', bossWarn2: '⚡ チョチョ女王あらわる！', bossWarn3: '⚡ 戦車に乗ったチョチョ登場！',
+    oneUp: '残機 +1！', mounted: '🦄 ユニが仲間に！', mounted2: '👑 ママのチョチョと一緒に飛ぼう！', bossWarn: '⚡ 閻魔大王あらわる！', bossWarn2: '⚡ チョチョ女王あらわる！', bossWarn3: '⚡ 戦車に乗ったチョチョ登場！',
+    bossWarns: { 20: '⚡ 記憶を失った剣士が現れた！', 25: '⚡ 闇に操られるミニュ！', 30: '⚡ 鉄を食うプルガサリ出現！', 35: '⚡ 黒い湖のイムギ出現！', 40: '⚡ 影の山君あらわる！', 45: '⚡ もう一人のユジャ…？！', 50: '⚡ 影の王オドゥクシニ！！' },
     lifeLost: 'もう一度！', timeUp: 'タイムアップ！',
     contT: 'つづけますか？', contYes: '▶ つづける', contNo: '🏳 やめる',
     contDesc: 'スコアの半分を使ってこのステージから再開します。', contScore: '現在スコア', contAfter: '再開後',
     storyHint: '▶ つづく (Space・タップ)', storySkip: 'スキップ: ESC',
-    chars: { uja: 'ユジャ', uni: 'ユニ', yeomra: '閻魔大王', jjo: 'チョチョ女王' },
+    chars: { uja: 'ユジャ', uni: 'ユニ', yeomra: '閻魔大王', jjo: 'チョチョ女王', minyu: 'ミニュ', eoduk: 'オドゥクシニ', bulga: 'プルガサリ', imugi: 'イムギ', sangun: '山君', ujadark: '影のユジャ' },
     story: {
       intro: ['山里の少女ユジャは、空へ旅立ったお母さんが恋しくてたまりませんでした。', 'お母さんに会いに行くの。ユニ、一緒に来てくれる？', 'こうしてユジャとユニコーンのユニは、冥界への冒険に旅立ちました。'],
       after5: ['この世の子供がここまで来るとは…その勇気、認めよう。', '冥界通行証を授けよう。だが気をつけよ、あの女王は記憶を失っておる。', '通行証を握りしめ、ユジャはさらに深い冥界へと進みました。'],
       before10: ['天空宮の玉座の上…その顔は、確かに恋しい母でした。', 'お母さん!! 私よ、ユジャよ！', '…何者だ？無礼な子め。去れ！'],
       after10: ['倒れた女王は、ついに娘に気づきませんでした。', '鋼鉄要塞に来い。そこで決着をつけてやる！'],
-      ending: ['戦車が壊れると…女王の瞳から霧が晴れました。', '…ユジャ？私の娘…ユジャなの？', 'お母さん!! 会いたかった!!', '三人は手を取り合い、温かいこの世へ帰っていきました。― おしまい ―'],
+      ending: ['戦車が壊れると…女王の瞳から霧が晴れました。', '…ユジャ？私の娘…ユジャなの？', 'お母さん!! 会いたかった!!', '三人は手を取り合い、温かいこの世へ帰っていきました。'],
+      intro2: ['お母さんが帰ってきた春、ユジャの家には毎日笑顔があふれました。でも、席がひとつだけ空いていました。', 'ユジャ…実はね、お父さんは空へ旅立ったんじゃないの。記憶を盗む影の王オドゥクシニから私たちを守るため、ひとりで旅立ったのよ。ママの記憶を盗んだのもオドゥクシニなの。', 'じゃあパパは生きてるの？！私がパパを絶対に探してくる！', 'こうしてユジャとユニ、そしてチョチョ女王は、影の国へ新たな冒険に旅立ちました。'],
+      before20: ['月光の決闘場の真ん中に、見覚えのある後ろ姿の剣士が立っていました。', '…パパ？！パパでしょ？！', 'パパ…？そんな言葉は知らぬ。剣を取れ、小さき者よ！'],
+      after20: ['倒れた剣士の目から涙がこぼれました。「ユ…ジャ…？その名前、どこかで…」', 'その瞬間！黒い霧が押し寄せ、パパを包んで連れ去ってしまいました。', 'パパ!! もう少しだけ待ってて、必ず助けるから!!'],
+      before25: ['影の玉座の上、紫色の目をしたパパが冷たく見下ろしていました。', 'クックック…この者はもう私の騎士だ。我が騎士よ、あの小娘を消せ！'],
+      after25: ['ガシャン！パパを操っていた黒い記憶玉が粉々に砕けました。', 'ユジャ！おまえ！ごめん…本当にごめん…そして、ありがとう、私の娘！', 'オドゥクシニは人々の大切な記憶を盗んで力を増す影の王だ。奴の城へ行こう。今度はパパも一緒だ！', 'これで四人一緒！本当の冒険が始まりました！'],
+      after30: ['プルガサリが飲み込んだ鉄の山から、村人たちの記憶のかけらがきらきらと舞い上がりました。', '記憶のかけらが全部オドゥクシニの城へ流れている。急ごう、ユジャ！'],
+      after35: ['私は…ただ龍になりたかっただけだ…千年の記憶をオドゥクシニに盗まれた…', 'イムギのおじさん、待ってて！おじさんの記憶、私が必ず取り戻すから！'],
+      after40: ['影が晴れた山君は頭を下げました。「恩は忘れぬ。我が背に乗れ！」', '家族は山君の背に乗り、風のように山脈を駆け抜けました。'],
+      after45: ['あなたは…とても明るく輝いているのね。私はあなたの影だったのに…オドゥクシニが無理やり引き剥がしたの。', 'そうだったんだ！じゃあ、また私と一つになろう。一緒に行くんだよ！', '影はにっこり笑って、ユジャの足元の影へするりと戻りました。'],
+      before50: ['よくぞここまで来たな、小娘。だが遅い。世界のすべての記憶は、もうすぐ私のものになる！', 'ユジャ、怖がらないで。パパも、ママも、みんな一緒にいるよ。', 'うん！うちの家族は世界一強いんだから！行くよ!!'],
+      ending2: ['オドゥクシニが倒れると、城に閉じ込められていた何千もの記憶が光となって空へ舞い上がりました。', '私は…誰にも覚えてもらえなかった…だから…人の記憶を盗むしかなかったのだ…', 'これからは私があなたを覚えてる！毎晩、空を見上げながら！だから…友達になろう！', 'オドゥクシニは温かい涙を流し、夜空でいちばん明るく輝く星になりました。', 'ユジャ、世界でいちばん勇敢な私の娘！パパはおまえが本当に誇らしいよ！', '村では大きな宴が開かれ、取り戻した記憶の中でみんなが笑いました。そしてユジャの家族はいつまでも、いつまでも一緒でした。― おしまい ―'],
     },
   },
   es: {
@@ -123,22 +180,41 @@ const I18N = {
     emptyRec: 'Aún no hay récords — ¡ve a salvar Joseon!',
     pauseT: '⏸ Pausa', resume: '▶ Continuar', quit: '🏳 Salir',
     quitConfirm: '¿Salir al menú? Podrás continuar desde el inicio de esta fase.',
-    stages: ['Aldea de paja', 'Bosque de pinos', 'Tejados de palacio', 'Camino al inframundo', 'Palacio del Rey Yeomra', 'Bosque de ciruelos y bambú', 'Paso nevado', 'Costa al atardecer', 'Camino de nubes', 'Palacio celestial de la Reina JJOJJO', 'Jardín de cerezos', 'Volcán carmesí', 'Glaciar de auroras', 'Puerto dorado', 'Fortaleza de hierro de JJOJJO'],
+    stages: ['Aldea de paja', 'Bosque de pinos', 'Tejados de palacio', 'Camino al inframundo', 'Palacio del Rey Yeomra', 'Bosque de ciruelos y bambú', 'Paso nevado', 'Costa al atardecer', 'Camino de nubes', 'Palacio celestial de la Reina JJOJJO', 'Jardín de cerezos', 'Volcán carmesí', 'Glaciar de auroras', 'Puerto dorado', 'Fortaleza de hierro de JJOJJO',
+      'Cañaveral a la luz de la luna', 'Garganta brumosa', 'Pantano de luciérnagas', 'Cresta de tormentas', 'Campo de duelo lunar',
+      'Bosque de espinos', 'Ruinas cenicientas', 'Mercado nocturno de duendes', 'Camino de la muralla oscura', 'Trono de las sombras',
+      'Llanura plateada del alba', 'Mina de hierro', 'Caverna de engranajes', 'Puente del horno', 'Patio de hierro',
+      'Embarcadero lluvioso', 'Lago Negro', 'Templo hundido', 'Camino del faro brumoso', 'Lago de tormentas',
+      'Paso de arces nocturno', 'Acantilados estelares', 'Pico de ventisca', 'Montaña Roca del Tigre', 'Coto de caza del Tigre',
+      'Escalera celeste violeta', 'Corredor de espejos', 'Palacio invertido', 'Laberinto de sueños', 'Sala del trono de espejos',
+      'Puerta del castillo sombrío', 'Corredor de los recuerdos', 'Aguja de las sombras', 'Prisión de estrellas', 'Trono de Eoduksini'],
     stageLbl: 'FASE', gameOver: 'FIN DEL JUEGO', stageClear: '¡FASE SUPERADA!', timeBonus: 'Bono de tiempo',
-    worldClear: '👑 ¡El tanque de JJOJJO ha caído! ¡La paz vuelve a Joseon!', newRecord: '🎉 ¡Nueva mejor marca!',
+    worldClear: '👑 ¡El tanque de JJOJJO ha caído! ¡La paz vuelve a Joseon!', worldClear2: '🌟 ¡Eoduksini ha sido derrotado! ¡Todos los recuerdos han vuelto!', newRecord: '🎉 ¡Nueva mejor marca!',
     finalScore: 'Puntuación', reachedStage: 'Alcanzado', resTitle: '🍋 Resultado',
-    oneUp: '¡Vida extra!', mounted: '🦄 ¡Uni se une a ti!', bossWarn: '⚡ ¡Aparece el Rey Yeomra!', bossWarn2: '⚡ ¡Aparece la Reina JJOJJO!', bossWarn3: '⚡ ¡JJOJJO llega en un tanque!',
+    oneUp: '¡Vida extra!', mounted: '🦄 ¡Uni se une a ti!', mounted2: '👑 ¡Vuela con mamá JJOJJO!', bossWarn: '⚡ ¡Aparece el Rey Yeomra!', bossWarn2: '⚡ ¡Aparece la Reina JJOJJO!', bossWarn3: '⚡ ¡JJOJJO llega en un tanque!',
+    bossWarns: { 20: '⚡ ¡Un espadachín sin recuerdos!', 25: '⚡ ¡MENU, títere de las sombras!', 30: '⚡ ¡Bulgasari, el comehierro!', 35: '⚡ ¡Imugi del Lago Negro!', 40: '⚡ ¡El Tigre de las Sombras!', 45: '⚡ ¿Otra Yuja…?', 50: '⚡ ¡¡Eoduksini, Rey de las Sombras!!' },
     lifeLost: '¡Inténtalo de nuevo!', timeUp: '¡Se acabó el tiempo!',
     contT: '¿Continuar?', contYes: '▶ Continuar', contNo: '🏳 Rendirse',
     contDesc: 'Gasta la mitad de tu puntuación para seguir desde esta fase.', contScore: 'Puntuación', contAfter: 'Después',
     storyHint: '▶ Continuar (Espacio/Toque)', storySkip: 'Saltar: ESC',
-    chars: { uja: 'Yuja', uni: 'Uni', yeomra: 'Rey Yeomra', jjo: 'Reina JJOJJO' },
+    chars: { uja: 'Yuja', uni: 'Uni', yeomra: 'Rey Yeomra', jjo: 'Reina JJOJJO', minyu: 'MENU', eoduk: 'Eoduksini', bulga: 'Bulgasari', imugi: 'Imugi', sangun: 'General Tigre', ujadark: 'Yuja Sombría' },
     story: {
       intro: ['En una aldea de montaña, Yuja extrañaba a su madre, que se había ido al cielo.', '¡Voy a buscar a mamá! Uni, ¿me acompañas?', 'Y así, Yuja y su unicornio Uni partieron hacia el Inframundo.'],
       after5: ['¿Una niña de los vivos, aquí? ...Tu valor me impresiona.', 'Toma este pase del Inframundo. Pero cuidado: la reina de allí perdió la memoria.', 'Con el pase en la mano, Yuja se adentró en el Inframundo.'],
       before10: ['En el trono del palacio celestial... ese rostro era, sin duda, el de su madre.', '¡¡Mamá!! ¡Soy yo, Yuja!', '...¿Quién eres? Niña insolente. ¡Fuera!'],
       after10: ['La reina caída seguía sin reconocer a su hija.', 'Ven a la Fortaleza de Hierro. ¡Allí acabaremos esto!'],
-      ending: ['Cuando el tanque se destruyó... la niebla se disipó de los ojos de la reina.', '...¿Yuja? Mi pequeña Yuja... ¿de verdad eres tú?', '¡¡Mamá!! ¡¡Te extrañé tanto!!', 'Tomados de la mano, los tres volvieron juntos al cálido mundo de los vivos. — Fin —'],
+      ending: ['Cuando el tanque se destruyó... la niebla se disipó de los ojos de la reina.', '...¿Yuja? Mi pequeña Yuja... ¿de verdad eres tú?', '¡¡Mamá!! ¡¡Te extrañé tanto!!', 'Tomados de la mano, los tres volvieron juntos al cálido mundo de los vivos.'],
+      intro2: ['Con mamá en casa, la risa llenaba el hogar de Yuja cada día. Pero un asiento seguía vacío.', 'Yuja... tu padre nunca se fue al cielo. Partió solo para protegernos de Eoduksini, el rey sombra que roba recuerdos. Fue él quien robó mi memoria.', '¡¿Entonces papá está vivo?! ¡Voy a encontrarlo y traerlo a casa!', 'Y así, Yuja, Uni y la Reina JJOJJO partieron hacia las Tierras Sombrías.'],
+      before20: ['En medio del campo de duelo lunar había un espadachín de espalda extrañamente familiar.', '...¿¡Papá!? ¡Eres tú, ¿verdad?!', '¿Papá...? No conozco esa palabra. ¡Desenvaina, pequeña!'],
+      after20: ['Lágrimas cayeron de los ojos del espadachín caído. "¿Yu...ja...? Ese nombre... de dónde..."', '¡En ese instante, una niebla negra envolvió a papá y se lo llevó!', '¡¡PAPÁ!! ¡Aguanta un poco más, te salvaré, lo prometo!'],
+      before25: ['Sobre el trono sombrío, papá miraba hacia abajo con fríos ojos violetas.', 'Jejeje... este hombre ahora es mi caballero. ¡Mi caballero, elimina a esa niña!'],
+      after25: ['¡CRAC! El orbe negro de recuerdos que controlaba a papá se hizo añicos.', '¡Yuja! ¡Mi amor! Lo siento... lo siento tanto... ¡y gracias, mi niña valiente!', 'Eoduksini se hace fuerte robando recuerdos preciosos. ¡A su castillo! ¡Esta vez papá lucha con ustedes!', '¡Ahora los cuatro juntos! ¡La verdadera aventura comienza!'],
+      after30: ['Del montón de hierro que Bulgasari había tragado, fragmentos brillantes de recuerdos volaron hacia el cielo.', 'Los fragmentos fluyen hacia el castillo de Eoduksini. ¡Deprisa, Yuja!'],
+      after35: ['Yo... solo quería convertirme en dragón... Eoduksini robó mis mil años de recuerdos...', '¡Espera, señor Imugi! ¡Te prometo que recuperaré tus recuerdos!'],
+      after40: ['Libre de las sombras, el General Tigre inclinó la cabeza. "Nunca olvido un favor. ¡Sube a mi lomo!"', 'Montada en el gran tigre, la familia cruzó las montañas como el viento.'],
+      after45: ['Tú... brillas tanto. Yo era tu sombra... hasta que Eoduksini me arrancó de ti.', '¡Así que eras tú! Entonces vuelve conmigo. ¡Vamos juntas, como una sola!', 'La sombra sonrió dulcemente y volvió a los pies de Yuja, a su lugar de siempre.'],
+      before50: ['Así que llegaste hasta aquí, pequeña. Pero es tarde. ¡Todos los recuerdos del mundo pronto serán MÍOS!', 'Yuja, no tengas miedo. Papá está aquí. Mamá está aquí. Estamos todos juntos.', '¡Sí! ¡Nuestra familia es la más fuerte del mundo! ¡¡VAMOS!!'],
+      ending2: ['Cuando Eoduksini cayó, miles de recuerdos cautivos subieron al cielo convertidos en luces.', 'Yo... nadie me recordaba... ni una sola persona... por eso no me quedó más que robar...', '¡Entonces yo te recordaré! ¡Cada noche, mirando el cielo! Así que... ¡seamos amigos!', 'Eoduksini derramó una cálida lágrima... y se convirtió en la estrella más brillante del cielo nocturno.', '¡Mi Yuja, la niña más valiente del mundo entero! ¡Papá está muy orgulloso de ti!', 'La aldea celebró una gran fiesta y todos rieron entre sus recuerdos recuperados. Y la familia de Yuja permaneció junta... por siempre jamás. — Fin —'],
     },
   },
   zh: {
@@ -154,22 +230,41 @@ const I18N = {
     emptyRec: '还没有记录——快去拯救朝鲜吧！',
     pauseT: '⏸ 暂停', resume: '▶ 继续', quit: '🏳 退出',
     quitConfirm: '返回菜单？可以从本关开头继续。',
-    stages: ['草屋村', '松树林', '宫殿屋顶', '黄泉路', '阎罗大王宫', '梅花竹林', '雪山垭口', '落日海边', '云中天路', '啾啾女王的天空宫', '樱花庭园', '赤焰火山', '极光冰川', '黄金落日港', '啾啾的钢铁要塞'],
+    stages: ['草屋村', '松树林', '宫殿屋顶', '黄泉路', '阎罗大王宫', '梅花竹林', '雪山垭口', '落日海边', '云中天路', '啾啾女王的天空宫', '樱花庭园', '赤焰火山', '极光冰川', '黄金落日港', '啾啾的钢铁要塞',
+      '月光芦苇田', '迷雾峡谷', '萤火虫沼泽', '风暴山脊', '月光决斗场',
+      '荆棘丛林', '灰烬废墟', '妖怪夜市', '黑暗城墙路', '暗影王座',
+      '黎明芒草平原', '铁矿山', '齿轮洞窟', '熔炉之桥', '钢铁庭院',
+      '雨中渡口', '黑湖', '水没寺院', '雾中灯塔路', '风暴之湖',
+      '夜枫垭口', '星光悬崖', '暴雪山峰', '虎岩山', '山君的猎场',
+      '紫色天空阶梯', '镜之回廊', '颠倒宫殿', '梦之迷宫', '镜之王座厅',
+      '暗影城门', '记忆回廊', '暗影尖塔', '星之牢狱', '黑暗王的王座'],
     stageLbl: '关卡', gameOver: '游戏结束', stageClear: '过关！', timeBonus: '时间奖励',
-    worldClear: '👑 摧毁了啾啾的坦克！朝鲜恢复了和平！', newRecord: '🎉 刷新个人最佳！',
+    worldClear: '👑 摧毁了啾啾的坦克！朝鲜恢复了和平！', worldClear2: '🌟 打败了黑暗王！世界上所有的记忆都回来了！', newRecord: '🎉 刷新个人最佳！',
     finalScore: '分数', reachedStage: '到达', resTitle: '🍋 结算',
-    oneUp: '生命 +1！', mounted: '🦄 Uni加入了！', bossWarn: '⚡ 阎罗大王出现！', bossWarn2: '⚡ 啾啾女王出现！', bossWarn3: '⚡ 啾啾驾驶坦克登场！',
+    oneUp: '生命 +1！', mounted: '🦄 Uni加入了！', mounted2: '👑 和妈妈啾啾一起飞翔！', bossWarn: '⚡ 阎罗大王出现！', bossWarn2: '⚡ 啾啾女王出现！', bossWarn3: '⚡ 啾啾驾驶坦克登场！',
+    bossWarns: { 20: '⚡ 失去记忆的剑客出现！', 25: '⚡ 被黑暗操控的米纽！', 30: '⚡ 吃铁的不可杀离登场！', 35: '⚡ 黑湖的螭龙登场！', 40: '⚡ 暗影山君登场！', 45: '⚡ 另一个柚子…？！', 50: '⚡ 暗影之王登场！！' },
     lifeLost: '再试一次！', timeUp: '时间到！',
     contT: '要继续吗？', contYes: '▶ 继续', contNo: '🏳 放弃',
     contDesc: '消耗一半分数，从本关继续。', contScore: '当前分数', contAfter: '继续后',
     storyHint: '▶ 继续 (空格/点击)', storySkip: '跳过: ESC',
-    chars: { uja: '柚子', uni: 'Uni', yeomra: '阎罗大王', jjo: '啾啾女王' },
+    chars: { uja: '柚子', uni: 'Uni', yeomra: '阎罗大王', jjo: '啾啾女王', minyu: '米纽', eoduk: '黑暗王', bulga: '不可杀离', imugi: '螭龙', sangun: '山君', ujadark: '影子柚子' },
     story: {
       intro: ['山村的少女柚子，非常想念去了天上的妈妈。', '我要去见妈妈！Uni，陪我一起去好吗？', '就这样，柚子和独角兽Uni踏上了前往冥界的冒险。'],
       after5: ['阳间的孩子竟敢来到这里…你的勇气，我认可了。', '给你冥界通行证。但要小心——那里的女王失去了记忆。', '柚子紧握通行证，走向更深的冥界。'],
       before10: ['天空宫的王座上…那张脸分明就是思念的妈妈。', '妈妈!!是我，柚子啊！', '…你是谁？无礼的小家伙，退下！'],
       after10: ['倒下的女王，终究没有认出女儿。', '来钢铁要塞吧。在那里做个了断！'],
-      ending: ['坦克碎裂时…女王眼中的迷雾散去了。', '…柚子？我的女儿…真的是柚子吗？', '妈妈!!我好想你!!', '三人手牵着手，一起回到了温暖的人间。——完——'],
+      ending: ['坦克碎裂时…女王眼中的迷雾散去了。', '…柚子？我的女儿…真的是柚子吗？', '妈妈!!我好想你!!', '三人手牵着手，一起回到了温暖的人间。'],
+      intro2: ['妈妈回家后，柚子家每天都充满欢笑。可餐桌旁，总有一个空位。', '柚子…其实你爸爸并没有去天上。他是为了保护我们，独自去对抗偷走记忆的暗影之王。偷走妈妈记忆的，也正是那个黑暗王。', '那爸爸还活着？！我一定要把爸爸找回来！', '就这样，柚子、Uni和啾啾女王，踏上了前往暗影之国的全新冒险。'],
+      before20: ['月光决斗场中央，站着一位背影无比熟悉的剑客。', '…爸爸？！是爸爸对吧？！', '爸爸…？我不懂那种话。拔剑吧，小家伙！'],
+      after20: ['倒下的剑客眼中流出了泪水。"柚…子…？这个名字，好像在哪里…"', '就在那一刻！黑雾涌来，卷住爸爸把他带走了！', '爸爸!!再等一等，我一定会救你的!!'],
+      before25: ['暗影王座之上，紫瞳的爸爸冷冷地俯视着。', '嘿嘿嘿…此人已是我的骑士。我的骑士啊，消灭那个小家伙！'],
+      after25: ['哐当！操控爸爸的黑色记忆珠碎成了千万片。', '柚子！亲爱的！对不起…真的对不起…还有，谢谢你，我的女儿！', '黑暗王靠偷走人们珍贵的记忆壮大力量。去他的城堡吧，这次爸爸和你们并肩作战！', '四个人终于在一起！真正的冒险开始了！'],
+      after30: ['从不可杀离吞下的铁堆里，村民们的记忆碎片闪闪发光地飞了起来。', '记忆碎片全都流向黑暗王的城堡。快点，柚子！'],
+      after35: ['我…只是想变成龙而已…我一千年的记忆被黑暗王偷走了…', '螭龙叔叔，等着！你的记忆，我一定帮你找回来！'],
+      after40: ['摆脱暗影的山君低下了头。"大恩不忘。上我的背来吧！"', '一家人骑上山君的背，像风一样翻越了群山。'],
+      after45: ['你…真的好耀眼。我本是你的影子…是黑暗王硬把我从你身边撕走的。', '原来是这样！那就回到我身边，我们一起走吧！', '影子甜甜地笑了，轻轻回到柚子的脚下，回到原本的位置。'],
+      before50: ['你居然走到了这里，小家伙。但是太迟了。世上所有的记忆，马上都会属于我！', '柚子，别怕。爸爸在，妈妈在，我们都在一起。', '嗯！我们家是世界上最强的！走吧!!'],
+      ending2: ['黑暗王倒下的瞬间，被囚禁在城里的千万记忆化作光芒，飞向天空。', '我…从来没有人记得我…一个人也没有…所以…我只能去偷别人的记忆…', '以后我来记住你！每天晚上，看着夜空！所以…我们做朋友吧！', '黑暗王流下一滴温热的泪水，变成了夜空中最亮的星星。', '我们柚子，是世界上最勇敢的女儿！爸爸真为你骄傲！', '村里举行了盛大的宴会，大家在找回的记忆中欢笑。柚子一家人，永远永远在一起。——完——'],
     },
   },
 };
@@ -192,6 +287,7 @@ const HD_FACE = {
   uja0: 1, uja1: 1, uja2: 1, uja3: 1, uja2atk: 1, uja3glide: 1, uni: -1,
   ghost: -1, reaper: -1, dok: -1, egg: -1, fox: -1,
   boss: -1, jjo: -1, jjotank: -1,
+  minyu: -1, minyudark: -1, jjor: -1, bulga: -1, imugi: -1, sangun: -1, ujadark: -1, eoduk: -1,
 };
 function loadHD() {
   if (typeof Image === 'undefined' || qs.get('hd') === '0') return;
@@ -1468,20 +1564,62 @@ const THEMES = [
   { sky: ['#0a2044', '#16406a'], hill: '#9ec2da', hill2: '#7aa0c0', deco: 'snowpine', light: 0.82, moon: 1, ground: 'snow', amb: 'snow', aurora: 1 },
   { sky: ['#f5934a', '#ffe0a8'], hill: '#c86a44', hill2: '#a44e30', deco: 'lighthouse', light: 0.95, ground: 'sand', amb: 'sparkle', sea: 1 },
   { sky: ['#221a30', '#3c2c4e'], hill: '#2c2038', hill2: '#1a1226', deco: 'fortress', light: 0.7, lanterns: 1, ground: 'steel', amb: 'gold' },
+  // ===== 2부: 아빠를 찾아서 (16~50) =====
+  { sky: ['#2a3f6e', '#f2a56a'], hill: '#5a6a4a', hill2: '#43523a', deco: 'reed', light: 0.85, ground: 'grass', amb: 'firefly', moon: 1 }, // 16 달빛 갈대밭
+  { sky: ['#8a97a8', '#d8e2e8'], hill: '#6a7888', hill2: '#525f70', deco: 'pine', light: 0.8, ground: 'grass', amb: 'wind' }, // 17 안개 골짜기
+  { sky: ['#12241e', '#23483a'], hill: '#1c3a2e', hill2: '#122822', deco: 'reed', light: 0.6, lanterns: 1, ground: 'dark', amb: 'firefly' }, // 18 반딧불 늪
+  { sky: ['#232a3a', '#4a5670'], hill: '#333d52', hill2: '#252d3e', deco: 'pine', light: 0.65, ground: 'dark', amb: 'rain' }, // 19 폭풍 능선
+  { sky: ['#101830', '#2a3a60'], hill: '#1c2440', hill2: '#121830', deco: 'bamboo', light: 0.62, moon: 1, ground: 'dark', amb: 'petal' }, // 20 달빛 결투장
+  { sky: ['#2a1a2e', '#4a2e4a'], hill: '#38243a', hill2: '#28182a', deco: 'pine', light: 0.6, ground: 'dark', amb: 'leaf' }, // 21 가시덤불 숲
+  { sky: ['#3a3440', '#6a5e66'], hill: '#4a424c', hill2: '#383038', deco: 'ruin', light: 0.7, ground: 'dark', amb: 'ember' }, // 22 잿빛 폐허
+  { sky: ['#1c1030', '#42205a'], hill: '#2c1a44', hill2: '#1e1030', deco: 'market', light: 0.6, lanterns: 1, ground: 'palace', amb: 'gold' }, // 23 도깨비 야시장
+  { sky: ['#181420', '#33283c'], hill: '#241c2c', hill2: '#181220', deco: 'fortress', light: 0.6, lanterns: 1, ground: 'steel', amb: 'ember' }, // 24 어둠 성벽길
+  { sky: ['#160b22', '#3a1450'], hill: '#241034', hill2: '#160a20', deco: 'spire', light: 0.55, lanterns: 1, ground: 'palace', amb: 'ember' }, // 25 그림자 옥좌
+  { sky: ['#f7b26a', '#ffe9c0'], hill: '#c9a86a', hill2: '#a8894e', deco: 'reed', light: 1, ground: 'grass', amb: 'sparkle' }, // 26 새벽 억새평원
+  { sky: ['#2e2620', '#584838'], hill: '#443830', hill2: '#302620', deco: 'gear', light: 0.65, lanterns: 1, ground: 'steel', amb: 'ember' }, // 27 무쇠 광산
+  { sky: ['#241c28', '#463850'], hill: '#342a3c', hill2: '#241c2a', deco: 'gear', light: 0.6, lanterns: 1, ground: 'steel', amb: 'gold' }, // 28 톱니바퀴 동굴
+  { sky: ['#3a0c10', '#8a2412'], hill: '#4a1410', hill2: '#2c0a08', deco: 'gear', light: 0.7, ground: 'lava', amb: 'ember', lava: 1 }, // 29 용광로 다리
+  { sky: ['#33302e', '#5e5850'], hill: '#454038', hill2: '#332e28', deco: 'fortress', light: 0.7, ground: 'steel', amb: 'ember' }, // 30 무쇠 안마당
+  { sky: ['#3a4a5a', '#7a8ea0'], hill: '#4c5e70', hill2: '#3a4858', deco: 'wave', light: 0.75, ground: 'sand', amb: 'rain', sea: 1, seaCol: ['#5a7286', '#43596c', '#2e3f50'] }, // 31 비 내리는 나루터
+  { sky: ['#101822', '#243648'], hill: '#1a2836', hill2: '#101a24', deco: 'reed', light: 0.6, moon: 1, ground: 'dark', amb: 'firefly', sea: 1, seaCol: ['#1e3242', '#152634', '#0c1822'] }, // 32 검은 호수
+  { sky: ['#16303a', '#2a5866'], hill: '#204450', hill2: '#16303a', deco: 'palace', light: 0.65, lanterns: 1, ground: 'dark', amb: 'gold' }, // 33 물에 잠긴 사원
+  { sky: ['#5a6a78', '#aab8c2'], hill: '#6e8090', hill2: '#566674', deco: 'lighthouse', light: 0.7, ground: 'sand', amb: 'wind', sea: 1, seaCol: ['#6e8494', '#54697a', '#3c4e5e'] }, // 34 안개 등대길
+  { sky: ['#1c2436', '#3a4a66'], hill: '#28344a', hill2: '#1c2434', deco: 'wave', light: 0.6, ground: 'dark', amb: 'rain', sea: 1, seaCol: ['#2c3e56', '#1f2e42', '#141f30'] }, // 35 폭풍의 호수
+  { sky: ['#1e1428', '#4a2438'], hill: '#32202e', hill2: '#221420', deco: 'maple', light: 0.65, moon: 1, ground: 'dark', amb: 'leaf', leafCol: 'rgba(216,90,70,.9)' }, // 36 밤의 단풍고개
+  { sky: ['#0c1430', '#243060'], hill: '#1a2444', hill2: '#101830', deco: 'pine', light: 0.7, moon: 1, ground: 'grass', amb: 'gold' }, // 37 별빛 절벽
+  { sky: ['#3a4658', '#8a98b0'], hill: '#5c6a80', hill2: '#485468', deco: 'snowpine', light: 0.75, ground: 'snow', amb: 'snow' }, // 38 눈보라 봉우리
+  { sky: ['#4a3020', '#8a5e38'], hill: '#5e4028', hill2: '#442e1c', deco: 'pine', light: 0.8, ground: 'dark', amb: 'leaf' }, // 39 호랑이 바위산
+  { sky: ['#141020', '#302040'], hill: '#20182e', hill2: '#141020', deco: 'snowpine', light: 0.6, moon: 1, ground: 'snow', amb: 'snow' }, // 40 산군의 사냥터
+  { sky: ['#2c1a4a', '#7a4a9a'], hill: '#40286a', hill2: '#2c1a4a', deco: 'cloudsea', light: 0.8, ground: 'cloud', amb: 'gold' }, // 41 보랏빛 하늘계단
+  { sky: ['#1a2440', '#4a5a8a'], hill: '#28365c', hill2: '#1a2440', deco: 'crystal', light: 0.75, ground: 'palace', amb: 'gold' }, // 42 거울 회랑
+  { sky: ['#301a3e', '#5a2a6a'], hill: '#42245a', hill2: '#301a40', deco: 'palace2', light: 0.7, lanterns: 1, ground: 'palace', amb: 'gold' }, // 43 뒤집힌 궁전
+  { sky: ['#241a3a', '#503a72'], hill: '#362a52', hill2: '#241a3a', deco: 'crystal', light: 0.7, ground: 'cloud', amb: 'memory' }, // 44 꿈의 미로
+  { sky: ['#141c38', '#3a4478'], hill: '#222c54', hill2: '#161e3c', deco: 'crystal', light: 0.65, lanterns: 1, ground: 'palace', amb: 'memory' }, // 45 거울 옥좌의 방
+  { sky: ['#0f0a18', '#2a1a38'], hill: '#1c1228', hill2: '#100a18', deco: 'spire', light: 0.55, lanterns: 1, ground: 'steel', amb: 'ember' }, // 46 어둑시니 성문
+  { sky: ['#1a1230', '#3c2a5e'], hill: '#281c44', hill2: '#1a1230', deco: 'spire', light: 0.6, lanterns: 1, ground: 'palace', amb: 'memory' }, // 47 기억의 회랑
+  { sky: ['#0c0814', '#241430'], hill: '#180e20', hill2: '#0c0814', deco: 'spire', light: 0.55, lanterns: 1, ground: 'steel', amb: 'ember' }, // 48 그림자 첨탑
+  { sky: ['#080a1c', '#182048'], hill: '#121631', hill2: '#0a0c1e', deco: 'crystal', light: 0.55, moon: 1, lanterns: 1, ground: 'steel', amb: 'memory' }, // 49 별이 갇힌 감옥
+  { sky: ['#0a0612', '#2c0f3e'], hill: '#1c0c2a', hill2: '#0e0616', deco: 'spire', light: 0.6, lanterns: 1, ground: 'palace', amb: 'memory' }, // 50 어둑시니의 옥좌
 ];
 let LV = null; // {t:Uint8Array, W, ents:[], goalX, theme, qc:Map, deco:[], bossArena}
 function ti(x, y) { return (x < 0 || x >= LV.W) ? 5 : (y < 0 ? 0 : y >= ROWS ? 0 : LV.t[y * LV.W + x]); }
 function setT(t, W, x, y, v) { if (x >= 0 && x < W && y >= 0 && y < ROWS) t[y * W + x] = v; }
 const SOLID = [false, true, true, true, true, true, false]; // 6=플랫폼(반통과)
 
+const MAX_STAGE = 50;
+const BOSS_AT = { 5: 'boss', 10: 'jjojjo', 15: 'jjotank', 20: 'm20', 25: 'm25', 30: 'b30', 35: 'b35', 40: 'b40', 45: 'b45', 50: 'b50' };
 function genLevel(stage) {
   const rng = mulberry32(4200 + stage * 131);
-  const W = [150, 165, 175, 185, 150, 180, 185, 190, 195, 155, 185, 190, 195, 200, 165][stage - 1];
+  const bossStage = !!BOSS_AT[stage];
+  const W = stage <= 15
+    ? [150, 165, 175, 185, 150, 180, 185, 190, 195, 155, 185, 190, 195, 200, 165][stage - 1]
+    : bossStage ? 155 + ((stage * 7) % 18) : 178 + ((stage * 37) % 26);
   const t = new Uint8Array(W * ROWS);
   const ents = [];
   const qc = new Map();
   const deco = [];
-  const mix = [
+  const POOL = ['ghost', 'reaper', 'dok', 'egg', 'fox'];
+  const mix = stage <= 15 ? [
     ['ghost'],
     ['ghost', 'egg', 'ghost'],
     ['ghost', 'reaper', 'egg'],
@@ -1497,11 +1635,11 @@ function genLevel(stage) {
     ['fox', 'egg', 'reaper', 'dok'],
     ['dok', 'fox', 'reaper', 'egg', 'fox'],
     ['fox', 'reaper', 'dok', 'fox', 'reaper'],
-  ][stage - 1];
-  const bossStage = stage === 5 || stage === 10 || stage === 15;
-  const flowery = [1, 2, 6, 8, 9, 11].includes(stage); // 아기자기 꽃/풀 장식 테마
+  ][stage - 1]
+    : Array.from({ length: 4 + (stage >= 30 ? 1 : 0) }, () => POOL[(rng() * POOL.length) | 0]);
+  const flowery = [1, 2, 6, 8, 9, 11, 16, 26, 36, 37, 41].includes(stage); // 아기자기 꽃/풀 장식 테마
   const gapMax = stage <= 1 ? 3 : 4;
-  const eDen = 0.16 + Math.min(stage, 7) * 0.035;
+  const eDen = Math.min(0.46, 0.16 + Math.min(stage, 7) * 0.035 + (stage > 15 ? (stage - 15) * 0.0022 : 0));
   let x = 0, gh = 2; // gh = 지면 높이(타일 수)
   let firstQ = true, uniPlaced = false, powerCnt = 0;
   const uniAt = Math.floor(W * 0.35);
@@ -1519,7 +1657,9 @@ function genLevel(stage) {
       if (!uniPlaced && gx >= uniAt) { ents.push({ type: 'uni', tx: gx, ty: top }); uniPlaced = true; continue; }
       // 적 (시작 안전지대 이후에만)
       if (rng() < eDen && n >= 4 && gx >= SAFE_START) {
-        ents.push({ type: mix[(rng() * mix.length) | 0], tx: gx, ty: top });
+        let et = mix[(rng() * mix.length) | 0];
+        if (et === 'fox' && gx < SAFE_START + 8) et = 'ghost'; // 구미호는 돌진이 빨라 안전거리 추가
+        ents.push({ type: et, tx: gx, ty: top });
         continue;
       }
       // 엽전 아치
@@ -1584,13 +1724,12 @@ function genLevel(stage) {
   }
   gh = 2;
   let goalX, bossArena = null;
-  if (bossStage) { // 보스 아레나 (5 염라대왕 · 10 쪼쪼 여왕 · 15 탱크 쪼쪼)
+  if (bossStage) { // 보스 아레나 (5탄마다)
     ground(x, W, gh);
     const ax = x + 4;
     bossArena = { x0: ax * TILE, x1: (W - 2) * TILE, entered: false };
     for (let r = 0; r < ROWS; r++) setT(t, W, W - 1, r, 5); // 끝벽
-    const bossType = stage === 15 ? 'jjotank' : stage === 10 ? 'jjojjo' : 'boss';
-    ents.push({ type: bossType, tx: W - 13, ty: ROWS - gh - 1 });
+    ents.push({ type: BOSS_AT[stage], tx: W - 13, ty: ROWS - gh - 1 });
     goalX = (W - 5) * TILE; // 보스 처치 후 등장
   } else {
     ground(x, W, gh);
@@ -1599,6 +1738,8 @@ function genLevel(stage) {
   }
   // 유니콘 미배치 시 시작 지점 근처에
   if (!uniPlaced) ents.push({ type: 'uni', tx: 12, ty: ROWS - 3 });
+  // 2부(16탄~): 엄마 쪼쪼 여왕도 탑승 가능 — 시작 지점에서 선택
+  if (stage >= 16) ents.push({ type: 'jjor', tx: 6, ty: ROWS - 3 });
   // 파워업 블록 보장 (시드 운으로 없을 때)
   if (![...qc.values()].some(c => c === 'fruit' || c === 'pepper' || c === 'tiger')) {
     const first = qc.keys().next();
@@ -1622,6 +1763,20 @@ const cam = { x: 0 };
 const keys = { l: false, r: false, j: false, run: false };
 let jumpBuf = 0, jumpWasDown = false, runWasDown = false;
 
+/* ===== 보스 정의 (5탄마다) ===== */
+const BOSS_DEF = {
+  boss:    { hp: 5,  w: 48, h: 60, score: 5000,  col: '#8a1a28', bar: '#d8425a', icon: '☠', spr: 'boss', dh: 72 },
+  jjojjo:  { hp: 6,  w: 44, h: 58, score: 5000,  col: '#7a2a8e', bar: '#e858a8', icon: '👑', spr: 'jjo', dh: 72 },
+  jjotank: { hp: 8,  w: 92, h: 74, score: 8000,  col: '#4a5060', bar: '#c89020', icon: '🛡', spr: 'jjotank', dh: 86 },
+  m20:     { hp: 7,  w: 42, h: 58, score: 6000,  col: '#2a3a6e', bar: '#5a8ae8', icon: '🗡', spr: 'minyu', dh: 74 },
+  m25:     { hp: 8,  w: 42, h: 58, score: 7000,  col: '#3a1450', bar: '#9a5ae8', icon: '😈', spr: 'minyudark', dh: 74 },
+  b30:     { hp: 9,  w: 68, h: 62, score: 8000,  col: '#5e5850', bar: '#c8c0b0', icon: '⚙', spr: 'bulga', dh: 76 },
+  b35:     { hp: 9,  w: 76, h: 60, score: 8000,  col: '#1c4a5e', bar: '#4ac8e8', icon: '🌊', spr: 'imugi', dh: 78, fly: 1 },
+  b40:     { hp: 10, w: 80, h: 56, score: 9000,  col: '#302040', bar: '#f0a83c', icon: '🐯', spr: 'sangun', dh: 68 },
+  b45:     { hp: 10, w: 34, h: 46, score: 9000,  col: '#3a1a5a', bar: '#e85ad8', icon: '🪞', spr: 'ujadark', dh: 58 },
+  b50:     { hp: 14, w: 84, h: 84, score: 15000, col: '#1a0f2a', bar: '#ffd34d', icon: '🌑', spr: 'eoduk', dh: 104, fly: 1 },
+};
+const BOSS_TYPES = new Set(Object.keys(BOSS_DEF));
 function mkPlayer(px, py) {
   return {
     x: px, y: py, w: 20, h: 30, vx: 0, vy: 0, dir: 1,
@@ -1640,18 +1795,16 @@ function spawnEnts() {
     else if (s.type === 'egg') ents.push({ type: 'egg', x: px, y: py - 90, w: 22, h: 28, base: py - 90, t: Math.random() * 6 });
     else if (s.type === 'fox') ents.push({ type: 'fox', x: px, y: py - 28, w: 30, h: 26, vx: -110, vy: 0, dir: -1 });
     else if (s.type === 'uni') ents.push({ type: 'uni', x: px, y: py - 32, w: 30, h: 30, vx: 0, vy: 0, dir: -1, bob: 0 });
-    else if (s.type === 'boss') ents.push({
-      type: 'boss', x: s.tx * TILE, y: (s.ty + 1) * TILE - 62, w: 48, h: 60,
-      vx: 0, vy: 0, dir: -1, hp: 5, maxHp: 5, throwT: 2.2, stun: 0, inv: 0, dead: false,
-    });
-    else if (s.type === 'jjojjo') ents.push({
-      type: 'jjojjo', x: s.tx * TILE, y: (s.ty + 1) * TILE - 60, w: 44, h: 58,
-      vx: 0, vy: 0, dir: -1, hp: 6, maxHp: 6, burstT: 2.6, burstN: 0, shotT: 0, flash: 0, stun: 0, inv: 0, dead: false,
-    });
-    else if (s.type === 'jjotank') ents.push({
-      type: 'jjotank', x: s.tx * TILE, y: (s.ty + 1) * TILE - 78, w: 92, h: 74,
-      vx: 0, vy: 0, dir: -1, hp: 8, maxHp: 8, throwT: 2.4, mgN: 0, shotT: 0, flash: 0, stun: 0, inv: 0, dead: false,
-    });
+    else if (s.type === 'jjor') ents.push({ type: 'jjor', x: px, y: py - 34, w: 32, h: 32, vx: 0, vy: 0, dir: -1, bob: 0 });
+    else if (BOSS_TYPES.has(s.type)) {
+      const d = BOSS_DEF[s.type];
+      ents.push({
+        type: s.type, x: s.tx * TILE, y: (s.ty + 1) * TILE - d.h - 4, w: d.w, h: d.h,
+        vx: 0, vy: 0, dir: -1, hp: d.hp, maxHp: d.hp,
+        throwT: 2.4, burstT: 2.6, burstN: 0, mgN: 0, shotT: 0, flash: 0,
+        stun: 0, inv: 0, dead: false, dashT: 0, hopT: 1.5, t: 0, baseY: (s.ty + 1) * TILE - d.h - 4,
+      });
+    }
   }
   LV.goalActive = !LV.bossArena;
 }
@@ -1725,8 +1878,8 @@ function damagePlayer() {
   const p = player;
   if (p.inv > 0 || p.star > 0 || p.dead || p.flag) return;
   if (p.riding) {
+    ents.push({ type: 'uniFlee', name: p.riding === 'jjo' ? 'jjor' : 'uni', x: p.x - 6, y: p.y, w: 30, h: 30, vx: p.dir * -240, vy: -220, dir: -p.dir, t: 0 });
     p.riding = false; p.airJump = false;
-    ents.push({ type: 'uniFlee', x: p.x - 6, y: p.y, w: 30, h: 30, vx: p.dir * -240, vy: -220, dir: -p.dir, t: 0 });
     p.inv = 1.6; sfx.hurt();
     return;
   }
@@ -1786,13 +1939,21 @@ function updatePlayer(dt) {
       sfx.jump();
     }
   }
-  // 불꽃 발사 (고추 폼, 달리기 버튼 탭 = 마리오 방식)
+  // 불꽃 발사 (고추 폼, 달리기 버튼 탭 = 마리오 방식) · 쪼쪼 탑승 중엔 황금 탄환
   p.atkT = Math.max(0, p.atkT - dt);
-  if (keys.run && !runWasDown && p.pw === 2) {
-    if (ents.filter(e => e.type === 'fb' && !e.dead).length < 2) {
-      ents.push({ type: 'fb', x: p.x + (p.dir > 0 ? p.w - 2 : -12), y: p.y + 8, w: 14, h: 14, vx: p.dir * 360, vy: -60, t: 0, dir: p.dir });
-      p.atkT = 0.32; // 공격 포즈 유지 시간
-      sfx.fire();
+  if (keys.run && !runWasDown) {
+    if (p.riding === 'jjo') {
+      if (ents.filter(e => e.type === 'gblt' && !e.dead).length < 2) {
+        ents.push({ type: 'gblt', x: p.x + (p.dir > 0 ? p.w + 2 : -18), y: p.y + 6, w: 16, h: 9, vx: p.dir * 430, vy: 0, t: 0, dir: p.dir });
+        p.atkT = 0.28;
+        sfx.shot();
+      }
+    } else if (p.pw === 2) {
+      if (ents.filter(e => e.type === 'fb' && !e.dead).length < 2) {
+        ents.push({ type: 'fb', x: p.x + (p.dir > 0 ? p.w - 2 : -12), y: p.y + 8, w: 14, h: 14, vx: p.dir * 360, vy: -60, t: 0, dir: p.dir });
+        p.atkT = 0.32; // 공격 포즈 유지 시간
+        sfx.fire();
+      }
     }
   }
   runWasDown = keys.run;
@@ -1847,7 +2008,7 @@ function updatePlayer(dt) {
   if (ba && !ba.entered && p.x > ba.x0 + 40) {
     ba.entered = true;
     bgmStart(true); sfx.warn();
-    G.msg = G.stage === 15 ? L.bossWarn3 : G.stage === 10 ? L.bossWarn2 : L.bossWarn; G.msgT = 2.2;
+    G.msg = (L.bossWarns && L.bossWarns[G.stage]) || (G.stage === 15 ? L.bossWarn3 : G.stage === 10 ? L.bossWarn2 : L.bossWarn); G.msgT = 2.2;
   }
   if (ba && ba.entered && p.x < ba.x0) p.x = ba.x0;
 }
@@ -1955,14 +2116,14 @@ function updateEnts(dt) {
         }
         break;
       }
-      case 'uni': {
+      case 'uni': case 'jjor': {
         e.bob += dt;
         tileCollide(e, dt);
         if (!p.riding && !p.dead && overlap(e, p)) {
           e.dead = true;
-          p.riding = true; p.airJump = false;
-          popup(p.x, p.y - 24, L.mounted, '#ff9cc8');
-          sparkle(p.x + 10, p.y + 10, '#ff9cc8');
+          p.riding = e.type === 'jjor' ? 'jjo' : 'uni'; p.airJump = false;
+          popup(p.x, p.y - 24, e.type === 'jjor' ? L.mounted2 : L.mounted, e.type === 'jjor' ? '#ffd34d' : '#ff9cc8');
+          sparkle(p.x + 10, p.y + 10, e.type === 'jjor' ? '#ffd34d' : '#ff9cc8');
           sfx.mount();
         }
         break;
@@ -2030,10 +2191,51 @@ function updateEnts(dt) {
           if (['ghost', 'reaper', 'dok', 'egg', 'fox', 'hat'].includes(o.type) && overlap(e, o)) {
             killEnemy(o, 200, true); e.dead = true; break;
           }
-          if ((o.type === 'boss' || o.type === 'jjojjo' || o.type === 'jjotank') && o.inv <= 0 && overlap(e, o)) {
+          if (BOSS_TYPES.has(o.type) && o.inv <= 0 && overlap(e, o)) {
             bossHurt(o); e.dead = true; break;
           }
         }
+        break;
+      }
+      case 'gblt': { // 쪼쪼 탑승 황금 탄환 (직선)
+        e.t += dt;
+        e.x += e.vx * dt;
+        const gtx = Math.floor((e.x + e.w / 2) / TILE), gty = Math.floor((e.y + e.h / 2) / TILE);
+        if (SOLID[ti(gtx, gty)] || e.t > 1.8) { e.dead = true; sparkle(e.x + 6, e.y + 4, '#ffd34d'); break; }
+        for (const o of ents) {
+          if (o.dead || o === e) continue;
+          if (['ghost', 'reaper', 'dok', 'egg', 'fox', 'hat'].includes(o.type) && overlap(e, o)) {
+            killEnemy(o, 200, true); e.dead = true; break;
+          }
+          if (BOSS_TYPES.has(o.type) && o.inv <= 0 && overlap(e, o)) {
+            bossHurt(o); e.dead = true; break;
+          }
+        }
+        break;
+      }
+      case 'sorb': { // 그림자 구슬 (직선·저속, 보스 공용)
+        e.t += dt;
+        e.x += e.vx * dt; e.y += e.vy * dt;
+        const stx = Math.floor((e.x + e.w / 2) / TILE), sty = Math.floor((e.y + e.h / 2) / TILE);
+        if (SOLID[ti(stx, sty)] || e.t > 3 || e.y > VH + 40 || e.y < -60) {
+          e.dead = true;
+          if (e.t <= 3) sparkle(e.x + 6, e.y + 6, e.col || '#b06ae8');
+        }
+        break;
+      }
+      case 'swave': { // 검기 (미뉴의 초승달 참격)
+        e.t += dt;
+        e.x += e.vx * dt;
+        const wtx = Math.floor((e.x + e.w / 2) / TILE), wty = Math.floor((e.y + e.h / 2) / TILE);
+        if (SOLID[ti(wtx, wty)] || e.t > 1.6) { e.dead = true; sparkle(e.x + 8, e.y + 8, '#9ac8ff'); }
+        break;
+      }
+      case 'shock': { // 지면 충격파 (산군 착지)
+        e.t += dt;
+        e.x += e.vx * dt;
+        e.hitWall = 0;
+        const cx3 = Math.floor((e.vx > 0 ? e.x + e.w : e.x) / TILE), cy3 = Math.floor((e.y + e.h / 2) / TILE);
+        if (SOLID[ti(cx3, cy3)] || e.t > 1.4) { e.dead = true; poof(e.x + 8, e.y + 6, '#f0a83c'); }
         break;
       }
       case 'blt': { // 쪼쪼 기관총탄 (직선탄)
@@ -2083,13 +2285,20 @@ function updateEnts(dt) {
       case 'boss': updateBoss(e, dt); break;
       case 'jjojjo': updateJjojjo(e, dt); break;
       case 'jjotank': updateJjotank(e, dt); break;
+      case 'm20': updateM20(e, dt); break;
+      case 'm25': updateM25(e, dt); break;
+      case 'b30': updateB30(e, dt); break;
+      case 'b35': updateB35(e, dt); break;
+      case 'b40': updateB40(e, dt); break;
+      case 'b45': updateB45(e, dt); break;
+      case 'b50': updateB50(e, dt); break;
     }
     // 플레이어 상호작용 (적 계열)
-    if (!e.dead && !p.dead && ['ghost', 'reaper', 'dok', 'egg', 'fox', 'hat', 'tal', 'boss', 'jjojjo', 'jjotank', 'blt', 'shell'].includes(e.type)) {
+    if (!e.dead && !p.dead && (BOSS_TYPES.has(e.type) || ['ghost', 'reaper', 'dok', 'egg', 'fox', 'hat', 'tal', 'blt', 'shell', 'sorb', 'swave', 'shock'].includes(e.type))) {
       if (!overlap(e, p)) continue;
       if (e.type === 'hat' && e.t < 0.3) continue;
-      const isBoss = e.type === 'boss' || e.type === 'jjojjo' || e.type === 'jjotank';
-      const proj = e.type === 'tal' || e.type === 'blt' || e.type === 'shell';
+      const isBoss = BOSS_TYPES.has(e.type);
+      const proj = ['tal', 'blt', 'shell', 'sorb', 'swave', 'shock'].includes(e.type);
       const stomp = p.vy > 130 && p.prevB <= e.y + 10 && !proj;
       if (stomp) {
         p.vy = keys.j ? -500 : -330;
@@ -2105,7 +2314,7 @@ function updateEnts(dt) {
         killEnemy(e, 200, true);
       } else if (!isBoss || e.inv <= 0) {
         damagePlayer();
-        if (e.type === 'blt' || e.type === 'shell') { e.dead = true; sparkle(e.x + 5, e.y + 5, '#ffd34d'); if (e.type === 'shell') sfx.boom(); }
+        if (proj && e.type !== 'tal') { e.dead = true; sparkle(e.x + 5, e.y + 5, e.col || '#ffd34d'); if (e.type === 'shell') sfx.boom(); }
       }
     }
   }
@@ -2136,7 +2345,7 @@ function updateBoss(e, dt) {
     sfx.throwP();
   }
 }
-function bossHurt(e) { // 공통 보스 피해 (밟기·불꽃)
+function bossHurt(e) { // 공통 보스 피해 (밟기·불꽃·황금탄)
   if (e.inv > 0) return;
   e.hp--; e.inv = 1.0;
   poof(e.x + e.w / 2, e.y + 8, '#ffd34d');
@@ -2144,11 +2353,13 @@ function bossHurt(e) { // 공통 보스 피해 (밟기·불꽃)
   sfx.bossHit();
   if (e.hp <= 0) {
     e.dead = true;
-    const col = e.type === 'jjojjo' ? '#7a2a8e' : e.type === 'jjotank' ? '#4a5060' : '#8a1a28';
-    const n = e.type === 'jjotank' ? 7 : 4;
+    const def = BOSS_DEF[e.type] || {};
+    const col = def.col || '#8a1a28';
+    const big = e.type === 'jjotank' || e.type === 'b50';
+    const n = e.type === 'b50' ? 10 : big ? 7 : 4;
     for (let i = 0; i < n; i++)
-      setTimeout(() => { poof(e.x + 10 + Math.random() * (e.w - 20), e.y + 10 + Math.random() * (e.h - 20), i % 2 ? col : '#ffd34d'); if (e.type === 'jjotank') sfx.boom(); }, i * 130);
-    addScore(e.type === 'jjotank' ? 8000 : 5000, e.x + e.w / 2, e.y - 20);
+      setTimeout(() => { poof(e.x + 10 + Math.random() * (e.w - 20), e.y + 10 + Math.random() * (e.h - 20), i % 2 ? col : '#ffd34d'); if (big) sfx.boom(); }, i * 130);
+    addScore(def.score || 5000, e.x + e.w / 2, e.y - 20);
     sfx.bossDie();
     LV.goalActive = true;
     bgmStart(false);
@@ -2255,6 +2466,217 @@ function updateJjotank(e, dt) {
   tileCollide(e, dt);
 }
 
+/* ===== 보스 20: 기억을 잃은 검객 미뉴 — 돌진 베기 + 검기 ===== */
+function updateM20(e, dt) {
+  const p = player, ba = LV.bossArena;
+  if (!ba || !ba.entered) return;
+  e.inv = Math.max(0, e.inv - dt);
+  e.flash = Math.max(0, e.flash - dt);
+  if (e.stun > 0) { e.stun -= dt; e.vx = 0; tileCollide(e, dt); return; }
+  const lost = e.maxHp - e.hp;
+  if (e.dashT > 0) { // 돌진 베기
+    e.dashT -= dt;
+    e.vx = e.dir * (340 + lost * 18);
+    if (e.dashT <= 0) { // 베기 끝에 검기 발사
+      ents.push({ type: 'swave', x: e.x + e.w / 2 + e.dir * 20, y: e.y + e.h - 34, w: 26, h: 22, vx: e.dir * 310, t: 0, dir: e.dir });
+      e.flash = 0.15; sfx.throwP();
+    }
+  } else {
+    e.dir = p.x > e.x ? 1 : -1;
+    e.vx = e.dir * (58 + lost * 14);
+    e.throwT -= dt;
+    if (e.throwT <= 0) {
+      e.throwT = Math.max(1.2, 2.5 - lost * 0.18);
+      e.dashT = 0.42; // 잠깐 힘 모았다 돌진
+      e.vx = 0;
+    }
+  }
+  e.animT = (e.animT || 0) + dt * (1.4 + lost * 0.2);
+  e.hitWall = 0;
+  tileCollide(e, dt);
+}
+
+/* ===== 보스 25: 조종당하는 미뉴 — 순간이동 + 3갈래 그림자탄 ===== */
+function updateM25(e, dt) {
+  const p = player, ba = LV.bossArena;
+  if (!ba || !ba.entered) return;
+  e.inv = Math.max(0, e.inv - dt);
+  e.flash = Math.max(0, e.flash - dt);
+  if (e.stun > 0) { e.stun -= dt; e.vx = 0; tileCollide(e, dt); return; }
+  const lost = e.maxHp - e.hp;
+  e.dir = p.x > e.x ? 1 : -1;
+  e.vx = e.dir * (44 + lost * 10);
+  e.throwT -= dt;
+  if (e.throwT <= 0) {
+    e.throwT = Math.max(1.4, 2.7 - lost * 0.16);
+    // 순간이동: 플레이어 반대편으로 번쩍
+    poof(e.x + e.w / 2, e.y + e.h / 2, '#9a5ae8');
+    const nx = p.x + (p.x > (ba.x0 + ba.x1) / 2 ? -170 : 170);
+    e.x = Math.max(ba.x0 + 10, Math.min(ba.x1 - e.w - 10, nx));
+    poof(e.x + e.w / 2, e.y + e.h / 2, '#9a5ae8');
+    sfx.warn();
+    // 3갈래 그림자탄
+    const gy = e.y + 22, dxp = p.x + p.w / 2 - (e.x + e.w / 2);
+    const dirp = Math.sign(dxp) || 1;
+    for (const vy of [-90, 0, 90])
+      ents.push({ type: 'sorb', x: e.x + e.w / 2 + dirp * 20, y: gy, w: 14, h: 14, vx: dirp * (215 + lost * 8), vy, t: 0, col: '#b06ae8' });
+    e.flash = 0.15; sfx.throwP();
+  }
+  e.animT = (e.animT || 0) + dt * 1.6;
+  e.hitWall = 0;
+  tileCollide(e, dt);
+}
+
+/* ===== 보스 30: 불가사리 — 벽 사이 폭주 돌진 + 무쇠알 포격 ===== */
+function updateB30(e, dt) {
+  const p = player, ba = LV.bossArena;
+  if (!ba || !ba.entered) return;
+  e.inv = Math.max(0, e.inv - dt);
+  if (e.stun > 0) { e.stun -= dt; e.vx = 0; tileCollide(e, dt); return; }
+  const lost = e.maxHp - e.hp;
+  if (e.dashT > 0) { // 돌진 중: 벽에 부딪히면 반전
+    e.dashT -= dt;
+    e.vx = e.dir * (250 + lost * 16);
+    e.hitWall = 0;
+    tileCollide(e, dt);
+    if (e.hitWall) { e.dir *= -1; e.dashT = 0; e.stun = 0.5; sfx.boom(); poof(e.x + e.w / 2, e.y + e.h / 2, '#c8c0b0'); }
+  } else {
+    e.dir = p.x > e.x ? 1 : -1;
+    e.vx = e.dir * 40;
+    e.throwT -= dt;
+    if (e.throwT <= 0) {
+      e.throwT = Math.max(1.5, 2.9 - lost * 0.16);
+      if (Math.random() < 0.5) e.dashT = 1.1; // 폭주 돌진
+      else { // 무쇠알 포물선 발사
+        const dx = p.x - e.x, dist = Math.abs(dx);
+        ents.push({ type: 'shell', x: e.x + e.w / 2, y: e.y + 4, w: 18, h: 20, vx: Math.sign(dx) * Math.min(280, 80 + dist * 0.5), vy: -380, dir: e.dir, t: 0 });
+        sfx.cannon();
+      }
+    }
+    e.hitWall = 0;
+    tileCollide(e, dt);
+  }
+  e.animT = (e.animT || 0) + dt * (1.5 + lost * 0.2);
+}
+
+/* ===== 보스 35: 이무기 — 물결 비행 + 물구슬, 내려올 때 밟기 ===== */
+function updateB35(e, dt) {
+  const p = player, ba = LV.bossArena;
+  if (!ba || !ba.entered) return;
+  e.inv = Math.max(0, e.inv - dt);
+  if (e.stun > 0) { e.stun -= dt; return; }
+  const lost = e.maxHp - e.hp;
+  e.t += dt;
+  e.dir = p.x > e.x ? 1 : -1;
+  e.x += e.dir * (46 + lost * 8) * dt;
+  e.x = Math.max(ba.x0 + 6, Math.min(ba.x1 - e.w - 6, e.x));
+  e.y = e.baseY - 40 - (Math.sin(e.t * (1.1 + lost * 0.08)) + 1) * 52; // 물결 비행 (낮게 내려올 때 밟기 찬스)
+  e.onG = false;
+  e.throwT -= dt;
+  if (e.throwT <= 0) {
+    e.throwT = Math.max(1.1, 2.3 - lost * 0.14);
+    const dx = p.x + p.w / 2 - (e.x + e.w / 2), dy = p.y + p.h / 2 - (e.y + e.h / 2);
+    const d = Math.max(60, Math.hypot(dx, dy)), sp = 240 + lost * 10;
+    ents.push({ type: 'sorb', x: e.x + e.w / 2, y: e.y + e.h / 2, w: 15, h: 15, vx: dx / d * sp, vy: dy / d * sp, t: 0, col: '#4ac8e8' });
+    sfx.throwP();
+  }
+  e.animT = (e.animT || 0) + dt * 1.8;
+}
+
+/* ===== 보스 40: 그림자 산군 — 대도약 + 착지 충격파 ===== */
+function updateB40(e, dt) {
+  const p = player, ba = LV.bossArena;
+  if (!ba || !ba.entered) return;
+  e.inv = Math.max(0, e.inv - dt);
+  if (e.stun > 0) { e.stun -= dt; e.vx = 0; tileCollide(e, dt); return; }
+  const lost = e.maxHp - e.hp;
+  const wasAir = !e.onG;
+  if (e.onG) {
+    e.vx = 0;
+    e.hopT -= dt;
+    if (e.hopT <= 0) {
+      e.hopT = Math.max(1.0, 2.0 - lost * 0.1);
+      e.dir = p.x > e.x ? 1 : -1;
+      e.vy = -(480 + lost * 14);
+      e.vx = e.dir * (200 + Math.min(180, Math.abs(p.x - e.x) * 0.45));
+      sfx.jump();
+    }
+  }
+  e.hitWall = 0;
+  tileCollide(e, dt);
+  if (wasAir && e.onG) { // 착지 충격파 양방향
+    for (const d of [-1, 1])
+      ents.push({ type: 'shock', x: e.x + e.w / 2 + d * 24, y: e.y + e.h - 14, w: 22, h: 14, vx: d * (240 + lost * 12), t: 0 });
+    poof(e.x + e.w / 2, e.y + e.h, '#f0a83c');
+    sfx.boom();
+  }
+  e.animT = (e.animT || 0) + dt * (1.6 + lost * 0.2);
+}
+
+/* ===== 보스 45: 그림자 유자 — 거울 술래잡기 + 그림자 불꽃 ===== */
+function updateB45(e, dt) {
+  const p = player, ba = LV.bossArena;
+  if (!ba || !ba.entered) return;
+  e.inv = Math.max(0, e.inv - dt);
+  if (e.stun > 0) { e.stun -= dt; e.vx = 0; tileCollide(e, dt); return; }
+  const lost = e.maxHp - e.hp;
+  e.dir = p.x > e.x ? 1 : -1;
+  e.vx = e.dir * (120 + lost * 12);
+  e.hopT -= dt;
+  if (e.onG && e.hopT <= 0) { e.hopT = 0.9 + Math.random() * 0.8; e.vy = -(430 + Math.random() * 120); sfx.jump(); }
+  e.throwT -= dt;
+  if (e.throwT <= 0) {
+    e.throwT = Math.max(1.0, 2.1 - lost * 0.12);
+    ents.push({ type: 'sorb', x: e.x + e.w / 2 + e.dir * 14, y: e.y + 10, w: 13, h: 13, vx: e.dir * 265, vy: -40, t: 0, col: '#e85ad8' });
+    e.flash = 0.14; sfx.fire();
+  }
+  e.animT = (e.animT || 0) + dt * 2;
+  e.hitWall = 0;
+  tileCollide(e, dt);
+  if (e.hitWall) e.vy = Math.min(e.vy, -300); // 벽 만나면 폴짝
+}
+
+/* ===== 최종보스 50: 어둑시니 — 3페이즈 (구슬비 → 그림자 소환 → 광폭화) ===== */
+function updateB50(e, dt) {
+  const p = player, ba = LV.bossArena;
+  if (!ba || !ba.entered) return;
+  e.inv = Math.max(0, e.inv - dt);
+  if (e.stun > 0) { e.stun -= dt; return; }
+  const lost = e.maxHp - e.hp;
+  const ph = e.hp <= 4 ? 3 : e.hp <= 9 ? 2 : 1; // 페이즈
+  e.t += dt;
+  e.dir = p.x > e.x ? 1 : -1;
+  e.x += e.dir * (30 + ph * 14) * dt;
+  e.x = Math.max(ba.x0 + 6, Math.min(ba.x1 - e.w - 6, e.x));
+  // 유령처럼 떠다니다 주기적으로 내려옴 (밟기 찬스)
+  e.y = e.baseY - 10 - (Math.sin(e.t * 0.55) + 1) * 48;
+  e.onG = false;
+  e.throwT -= dt;
+  if (e.throwT <= 0) {
+    e.throwT = Math.max(0.9, 2.6 - ph * 0.5 - lost * 0.05);
+    // 그림자 구슬비: 플레이어 머리 위에서 떨어짐
+    const n = ph === 3 ? 4 : ph === 2 ? 3 : 2;
+    for (let i = 0; i < n; i++) {
+      const sx = p.x + p.w / 2 + (i - (n - 1) / 2) * 64 + (Math.random() - 0.5) * 30;
+      ents.push({ type: 'sorb', x: sx, y: -20, w: 15, h: 15, vx: (Math.random() - 0.5) * 40, vy: 200 + ph * 30, t: 0, col: '#b06ae8' });
+    }
+    sfx.throwP();
+    // 페이즈 2+: 그림자 부하 소환 (최대 2)
+    if (ph >= 2 && ents.filter(o => o.type === 'ghost' && !o.dead).length < 2) {
+      const gx = e.x + e.dir * -60;
+      ents.push({ type: 'ghost', x: gx, y: e.baseY + e.h - 30, w: 22, h: 28, vx: -40, vy: 0, dir: p.x > gx ? 1 : -1 });
+      poof(gx + 11, e.baseY + e.h - 16, '#3a2a5e');
+    }
+    // 페이즈 3: 지면 충격파 추가
+    if (ph === 3) {
+      for (const d of [-1, 1])
+        ents.push({ type: 'shock', x: e.x + e.w / 2 + d * 30, y: e.baseY + e.h - 14, w: 22, h: 14, vx: d * 260, t: 0 });
+      sfx.boom();
+    }
+  }
+  e.animT = (e.animT || 0) + dt * (1.2 + ph * 0.4);
+}
+
 /* ============================================================
    스토리 모드 (만화 컷씬) — 유자와 엄마 쪼쪼 여왕의 이야기
    ============================================================ */
@@ -2284,8 +2706,65 @@ const SCENE_DEFS = {
     { a: [['uja0', 0.42, 160], ['jjo', 0.61, 210]], sp: 'uja' },
     { a: [['uja0', 0.32, 150], ['jjo', 0.51, 200], ['uni', 0.73, 130]], sp: null },
   ] },
+  // ===== 2부: 아빠를 찾아서 =====
+  intro2: { bg: 'home', panels: [
+    { a: [['uja0', 0.3, 160], ['jjo', 0.55, 200], ['uni', 0.78, 130]], sp: null },
+    { a: [['uja0', 0.32, 150], ['jjo', 0.62, 210]], sp: 'jjo' },
+    { a: [['uja0', 0.5, 190]], sp: 'uja' },
+    { a: [['uja0', 0.28, 150], ['jjo', 0.5, 200], ['uni', 0.74, 130]], sp: null },
+  ] },
+  before20: { bg: 'duel', panels: [
+    { a: [['minyu', 0.6, 210]], sp: null },
+    { a: [['uja0', 0.32, 150], ['minyu', 0.66, 210]], sp: 'uja' },
+    { a: [['minyu', 0.6, 215]], sp: 'minyu' },
+  ] },
+  after20: { bg: 'duel', panels: [
+    { a: [['minyu', 0.55, 205]], sp: null },
+    { a: [['minyudark', 0.6, 210]], sp: null },
+    { a: [['uja0', 0.45, 170]], sp: 'uja' },
+  ] },
+  before25: { bg: 'dark', panels: [
+    { a: [['minyudark', 0.58, 215]], sp: null },
+    { a: [['minyudark', 0.62, 215]], sp: 'eoduk' },
+  ] },
+  after25: { bg: 'dark', panels: [
+    { a: [['minyu', 0.55, 205]], sp: null },
+    { a: [['uja0', 0.3, 150], ['minyu', 0.62, 210]], sp: 'minyu' },
+    { a: [['minyu', 0.58, 210]], sp: 'minyu' },
+    { a: [['uja0', 0.2, 145], ['minyu', 0.42, 200], ['jjo', 0.64, 195], ['uni', 0.85, 125]], sp: null },
+  ] },
+  after30: { bg: 'iron', panels: [
+    { a: [['bulga', 0.6, 190]], sp: null },
+    { a: [['uja0', 0.3, 150], ['minyu', 0.62, 210]], sp: 'minyu' },
+  ] },
+  after35: { bg: 'lake', panels: [
+    { a: [['imugi', 0.6, 220]], sp: 'imugi' },
+    { a: [['uja0', 0.33, 155], ['imugi', 0.68, 210]], sp: 'uja' },
+  ] },
+  after40: { bg: 'mount', panels: [
+    { a: [['sangun', 0.6, 200]], sp: 'sangun' },
+    { a: [['uja0', 0.28, 145], ['sangun', 0.55, 200], ['minyu', 0.8, 200]], sp: null },
+  ] },
+  after45: { bg: 'mirror', panels: [
+    { a: [['ujadark', 0.6, 180]], sp: 'ujadark' },
+    { a: [['uja0', 0.34, 165], ['ujadark', 0.64, 170]], sp: 'uja' },
+    { a: [['uja0', 0.5, 185]], sp: null },
+  ] },
+  before50: { bg: 'castle', panels: [
+    { a: [['eoduk', 0.6, 250]], sp: 'eoduk' },
+    { a: [['uja0', 0.32, 155], ['minyu', 0.62, 210]], sp: 'minyu' },
+    { a: [['uja0', 0.4, 165], ['minyu', 0.6, 205], ['jjo', 0.78, 195]], sp: 'uja' },
+  ] },
+  ending2: { bg: 'finale', panels: [
+    { a: [['eoduk', 0.58, 230]], sp: null },
+    { a: [['eoduk', 0.6, 180]], sp: 'eoduk' },
+    { a: [['uja0', 0.36, 165], ['eoduk', 0.66, 170]], sp: 'uja' },
+    { a: [['uja0', 0.5, 175]], sp: null },
+    { a: [['uja0', 0.32, 155], ['minyu', 0.64, 210]], sp: 'minyu' },
+    { a: [['uja0', 0.24, 150], ['minyu', 0.44, 205], ['jjo', 0.63, 195], ['uni', 0.82, 130]], sp: null },
+  ] },
 };
-const SPEAKER_ACTOR = { uja: 'uja', jjo: 'jjo', yeomra: 'boss', uni: 'uni' };
+const SPEAKER_ACTOR = { uja: 'uja', jjo: 'jjo', yeomra: 'boss', uni: 'uni', minyu: 'minyu', eoduk: 'eoduk', imugi: 'imugi', sangun: 'sangun', ujadark: 'ujadark' };
 let STORY = null; // {key, def, texts, idx, t, onEnd}
 function playStory(key, onEnd) {
   const def = SCENE_DEFS[key], texts = (L.story || {})[key];
@@ -2333,7 +2812,11 @@ function renderStory(nowS) {
   const mx = Math.min(70, vw * 0.07), my = 34;
   const px0 = mx, py0 = my, pw2 = vw - mx * 2, ph2 = VH - my * 2;
   // 패널 배경 (만화 컷)
-  const bgc = { dawn: ['#2a3f6e', '#f2a56a'], palace: ['#38101c', '#883042'], skypal: ['#2a1040', '#6c2c80'], dawn2: ['#f7a75c', '#ffe9c8'] }[STORY.def.bg] || ['#223', '#446'];
+  const bgc = {
+    dawn: ['#2a3f6e', '#f2a56a'], palace: ['#38101c', '#883042'], skypal: ['#2a1040', '#6c2c80'], dawn2: ['#f7a75c', '#ffe9c8'],
+    home: ['#7ec0e8', '#ffe9c0'], duel: ['#101830', '#3a4a80'], dark: ['#160b22', '#4a1a66'], iron: ['#2e2620', '#6a5040'],
+    lake: ['#16303a', '#3a6a7a'], mount: ['#141b30', '#4a3a60'], mirror: ['#1a2440', '#6a5a9a'], castle: ['#0c0814', '#301a44'], finale: ['#f7a75c', '#ffe9c8'],
+  }[STORY.def.bg] || ['#223', '#446'];
   cx.save();
   cx.beginPath(); cx.roundRect(px0, py0, pw2, ph2, 14); cx.clip();
   const g = cx.createLinearGradient(0, py0, 0, py0 + ph2);
@@ -2432,12 +2915,23 @@ function stageClear() {
   bgmStop();
 }
 function afterClear() {
-  // 스토리 컷씬: 5(염라·출입권)→6, 9→10(엄마와 재회), 10(1차전 후)→11, 15=엔딩
-  if (G.stage === 5) playStory('after5', () => startStage(6));
-  else if (G.stage === 9) playStory('before10', () => startStage(10));
-  else if (G.stage === 10) playStory('after10', () => startStage(11));
-  else if (G.stage >= 15) playStory('ending', () => { G.won = true; finishGame(true); });
-  else startStage(G.stage + 1);
+  // 스토리 컷씬 훅 — 1부(엄마 구출) + 2부(아빠를 찾아서)
+  const s = G.stage;
+  if (s === 5) playStory('after5', () => startStage(6));
+  else if (s === 9) playStory('before10', () => startStage(10));
+  else if (s === 10) playStory('after10', () => startStage(11));
+  else if (s === 15) playStory('ending', () => playStory('intro2', () => startStage(16))); // 1부 완결 → 2부 개막
+  else if (s === 19) playStory('before20', () => startStage(20));
+  else if (s === 20) playStory('after20', () => startStage(21));
+  else if (s === 24) playStory('before25', () => startStage(25));
+  else if (s === 25) playStory('after25', () => startStage(26));
+  else if (s === 30) playStory('after30', () => startStage(31));
+  else if (s === 35) playStory('after35', () => startStage(36));
+  else if (s === 40) playStory('after40', () => startStage(41));
+  else if (s === 45) playStory('after45', () => startStage(46));
+  else if (s === 49) playStory('before50', () => startStage(50));
+  else if (s >= MAX_STAGE) playStory('ending2', () => { G.won = true; finishGame(true); });
+  else startStage(s + 1);
 }
 function finishGame(won) {
   if (G.recorded) return;
@@ -2448,7 +2942,7 @@ function finishGame(won) {
   document.body.classList.remove('playing');
   bgmStop();
   if (won) sfx.clear();
-  document.getElementById('resT').textContent = won ? L.worldClear : L.gameOver;
+  document.getElementById('resT').textContent = won ? (G.stage >= MAX_STAGE ? L.worldClear2 : L.worldClear) : L.gameOver;
   document.getElementById('resStats').innerHTML =
     `${L.finalScore}: <span class="big">${G.score.toLocaleString()}</span><br>` +
     `${L.reachedStage}: ${L.stageLbl} ${G.stage} · ${L.stages[G.stage - 1]}` +
@@ -2530,19 +3024,20 @@ function drawBG(th, vw, t) {
     cx.fillStyle = th.deco === 'pine' || th.sea ? '#ff8c4a' : '#ffe082';
     cx.beginPath(); cx.arc(vw - 90, 78, 26, 0, 6.283); cx.fill();
   }
-  // 바다 (노을 수평선 + 물결 반짝임)
+  // 바다 (노을 수평선 + 물결 반짝임) — seaCol로 어두운 호수 연출 가능
   if (th.sea) {
+    const scs = th.seaCol || ['#f0a05a', '#d06a48', '#8a3a4a'];
     const sg = cx.createLinearGradient(0, VH - 220, 0, VH);
-    sg.addColorStop(0, '#f0a05a'); sg.addColorStop(0.35, '#d06a48'); sg.addColorStop(1, '#8a3a4a');
+    sg.addColorStop(0, scs[0]); sg.addColorStop(0.35, scs[1]); sg.addColorStop(1, scs[2]);
     cx.fillStyle = sg; cx.fillRect(0, VH - 220, vw, 220);
-    cx.strokeStyle = 'rgba(255,230,170,.5)'; cx.lineWidth = 2;
+    cx.strokeStyle = th.seaCol ? 'rgba(190,215,240,.35)' : 'rgba(255,230,170,.5)'; cx.lineWidth = 2;
     for (let k = 0; k < 7; k++) {
       const wy = VH - 200 + k * 26;
       const wx = ((k * 173 + t * (14 + k * 4)) % (vw + 120)) - 60;
       cx.beginPath(); cx.moveTo(wx, wy); cx.quadraticCurveTo(wx + 22, wy - 3, wx + 44, wy); cx.stroke();
     }
-    // 노을 윤슬 (해 반사)
-    cx.fillStyle = 'rgba(255,200,120,.35)';
+    // 노을 윤슬 (해/달 반사)
+    cx.fillStyle = th.seaCol ? 'rgba(200,220,255,.2)' : 'rgba(255,200,120,.35)';
     for (let k = 0; k < 5; k++) cx.fillRect(vw - 110 + (k % 3) * 14, VH - 210 + k * 34, 44 - k * 6, 3);
   }
   // 원경 산 (2겹 시차)
@@ -2692,6 +3187,84 @@ function drawBG(th, vw, t) {
       cx.fillStyle = '#1a1c24';
       cx.beginPath(); cx.arc(bx + 34, by + 24, 6, Math.PI, 0); cx.fill();
       cx.fillRect(bx + 28, by + 24, 12, 20);
+    } else if (th.deco === 'reed') { // 갈대밭 (바람에 흔들림)
+      for (let b2 = 0; b2 < 5; b2++) {
+        const sx2 = bx + b2 * 12, hh2 = 34 + (b2 % 3) * 10;
+        const sway = Math.sin(t * 1.6 + k + b2) * 5;
+        cx.strokeStyle = b2 % 2 ? '#9a8a58' : '#b0a068'; cx.lineWidth = 2;
+        cx.beginPath(); cx.moveTo(sx2, by + 56); cx.quadraticCurveTo(sx2 + sway * 0.5, by + 56 - hh2 * 0.6, sx2 + sway, by + 56 - hh2); cx.stroke();
+        cx.fillStyle = '#d8c890';
+        cx.save(); cx.translate(sx2 + sway, by + 56 - hh2); cx.rotate(sway * 0.04);
+        cx.beginPath(); cx.ellipse(0, -5, 3, 8, 0, 0, 6.283); cx.fill();
+        cx.restore();
+      }
+    } else if (th.deco === 'ruin') { // 잿빛 폐허 (부서진 기와담)
+      cx.fillStyle = '#4c4450';
+      cx.beginPath();
+      cx.moveTo(bx, by + 58); cx.lineTo(bx + 4, by + 26); cx.lineTo(bx + 22, by + 20); cx.lineTo(bx + 26, by + 38);
+      cx.lineTo(bx + 44, by + 34); cx.lineTo(bx + 48, by + 12); cx.lineTo(bx + 62, by + 18); cx.lineTo(bx + 64, by + 58);
+      cx.closePath(); cx.fill();
+      cx.fillStyle = '#3a3440';
+      cx.fillRect(bx + 6, by + 30, 14, 4); cx.fillRect(bx + 46, by + 20, 14, 4);
+      cx.fillStyle = '#2c2630';
+      cx.beginPath(); cx.arc(bx + 34, by + 52, 7, Math.PI, 0); cx.fill();
+    } else if (th.deco === 'market') { // 도깨비 야시장 (포장마차 + 등불 줄)
+      cx.fillStyle = '#3a2050'; cx.fillRect(bx + 8, by + 30, 44, 26);
+      cx.fillStyle = '#e858a8';
+      cx.beginPath(); cx.moveTo(bx + 2, by + 32); cx.lineTo(bx + 30, by + 14); cx.lineTo(bx + 58, by + 32); cx.closePath(); cx.fill();
+      cx.fillStyle = '#ffd34d'; cx.fillRect(bx + 24, by + 38, 12, 18);
+      cx.strokeStyle = 'rgba(255,211,77,.5)'; cx.lineWidth = 1.4;
+      cx.beginPath(); cx.moveTo(bx - 10, by + 6); cx.quadraticCurveTo(bx + 30, by + 16, bx + 70, by + 6); cx.stroke();
+      for (let b2 = 0; b2 < 4; b2++) {
+        const lxp = bx + 2 + b2 * 18, lyp = by + 9 + Math.sin(b2 * 2.1) * 3 + b2 % 2 * 2;
+        cx.fillStyle = ['#ff6a5a', '#ffd34d', '#7ae0f0', '#b8f27a'][b2];
+        cx.beginPath(); cx.arc(lxp, lyp + 4, 3.4, 0, 6.283); cx.fill();
+      }
+    } else if (th.deco === 'gear') { // 광산 골조 + 톱니바퀴
+      cx.fillStyle = '#4a3c30';
+      cx.fillRect(bx + 6, by - 10, 7, 68); cx.fillRect(bx + 46, by - 10, 7, 68);
+      cx.fillRect(bx + 2, by - 14, 56, 7);
+      const ga = t * 0.8 + k;
+      cx.save(); cx.translate(bx + 30, by + 18); cx.rotate(ga);
+      cx.fillStyle = '#8a7a5e';
+      for (let b2 = 0; b2 < 8; b2++) { cx.rotate(Math.PI / 4); cx.fillRect(-2.6, -16, 5.2, 8); }
+      cx.beginPath(); cx.arc(0, 0, 11, 0, 6.283); cx.fill();
+      cx.fillStyle = '#4a3c30';
+      cx.beginPath(); cx.arc(0, 0, 4.5, 0, 6.283); cx.fill();
+      cx.restore();
+    } else if (th.deco === 'maple') { // 단풍나무 (붉은 잎)
+      cx.fillStyle = '#5e3428'; cx.fillRect(bx + 26, by + 6, 8, 50);
+      cx.strokeStyle = '#5e3428'; cx.lineWidth = 3;
+      cx.beginPath(); cx.moveTo(bx + 30, by + 24); cx.lineTo(bx + 18, by + 12); cx.moveTo(bx + 30, by + 20); cx.lineTo(bx + 44, by + 8); cx.stroke();
+      for (const [cxp, cyp, r] of [[bx + 30, by + 2, 16], [bx + 16, by + 12, 11], [bx + 46, by + 8, 12], [bx + 34, by + 16, 10]]) {
+        cx.fillStyle = '#c84a34'; cx.beginPath(); cx.arc(cxp, cyp, r, 0, 6.283); cx.fill();
+        cx.fillStyle = '#e8703e'; cx.beginPath(); cx.arc(cxp - r * 0.3, cyp - r * 0.3, r * 0.5, 0, 6.283); cx.fill();
+      }
+    } else if (th.deco === 'crystal') { // 거울 수정 기둥
+      const tw2 = (Math.sin(t * 1.4 + k * 2) + 1) / 2;
+      for (const [ox, hh2, ww2] of [[10, 52, 12], [30, 70, 15], [50, 44, 10]]) {
+        cx.fillStyle = `rgba(150,180,240,${0.55 + tw2 * 0.2})`;
+        cx.beginPath();
+        cx.moveTo(bx + ox, by + 58); cx.lineTo(bx + ox - ww2 / 2, by + 58 - hh2 * 0.35);
+        cx.lineTo(bx + ox, by + 58 - hh2); cx.lineTo(bx + ox + ww2 / 2, by + 58 - hh2 * 0.35);
+        cx.closePath(); cx.fill();
+        cx.fillStyle = `rgba(230,240,255,${0.5 + tw2 * 0.3})`;
+        cx.beginPath();
+        cx.moveTo(bx + ox, by + 58 - hh2); cx.lineTo(bx + ox - ww2 / 4, by + 58 - hh2 * 0.5);
+        cx.lineTo(bx + ox, by + 58 - hh2 * 0.42);
+        cx.closePath(); cx.fill();
+      }
+    } else if (th.deco === 'spire') { // 어둑시니 성 첨탑
+      cx.fillStyle = '#1c1228';
+      cx.fillRect(bx + 12, by - 30, 16, 88);
+      cx.beginPath(); cx.moveTo(bx + 8, by - 28); cx.lineTo(bx + 20, by - 62); cx.lineTo(bx + 32, by - 28); cx.closePath(); cx.fill();
+      cx.fillRect(bx + 40, by + 6, 12, 52);
+      cx.beginPath(); cx.moveTo(bx + 37, by + 8); cx.lineTo(bx + 46, by - 18); cx.lineTo(bx + 55, by + 8); cx.closePath(); cx.fill();
+      const gw = (Math.sin(t * 2.2 + k) + 1) / 2;
+      cx.fillStyle = `rgba(255,211,77,${0.35 + gw * 0.5})`;
+      cx.fillRect(bx + 17, by - 16, 6, 8); cx.fillRect(bx + 43, by + 16, 5, 7);
+      cx.fillStyle = `rgba(160,90,232,${0.25 + gw * 0.3})`;
+      cx.beginPath(); cx.arc(bx + 20, by - 62, 4 + gw * 2, 0, 6.283); cx.fill();
     }
   }
   // 구름 (밝은 테마)
@@ -2748,6 +3321,41 @@ function drawAmbient(th, vw, t) {
     }
     return;
   }
+  if (th.amb === 'firefly') { // 반딧불 (부유 + 깜빡임)
+    for (let i = 0; i < 9; i++) {
+      const fx = ((i * 397 + Math.sin(t * 0.7 + i * 1.7) * 40 - cam.x * 0.25) % (vw + 80) + vw + 80) % (vw + 80) - 40;
+      const fy = 120 + (i * 157) % 280 + Math.sin(t * 1.3 + i * 2.4) * 26;
+      const tw = (Math.sin(t * 3.2 + i * 2.9) + 1) / 2;
+      const fg = cx.createRadialGradient(fx, fy, 0.5, fx, fy, 7);
+      fg.addColorStop(0, `rgba(212,255,140,${0.5 + tw * 0.5})`); fg.addColorStop(1, 'rgba(212,255,140,0)');
+      cx.fillStyle = fg;
+      cx.beginPath(); cx.arc(fx, fy, 7, 0, 6.283); cx.fill();
+    }
+    return;
+  }
+  if (th.amb === 'rain') { // 빗줄기
+    cx.strokeStyle = 'rgba(190,210,235,.4)'; cx.lineWidth = 1.4;
+    for (let i = 0; i < 26; i++) {
+      const rx = ((i * 251 + t * 460 * ((i % 3) * 0.12 + 0.9) * 0.35 - cam.x * 0.3) % (vw + 40) + vw + 40) % (vw + 40) - 20;
+      const ry = ((i * 173 + t * 460) % (VH + 40)) - 20;
+      cx.beginPath(); cx.moveTo(rx, ry); cx.lineTo(rx - 3, ry + 13); cx.stroke();
+    }
+    return;
+  }
+  if (th.amb === 'memory') { // 기억 불빛 (금빛 구슬이 하늘로)
+    for (let i = 0; i < 10; i++) {
+      const mx = ((i * 431 + Math.sin(t * 0.9 + i) * 24 - cam.x * 0.2) % (vw + 60) + vw + 60) % (vw + 60) - 30;
+      const my = VH - (((i * 219 + t * (18 + (i % 4) * 7)) % (VH + 60)) - 30);
+      const tw = (Math.sin(t * 2.6 + i * 2.2) + 1) / 2;
+      const mg = cx.createRadialGradient(mx, my, 0.5, mx, my, 6);
+      mg.addColorStop(0, `rgba(255,224,130,${0.45 + tw * 0.45})`); mg.addColorStop(1, 'rgba(255,224,130,0)');
+      cx.fillStyle = mg;
+      cx.beginPath(); cx.arc(mx, my, 6, 0, 6.283); cx.fill();
+      cx.fillStyle = `rgba(255,244,200,${0.5 + tw * 0.4})`;
+      cx.beginPath(); cx.arc(mx, my, 1.6, 0, 6.283); cx.fill();
+    }
+    return;
+  }
   const N = th.amb === 'wind' ? 6 : 14;
   for (let i = 0; i < N; i++) {
     const seedX = (i * 467) % 900, seedY = (i * 211) % 480;
@@ -2759,7 +3367,7 @@ function drawAmbient(th, vw, t) {
         cx.fillStyle = 'rgba(255,255,255,.85)';
         cx.beginPath(); cx.arc(px2, py2, 1.6 + (i % 3) * 0.8, 0, 6.283); cx.fill();
       } else {
-        cx.fillStyle = th.amb === 'petal' ? 'rgba(255,182,206,.9)' : 'rgba(214,150,66,.85)';
+        cx.fillStyle = th.amb === 'petal' ? 'rgba(255,182,206,.9)' : (th.leafCol || 'rgba(214,150,66,.85)');
         cx.save(); cx.translate(px2, py2); cx.rotate(t * 2 + i);
         cx.beginPath(); cx.ellipse(0, 0, 3, 1.7, 0, 0, 6.283); cx.fill();
         cx.restore();
@@ -2788,7 +3396,7 @@ function drawAmbient(th, vw, t) {
     }
   }
 }
-const SHADOWED = new Set(['ghost', 'reaper', 'dok', 'fox', 'uni', 'uniFlee', 'boss', 'jjojjo', 'jjotank', 'fruit', 'pepper', 'tiger']);
+const SHADOWED = new Set(['ghost', 'reaper', 'dok', 'fox', 'uni', 'jjor', 'uniFlee', 'boss', 'jjojjo', 'jjotank', 'fruit', 'pepper', 'tiger', 'm20', 'm25', 'b30', 'b40', 'b45']);
 /* HD 스프라이트 드로잉: 발밑 중앙 앵커·비율 유지·방향/기울기 지원. 미로드 시 false */
 function hdDraw(name, cxp, bottomY, targetH, faceDir, rot) {
   const im = HD[name];
@@ -2972,8 +3580,17 @@ function render(nowS) {
           flip(SPR.uni[0], ex - 3, e.y - 2 + Math.sin(e.bob * 3) * 2, 36, 32, -e.dir);
         break;
       }
+      case 'jjor': { // 대기 중인 엄마 쪼쪼 (탑승용) — 금빛 반짝임
+        if (Math.random() < 0.05) sparkle(e.x + e.w / 2, e.y + 8, '#ffd34d');
+        if (!hdDraw('jjor', ex + e.w / 2, e.y + e.h + 2 + Math.sin(e.bob * 3) * 2, 44, e.dir, 0)) {
+          cx.fillStyle = '#e8b030';
+          cx.beginPath(); cx.ellipse(ex + e.w / 2, e.y + e.h / 2, e.w / 2, e.h / 2, 0, 0, 6.283); cx.fill();
+        }
+        break;
+      }
       case 'uniFlee': {
-        if (!hdDraw('uni', ex + e.w / 2, e.y + e.h + 2, 40, e.dir, Math.sin((e.t || 0) * 14) * 0.12))
+        const fn = e.name || 'uni';
+        if (!hdDraw(fn, ex + e.w / 2, e.y + e.h + 2, 40, e.dir, Math.sin((e.t || 0) * 14) * 0.12))
           flip(SPR.uni[fr], ex - 3, e.y - 2, 36, 32, -e.dir);
         break;
       }
@@ -2987,6 +3604,48 @@ function render(nowS) {
         break;
       }
       case 'blt': flip(SPR.blt[0], ex, e.y - 1, 18, 10, e.vx >= 0 ? 1 : -1); break;
+      case 'gblt': { // 황금 탄환 (쪼쪼 탑승) — 빛꼬리
+        const tg = cx.createLinearGradient(ex - e.dir * 22, e.y, ex + e.w, e.y);
+        tg.addColorStop(0, 'rgba(255,211,77,0)'); tg.addColorStop(1, 'rgba(255,211,77,.55)');
+        cx.fillStyle = tg; cx.fillRect(ex - (e.dir > 0 ? 22 : -e.w), e.y + 1, 22 + e.w, e.h - 2);
+        flip(SPR.blt[0], ex, e.y - 1, 18, 10, e.dir);
+        break;
+      }
+      case 'sorb': { // 그림자/물 구슬
+        const oc = e.col || '#b06ae8';
+        const og = cx.createRadialGradient(ex + e.w / 2, e.y + e.h / 2, 1, ex + e.w / 2, e.y + e.h / 2, e.w * 0.7);
+        og.addColorStop(0, '#fff'); og.addColorStop(0.35, oc); og.addColorStop(1, 'rgba(20,10,40,.75)');
+        cx.fillStyle = og;
+        cx.beginPath(); cx.arc(ex + e.w / 2, e.y + e.h / 2, e.w / 2 + Math.sin((e.t || 0) * 9) * 1.5, 0, 6.283); cx.fill();
+        break;
+      }
+      case 'swave': { // 초승달 검기
+        cx.save();
+        cx.translate(ex + e.w / 2, e.y + e.h / 2);
+        cx.scale(e.dir, 1);
+        cx.strokeStyle = 'rgba(180,215,255,.95)'; cx.lineWidth = 4.5; cx.lineCap = 'round';
+        cx.beginPath(); cx.arc(-6, 0, 12, -1.15, 1.15); cx.stroke();
+        cx.strokeStyle = 'rgba(90,138,232,.6)'; cx.lineWidth = 8;
+        cx.beginPath(); cx.arc(-9, 0, 12, -0.95, 0.95); cx.stroke();
+        cx.restore();
+        break;
+      }
+      case 'shock': { // 지면 충격파
+        cx.fillStyle = 'rgba(240,168,60,.9)';
+        const sh = e.h * (0.7 + Math.abs(Math.sin((e.t || 0) * 18)) * 0.5);
+        cx.beginPath();
+        cx.moveTo(ex, e.y + e.h);
+        cx.lineTo(ex + e.w / 2, e.y + e.h - sh);
+        cx.lineTo(ex + e.w, e.y + e.h);
+        cx.closePath(); cx.fill();
+        cx.fillStyle = 'rgba(255,240,176,.8)';
+        cx.beginPath();
+        cx.moveTo(ex + 5, e.y + e.h);
+        cx.lineTo(ex + e.w / 2, e.y + e.h - sh * 0.55);
+        cx.lineTo(ex + e.w - 5, e.y + e.h);
+        cx.closePath(); cx.fill();
+        break;
+      }
       case 'shell': {
         cx.save(); cx.translate(ex + 9, e.y + 10); cx.rotate((e.t || 0) * 6 * (e.dir || 1));
         cx.drawImage(SPR.shell[0], -9, -10, 18, 20); cx.restore();
@@ -3028,6 +3687,43 @@ function render(nowS) {
         }
         break;
       }
+      case 'm20': case 'm25': case 'b30': case 'b35': case 'b40': case 'b45': case 'b50': {
+        if (e.inv > 0 && Math.floor(nowS * 14) % 2) break;
+        const def = BOSS_DEF[e.type];
+        // 비행 보스: 아래 그림자 (거리 비례 축소)
+        if (def.fly) {
+          const gy = (e.baseY || e.y) + e.h + 2;
+          const k = Math.max(0.3, 1 - (gy - (e.y + e.h)) / 220);
+          cx.fillStyle = `rgba(14,8,22,${0.22 * k})`;
+          cx.beginPath(); cx.ellipse(ex + e.w / 2, gy, e.w * 0.45 * k, 3.4, 0, 0, 6.283); cx.fill();
+        }
+        const rot = e.dashT > 0 ? e.dir * 0.14
+          : e.type === 'b35' || e.type === 'b50' ? Math.sin((e.animT || 0) * 2.2) * 0.07
+          : Math.sin((e.animT || 0) * 5) * 0.035;
+        // 어둑시니: 보랏빛 오라
+        if (e.type === 'b50') {
+          const ag = cx.createRadialGradient(ex + e.w / 2, e.y + e.h / 2, 8, ex + e.w / 2, e.y + e.h / 2, e.w);
+          ag.addColorStop(0, 'rgba(120,60,180,.3)'); ag.addColorStop(1, 'rgba(120,60,180,0)');
+          cx.fillStyle = ag;
+          cx.beginPath(); cx.arc(ex + e.w / 2, e.y + e.h / 2, e.w, 0, 6.283); cx.fill();
+        }
+        if (!hdDraw(def.spr, ex + e.w / 2, e.y + e.h + 2, def.dh, e.dir, rot)) {
+          // 벡터 폴백: 실루엣 + 눈빛
+          cx.fillStyle = def.col;
+          cx.beginPath(); cx.ellipse(ex + e.w / 2, e.y + e.h / 2 + 4, e.w / 2, e.h / 2 - 2, 0, 0, 6.283); cx.fill();
+          cx.fillStyle = def.bar;
+          const eyeY = e.y + e.h * 0.3;
+          cx.beginPath(); cx.arc(ex + e.w / 2 + e.dir * 8, eyeY, 3.4, 0, 6.283); cx.arc(ex + e.w / 2 + e.dir * 18, eyeY, 3.4, 0, 6.283); cx.fill();
+        }
+        if (e.flash > 0) { // 발사/베기 섬광
+          const mx = ex + e.w / 2 + e.dir * (e.w / 2 + 8), my = e.y + e.h * 0.4;
+          const mg = cx.createRadialGradient(mx, my, 1, mx, my, 10);
+          mg.addColorStop(0, '#fff0b0'); mg.addColorStop(0.5, def.bar); mg.addColorStop(1, 'rgba(255,171,46,0)');
+          cx.fillStyle = mg;
+          cx.beginPath(); cx.arc(mx, my, 10, 0, 6.283); cx.fill();
+        }
+        break;
+      }
     }
   }
   // 플레이어
@@ -3055,7 +3751,25 @@ function render(nowS) {
     const airRot = p.gliding ? p.dir * 0.14
       : !p.onG ? p.dir * Math.max(-0.12, Math.min(0.17, p.vy * 0.00028)) : 0;
     const pcx = p.x - camX + p.w / 2;
-    if (p.riding) {
+    if (p.riding === 'jjo') {
+      // 엄마 쪼쪼가 업고 날기: 여왕 먼저 → 유자가 등 위쪽에
+      const moving = Math.abs(p.vx) > 12 || !p.onG;
+      const rideRot = (moving ? p.dir * 0.1 : 0) + Math.sin(nowS * 4) * 0.02;
+      if (HD.jjor) {
+        hdDraw('jjor', pcx + p.dir * 2, p.y + p.h + 2, 46, p.dir, rideRot);
+        hdDraw(hdName, pcx - p.dir * 8, p.y + p.h - 22, 28, p.dir, rideRot + (p.atkT > 0 ? -p.dir * 0.08 : 0));
+        if (p.atkT > 0.14) { // 황금탄 총구 섬광
+          const mx = pcx + p.dir * 24, my = p.y + 10;
+          const mg = cx.createRadialGradient(mx, my, 1, mx, my, 8);
+          mg.addColorStop(0, '#fff0b0'); mg.addColorStop(0.5, '#ffd34d'); mg.addColorStop(1, 'rgba(255,211,77,0)');
+          cx.fillStyle = mg;
+          cx.beginPath(); cx.arc(mx, my, 8, 0, 6.283); cx.fill();
+        }
+        if (moving && Math.random() < 0.25) sparkle(p.x - p.dir * 14 + p.w / 2, p.y + p.h - 6, '#ffd34d');
+      } else {
+        flip(set[fr], px, py - 12, 30, 34, p.dir);
+      }
+    } else if (p.riding) {
       // 옆모습 유니콘 위 안장 자리에 라이더 (유니콘 먼저 → 라이더가 앞)
       const rideRot = p.gliding ? p.dir * 0.12 : walkRot;
       if (HD.uni) {
@@ -3094,18 +3808,18 @@ function render(nowS) {
   }
   cx.globalAlpha = 1;
   // 보스 HP
-  const boss = ents.find(e => e.type === 'boss' || e.type === 'jjojjo' || e.type === 'jjotank');
+  const boss = ents.find(e => BOSS_TYPES.has(e.type));
   if (boss && LV.bossArena && LV.bossArena.entered) {
+    const def = BOSS_DEF[boss.type];
     const bw = 200, bx = vw / 2 - bw / 2;
     cx.fillStyle = 'rgba(0,0,0,.5)';
     cx.beginPath(); cx.roundRect(bx - 6, 14, bw + 12, 22, 10); cx.fill();
     cx.fillStyle = '#3a3a44';
     cx.beginPath(); cx.roundRect(bx, 20, bw, 10, 5); cx.fill();
-    cx.fillStyle = boss.type === 'jjotank' ? '#c89020' : boss.type === 'jjojjo' ? '#e858a8' : '#d8425a';
+    cx.fillStyle = def.bar;
     cx.beginPath(); cx.roundRect(bx, 20, bw * boss.hp / boss.maxHp, 10, 5); cx.fill();
     cx.font = '900 11px sans-serif'; cx.fillStyle = '#ffe28a';
-    const icon = boss.type === 'jjotank' ? '🛡 ' : boss.type === 'jjojjo' ? '👑 ' : '☠ ';
-    cx.fillText(icon + L.stages[G.stage - 1], vw / 2, 10);
+    cx.fillText(def.icon + ' ' + L.stages[G.stage - 1], vw / 2, 10);
   }
   // 스테이지 인트로 / 메시지
   if (G.introT > 0) {
@@ -3299,8 +4013,8 @@ function runSim() {
   };
   buildSprites();
   T('sprites built', !!(SPR.uja && SPR.uja[0].width && SPR.boss && SPR.jjo && SPR.jjo[2].width && SPR.jjotank && SPR.jjotank[2].width && SPR.shell && SPR.pepper && SPR.tiger && SPR.ground.snow && SPR.ground.lava && SPR.ground.steel && SPR.tile[1]));
-  // 레벨 15종 정적 검증
-  for (let s = 1; s <= 15; s++) {
+  // 레벨 50종 정적 검증
+  for (let s = 1; s <= MAX_STAGE; s++) {
     const lv = genLevel(s);
     // 표면 높이/구멍 검사 (바닥에서 연속된 지면만 = 걷는 표면, 공중 블록 제외)
     const surf = [];
@@ -3322,15 +4036,13 @@ function runSim() {
         prev = surf[x2];
       }
     }
-    const enemies = lv.ents.filter(e => !['coin', 'uni', 'boss', 'jjojjo', 'jjotank'].includes(e.type)).length;
+    const enemies = lv.ents.filter(e => !['coin', 'uni', 'jjor'].includes(e.type) && !BOSS_TYPES.has(e.type)).length;
     const hasUni = lv.ents.some(e => e.type === 'uni');
+    const hasJjor = s < 16 || lv.ents.some(e => e.type === 'jjor'); // 2부는 쪼쪼 탑승 배치 필수
     const hasPower = [...lv.qc.values()].some(c => c === 'fruit' || c === 'pepper' || c === 'tiger');
-    const okBoss = s === 5 ? lv.ents.some(e => e.type === 'boss')
-      : s === 10 ? lv.ents.some(e => e.type === 'jjojjo')
-      : s === 15 ? lv.ents.some(e => e.type === 'jjotank')
-      : !lv.bossArena;
-    T(`stage ${s} valid`, maxGap <= 4 && maxStep <= 3 && enemies > 3 && hasUni && hasPower && okBoss && lv.goalX < lv.W * TILE,
-      `gap=${maxGap} step=${maxStep} foes=${enemies} uni=${hasUni} power=${hasPower}`);
+    const okBoss = BOSS_AT[s] ? lv.ents.some(e => e.type === BOSS_AT[s]) : !lv.bossArena;
+    T(`stage ${s} valid`, maxGap <= 4 && maxStep <= 3 && enemies > 3 && hasUni && hasJjor && hasPower && okBoss && lv.goalX < lv.W * TILE,
+      `gap=${maxGap} step=${maxStep} foes=${enemies} uni=${hasUni} jjor=${hasJjor} power=${hasPower}`);
   }
   // 물리: 점프 높이·활강 거리
   G.mode = 'play'; G.introT = 0; G.lives = 3; G.score = 0; G.coins = 0; G.time = 300;
@@ -3407,7 +4119,7 @@ function runSim() {
   player = mkPlayer(6 * TILE - 6, (ROWS - 2) * TILE - 40);
   G.lives = 3;
   simSteps(20);
-  T('unicorn mount', player.riding === true);
+  T('unicorn mount', player.riding === 'uni');
   ents.push({ type: 'ghost', x: player.x, y: player.y + 10, w: 22, h: 28, vx: 0, vy: 0, dir: -1 });
   simSteps(3);
   T('damage while riding → unicorn flees', player.riding === false && !player.dead && ents.some(e => e.type === 'uniFlee'));
@@ -3471,7 +4183,7 @@ function runSim() {
   // 시작 안전지대: 각 스테이지 스폰 후 2초간 정지해도 죽지 않아야 (공중 달걀·근접 적 사전차단)
   {
     let allSafe = true, badStage = 0;
-    for (let s = 1; s <= 15; s++) {
+    for (let s = 1; s <= MAX_STAGE; s++) {
       G.mode = 'play'; G.introT = 0; G.clearT = 0; G.lives = 5; G.time = 300;
       G.stage = s; LV = genLevel(s); spawnEnts();
       player = mkPlayer(3 * TILE, (ROWS - 4) * TILE);
@@ -3480,7 +4192,113 @@ function runSim() {
       simSteps(120); // 2초 정지
       if (player.dead) { allSafe = false; badStage = s; break; }
     }
-    T('spawn-safe: idle 2s at start survives (all 15 stages)', allSafe, badStage ? `died on stage ${badStage}` : 'ok');
+    T('spawn-safe: idle 2s at start survives (all 50 stages)', allSafe, badStage ? `died on stage ${badStage}` : 'ok');
+  }
+  // ===== 2부 신규 시스템 =====
+  // 쪼쪼 탑승: 접촉 → riding='jjo', 황금탄 발사로 적 처치
+  {
+    G.mode = 'play'; G.introT = 0; G.clearT = 0; G.lives = 3; G.time = 300;
+    LV = makeTestLevel(60);
+    ents = [
+      { type: 'jjor', x: 6 * TILE, y: (ROWS - 2) * TILE - 34, w: 32, h: 32, vx: 0, vy: 0, dir: 1, bob: 0 },
+      { type: 'ghost', x: 12 * TILE, y: (ROWS - 2) * TILE - 28, w: 22, h: 28, vx: 0, vy: 0, dir: -1 },
+    ];
+    player = mkPlayer(6 * TILE - 6, (ROWS - 2) * TILE - 40);
+    simSteps(20);
+    T('jjor mount → riding jjo', player.riding === 'jjo');
+    player.dir = 1;
+    keys.run = false; runWasDown = false;
+    simSteps(2);
+    keys.run = true; simSteps(2);
+    const gbltSpawned = ents.some(e => e.type === 'gblt');
+    simSteps(80); keys.run = false;
+    T('jjo mount golden bullet kills enemy', gbltSpawned && ents.every(e => e.type !== 'ghost'), `gblt=${gbltSpawned}`);
+    ents.push({ type: 'ghost', x: player.x, y: player.y + 10, w: 22, h: 28, vx: 0, vy: 0, dir: -1 });
+    player.inv = 0;
+    simSteps(3);
+    T('damage while riding jjo → flee with jjor art', player.riding === false && ents.some(e => e.type === 'uniFlee' && e.name === 'jjor'));
+  }
+  // 신규 보스 공통: 발사 + N회 타격 처치 검증
+  {
+    const bossFire = (type, stage, projTypes, frames) => {
+      G.mode = 'play'; G.introT = 0; G.clearT = 0; G.time = 300;
+      LV = makeTestLevel(90);
+      LV.stage = stage; G.stage = stage;
+      LV.bossArena = { x0: 2 * TILE, x1: 88 * TILE, entered: true };
+      LV.goalActive = false;
+      const d = BOSS_DEF[type];
+      const b = {
+        type, x: 46 * TILE, y: (ROWS - 2) * TILE - d.h - 4, w: d.w, h: d.h,
+        vx: 0, vy: 0, dir: -1, hp: d.hp, maxHp: d.hp,
+        throwT: 0.05, burstT: 0.05, burstN: 0, mgN: 0, shotT: 0, flash: 0,
+        stun: 0, inv: 0, dead: false, dashT: 0, hopT: 0.05, t: 0, baseY: (ROWS - 2) * TILE - d.h - 4,
+      };
+      ents = [b];
+      player = mkPlayer(12 * TILE, (ROWS - 4) * TILE);
+      player.inv = 9999;
+      let fired = false;
+      for (let i = 0; i < (frames || 300) && !fired; i++) {
+        update(1 / 60);
+        if (ents.some(e => projTypes.includes(e.type))) fired = true;
+      }
+      T(`${type} fires ${projTypes.join('/')}`, fired);
+      for (let k = 0; k < d.hp; k++) { b.inv = 0; b.stun = 0; bossHurt(b); }
+      T(`${type} dies after ${d.hp} hits → goal`, b.hp <= 0 && b.dead && LV.goalActive === true);
+    };
+    bossFire('m20', 20, ['swave']);
+    bossFire('m25', 25, ['sorb']);
+    bossFire('b30', 30, ['shell'], 500);
+    bossFire('b35', 35, ['sorb']);
+    bossFire('b40', 40, ['shock'], 400);
+    bossFire('b45', 45, ['sorb']);
+    bossFire('b50', 50, ['sorb']);
+    G.stage = 1;
+  }
+  // 어둑시니 페이즈 2: 그림자 부하 소환
+  {
+    G.mode = 'play'; G.introT = 0; G.clearT = 0; G.time = 300;
+    LV = makeTestLevel(90);
+    LV.stage = 50; G.stage = 50;
+    LV.bossArena = { x0: 2 * TILE, x1: 88 * TILE, entered: true };
+    LV.goalActive = false;
+    const d50 = BOSS_DEF.b50;
+    const ed = {
+      type: 'b50', x: 46 * TILE, y: (ROWS - 2) * TILE - d50.h - 4, w: d50.w, h: d50.h,
+      vx: 0, vy: 0, dir: -1, hp: 8, maxHp: d50.hp, // 페이즈2 체력
+      throwT: 0.05, burstT: 0, burstN: 0, mgN: 0, shotT: 0, flash: 0,
+      stun: 0, inv: 0, dead: false, dashT: 0, hopT: 0, t: 0, baseY: (ROWS - 2) * TILE - d50.h - 4,
+    };
+    ents = [ed];
+    player = mkPlayer(12 * TILE, (ROWS - 4) * TILE);
+    player.inv = 9999;
+    let summoned = false;
+    for (let i = 0; i < 400 && !summoned; i++) { update(1 / 60); if (ents.some(e => e.type === 'ghost')) summoned = true; }
+    T('b50 phase2 summons shadow minions', summoned);
+    G.stage = 1;
+  }
+  // 스테이지 플로우: 15 클리어 → 1부 엔딩 → 2부 개막(intro2) → 16 시작
+  {
+    G.mode = 'play'; G.stage = 15; G.clearT = 0; G.lives = 3; G.recorded = false; G.won = false;
+    afterClear();
+    const wasEnding = STORY && STORY.key === 'ending';
+    if (STORY) storyEnd(); // ending 스킵 → intro2 진입
+    const wasIntro2 = STORY && STORY.key === 'intro2';
+    if (STORY) storyEnd(); // intro2 스킵 → 16 시작
+    T('clear 15 → ending → intro2 → stage 16', wasEnding && wasIntro2 && G.stage === 16 && G.mode === 'play', `end=${wasEnding} in2=${wasIntro2} stage=${G.stage}`);
+    bgmStop();
+  }
+  // 스테이지 플로우: 50 클리어 → ending2 → 승리 결과 (기록은 백업 후 복원)
+  {
+    const bakRec = localStorage.getItem(REC_KEY);
+    G.mode = 'play'; G.stage = 50; G.clearT = 0; G.recorded = false; G.won = false;
+    afterClear();
+    const wasEnding2 = STORY && STORY.key === 'ending2';
+    if (STORY) storyEnd();
+    T('clear 50 → ending2 → won result', wasEnding2 && G.won === true && G.recorded === true, `end2=${wasEnding2} won=${G.won}`);
+    G.recorded = false; G.won = false; G.mode = 'play'; G.stage = 1;
+    try { if (bakRec === null) localStorage.removeItem(REC_KEY); else localStorage.setItem(REC_KEY, bakRec); } catch (e) {}
+    REC = loadRec();
+    bgmStop();
   }
   // 이어하기: 생명 소진 → 점수 50% 소모 후 이어하기, 스테이지 유지
   {
@@ -3647,6 +4465,32 @@ function setupShot() {
   }
   if (qs.get('shot') === '10s') { // 스테이지10 실제 스폰지점
     G.stage = 10; LV = genLevel(10); spawnEnts();
+    player = mkPlayer(3 * TILE, (ROWS - 4) * TILE); player.dir = 1;
+  }
+  const shotBoss = { 20: 'm20', 25: 'm25', 30: 'b30', 35: 'b35', 40: 'b40', 45: 'b45', 50: 'b50' }[qs.get('shot')];
+  if (shotBoss) { // 2부 보스전 스크린샷
+    const st = +qs.get('shot');
+    G.stage = st; LV = genLevel(st); spawnEnts();
+    const bE = ents.find(e => e.type === shotBoss);
+    LV.bossArena.entered = true;
+    player.pw = 2; player.x = bE.x - 280; player.y = (ROWS - 4) * TILE; player.dir = 1;
+    bE.dir = -1; bE.animT = 0.4; bE.flash = 1;
+    if (shotBoss === 'm20') ents.push({ type: 'swave', x: bE.x - 70, y: bE.y + bE.h - 34, w: 26, h: 22, vx: -310, t: 0.2, dir: -1 });
+    if (shotBoss === 'm25' || shotBoss === 'b45' || shotBoss === 'b50')
+      for (let k = 0; k < 3; k++) ents.push({ type: 'sorb', x: bE.x - 60 - k * 60, y: bE.y + 20 + k * 12, w: 14, h: 14, vx: -220, vy: 10, t: 0, col: shotBoss === 'b45' ? '#e85ad8' : '#b06ae8' });
+    if (shotBoss === 'b35') { bE.y = bE.baseY - 60; ents.push({ type: 'sorb', x: bE.x - 70, y: bE.y + 30, w: 15, h: 15, vx: -200, vy: 60, t: 0, col: '#4ac8e8' }); }
+    if (shotBoss === 'b40') for (const d of [-1, 1]) ents.push({ type: 'shock', x: bE.x + d * 60, y: (ROWS - 2) * TILE - 14, w: 22, h: 14, vx: d * 240, t: 0.1 });
+    if (shotBoss === 'b50') bE.y = bE.baseY - 40;
+  }
+  if (qs.get('shot') === 'jr') { // 쪼쪼 탑승 (2부, 정지 프레임)
+    G.stage = 16; LV = genLevel(16); spawnEnts();
+    player.x = 30 * TILE; player.y = (ROWS - 6) * TILE; player.riding = 'jjo'; player.dir = 1;
+    player.vx = 100; player.atkT = 0.2;
+    ents.push({ type: 'gblt', x: player.x + 50, y: player.y + 6, w: 16, h: 9, vx: 430, vy: 0, t: 0.1, dir: 1 });
+    G.paused = true;
+  }
+  if (qs.get('shot') === '16s') { // 스테이지16 스폰지점 (쪼쪼 대기 확인)
+    G.stage = 16; LV = genLevel(16); spawnEnts();
     player = mkPlayer(3 * TILE, (ROWS - 4) * TILE); player.dir = 1;
   }
   cam.x = qs.get('shot') && qs.get('shot').endsWith('s') ? 0 : player.x - 200;
