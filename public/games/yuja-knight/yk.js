@@ -135,6 +135,10 @@ function pDef() { return P.defBase + ARMORS[P.arm]; }
 function expNext(lv) { return 18 * lv * lv + 12 * lv; }
 const DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0];
 function cell(x, y) { return (x < 0 || y < 0 || x >= MZ || y >= MZ) ? '#' : MAPS[G.f - 1][y][x]; }
+function openDir(x, y) { // 스폰 시 벽을 마주보지 않도록 열린 방향 선택
+  const d = [1, 2, 0, 3].find(d2 => cell(x + DX[d2], y + DY[d2]) !== '#');
+  return d === undefined ? 1 : d;
+}
 function setCell(x, y, v) { MAPS[G.f - 1][y][x] = v; }
 
 function logMsg(m) { G.msg.push(m); if (G.msg.length > 3) G.msg.shift(); G.msgT = 4; }
@@ -319,7 +323,7 @@ function playerDead() {
   P.gold = Math.floor(P.gold / 2);
   P.hp = Math.max(1, Math.floor(P.maxHp * 0.6));
   P.mp = P.maxMp;
-  G.x = 1; G.y = 1; G.dir = 1; G.steps = 0;
+  G.x = 1; G.y = 1; G.dir = openDir(1, 1); G.steps = 0;
   G.mode = 'dungeon';
   bgmStart('dungeon');
   logMsg(L.dead);
@@ -352,8 +356,9 @@ function tryMove(fwd) {
   if (c === '>') {
     if (!FLAGS.boss[G.f - 1]) { logMsg(L.stairsLocked); sfx.deny(); return; }
     if (G.f >= 5) return; // 5층은 battleEnd에서 엔딩 처리
-    G.f++; G.x = 1; G.y = 1; G.dir = 1; G.steps = 0;
-    visited = new Set();
+    G.f++; G.x = 1; G.y = 1; G.steps = 0;
+    G.dir = openDir(1, 1);
+    visited = new Set(['1,1']);
     sfx.stairs();
     logMsg(fmt(L.stairsMsg, G.f, L.floors[G.f - 1]));
     saveGame();
@@ -449,7 +454,8 @@ function newGame() {
   P = mkPlayer();
   FLAGS.boss = [false, false, false, false, false];
   FLAGS.opened = []; FLAGS.events = [];
-  G.f = 1; G.x = 1; G.y = 1; G.dir = 1; G.steps = 0; G.msg = [];
+  G.f = 1; G.x = 1; G.y = 1; G.steps = 0; G.msg = [];
+  G.dir = openDir(1, 1);
   visited = new Set(['1,1']);
   G.mode = 'dungeon';
   audioInit(); bgmStart('dungeon');
@@ -1087,7 +1093,7 @@ function render(nowS) {
   if (G.mode === 'battle' && BT) drawBattle(nowS);
   else render3D(nowS);
   if (P) drawPanel(nowS);
-  drawLog();
+  if (G.mode !== 'dialog') drawLog(); // 다이얼로그 박스와 프레임 겹침 방지
   if (G.mode === 'shop' && SHOP) drawShop();
   if (G.mode === 'dialog' && DLG) drawDialog(nowS);
 }
