@@ -1,0 +1,60 @@
+---
+// 전체 글 아카이브 페이지 (언어별 공용) — 홈에서 분리된 전체 글 목록
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { languages, type Lang } from '../i18n/ui';
+import { useTranslations, localizeUrl, blogUrl } from '../i18n/utils';
+import { categoryOrder, categoryLabel, categoryUrl } from '../i18n/categories';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const posts = (await getCollection('blog'))
+  .filter((p) => p.data.lang === lang)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const alternates: Partial<Record<Lang, string>> = {};
+for (const code of Object.keys(languages) as Lang[]) {
+  alternates[code] = localizeUrl('/blog/', code);
+}
+
+const cats = categoryOrder
+  .filter((slug) => posts.some((p) => p.data.category === slug))
+  .map((slug) => ({ label: categoryLabel(slug, lang), href: categoryUrl(slug, lang) }));
+
+const fmt = new Intl.DateTimeFormat(lang === 'zh' ? 'zh-CN' : lang, { year: 'numeric', month: 'short', day: 'numeric' });
+---
+<BaseLayout lang={lang} title={t('archive_title')} description={t('archive_desc')} alternates={alternates}>
+  <section class="archive">
+    <div class="wrap">
+      <p class="kicker">{t('latest_label')}</p>
+      <h1 class="cat-title">{t('archive_title')}</h1>
+      <div class="chips archive-chips">
+        {cats.map((c) => <a class="chip" href={c.href}>{c.label}</a>)}
+      </div>
+      {posts.length > 0 ? (
+        <ul class="post-list">
+          {posts.map((post) => (
+            <li>
+              <a class="post-row" href={blogUrl(post.data.key, lang)}>
+                <span class="cat">{categoryLabel(post.data.category, lang)} · {fmt.format(post.data.date)}</span>
+                <h3>{post.data.title}</h3>
+                <p class="excerpt">{post.data.description}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="empty-note">{t('empty')}</p>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .archive { padding: 56px 0 90px; }
+  .archive-chips { margin: 6px 0 30px; }
+</style>

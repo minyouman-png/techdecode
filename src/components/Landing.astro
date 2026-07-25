@@ -4,26 +4,39 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { languages, type Lang } from '../i18n/ui';
 import { useTranslations, localizeUrl, blogUrl } from '../i18n/utils';
 import { categoryOrder, categoryLabel, categoryUrl } from '../i18n/categories';
+import { games, gamesUi, gameUrl, gamesIndexUrl, playerUrl, homeGameOrder } from '../i18n/games';
+import { tools, toolUrl, toolsIndexUrl } from '../i18n/tools';
 
 interface Props {
   lang: Lang;
 }
 const { lang } = Astro.props;
 const t = useTranslations(lang);
+const g = gamesUi[lang];
 
-// 이 언어의 글 목록 (최신순)
+// 이 언어의 글 목록 (최신순) — 홈에는 대표 1 + 최신 5개만, 나머지는 /blog/ 아카이브로
 const posts = (await getCollection('blog'))
   .filter((p) => p.data.lang === lang)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 const featured = posts[0];
-const rest = posts.slice(1);
+const latest = posts.slice(1, 6);
+const archiveUrl = localizeUrl('/blog/', lang);
 
 // 홈은 모든 언어에 존재 → 각 언어 홈으로 대응
 const alternates: Partial<Record<Lang, string>> = {};
 for (const code of Object.keys(languages) as Lang[]) {
   alternates[code] = localizeUrl('/', code);
 }
+
+// 인기 게임 4개 (curated 순서)
+const homeGames = homeGameOrder
+  .map((slug) => games.find((x) => x.slug === slug))
+  .filter(Boolean)
+  .slice(0, 4) as typeof games;
+
+// 도구 (오피스 3종 + 계산기)
+const homeTools = tools.slice(0, 5);
 
 // 카테고리 칩: 글이 있는 카테고리는 카테고리 페이지로 링크, 없으면 라벨만.
 const cats = categoryOrder.map((slug) => ({
@@ -32,89 +45,134 @@ const cats = categoryOrder.map((slug) => ({
 }));
 ---
 <BaseLayout lang={lang} alternates={alternates}>
-  <!-- HERO -->
-  <div class="hero">
+  <!-- HERO + GOOGLE SEARCH -->
+  <div class="hero hero-compact">
     <div class="wrap hero-inner">
       <span class="kicker">{t('hero_kicker')}</span>
       <h1>{t('hero_title')}</h1>
       <p class="sub">{t('hero_sub')}</p>
-      {featured && (
-        <a class="btn" href={blogUrl(featured.data.key, lang)}>
-          {t('hero_cta')}
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </a>
-      )}
+
+      <form id="gsform" class="searchbar" role="search" autocomplete="off">
+        <svg class="gicon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18A10.96 10.96 0 0 0 1 12c0 1.78.43 3.45 1.18 4.94l3.66-2.84z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <input id="gsq" type="search" name="q" placeholder={t('search_placeholder')} aria-label={t('search_go')} />
+        <div class="scope" role="radiogroup">
+          <label class="scope-opt"><input type="radio" name="scope" value="web" checked /><span>{t('search_scope_web')}</span></label>
+          <label class="scope-opt"><input type="radio" name="scope" value="site" /><span>{t('search_scope_site')}</span></label>
+        </div>
+        <button type="submit" class="gsbtn">{t('search_go')}</button>
+      </form>
+      <p class="search-hint">{t('search_hint')}</p>
     </div>
   </div>
+  <script is:inline>
+    (function () {
+      var form = document.getElementById('gsform');
+      if (!form) return;
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var q = document.getElementById('gsq').value.trim();
+        if (!q) return;
+        var scope = form.querySelector('input[name="scope"]:checked').value;
+        var query = scope === 'site' ? q + ' site:menewsoft.com' : q;
+        window.open('https://www.google.com/search?q=' + encodeURIComponent(query), '_blank', 'noopener');
+      });
+    })();
+  </script>
 
-  <!-- SEARCH (Google Programmable Search Engine) -->
-  <section class="gsearch">
+  <!-- POPULAR GAMES -->
+  <section class="home-games">
     <div class="wrap">
-      <p class="section-label">{t('search_label')}</p>
-      <div class="gcse-search"></div>
-    </div>
-  </section>
-  <script async src="https://cse.google.com/cse.js?cx=26332fb4ec8d64e15"></script>
-
-  <!-- INTRO + VALUES -->
-  <section class="intro">
-    <div class="wrap">
-      <p class="section-label">{t('intro_title')}</p>
-      <p class="intro-body">{t('intro_body')}</p>
-      <div class="values">
-        <div class="value"><h3>{t('v1_t')}</h3><p>{t('v1_b')}</p></div>
-        <div class="value"><h3>{t('v2_t')}</h3><p>{t('v2_b')}</p></div>
-        <div class="value"><h3>{t('v3_t')}</h3><p>{t('v3_b')}</p></div>
+      <div class="section-head">
+        <p class="section-label">{t('games_label')}</p>
+        <a class="more-link" href={gamesIndexUrl(lang)}>{t('view_all_games')} →</a>
       </div>
-    </div>
-  </section>
-
-  <!-- FEATURED -->
-  {featured && (
-    <section class="featured">
-      <div class="wrap">
-        <p class="section-label">{t('featured_label')}</p>
-        <a class="feature-card" href={blogUrl(featured.data.key, lang)}>
-          <span class="cat">{categoryLabel(featured.data.category, lang)}</span>
-          <h3>{featured.data.title}</h3>
-          <p class="excerpt">{featured.data.description}</p>
-          <span class="readlink">{t('readmore')}
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          </span>
-        </a>
-      </div>
-    </section>
-  )}
-
-  <!-- LATEST -->
-  <section class="latest">
-    <div class="wrap">
-      <p class="section-label">{t('latest_label')}</p>
-      {rest.length > 0 ? (
-        <ul class="post-list">
-          {rest.map((post) => (
-            <li>
-              <a class="post-row" href={blogUrl(post.data.key, lang)}>
-                <span class="cat">{categoryLabel(post.data.category, lang)}</span>
-                <h3>{post.data.title}</h3>
-                <p class="excerpt">{post.data.description}</p>
+      <div class="hgame-grid">
+        {homeGames.map((game) => {
+          const c = game.copy[lang];
+          return (
+            <div class="hgame-card">
+              <a class="hgame-cover" href={playerUrl(game.slug, lang)} target="_blank" rel="noopener" title={g.newTabNote}>
+                <img src={game.cover} alt={c.title} loading="lazy" />
+                <span class="play-overlay">▶</span>
               </a>
-            </li>
-          ))}
-        </ul>
+              <div class="hgame-body">
+                <h3><a href={playerUrl(game.slug, lang)} target="_blank" rel="noopener">{c.title}</a></h3>
+                <div class="hgame-actions">
+                  <a class="playlink" href={playerUrl(game.slug, lang)} target="_blank" rel="noopener">{t('play_label')}</a>
+                  <a class="infolink" href={gameUrl(game.slug, lang)}>{t('about_game')}</a>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- LATEST ARTICLES -->
+  <section class="home-posts">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label">{t('latest_label')}</p>
+        <a class="more-link" href={archiveUrl}>{t('view_all_posts')} →</a>
+      </div>
+      {featured ? (
+        <div class="posts-layout">
+          <a class="feature-card" href={blogUrl(featured.data.key, lang)}>
+            <span class="cat">{categoryLabel(featured.data.category, lang)}</span>
+            <h3>{featured.data.title}</h3>
+            <p class="excerpt">{featured.data.description}</p>
+            <span class="readlink">{t('readmore')}
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </span>
+          </a>
+          <ul class="post-list compact">
+            {latest.map((post) => (
+              <li>
+                <a class="post-row" href={blogUrl(post.data.key, lang)}>
+                  <span class="cat">{categoryLabel(post.data.category, lang)}</span>
+                  <h3>{post.data.title}</h3>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : (
         <p class="empty-note">{t('empty')}</p>
       )}
     </div>
   </section>
 
-  <!-- TOPICS -->
+  <!-- TOOLS -->
+  <section class="home-tools">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label">{t('tools_label')}</p>
+        <a class="more-link" href={toolsIndexUrl(lang)}>{t('view_all_tools')} →</a>
+      </div>
+      <div class="tool-row">
+        {homeTools.map((tool) => (
+          <a class="tool-pill" href={toolUrl(tool.slug, lang)}>
+            <strong>{tool.copy[lang].title}</strong>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- TOPICS + INTRO -->
   <section class="topics">
     <div class="wrap">
       <p class="section-label">{t('topics_label')}</p>
       <div class="chips">
         {cats.map((c) => (c.href ? <a class="chip" href={c.href}>{c.label}</a> : <span class="chip">{c.label}</span>))}
       </div>
+      <p class="intro-body slim">{t('intro_body')}</p>
     </div>
   </section>
 </BaseLayout>

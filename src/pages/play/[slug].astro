@@ -1,0 +1,143 @@
+---
+// 전용 게임 플레이어: 전체 화면 iframe + 자동 숨김 상단 바(게임 전환·전체화면·목록 복귀).
+// 새 탭에서 열리는 것을 전제로 하며, 검색엔진에는 상세 페이지가 대표가 되도록 noindex.
+import { games } from '../../i18n/games';
+import { languages } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return games.map((g) => ({ params: { slug: g.slug } }));
+}
+const { slug } = Astro.params;
+const game = games.find((x) => x.slug === slug)!;
+
+// 게임 전환 드롭다운용: 전 게임의 언어별 제목 + 실행 경로
+const registry = games.map((x) => ({
+  slug: x.slug,
+  path: x.playPath,
+  titles: Object.fromEntries(Object.keys(languages).map((l) => [l, x.copy[l as keyof typeof x.copy].title])),
+}));
+const langCodes = Object.keys(languages);
+
+const ui = {
+  en: { back: 'All games', switch: 'Switch game', fs: 'Fullscreen', hint: 'Move your mouse to the top edge (or tap ▾) to show this bar' },
+  ko: { back: '게임 목록', switch: '게임 전환', fs: '전체화면', hint: '마우스를 화면 맨 위로 가져가면(모바일은 ▾ 탭) 이 바가 다시 나타납니다' },
+  ja: { back: 'ゲーム一覧', switch: 'ゲーム切替', fs: '全画面', hint: 'マウスを画面上端へ(モバイルは▾をタップ)するとこのバーが再表示されます' },
+  es: { back: 'Todos los juegos', switch: 'Cambiar de juego', fs: 'Pantalla completa', hint: 'Mueve el ratón al borde superior (o toca ▾) para mostrar esta barra' },
+  zh: { back: '全部游戏', switch: '切换游戏', fs: '全屏', hint: '将鼠标移到屏幕顶端(手机点按▾)即可再次显示此栏' },
+};
+const title = game.copy.en.title;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>{title} — MeNew Soft Player</title>
+  <meta name="robots" content="noindex" />
+  <script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0a0e1a; overflow: hidden; }
+    #stage { position: fixed; inset: 0; }
+    #stage iframe { width: 100%; height: 100%; border: 0; display: block; }
+    #topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px 14px calc(8px);
+      background: linear-gradient(to bottom, rgba(6,9,18,0.96), rgba(6,9,18,0.82));
+      border-bottom: 1px solid rgba(203,163,92,0.25);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      transition: transform .25s ease, opacity .25s ease;
+    }
+    #topbar.hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+    #topbar a, #topbar button, #topbar select {
+      font-size: 13px; color: #ece9e3; background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14); border-radius: 8px;
+      padding: 6px 12px; cursor: pointer; text-decoration: none; -webkit-appearance: none; appearance: none;
+    }
+    #topbar a:hover, #topbar button:hover, #topbar select:hover { border-color: #cba35c; color: #e5c789; }
+    #gametitle { color: #e5c789; font-weight: 700; font-size: 14px; margin-right: auto; letter-spacing: 0.02em;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #hint { position: fixed; left: 50%; transform: translateX(-50%); bottom: 18px; z-index: 15;
+      color: #cfc9bd; font-size: 12.5px; background: rgba(6,9,18,0.85); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px; padding: 7px 16px; transition: opacity .4s ease; pointer-events: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+    #hint.gone { opacity: 0; }
+    /* 상단 가장자리 호버 감지 스트립 + 모바일용 탭 핸들 */
+    #edge { position: fixed; top: 0; left: 0; right: 0; height: 14px; z-index: 19; }
+    #handle { position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 18;
+      background: rgba(6,9,18,0.72); color: #cba35c; border: 1px solid rgba(203,163,92,0.35); border-top: none;
+      border-radius: 0 0 10px 10px; padding: 1px 22px 3px; font-size: 13px; cursor: pointer; user-select: none; }
+    @media (hover: hover) { #handle { display: none; } }
+  </style>
+</head>
+<body>
+  <div id="topbar">
+    <span id="gametitle">{title}</span>
+    <select id="switcher" aria-label="switch game"></select>
+    <button id="fsbtn">⛶</button>
+    <a id="backlink" href="/games/">←</a>
+  </div>
+  <div id="edge"></div>
+  <div id="handle" aria-hidden="true">▾</div>
+  <div id="stage"><iframe id="game" allow="pointer-lock; fullscreen; autoplay" allowfullscreen></iframe></div>
+  <div id="hint"></div>
+
+  <script is:inline define:vars={{ registry, ui, slug, langCodes }}>
+    var params = new URLSearchParams(location.search);
+    var lang = params.get('lang');
+    if (langCodes.indexOf(lang) < 0) lang = 'en';
+    var T = ui[lang];
+    var current = registry.find(function (r) { return r.slug === slug; });
+
+    document.documentElement.lang = lang;
+    document.getElementById('game').src = current.path + '?lang=' + lang;
+    document.getElementById('gametitle').textContent = current.titles[lang];
+    document.title = current.titles[lang] + ' — MeNew Soft';
+
+    var back = document.getElementById('backlink');
+    back.href = (lang === 'en' ? '' : '/' + lang) + '/games/';
+    back.textContent = '← ' + T.back;
+
+    var sw = document.getElementById('switcher');
+    var ph = document.createElement('option');
+    ph.value = ''; ph.textContent = '🎮 ' + T.switch; ph.selected = true; ph.disabled = true;
+    sw.appendChild(ph);
+    registry.forEach(function (r) {
+      if (r.slug === slug) return;
+      var o = document.createElement('option');
+      o.value = r.slug; o.textContent = r.titles[lang];
+      sw.appendChild(o);
+    });
+    sw.addEventListener('change', function () {
+      if (sw.value) location.href = '/play/' + sw.value + '/?lang=' + lang;
+    });
+
+    var fsbtn = document.getElementById('fsbtn');
+    fsbtn.textContent = '⛶ ' + T.fs;
+    fsbtn.addEventListener('click', function () {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen().catch(function () {});
+    });
+
+    // ----- 상단 바 자동 숨김/표시 -----
+    var bar = document.getElementById('topbar');
+    var hideTimer = null;
+    function show() {
+      bar.classList.remove('hidden');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(hide, 3500);
+    }
+    function hide() { bar.classList.add('hidden'); }
+    document.getElementById('edge').addEventListener('mouseenter', show);
+    document.getElementById('handle').addEventListener('click', show);
+    bar.addEventListener('mouseenter', function () { clearTimeout(hideTimer); });
+    bar.addEventListener('mouseleave', function () { hideTimer = setTimeout(hide, 1200); });
+    show();
+
+    // 안내 문구는 처음 한 번만 잠깐
+    var hint = document.getElementById('hint');
+    hint.textContent = T.hint;
+    setTimeout(function () { hint.classList.add('gone'); }, 6000);
+  </script>
+</body>
+</html>

@@ -27,6 +27,8 @@ export const gamesUi: Record<Lang, Record<string, string>> = {
     save2: 'To back up or move your world: open the game menu (press ESC) and click \u201c\ud83d\udcbe Export Save\u201d. A single .json file is downloaded containing everything — the world seed, every block you changed, and your quest progress. On the new computer, open the game and click \u201c\ud83d\udcc2 Import Save\u201d, then choose that file.',
     save3: 'That one .json file is all you need to migrate. Keep an export as a backup: clearing the browser\u2019s site data (cookies/cache cleanup) also deletes the save.',
     clickToPlay: 'Click inside the game to start. Press ESC to release the mouse.',
+    aboutLink: 'Game details',
+    newTabNote: 'Opens in a new tab',
   },
   ko: {
     kicker: 'AI 인디게임',
@@ -51,6 +53,8 @@ export const gamesUi: Record<Lang, Record<string, string>> = {
     save2: '백업하거나 다른 컴퓨터로 옮기려면: 게임에서 ESC로 메뉴를 연 뒤 \u201c\ud83d\udcbe 세이브 내보내기\u201d를 누르세요. 세계 시드, 수정한 모든 블록, 도전과제 진행도가 담긴 .json 파일 하나가 다운로드됩니다. 새 컴퓨터에서 게임을 열고 \u201c\ud83d\udcc2 세이브 불러오기\u201d로 그 파일을 선택하면 끝입니다.',
     save3: '옮겨야 할 것은 그 .json 파일 하나가 전부입니다. 브라우저 사이트 데이터(쿠키·캐시) 삭제 시 세이브도 함께 지워지니, 내보내기 파일을 백업으로 보관해 두세요.',
     clickToPlay: '게임 화면을 클릭하면 시작됩니다. ESC로 마우스를 해제할 수 있습니다.',
+    aboutLink: '게임 소개',
+    newTabNote: '새 탭에서 열립니다',
   },
   ja: {
     kicker: 'AI インディーゲーム',
@@ -75,6 +79,8 @@ export const gamesUi: Record<Lang, Record<string, string>> = {
     save2: 'バックアップや別のパソコンへの移行は: ゲーム内でESCを押してメニューを開き、\u201c\ud83d\udcbe セーブを書き出す\u201dをクリックしてください。ワールドのシード、変更したすべてのブロック、実績の進行を含む.jsonファイルが1つダウンロードされます。新しいパソコンでゲームを開き、\u201c\ud83d\udcc2 セーブを読み込む\u201dでそのファイルを選べば完了です。',
     save3: '移行に必要なのはその.jsonファイル1つだけです。ブラウザのサイトデータ(Cookie・キャッシュ)を消去するとセーブも消えるため、書き出したファイルをバックアップとして保管してください。',
     clickToPlay: 'ゲーム画面をクリックすると開始します。ESCでマウスを解放できます。',
+    aboutLink: 'ゲーム紹介',
+    newTabNote: '新しいタブで開きます',
   },
   es: {
     kicker: 'JUEGOS INDIE DE IA',
@@ -99,6 +105,8 @@ export const gamesUi: Record<Lang, Record<string, string>> = {
     save2: 'Para hacer una copia o mudarte de ordenador: abre el menú del juego (ESC) y pulsa \u201c\ud83d\udcbe Exportar partida\u201d. Se descarga un único archivo .json con todo: la semilla del mundo, cada bloque que cambiaste y tu progreso de logros. En el ordenador nuevo, abre el juego, pulsa \u201c\ud83d\udcc2 Importar partida\u201d y elige ese archivo.',
     save3: 'Ese único archivo .json es todo lo que necesitas para migrar. Guarda una exportación como copia de seguridad: borrar los datos de sitios del navegador (cookies/caché) también elimina la partida.',
     clickToPlay: 'Haz clic dentro del juego para empezar. Pulsa ESC para liberar el ratón.',
+    aboutLink: 'Detalles del juego',
+    newTabNote: 'Se abre en una pestaña nueva',
   },
   zh: {
     kicker: 'AI 独立游戏',
@@ -123,6 +131,8 @@ export const gamesUi: Record<Lang, Record<string, string>> = {
     save2: '备份或迁移到新电脑: 在游戏中按ESC打开菜单，点击\u201c\ud83d\udcbe 导出存档\u201d，会下载一个.json文件，包含全部内容——世界种子、你改动过的每个方块、成就进度。在新电脑上打开游戏，点击\u201c\ud83d\udcc2 导入存档\u201d并选择该文件即可。',
     save3: '迁移只需要这一个.json文件。请把导出的文件留作备份: 清除浏览器站点数据(Cookie/缓存)也会删除存档。',
     clickToPlay: '点击游戏画面即可开始。按 ESC 释放鼠标。',
+    aboutLink: '游戏介绍',
+    newTabNote: '在新标签页打开',
   },
 };
 
@@ -810,3 +820,9 @@ export function gameUrl(slug: string, lang: Lang): string {
 export function gamesIndexUrl(lang: Lang): string {
   return lang === 'en' ? '/games/' : `/${lang}/games/`;
 }
+// 전용 플레이어 페이지 (새 탭에서 열어 전체화면 + 게임 전환 바 제공)
+export function playerUrl(slug: string, lang: Lang): string {
+  return `/play/${slug}/?lang=${lang}`;
+}
+// 홈 화면 '인기 게임' 노출 순서 (앞에서부터 4개 노출)
+export const homeGameOrder = ['voxel-world', 'super-uja', 'menew-kart', 'yuja-knight', 'fruit-blocks', 'menew-empires', 'ppanggeul-adventure'];

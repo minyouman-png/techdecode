@@ -16,6 +16,7 @@ const [brandA, brandB] = SITE_NAME.split(' ');
     <a class="brand" href={localizeUrl('/', lang)}>{brandA}<span>{brandB}</span></a>
     <nav class="nav">
       <a href={localizeUrl('/', lang)}>{t('nav_home')}</a>
+      <a href={localizeUrl('/blog/', lang)}>{t('nav_articles')}</a>
       <a href={localizeUrl('/games/', lang)}>{t('nav_games')}</a>
       <a href={localizeUrl('/tools/', lang)}>{t('nav_tools')}</a>
       <a href={localizeUrl('/glossary/', lang)}>{t('nav_glossary')}</a>

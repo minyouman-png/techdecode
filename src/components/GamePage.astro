@@ -2,7 +2,7 @@
 // 게임 상세 페이지: 소개 + 브라우저 내 플레이(iframe) (언어별 공용)
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { languages, type Lang } from '../i18n/ui';
-import { gamesUi, games, gameUrl, gamesIndexUrl } from '../i18n/games';
+import { gamesUi, games, gameUrl, gamesIndexUrl, playerUrl } from '../i18n/games';
 
 interface Props { lang: Lang; slug: string; }
 const { lang, slug } = Astro.props;
@@ -52,7 +52,7 @@ const ld = {
       </div>
       <div class="play-meta">
         <span class="hint">{g.clickToPlay}</span>
-        <a class="fullbtn" href={playSrc} target="_blank" rel="noopener">{g.openFull}</a>
+        <a class="fullbtn" href={playerUrl(slug, lang)} target="_blank" rel="noopener">{g.openFull}</a>
       </div>
 
       <section class="game-about">
