@@ -262,6 +262,7 @@ a.cat:hover { text-decoration: underline; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
 .section-head .section-label { flex: 1; }
 .more-link { flex: none; font-size: 14px; font-weight: 600; white-space: nowrap; }
+.cadence { color: var(--accent); letter-spacing: 0.04em; text-transform: none; font-weight: 600; }
 
 /* home popular games */
 .home-games { border-top: 1px solid var(--border-soft); padding: 54px 0; }

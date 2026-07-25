@@ -6,6 +6,7 @@ import { useTranslations, localizeUrl, blogUrl } from '../i18n/utils';
 import { categoryOrder, categoryLabel, categoryUrl } from '../i18n/categories';
 import { games, gamesUi, gameUrl, gamesIndexUrl, playerUrl, homeGameOrder } from '../i18n/games';
 import { tools, toolUrl, toolsIndexUrl } from '../i18n/tools';
+import WeeklyChallenge from './WeeklyChallenge.astro';
 
 interface Props {
   lang: Lang;
@@ -22,6 +23,11 @@ const posts = (await getCollection('blog'))
 const featured = posts[0];
 const latest = posts.slice(1, 6);
 const archiveUrl = localizeUrl('/blog/', lang);
+
+// 발행 리듬: 최근 14일간 발행 편수 (빌드 시점 기준 — 발행 때마다 재배포되므로 충분히 신선)
+const twoWeeksAgo = Date.now() - 14 * 86400000;
+const recentCount = posts.filter((p) => p.data.date.valueOf() >= twoWeeksAgo).length;
+const cadence = recentCount >= 3 ? t('cadence_note').replace('{n}', String(recentCount)) : null;
 
 // 홈은 모든 언어에 존재 → 각 언어 홈으로 대응
 const alternates: Partial<Record<Lang, string>> = {};
@@ -111,6 +117,7 @@ const cats = categoryOrder.map((slug) => ({
           );
         })}
       </div>
+      <WeeklyChallenge lang={lang} />
     </div>
   </section>
 
@@ -118,7 +125,7 @@ const cats = categoryOrder.map((slug) => ({
   <section class="home-posts">
     <div class="wrap">
       <div class="section-head">
-        <p class="section-label">{t('latest_label')}</p>
+        <p class="section-label">{t('latest_label')}{cadence && <span class="cadence">· {cadence}</span>}</p>
         <a class="more-link" href={archiveUrl}>{t('view_all_posts')} →</a>
       </div>
       {featured ? (

@@ -4,6 +4,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { languages, type Lang } from '../../../i18n/ui';
 import { useTranslations, blogUrl } from '../../../i18n/utils';
 import { categoryLabel, categoryUrl } from '../../../i18n/categories';
+import RelatedBlock from '../../../components/RelatedBlock.astro';
 
 const localeMap: Record<string, string> = {
   ko: 'ko-KR', ja: 'ja-JP', es: 'es-ES', zh: 'zh-CN', en: 'en-US',
@@ -47,6 +48,7 @@ const dateStr = d.date.toLocaleDateString(localeMap[lang] ?? 'en-US', {
       <div class="ad-slot" data-ad-slot="article-top"></div>
       <div class="post-body"><Content /></div>
       <p class="disclosure">{t('disclosure')}</p>
+      <RelatedBlock lang={lang} currentKey={d.key} category={d.category} />
     </div>
   </article>
 </BaseLayout>

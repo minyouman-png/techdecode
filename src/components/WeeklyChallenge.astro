@@ -1,0 +1,82 @@
+---
+// 주간 도전과제 배너: ISO 주차로 게임을 로테이션(모든 방문자에게 동일).
+// 정적 빌드라 현재 주차는 클라이언트 JS에서 계산해 채운다.
+import { type Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
+import { games, homeGameOrder, weeklyChallenges } from '../i18n/games';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const entries = homeGameOrder
+  .map((slug) => {
+    const game = games.find((x) => x.slug === slug);
+    if (!game || !weeklyChallenges[slug]) return null;
+    return {
+      slug,
+      title: game.copy[lang].title,
+      cover: game.cover,
+      challenge: weeklyChallenges[slug][lang],
+    };
+  })
+  .filter(Boolean);
+---
+<div class="weekly" id="weeklyBox" hidden>
+  <a class="wk-cover" id="wkCover" href="#" target="_blank" rel="noopener">
+    <img id="wkImg" src="" alt="" loading="lazy" />
+  </a>
+  <div class="wk-body">
+    <p class="wk-label">🏆 {t('weekly_label')} <span class="wk-week" id="wkWeek"></span></p>
+    <h3 id="wkTitle"></h3>
+    <p class="wk-desc" id="wkDesc"></p>
+    <a class="wk-cta" id="wkCta" href="#" target="_blank" rel="noopener">{t('weekly_cta')}</a>
+  </div>
+</div>
+
+<script is:inline define:vars={{ entries, lang }}>
+  (function () {
+    // ISO 주차 계산
+    var d = new Date();
+    var t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
+    var yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+    var week = Math.ceil(((t - yearStart) / 86400000 + 1) / 7);
+
+    var e = entries[(t.getUTCFullYear() * 53 + week) % entries.length];
+    if (!e) return;
+    var url = '/play/' + e.slug + '/?lang=' + lang;
+    document.getElementById('wkCover').href = url;
+    document.getElementById('wkCta').href = url;
+    var img = document.getElementById('wkImg');
+    img.src = e.cover; img.alt = e.title;
+    document.getElementById('wkTitle').textContent = e.title;
+    document.getElementById('wkDesc').textContent = e.challenge;
+    document.getElementById('wkWeek').textContent = '— W' + String(week).padStart(2, '0');
+    document.getElementById('weeklyBox').hidden = false;
+  })();
+</script>
+
+<style>
+  .weekly {
+    display: flex; align-items: center; gap: 22px; margin-top: 22px;
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+    border-radius: 16px; overflow: hidden;
+    background: linear-gradient(120deg, color-mix(in srgb, var(--accent) 10%, var(--bg-elev)), var(--bg-elev) 55%);
+  }
+  .wk-cover { flex: none; width: 230px; aspect-ratio: 16 / 10; display: block; background: #1a2433; }
+  .wk-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .wk-body { padding: 16px 22px 16px 0; min-width: 0; }
+  .wk-label { margin: 0 0 6px; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .wk-week { color: var(--faint); font-weight: 600; }
+  .wk-body h3 { margin: 0 0 6px; font-family: var(--serif); font-size: 1.25rem; color: var(--fg-strong); }
+  .wk-desc { margin: 0 0 10px; color: var(--muted); font-size: 0.97rem; }
+  .wk-cta { color: var(--accent); font-weight: 700; font-size: 14.5px; }
+  @media (max-width: 620px) {
+    .weekly { flex-direction: column; align-items: stretch; gap: 0; }
+    .wk-cover { width: 100%; }
+    .wk-body { padding: 14px 18px 16px; }
+  }
+</style>

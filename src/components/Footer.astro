@@ -20,6 +20,7 @@ const t = useTranslations(lang);
         <a href={localizeUrl('/about/', lang)}>{t('nav_about')}</a>
         <a href={localizeUrl('/contact/', lang)}>{t('nav_contact')}</a>
         <a href={localizeUrl('/privacy/', lang)}>Privacy</a>
+        <a href={lang === 'en' ? '/rss.xml' : `/${lang}/rss.xml`} target="_blank" rel="noopener">{t('rss_label')}</a>
       </div>
     </div>
     <p class="foot-note">© {new Date().getFullYear()} {SITE_NAME} · menewsoft.com{t('site_alias') && ` (${t('site_alias')})`} — {t('footer_note')}</p>

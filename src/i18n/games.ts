@@ -826,3 +826,56 @@ export function playerUrl(slug: string, lang: Lang): string {
 }
 // 홈 화면 '인기 게임' 노출 순서 (앞에서부터 4개 노출)
 export const homeGameOrder = ['voxel-world', 'super-uja', 'menew-kart', 'yuja-knight', 'fruit-blocks', 'menew-empires', 'ppanggeul-adventure'];
+
+// 주간 도전과제: ISO 주차 % 게임 수로 로테이션 (클라이언트에서 계산)
+export const weeklyChallenges: Record<string, Record<Lang, string>> = {
+  'voxel-world': {
+    en: 'Survive 3 nights and defeat the boss MENEW.',
+    ko: '사흘 밤을 살아남고 보스 MENEW를 물리치세요.',
+    ja: '3日の夜を生き延びて、ボスMENEWを倒そう。',
+    es: 'Sobrevive 3 noches y derrota al jefe MENEW.',
+    zh: '活过三个夜晚，打倒 Boss MENEW。',
+  },
+  'super-uja': {
+    en: 'Reach King Yeomra and clear the final stage.',
+    ko: '염라대왕까지 도달해 최종 스테이지를 클리어하세요.',
+    ja: '閻魔大王まで到達し、最終ステージをクリアしよう。',
+    es: 'Llega hasta el Rey Yeomra y supera la fase final.',
+    zh: '抵达阎罗大王，通关最终关卡。',
+  },
+  'menew-kart': {
+    en: 'Set a lap record on any track — drift for turbo boosts.',
+    ko: '아무 트랙에서나 랩 기록을 세우세요 — 드리프트로 부스터를 모으는 게 핵심.',
+    ja: 'どのコースでもラップ記録に挑戦 — ドリフトでターボを稼ごう。',
+    es: 'Marca un récord de vuelta en cualquier circuito — derrapa para el turbo.',
+    zh: '在任意赛道创造单圈纪录——漂移攒涡轮是关键。',
+  },
+  'yuja-knight': {
+    en: 'Rescue the spirit of the 3rd floor of the Starlight Tower.',
+    ko: '별빛 탑 3층의 정령을 구출하세요.',
+    ja: '星明かりの塔・3階の精霊を救出しよう。',
+    es: 'Rescata al espíritu del tercer piso de la Torre Estelar.',
+    zh: '救出星光之塔第三层的精灵。',
+  },
+  'fruit-blocks': {
+    en: 'Score 50,000+ in a single run and earn a high rank.',
+    ko: '한 판에 5만 점 이상 기록하고 높은 등급을 받아보세요.',
+    ja: '1プレイで5万点以上を出して高ランクを狙おう。',
+    es: 'Consigue más de 50.000 puntos en una partida.',
+    zh: '单局得分超过 50,000，冲击高段位。',
+  },
+  'menew-empires': {
+    en: 'Pick a small nation and survive 50 years of world history.',
+    ko: '작은 나라를 골라 세계사 50년을 살아남아 보세요.',
+    ja: '小国を選んで世界史50年を生き延びよう。',
+    es: 'Elige una nación pequeña y sobrevive 50 años de historia.',
+    zh: '选择一个小国，在世界历史中生存 50 年。',
+  },
+  'ppanggeul-adventure': {
+    en: 'Find little brother Gwiyomi — clear all 3 worlds.',
+    ko: '동생 귀요미를 찾아 3개 행성을 모두 클리어하세요.',
+    ja: '弟グィヨミを探して3つの惑星をすべてクリアしよう。',
+    es: 'Encuentra al hermanito Gwiyomi — supera los 3 mundos.',
+    zh: '找到弟弟归尤米——通关全部三个星球。',
+  },
+};

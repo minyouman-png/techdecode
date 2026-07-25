@@ -1,0 +1,81 @@
+---
+// 글 하단 내부 순환 블록: 관련 글 3편(같은 카테고리 우선) + AI 게임 1개 추천.
+// 게임은 글 key 해시로 결정 → 글마다 다른 게임이 고정 노출된다.
+import { getCollection } from 'astro:content';
+import { type Lang } from '../i18n/ui';
+import { useTranslations, blogUrl } from '../i18n/utils';
+import { categoryLabel } from '../i18n/categories';
+import { games, gamesUi, playerUrl, homeGameOrder } from '../i18n/games';
+
+interface Props {
+  lang: Lang;
+  currentKey: string;
+  category: string;
+}
+const { lang, currentKey, category } = Astro.props;
+const t = useTranslations(lang);
+const g = gamesUi[lang];
+
+const all = (await getCollection('blog'))
+  .filter((p) => p.data.lang === lang && p.data.key !== currentKey)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// 같은 카테고리 우선, 모자라면 최신 글로 채움
+const same = all.filter((p) => p.data.category === category);
+const rest = all.filter((p) => p.data.category !== category);
+const related = [...same, ...rest].slice(0, 3);
+
+// 글 key 해시로 게임 1개 선택 (결정적)
+let hash = 0;
+for (const ch of currentKey) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+const gameSlug = homeGameOrder[hash % homeGameOrder.length];
+const game = games.find((x) => x.slug === gameSlug)!;
+const gc = game.copy[lang];
+---
+{related.length > 0 && (
+  <aside class="related">
+    <p class="section-label">{t('related_label')}</p>
+    <ul class="post-list compact">
+      {related.map((post) => (
+        <li>
+          <a class="post-row" href={blogUrl(post.data.key, lang)}>
+            <span class="cat">{categoryLabel(post.data.category, lang)}</span>
+            <h3>{post.data.title}</h3>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </aside>
+)}
+
+<aside class="game-break">
+  <a class="gb-cover" href={playerUrl(game.slug, lang)} target="_blank" rel="noopener" title={g.newTabNote}>
+    <img src={game.cover} alt={gc.title} loading="lazy" />
+  </a>
+  <div class="gb-body">
+    <p class="gb-label">{t('break_label')}</p>
+    <h3>{gc.title}</h3>
+    <a class="gb-play" href={playerUrl(game.slug, lang)} target="_blank" rel="noopener">{g.playNow}</a>
+  </div>
+</aside>
+
+<style>
+  .related { max-width: var(--readw); margin: 48px auto 0; padding-top: 8px; }
+  .game-break {
+    max-width: var(--readw); margin: 34px auto 0;
+    display: flex; align-items: center; gap: 20px;
+    border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+    background: var(--bg-elev);
+  }
+  .gb-cover { flex: none; width: 190px; aspect-ratio: 16 / 10; display: block; background: #1a2433; }
+  .gb-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gb-body { padding: 14px 18px 14px 0; min-width: 0; }
+  .gb-label { margin: 0 0 4px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); font-weight: 600; }
+  .gb-body h3 { margin: 0 0 8px; font-family: var(--serif); font-size: 1.15rem; color: var(--fg-strong); }
+  .gb-play { color: var(--accent); font-weight: 600; font-size: 14.5px; }
+  @media (max-width: 560px) {
+    .game-break { flex-direction: column; align-items: stretch; gap: 0; }
+    .gb-cover { width: 100%; }
+    .gb-body { padding: 14px 18px 16px; }
+  }
+</style>
