@@ -234,6 +234,118 @@ export const tools: ToolEntry[] = [
     },
   },
   {
+    slug: 'menew-pdf',
+    appUrl: '/apps/pdf/',
+    copy: {
+      en: {
+        title: 'MeNew PDF',
+        tagline: 'A free PDF editor that runs in your browser — merge, split, reorder, rotate and export pages without uploading the file anywhere.',
+        about: [
+          'MeNew PDF opens one or more PDF files directly in your browser and lays every page out as a thumbnail. Open several files at once and they are merged into a single document; drag the thumbnails to reorder pages, select pages to rotate or delete them, and save the result as a new PDF.',
+          'It also splits and converts. Select any set of pages and save just those as a separate PDF, or export them as PNG images — a single page downloads as one image, several pages download as a ZIP. You can go the other way too and turn a batch of JPG or PNG images into a PDF, one image per page.',
+          'Everything happens locally: the file you open is read by your browser and never uploaded to a server. That matters for the documents people most often need to edit — contracts, statements, scanned ID — which is exactly what you should not be handing to a random web service.',
+          'How to use: Open PDF ▸ click pages to select them ▸ rotate, delete or drag to reorder ▸ Save PDF. Password-protected files cannot be opened.',
+        ],
+      },
+      ko: {
+        title: 'MeNew PDF',
+        tagline: '브라우저에서 바로 쓰는 무료 PDF 편집기 — 합치기·나누기·순서 변경·회전·이미지 변환을 업로드 없이.',
+        about: [
+          'MeNew PDF는 PDF 파일을 브라우저에서 바로 열어 모든 페이지를 썸네일로 펼쳐 보여줍니다. 여러 파일을 한 번에 열면 하나로 합쳐지고, 썸네일을 끌어 순서를 바꾸거나 페이지를 선택해 회전·삭제한 뒤 새 PDF로 저장할 수 있습니다.',
+          '나누기와 변환도 됩니다. 원하는 페이지만 골라 별도 PDF로 저장하거나 PNG 이미지로 내보낼 수 있고(한 장이면 이미지 하나, 여러 장이면 ZIP), 반대로 JPG·PNG 여러 장을 페이지당 한 장씩 담은 PDF로 만들 수도 있습니다.',
+          '모든 처리는 기기 안에서만 일어납니다. 연 파일은 브라우저가 읽을 뿐 서버로 올라가지 않습니다. 사람들이 PDF를 편집해야 하는 상황은 대개 계약서·명세서·신분증 사본처럼 아무 웹사이트에나 올리면 안 되는 문서라, 이 점이 특히 중요합니다.',
+          '사용법: PDF 열기 ▸ 페이지를 눌러 선택 ▸ 회전·삭제하거나 끌어서 순서 변경 ▸ PDF 저장. 암호가 걸린 파일은 열 수 없습니다.',
+        ],
+      },
+      ja: {
+        title: 'MeNew PDF',
+        tagline: 'ブラウザで動く無料PDF編集ツール — 結合・分割・並べ替え・回転・画像書き出しを、アップロードせずに。',
+        about: [
+          'MeNew PDF はPDFファイルをブラウザで直接開き、全ページをサムネイルで並べます。複数のファイルを同時に開けば1つに結合され、サムネイルをドラッグして並べ替え、ページを選んで回転・削除し、新しいPDFとして保存できます。',
+          '分割と変換にも対応します。任意のページだけを選んで別のPDFとして保存したり、PNG画像として書き出したり(1枚なら画像1つ、複数枚ならZIP)、逆にJPG・PNG画像を1ページ1枚のPDFにまとめることもできます。',
+          'すべての処理は端末内で完結します。開いたファイルはブラウザが読むだけで、サーバーには送信されません。PDFを編集したい場面は契約書・明細・身分証のスキャンなど、本来どこかのサイトに渡すべきでない書類がほとんどです。',
+          '使い方: PDFを開く ▸ ページをクリックして選択 ▸ 回転・削除、またはドラッグで並べ替え ▸ PDF保存。パスワード保護されたファイルは開けません。',
+        ],
+      },
+      es: {
+        title: 'MeNew PDF',
+        tagline: 'Un editor de PDF gratuito que funciona en tu navegador: combina, divide, reordena, rota y exporta páginas sin subir el archivo a ningún sitio.',
+        about: [
+          'MeNew PDF abre uno o varios archivos PDF directamente en tu navegador y muestra todas las páginas como miniaturas. Si abres varios archivos a la vez se combinan en un solo documento; arrastra las miniaturas para reordenar, selecciona páginas para rotarlas o borrarlas y guarda el resultado como un PDF nuevo.',
+          'También divide y convierte. Selecciona un conjunto de páginas y guárdalas como PDF aparte, o expórtalas como imágenes PNG: una sola página se descarga como imagen y varias como ZIP. También funciona al revés, convirtiendo un lote de imágenes JPG o PNG en un PDF con una imagen por página.',
+          'Todo ocurre localmente: el archivo que abres lo lee tu navegador y nunca se sube a un servidor. Esto importa porque los documentos que la gente necesita editar suelen ser contratos, extractos o copias de documentos de identidad, justo lo que no conviene entregar a cualquier servicio web.',
+          'Cómo usarlo: Abrir PDF ▸ haz clic en las páginas para seleccionarlas ▸ rota, borra o arrastra para reordenar ▸ Guardar PDF. Los archivos protegidos con contraseña no se pueden abrir.',
+        ],
+      },
+      zh: {
+        title: 'MeNew PDF',
+        tagline: '在浏览器中运行的免费 PDF 编辑器——合并、拆分、排序、旋转与导出页面，无需上传文件。',
+        about: [
+          'MeNew PDF 直接在浏览器中打开一个或多个 PDF 文件，并把每一页排列成缩略图。同时打开多个文件即可合并为一个文档;拖动缩略图重新排序，选中页面进行旋转或删除，然后保存为新的 PDF。',
+          '它同样支持拆分与转换。选择任意页面单独保存为 PDF，或导出为 PNG 图片(单页下载为一张图片，多页打包为 ZIP);也可以反过来，把一批 JPG 或 PNG 图片合成为每页一张图的 PDF。',
+          '所有处理都在本地完成:打开的文件只由浏览器读取，绝不会上传到服务器。这一点很重要，因为人们真正需要编辑的 PDF 往往是合同、账单或证件扫描件，恰恰是不该交给任意网站的文件。',
+          '使用方法:打开 PDF ▸ 点击页面进行选择 ▸ 旋转、删除或拖动排序 ▸ 保存 PDF。设有密码的文件无法打开。',
+        ],
+      },
+    },
+  },
+  {
+    slug: 'menew-hwp',
+    appUrl: '/apps/hwp/',
+    copy: {
+      en: {
+        title: 'MeNew HWP',
+        tagline: 'Read Hancom Hangul (.hwp, .hwpx) documents in your browser — useful on a Mac or Linux machine with no Hancom Office installed.',
+        about: [
+          'HWP is the standard word processor format of South Korean government offices, schools and universities, which makes it a recurring problem for anyone outside Windows: the file arrives, and there is nothing installed that opens it. MeNew HWP reads both the older binary .hwp format and the newer XML-based .hwpx directly in your browser.',
+          'It extracts the body text and table contents into a clean reading view. From there you can copy the whole document to your clipboard, save it as a plain .txt file, or use your browser\'s print dialog to turn it into a PDF.',
+          'This is a reader, not an editor, and it is honest about that. Fonts, page layout, embedded images and precise formatting are not reproduced — you get the words, not the design. Password-protected and distribution-locked (DRM) documents cannot be opened at all.',
+          'Everything runs locally. The file you open is read by your browser and never uploaded to a server.',
+        ],
+      },
+      ko: {
+        title: 'MeNew HWP',
+        tagline: '한글(.hwp, .hwpx) 문서를 브라우저에서 바로 읽습니다 — 한컴오피스가 없는 맥·리눅스에서 특히 유용합니다.',
+        about: [
+          'HWP는 관공서·학교·대학이 표준으로 쓰는 형식이라, 윈도우가 아닌 환경에서는 파일은 왔는데 열 프로그램이 없는 상황이 반복됩니다. MeNew HWP는 예전 바이너리 형식(.hwp)과 최신 XML 형식(.hwpx)을 모두 브라우저에서 바로 읽습니다.',
+          '본문과 표의 글자를 뽑아 읽기 좋은 화면으로 보여줍니다. 여기서 전체 내용을 클립보드로 복사하거나, .txt 파일로 저장하거나, 브라우저 인쇄 기능으로 PDF로 만들 수 있습니다.',
+          '편집기가 아니라 읽기 전용 뷰어이고, 이 점을 분명히 밝힙니다. 글꼴·쪽 배치·삽입된 이미지·세부 서식은 재현되지 않습니다. 내용은 얻지만 디자인은 얻지 못합니다. 암호가 걸렸거나 배포용으로 잠긴(DRM) 문서는 아예 열리지 않습니다.',
+          '모든 처리는 기기 안에서 이루어집니다. 연 파일은 브라우저가 읽을 뿐 서버로 전송되지 않습니다.',
+        ],
+      },
+      ja: {
+        title: 'MeNew HWP',
+        tagline: '韓国のワープロ形式(.hwp / .hwpx)をブラウザで読めます — Hancom Office のない Mac や Linux で特に便利です。',
+        about: [
+          'HWP は韓国の官公庁・学校・大学が標準的に使う形式のため、Windows 以外の環境では「ファイルは届いたが開くソフトがない」という状況が繰り返し起こります。MeNew HWP は旧来のバイナリ形式(.hwp)と新しい XML 形式(.hwpx)の両方をブラウザで直接読み取ります。',
+          '本文と表の文字を抽出し、読みやすい画面で表示します。そこから全文をクリップボードにコピーしたり、.txt として保存したり、ブラウザの印刷機能で PDF にすることができます。',
+          'これは編集ツールではなく閲覧専用ビューアであり、その点を明確にしています。フォント・ページレイアウト・埋め込み画像・詳細な書式は再現されません。得られるのは文字であって体裁ではありません。パスワード保護や配布制限(DRM)のかかった文書は開けません。',
+          'すべての処理は端末内で行われます。開いたファイルはブラウザが読むだけで、サーバーには送信されません。',
+        ],
+      },
+      es: {
+        title: 'MeNew HWP',
+        tagline: 'Lee documentos Hancom Hangul (.hwp, .hwpx) en tu navegador, útil en un Mac o Linux sin Hancom Office instalado.',
+        about: [
+          'HWP es el formato de procesador de textos estándar en las administraciones, colegios y universidades de Corea del Sur, lo que lo convierte en un problema recurrente fuera de Windows: llega el archivo y no hay nada instalado que lo abra. MeNew HWP lee tanto el formato binario antiguo (.hwp) como el más reciente basado en XML (.hwpx) directamente en tu navegador.',
+          'Extrae el texto del cuerpo y el contenido de las tablas en una vista de lectura limpia. Desde ahí puedes copiar el documento completo al portapapeles, guardarlo como archivo .txt o usar el diálogo de impresión del navegador para convertirlo en PDF.',
+          'Es un visor, no un editor, y lo dice claramente. No se reproducen las fuentes, la maquetación, las imágenes incrustadas ni el formato preciso: obtienes las palabras, no el diseño. Los documentos protegidos con contraseña o con DRM no se pueden abrir.',
+          'Todo se ejecuta localmente. El archivo que abres lo lee tu navegador y nunca se sube a un servidor.',
+        ],
+      },
+      zh: {
+        title: 'MeNew HWP',
+        tagline: '在浏览器中阅读韩国 Hangul(.hwp、.hwpx)文档——在没有安装 Hancom Office 的 Mac 或 Linux 上尤其实用。',
+        about: [
+          'HWP 是韩国政府机关、学校和大学的标准文字处理格式，因此在非 Windows 环境下经常出现「文件收到了却没有软件能打开」的情况。MeNew HWP 可以在浏览器中直接读取旧版二进制格式(.hwp)和新版 XML 格式(.hwpx)。',
+          '它会提取正文与表格文字，并以清爽的阅读视图呈现。你可以从这里把全文复制到剪贴板、保存为 .txt 文件，或用浏览器的打印功能转成 PDF。',
+          '这是阅读器而不是编辑器，我们也坦率说明这一点:字体、页面排版、内嵌图片和精确格式都不会还原——你得到的是文字，而不是版式。设有密码或分发保护(DRM)的文档完全无法打开。',
+          '所有处理都在本地完成。打开的文件只由浏览器读取，绝不会上传到服务器。',
+        ],
+      },
+    },
+  },
+  {
     slug: 'ai-cost-calculator',
     relatedPost: 'ai-developer-journey-2026',
     copy: {

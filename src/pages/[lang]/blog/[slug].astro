@@ -36,8 +36,23 @@ const t = useTranslations(lang);
 const dateStr = d.date.toLocaleDateString(localeMap[lang] ?? 'en-US', {
   year: 'numeric', month: 'long', day: 'numeric',
 });
+// 글마다 제목을 새긴 공유 카드 이미지(tools/make_og.py 로 생성).
+const ogImage = `/og/blog/${d.key}.${lang}.png`;
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: d.title,
+  description: d.description,
+  inLanguage: lang,
+  datePublished: d.date.toISOString(),
+  author: { '@type': 'Person', name: d.author },
+  publisher: { '@type': 'Organization', name: 'Tech Decode' },
+  image: new URL(ogImage, Astro.site).href,
+  mainEntityOfPage: new URL(Astro.url.pathname, Astro.site).href,
+  ...(d.category ? { articleSection: d.category } : {}),
+};
 ---
-<BaseLayout lang={lang} title={d.title} description={d.description} alternates={alternates}>
+<BaseLayout lang={lang} title={d.title} description={d.description} alternates={alternates} image={ogImage}>
   <article class="article">
     <div class="wrap">
       <div class="article-head">
@@ -51,4 +66,5 @@ const dateStr = d.date.toLocaleDateString(localeMap[lang] ?? 'en-US', {
       <RelatedBlock lang={lang} currentKey={d.key} category={d.category} />
     </div>
   </article>
+  <script type="application/ld+json" set:html={JSON.stringify(ld)} />
 </BaseLayout>

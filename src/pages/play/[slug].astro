@@ -34,6 +34,14 @@ const title = game.copy.en.title;
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>{title} — MeNew Soft Player</title>
   <meta name="robots" content="noindex" />
+  <!-- noindex 라도 공유 카드는 필요하다(이 URL 이 '지금 바로 플레이' 링크로 공유됨). -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={game.copy.en.tagline} />
+  <meta property="og:url" content={new URL(`/play/${slug}`, Astro.site).href} />
+  <meta property="og:image" content={new URL(game.cover, Astro.site).href} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content={new URL(game.cover, Astro.site).href} />
   <script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
   <style>
     html, body { margin: 0; height: 100%; background: #0a0e1a; overflow: hidden; }

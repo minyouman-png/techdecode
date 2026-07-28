@@ -29,7 +29,7 @@ const ld = {
   image: new URL(game.cover, Astro.site).href,
 };
 ---
-<BaseLayout lang={lang} title={c.title} description={c.tagline} alternates={alternates}>
+<BaseLayout lang={lang} title={c.title} description={c.tagline} alternates={alternates} image={game.cover}>
   <article class="game-page">
     <div class="wrap">
       <p class="backlink"><a href={gamesIndexUrl(lang)}>{g.backToList}</a></p>
