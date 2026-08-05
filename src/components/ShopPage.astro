@@ -181,7 +181,9 @@ const menu = [...c.menu].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
   }
   .btn-call.big { font-size: 1.1rem; padding: 0.8rem 1.4rem; margin: 0.6rem 0; }
   .shop-body { max-width: 780px; }
-  .shop-block { margin: 2.4rem 0; }
+  /* ⚠️전역 `section { padding: 68px 0 }` 가 이 중첩 섹션들에도 걸려서 블록 사이에
+     136px 짜리 빈 구간이 생겼다(소식 ↔ 본문 사이). 여기서 패딩을 죽이고 여백은 margin 으로만 준다. */
+  .shop-block { margin: 2.4rem 0; padding: 0; }
   .shop-block h2 { font-size: 1.35rem; margin-bottom: 0.8rem; }
   .shop-story { line-height: 1.75; margin: 0 0 0.9rem; }
   .news-list { list-style: none; padding: 0; margin: 0; }

@@ -56,7 +56,7 @@ const rows = [...shopNotices, ...pressNews].sort((a, b) => (a.date < b.date ? 1 
 <BaseLayout lang={lang} title={t('news_title')} description={t('news_desc')} alternates={alternates}>
   <section class="news-hero">
     <div class="wrap">
-      <p class="kicker">{t('news_title')}</p>
+      <p class="kicker">{t('dir_title')}</p>
       <h1>{t('news_title')}</h1>
       <p class="news-lede">{t('news_desc')}</p>
     </div>
@@ -95,31 +95,5 @@ const rows = [...shopNotices, ...pressNews].sort((a, b) => (a.date < b.date ? 1 
   </section>
 </BaseLayout>
 
-<style>
-  .news-hero { padding: 48px 0 18px; }
-  .news-hero h1 { margin: 6px 0 10px; font-size: clamp(1.5rem, 3.6vw, 2.1rem); }
-  .news-lede { max-width: 62ch; color: var(--muted, #666); margin: 0; }
-  .news-body { padding: 10px 0 60px; }
-  .news-empty { color: var(--muted, #666); padding: 30px 0; }
 
-  .news-feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
-  .news-item {
-    border: 1px solid var(--line, #e3e3e6); border-radius: 14px; padding: 15px 17px;
-    background: var(--card, #fff);
-  }
-  .news-meta { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 7px; }
-  .badge {
-    font-size: 0.74rem; font-weight: 700; letter-spacing: 0.02em;
-    padding: 3px 9px; border-radius: 999px; border: 1px solid transparent;
-  }
-  /* 가게가 직접 낸 말 vs 우리가 공개 자료에서 정리한 것 — 색으로도 갈라 놓는다. */
-  .badge.shop { background: rgba(42, 109, 245, 0.12); color: var(--accent, #2a6df5); }
-  .badge.press { background: transparent; border-color: var(--line, #d8d8dc); color: var(--muted, #666); }
-  .news-shop { font-weight: 600; text-decoration: none; color: inherit; }
-  .news-when { font-size: 0.84rem; color: var(--faint, #999); font-variant-numeric: tabular-nums; }
-  .news-title { margin: 0 0 5px; font-size: 1.05rem; }
-  .news-text { margin: 0; line-height: 1.6; }
-  .news-foot { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 9px; font-size: 0.83rem; }
-  .news-src, .news-more { color: var(--muted, #666); text-decoration: none; }
-  .news-src:hover, .news-more:hover { text-decoration: underline; }
-</style>
+{/* 스타일은 global.css 의 `업체 소식` 절에 있다(디자인 토큰 일관성 유지). */}

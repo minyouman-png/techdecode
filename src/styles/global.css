@@ -46,6 +46,10 @@ body {
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* ⚠️한글은 기본값이면 어절 한가운데서 줄이 바뀐다('만듭/니다'). keep-all 로 어절을 지키되,
+     긴 영문·URL 이 넘치지 않도록 overflow-wrap 을 함께 둔다. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 a { color: var(--accent); text-decoration: none; }
@@ -339,4 +343,220 @@ a.cat:hover { text-decoration: underline; }
 }
 @media (max-width: 1000px) and (min-width: 761px) {
   .hgame-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ============================================================
+   업체 디렉토리 (2026-08-05 사이트 성격 전환)
+   ⚠️여기 색은 전부 토큰(--bg-elev/--border/--accent)으로만 쓴다.
+     처음엔 컴포넌트에 #fff·#2a6df5 같은 값을 박았다가 **다크 모드에서
+     검색창·카드가 하얗게 튀고 글자가 안 보이는** 사고가 났다.
+   ============================================================ */
+
+/* ---------- 히어로 ---------- */
+.dir-hero {
+  position: relative; overflow: hidden;
+  border-bottom: 1px solid var(--border-soft);
+  background:
+    radial-gradient(1100px 460px at 76% -12%, color-mix(in srgb, var(--accent) 15%, transparent), transparent 62%),
+    radial-gradient(820px 440px at 6% 4%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 58%);
+  padding: 78px 0 60px;
+}
+.dir-hero h1 {
+  font-family: var(--serif); font-weight: 600; letter-spacing: -0.022em;
+  font-size: clamp(2.1rem, 5vw, 3.3rem); line-height: 1.1; margin: 0 0 20px;
+  color: var(--fg-strong); max-width: 22ch;
+}
+.dir-sub { font-size: clamp(1rem, 2vw, 1.16rem); color: var(--muted); max-width: 56ch; margin: 0 0 32px; }
+.dir-actions { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.dir-ghost { color: var(--muted); font-size: 15px; font-weight: 500; display: inline-flex; align-items: center; gap: 7px; }
+.dir-ghost:hover { color: var(--accent); }
+
+/* 3단계 안내 — 무엇을 파는지 한눈에 */
+.dir-steps {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+  margin: 48px 0 0; border-top: 1px solid var(--border-soft);
+}
+.dir-step { padding: 24px 26px 4px 0; border-left: 1px solid var(--border-soft); padding-left: 26px; }
+.dir-step:first-child { border-left: none; padding-left: 0; }
+.dir-step .num {
+  font-family: var(--serif); font-size: 13px; font-weight: 600; color: var(--accent);
+  letter-spacing: 0.16em; display: block; margin-bottom: 10px;
+}
+.dir-step h3 { margin: 0 0 6px; font-size: 1.02rem; color: var(--fg-strong); font-weight: 600; }
+.dir-step p { margin: 0; font-size: 0.92rem; color: var(--muted); line-height: 1.6; }
+
+/* ---------- 검색·필터 패널 ---------- */
+.dir-main { padding: 56px 0 40px; }
+.dir-head { display: flex; align-items: baseline; gap: 14px; margin: 0 0 20px; }
+.dir-head h2 { margin: 0; }
+.dir-count {
+  font-size: 13px; color: var(--faint); font-variant-numeric: tabular-nums;
+  border: 1px solid var(--border-soft); border-radius: 999px; padding: 3px 11px;
+}
+.dir-panel {
+  background: var(--bg-elev); border: 1px solid var(--border); border-radius: 18px;
+  padding: 16px 18px 6px; margin-bottom: 30px;
+}
+.dir-search {
+  display: flex; align-items: center; gap: 11px;
+  border-bottom: 1px solid var(--border-soft); padding: 4px 2px 14px; margin-bottom: 4px;
+}
+.dir-search svg { flex: none; color: var(--faint); }
+.dir-search input {
+  flex: 1; min-width: 0; border: none; outline: none; background: transparent;
+  color: var(--fg-strong); font-size: 16px; font-family: var(--sans); padding: 4px 0;
+}
+.dir-search input::placeholder { color: var(--faint); }
+.dir-facet { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 0; }
+.dir-facet + .dir-facet { border-top: 1px solid var(--border-soft); }
+.facet-label {
+  font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600;
+  color: var(--faint); min-width: 46px;
+}
+.fchip {
+  border: 1px solid var(--border); background: transparent; color: var(--muted);
+  border-radius: 999px; padding: 6px 15px; font: inherit; font-size: 13.5px; cursor: pointer;
+  transition: border-color .15s ease, color .15s ease, background .15s ease;
+}
+.fchip:hover { border-color: color-mix(in srgb, var(--accent) 50%, var(--border)); color: var(--fg-strong); }
+.fchip em { font-style: normal; opacity: 0.55; font-size: 0.86em; margin-left: 5px; font-variant-numeric: tabular-nums; }
+.fchip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.fchip.on em { opacity: 0.75; }
+
+/* ---------- 업체 카드 ---------- */
+.shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
+.shop-card {
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--bg-elev); border: 1px solid var(--border); border-radius: 16px;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.shop-card[hidden] { display: none; }
+.shop-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--accent) 11%, transparent);
+}
+.shop-cover { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; background: var(--bg-elev2); }
+.shop-cover img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s ease; }
+.shop-card:hover .shop-cover img { transform: scale(1.045); }
+.shop-place {
+  position: absolute; left: 12px; bottom: 12px; z-index: 1;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.02em; color: #fff;
+  background: rgba(10, 12, 16, 0.62); backdrop-filter: blur(6px);
+  border-radius: 999px; padding: 5px 12px;
+}
+.shop-body { padding: 17px 18px 19px; display: flex; flex-direction: column; gap: 9px; flex: 1; }
+.shop-meta {
+  font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--faint); font-weight: 600; margin: 0;
+}
+.shop-body h3 { font-family: var(--serif); font-weight: 600; font-size: 1.32rem; line-height: 1.25; margin: 0; }
+.shop-body h3 a { color: var(--fg-strong); }
+.shop-card:hover .shop-body h3 a { color: var(--accent); }
+.shop-tagline { margin: 0; color: var(--muted); font-size: 0.95rem; line-height: 1.6; flex: 1; }
+.shop-more { color: var(--accent); font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 7px; }
+.shop-card:hover .shop-more span { transform: translateX(3px); }
+.shop-more span { transition: transform .18s ease; display: inline-block; }
+
+/* 등록이 적을 때 첫 카드를 가로형으로 — 한 칸만 덩그러니 놓이는 걸 막는다 */
+.shop-grid.sparse .shop-card:first-child { grid-column: 1 / -1; flex-direction: row; }
+.shop-grid.sparse .shop-card:first-child .shop-cover { flex: 0 0 46%; aspect-ratio: auto; }
+.shop-grid.sparse .shop-card:first-child .shop-body { padding: 30px 32px; justify-content: center; gap: 12px; }
+.shop-grid.sparse .shop-card:first-child .shop-body h3 { font-size: 1.75rem; }
+.shop-grid.sparse .shop-card:first-child .shop-tagline { font-size: 1.04rem; flex: none; max-width: 44ch; }
+
+.dir-none { text-align: center; color: var(--muted); padding: 46px 0; border: 1px dashed var(--border); border-radius: 16px; }
+
+/* ---------- 보조(구글) 검색 — 자체 검색보다 확실히 낮은 위계 ---------- */
+.dir-google-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 26px 0 6px; padding-top: 22px; border-top: 1px solid var(--border-soft);
+}
+.dir-google-row .label { font-size: 13.5px; color: var(--muted); margin-right: 2px; }
+.dir-google { display: flex; gap: 8px; flex: 1; min-width: 240px; max-width: 460px; }
+.dir-google input {
+  flex: 1; min-width: 0; padding: 9px 15px; font: inherit; font-size: 14px;
+  border: 1px solid var(--border); border-radius: 999px;
+  background: var(--bg-elev); color: var(--fg-strong);
+}
+.dir-google input::placeholder { color: var(--faint); }
+.dir-google input:focus { outline: none; border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+.dir-google button {
+  padding: 9px 18px; font: inherit; font-size: 14px; cursor: pointer; border-radius: 999px;
+  border: 1px solid var(--border); background: transparent; color: var(--muted);
+  transition: border-color .15s ease, color .15s ease;
+}
+.dir-google button:hover { border-color: var(--accent); color: var(--accent); }
+.dir-google-hint { font-size: 12.5px; color: var(--faint); margin: 10px 0 0; }
+
+/* ---------- 판매 섹션 ---------- */
+.dir-sell { border-top: 1px solid var(--border-soft); padding: 60px 0 78px; }
+.sell-panel {
+  background: color-mix(in srgb, var(--accent) 6%, var(--bg-elev));
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
+  border-radius: 20px; padding: 40px 40px 36px;
+}
+.sell-panel h2 { margin: 0 0 12px; }
+.sell-panel > p { color: var(--muted); max-width: 62ch; margin: 0 0 26px; font-size: 1.03rem; }
+.dir-promise { list-style: none; padding: 0; margin: 0 0 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.dir-promise li {
+  font-size: 0.93rem; color: var(--fg); padding-left: 26px; position: relative; line-height: 1.5;
+}
+.dir-promise li::before {
+  content: '✓'; position: absolute; left: 0; top: -1px;
+  color: var(--accent); font-weight: 700;
+}
+.sell-note { font-size: 13px; color: var(--faint); margin: 18px 0 0; }
+
+/* ---------- 업체 소식 ---------- */
+.news-hero { padding: 62px 0 8px; }
+.news-hero h1 {
+  font-family: var(--serif); font-weight: 600; letter-spacing: -0.02em;
+  font-size: clamp(1.9rem, 4vw, 2.6rem); margin: 6px 0 14px; color: var(--fg-strong);
+}
+.news-lede { max-width: 60ch; color: var(--muted); margin: 0; }
+.news-body { padding: 34px 0 78px; }
+.news-empty { color: var(--muted); padding: 40px 0; }
+.news-feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.news-item {
+  background: var(--bg-elev); border: 1px solid var(--border); border-radius: 16px; padding: 20px 22px;
+  transition: border-color .18s ease;
+}
+.news-item:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.news-meta { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; margin-bottom: 10px; }
+.badge {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 999px; border: 1px solid transparent; white-space: nowrap;
+}
+/* 가게가 직접 낸 말 vs 우리가 공개 자료에서 정리한 것 — 색으로도 갈라 놓는다 */
+.badge.shop { background: var(--accent); color: var(--accent-ink); }
+.badge.press { border-color: var(--border); color: var(--muted); }
+.news-shop { font-weight: 600; color: var(--fg-strong); font-size: 14.5px; }
+.news-shop:hover { color: var(--accent); }
+.news-when { font-size: 13px; color: var(--faint); font-variant-numeric: tabular-nums; }
+.news-title { font-family: var(--serif); font-weight: 600; margin: 0 0 6px; font-size: 1.18rem; color: var(--fg-strong); }
+.news-text { margin: 0; line-height: 1.68; color: var(--fg); }
+.news-foot { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; font-size: 13px; }
+.news-src { color: var(--muted); }
+.news-src:hover { color: var(--accent); }
+.news-more { color: var(--faint); }
+.news-more:hover { color: var(--fg-strong); }
+
+/* ---------- 반응형 ---------- */
+@media (max-width: 900px) {
+  .dir-steps { grid-template-columns: 1fr; }
+  .dir-step { border-left: none; border-top: 1px solid var(--border-soft); padding: 20px 0 4px; }
+  .dir-step:first-child { border-top: none; }
+  .dir-promise { grid-template-columns: 1fr; gap: 10px; }
+  .sell-panel { padding: 30px 24px 28px; }
+  .shop-grid.sparse .shop-card:first-child { flex-direction: column; }
+  .shop-grid.sparse .shop-card:first-child .shop-cover { flex: none; aspect-ratio: 4 / 3; }
+  .shop-grid.sparse .shop-card:first-child .shop-body { padding: 17px 18px 19px; }
+  .shop-grid.sparse .shop-card:first-child .shop-body h3 { font-size: 1.32rem; }
+}
+@media (max-width: 760px) {
+  .dir-hero { padding: 52px 0 44px; }
+  .dir-main { padding: 40px 0 30px; }
+  .shop-grid { grid-template-columns: 1fr; gap: 16px; }
+  .dir-panel { padding: 14px 15px 4px; }
 }
