@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>MeNew Kart</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000;
+    font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Hiragino Sans', sans-serif; user-select: none; }
+  canvas { display: block; }
+  button { font-family: inherit; }
+
+  /* ===== HUD ===== */
+  .hudel { position: fixed; z-index: 5; pointer-events: none; color: #fff;
+    text-shadow: 2px 2px 0 rgba(0,0,0,.7); font-weight: 900; }
+  .hudel, #minimap { visibility: hidden; }
+  body.racing .hudel, body.racing #minimap { visibility: visible; }
+  #hudPos { left: 18px; bottom: 16px; font-size: 46px; font-style: italic; }
+  #hudPos small { font-size: 20px; }
+  #hudLap { left: 18px; top: 12px; font-size: 22px; }
+  #hudTime { left: 50%; top: 12px; transform: translateX(-50%); font-size: 20px;
+    font-family: Menlo, monospace; }
+  #hudSpeed { right: 18px; bottom: 16px; font-size: 30px; font-style: italic; }
+  #hudSpeed small { font-size: 14px; }
+  #hudItem { left: 50%; bottom: 14px; transform: translateX(-50%); width: 58px; height: 58px;
+    background: rgba(0,0,0,.45); border: 3px solid rgba(255,255,255,.75); border-radius: 10px;
+    font-size: 32px; display: flex; align-items: center; justify-content: center; }
+  #minimap { position: fixed; right: 14px; top: 14px; z-index: 5; pointer-events: none;
+    background: rgba(0,0,0,.35); border-radius: 10px; }
+  #hudMsg { position: fixed; left: 50%; top: 34%; transform: translate(-50%,-50%); z-index: 6;
+    font-size: 90px; font-weight: 900; font-style: italic; color: #ffe957; pointer-events: none;
+    text-shadow: 4px 4px 0 rgba(0,0,0,.6); }
+  #hudBoost { position: fixed; inset: 0; z-index: 4; pointer-events: none; opacity: 0;
+    box-shadow: inset 0 0 110px rgba(80,180,255,.85); transition: opacity .15s; }
+
+  /* ===== 메뉴 공통 ===== */
+  .screen { position: fixed; inset: 0; z-index: 10; display: none; flex-direction: column;
+    align-items: center; justify-content: center; gap: 18px;
+    background: rgba(8, 10, 24, .62); backdrop-filter: blur(2px); }
+  .screen h1 { color: #fff; font-size: 52px; letter-spacing: 5px; font-weight: 900;
+    text-shadow: 3px 3px 0 #a02040, 6px 6px 0 rgba(0,0,0,.5); text-align: center; }
+  .screen h1 span { display: block; font-size: 13px; letter-spacing: 9px; color: #ffe957;
+    transform: rotate(-3deg); margin-top: 6px; text-shadow: 1px 1px 0 rgba(0,0,0,.6); }
+  .screen h2 { color: #ffe957; font-size: 24px; letter-spacing: 2px;
+    text-shadow: 2px 2px 0 rgba(0,0,0,.6); }
+  .bigbtn { padding: 13px 34px; font-size: 17px; font-weight: bold; cursor: pointer;
+    color: #fff; background: #c92a4e; border: 2px solid #6d1128; border-bottom-width: 5px;
+    border-radius: 6px; }
+  .bigbtn:hover { background: #e03a60; }
+  .graybtn { padding: 10px 20px; font-size: 14px; font-weight: bold; cursor: pointer;
+    color: #fff; background: #35507a; border: 2px solid #1c2d4a; border-bottom-width: 4px;
+    border-radius: 6px; }
+  .graybtn:hover { background: #41639a; }
+  .btnrow { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  #nick { padding: 11px 16px; font-size: 16px; border-radius: 6px; border: 2px solid #444;
+    background: rgba(0,0,0,.55); color: #fff; text-align: center; width: 230px; outline: none; }
+  #nick:focus { border-color: #ffe957; }
+  .help { color: #e8e8e8; font-size: 13.5px; line-height: 2; background: rgba(0,0,0,.45);
+    padding: 11px 24px; border-radius: 8px; max-width: 88vw; text-align: center; }
+  .help b { color: #ffe957; }
+  .credit { color: #cfd6dd; font-size: 12px; background: rgba(0,0,0,.4);
+    padding: 6px 14px; border-radius: 20px; }
+  .credit a { color: #ffe957; text-decoration: none; }
+
+  /* 캐릭터 선택 */
+  #charGrid { display: grid; grid-template-columns: repeat(6, 104px); gap: 10px;
+    max-width: 92vw; justify-content: center; }
+  @media (max-width: 720px) { #charGrid { grid-template-columns: repeat(4, minmax(0, 96px)); width: 94vw; } }
+  .charCard { background: rgba(0,0,0,.5); border: 3px solid #555; border-radius: 10px;
+    padding: 9px 6px 7px; cursor: pointer; text-align: center; transition: transform .08s; }
+  .charCard:hover { border-color: #ffe957; transform: translateY(-3px); }
+  .charKart { width: 54px; height: 34px; margin: 0 auto 3px; border-radius: 7px 7px 4px 4px;
+    position: relative; box-shadow: inset -6px -8px 0 rgba(0,0,0,.25); }
+  .charKart::before, .charKart::after { content: ""; position: absolute; bottom: -6px;
+    width: 13px; height: 13px; background: #222; border-radius: 50%;
+    box-shadow: inset 2px 2px 0 rgba(255,255,255,.25); }
+  .charKart::before { left: 3px; } .charKart::after { right: 3px; }
+  .charHead { width: 18px; height: 18px; border-radius: 4px; margin: -28px auto 12px;
+    position: relative; background: #e8b48c; }
+  .charName { color: #fff; font-size: 13px; font-weight: 800; margin-top: 8px;
+    text-shadow: 1px 1px 0 #000; }
+  .charStat { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
+  .bar { height: 4px; background: rgba(255,255,255,.15); border-radius: 2px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: #ffe957; }
+
+  /* 기록실 / 결과 */
+  .panel { background: rgba(0,0,0,.62); border: 1px solid rgba(255,255,255,.2);
+    border-radius: 12px; padding: 16px 22px; max-width: 88vw; max-height: 60vh; overflow: auto; }
+  .panel table { border-collapse: collapse; color: #eee; font-size: 14px; }
+  .panel th { color: #ffe957; text-align: left; padding: 4px 14px 8px 4px; font-size: 12px;
+    letter-spacing: 1px; }
+  .panel td { padding: 4px 14px 4px 4px; border-top: 1px solid rgba(255,255,255,.12); }
+  .panel .me { color: #ffe957; font-weight: bold; }
+  .note { color: #9aa; font-size: 12px; }
+
+  #err { display: none; position: fixed; left: 10px; bottom: 10px; z-index: 99;
+    color: #fff; background: #b32; padding: 8px 12px; border-radius: 6px; font-size: 13px; }
+
+  /* ===== 모바일 터치 컨트롤 ===== */
+  #touch { display: none; }
+  body.touch.racing #touch { display: block; }
+  #touch .tbtn { position: fixed; z-index: 7; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.4); background: rgba(0,0,0,.38); color: #fff;
+    font-weight: 900; display: flex; align-items: center; justify-content: center;
+    touch-action: none; -webkit-user-select: none; user-select: none;
+    -webkit-tap-highlight-color: transparent; }
+  #touch .tbtn.on { background: rgba(255,255,255,.3); }
+  #tLeft  { left: 16px;  bottom: 22px; width: 74px; height: 74px; font-size: 28px; }
+  #tRight { left: 104px; bottom: 22px; width: 74px; height: 74px; font-size: 28px; }
+  #tGas   { right: 16px;  bottom: 22px; width: 80px; height: 80px; font-size: 30px;
+    background: rgba(40,160,70,.45); }
+  #tBrake { right: 112px; bottom: 22px; width: 60px; height: 60px; font-size: 22px;
+    background: rgba(180,50,50,.45); }
+  #tDrift { right: 26px;  bottom: 118px; width: 64px; height: 64px; font-size: 24px;
+    background: rgba(70,140,220,.45); }
+  #tItem  { right: 108px; bottom: 108px; width: 56px; height: 56px; font-size: 24px; }
+  #tQuit  { left: 12px; top: 8px; width: 40px; height: 40px; font-size: 17px;
+    border-radius: 10px; }
+  /* 터치 모드 HUD 재배치 (버튼과 겹침 방지) */
+  body.touch #hudPos { bottom: 112px; font-size: 38px; }
+  body.touch #hudSpeed { bottom: 196px; font-size: 24px; }
+  body.touch #hudLap { left: 62px; }
+</style>
+</head>
+<body>
+  <!-- HUD -->
+  <div class="hudel" id="hudLap"></div>
+  <div class="hudel" id="hudTime"></div>
+  <div class="hudel" id="hudPos"></div>
+  <div class="hudel" id="hudSpeed"></div>
+  <div class="hudel" id="hudItem"></div>
+  <canvas id="minimap" width="150" height="150"></canvas>
+  <div id="hudMsg"></div>
+  <div id="hudBoost"></div>
+
+  <!-- 메인 메뉴 -->
+  <div class="screen" id="menu" style="display:flex">
+    <h1>MENEW KART<span id="subT">GRAND PRIX</span></h1>
+    <input id="nick" maxlength="12">
+    <div class="btnrow">
+      <button class="bigbtn" id="startBtn"></button>
+      <button class="graybtn" id="recBtn"></button>
+    </div>
+    <div class="btnrow">
+      <button class="graybtn" id="exportBtn"></button>
+      <button class="graybtn" id="importBtn"></button>
+    </div>
+    <div class="help" id="helpBox"></div>
+    <div class="credit" id="credit"></div>
+  </div>
+
+  <!-- 캐릭터 선택 -->
+  <div class="screen" id="select">
+    <h2 id="selT"></h2>
+    <div id="charGrid"></div>
+    <button class="graybtn" id="backBtn"></button>
+  </div>
+
+  <!-- 기록실 -->
+  <div class="screen" id="records">
+    <h2 id="recT"></h2>
+    <div class="panel" id="recPanel"></div>
+    <div class="note" id="recNote"></div>
+    <button class="graybtn" id="recBackBtn"></button>
+  </div>
+
+  <!-- 결과 -->
+  <div class="screen" id="results">
+    <h2 id="resT"></h2>
+    <div class="panel" id="resPanel"></div>
+    <div class="btnrow">
+      <button class="bigbtn" id="retryBtn"></button>
+      <button class="graybtn" id="menuBtn"></button>
+    </div>
+  </div>
+
+  <!-- 모바일 터치 컨트롤 -->
+  <div id="touch">
+    <div class="tbtn" id="tLeft">◀</div>
+    <div class="tbtn" id="tRight">▶</div>
+    <div class="tbtn" id="tGas">▲</div>
+    <div class="tbtn" id="tBrake">▼</div>
+    <div class="tbtn" id="tDrift">💨</div>
+    <div class="tbtn" id="tItem">🎁</div>
+    <div class="tbtn" id="tQuit">✕</div>
+  </div>
+
+  <div id="err"></div>
+  <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+
+  <script src="three.min.js"></script>
+  <script src="kart.js"></script>
+</body>
+</html>

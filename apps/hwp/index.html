@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 검색 색인은 랜딩(/tools/<slug>/)이 담당한다. 같은 검색어로 두 URL 이 경쟁하면
+     (카니벌라이제이션) 구글이 어느 쪽도 밀어주지 않는다. follow 라 링크는 그대로 전달된다. -->
+<meta name="robots" content="noindex,follow">
+<title>MeNew HWP — 한글 파일(.hwp/.hwpx) 온라인 뷰어, 설치 없이 열기</title>
+<meta name="description" content="한글(.hwp, .hwpx) 파일을 브라우저에서 바로 열어 읽습니다. 맥·리눅스에서도 한컴오피스 설치 없이 내용을 확인하고 텍스트를 복사할 수 있습니다. 파일은 서버로 올라가지 않습니다.">
+<link rel="canonical" href="https://menewsoft.com/apps/hwp/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="MeNew HWP — 한글 파일 온라인 뷰어">
+<meta property="og:description" content="한글(.hwp/.hwpx) 파일을 브라우저에서 바로 읽기. 설치 없음, 로그인 없음, 업로드 없음.">
+<meta property="og:url" content="https://menewsoft.com/apps/hwp/">
+<meta property="og:image" content="https://menewsoft.com/og/apps/hwp.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://menewsoft.com/og/apps/hwp.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"MeNew HWP",
+"applicationCategory":"BusinessApplication","operatingSystem":"Web browser",
+"description":"Read Hancom Hangul (.hwp, .hwpx) documents directly in your browser. Files are never uploaded to a server.",
+"url":"https://menewsoft.com/apps/hwp/","isAccessibleForFree":true,
+"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
+<link rel="stylesheet" href="../apps.css">
+<style>
+  :root { --toolbar-h: 46px; }
+  body { background: #eceae4; overflow: hidden; }
+  .fmtbar {
+    position: fixed; top: var(--topbar-h); left: 0; right: 0; height: var(--toolbar-h); z-index: 490;
+    display: flex; align-items: center; gap: 6px; padding: 0 10px; overflow-x: auto;
+    background: #faf8f4; border-bottom: 1px solid var(--line);
+  }
+  .fmtbar button {
+    appearance: none; border: 1px solid var(--line); background: #fff; color: var(--ink);
+    border-radius: 7px; padding: 6px 11px; font-size: 13px; cursor: pointer; white-space: nowrap;
+  }
+  .fmtbar button:hover:not(:disabled) { background: #f1ece1; border-color: var(--gold-soft); }
+  .fmtbar button:disabled { opacity: .4; cursor: default; }
+  .fmtbar .info { font-size: 12px; color: #6c6558; white-space: nowrap; margin-left: auto; padding-left: 10px; }
+
+  #stage {
+    position: fixed; top: calc(var(--topbar-h) + var(--toolbar-h)); left: 0; right: 0; bottom: 26px;
+    overflow: auto; padding: 26px 16px 60px;
+  }
+  #paper {
+    max-width: 760px; margin: 0 auto; background: #fff; border: 1px solid var(--line);
+    border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,.06); padding: 54px 58px; display: none;
+  }
+  #paper.on { display: block; }
+  #doc {
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    font-size: 15.5px; line-height: 1.95; color: #1c1a16; word-break: break-word;
+  }
+  #doc p { margin: 0 0 .85em; white-space: pre-wrap; }
+  #doc p:empty { margin: 0 0 .5em; }
+  #doc table { border-collapse: collapse; margin: 1em 0; width: 100%; }
+  #doc td { border: 1px solid #cfc9bd; padding: 7px 10px; vertical-align: top; }
+  #doc h2.sec {
+    font-family: Georgia, serif; font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
+    color: #a1997f; border-top: 1px solid var(--line); padding-top: 14px; margin: 26px 0 12px; font-weight: 600;
+  }
+  .limits {
+    max-width: 760px; margin: 14px auto 0; font-size: 12px; line-height: 1.7;
+    color: #6c6558; background: #f6f2e7; border: 1px solid #e6dfcd; border-radius: 6px; padding: 10px 14px;
+  }
+  #drop {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 14px; color: #6c6558; text-align: center; padding: 20px;
+  }
+  #drop h2 { font-family: Georgia, serif; font-weight: 600; margin: 0; color: var(--ink); font-size: 20px; }
+  #drop p { margin: 0; font-size: 13px; max-width: 470px; line-height: 1.65; }
+  #drop .big { font-size: 42px; }
+  body.dragging #stage { background: #f7f1e2; outline: 2px dashed var(--gold-soft); outline-offset: -10px; }
+  #busy {
+    position: fixed; inset: 0; z-index: 900; display: none; align-items: center; justify-content: center;
+    background: rgba(250,248,244,.85); font-size: 14px;
+  }
+  body.busy #busy { display: flex; }
+  .privnote {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 480; padding: 5px 12px;
+    background: #f4efe2; border-top: 1px solid var(--line); font-size: 11px; color: #6c6558;
+  }
+  @media print {
+    .apptop, .fmtbar, .privnote, .limits, #drop { display: none !important; }
+    #stage { position: static; overflow: visible; padding: 0; }
+    #paper { box-shadow: none; border: 0; max-width: none; padding: 0; }
+  }
+</style>
+</head>
+<body>
+<header class="apptop">
+  <a class="back" id="backLink" href="/tools/" title="MeNew Docs">←</a>
+  <span class="brand">MeNew <em>HWP</em></span>
+  <span class="fname" id="fname"></span>
+  <span class="spacer"></span>
+  <input type="file" id="fileInput" accept=".hwp,.hwpx" hidden>
+  <button class="btn primary" id="btnOpen"></button>
+</header>
+
+<div class="fmtbar">
+  <button id="btnCopy" disabled></button>
+  <button id="btnTxt" disabled></button>
+  <button id="btnPrint" disabled></button>
+  <span class="info" id="info"></span>
+</div>
+
+<div id="stage">
+  <div id="paper"><div id="doc"></div></div>
+  <div class="limits" id="limits" style="display:none"></div>
+  <div id="drop">
+    <div class="big">📗</div>
+    <h2 id="dropTitle"></h2>
+    <p id="dropBody"></p>
+  </div>
+</div>
+
+<div id="busy"><span id="busyText"></span></div>
+<div class="privnote" id="privnote"></div>
+
+<script src="../vendor/jszip.min.js"></script>
+<script src="../vendor/cfb.min.js"></script>
+<script src="../vendor/pako_inflate.min.js"></script>
+<script src="hwp.js"></script>
+<!-- 방문자 집계(쿠키 없음). 페이지 주소만 기록하며 열어본 파일 내용은 전송하지 않는다. -->
+<script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
