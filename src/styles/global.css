@@ -312,6 +312,9 @@ a.cat:hover { text-decoration: underline; }
   transition: border-color .15s ease, transform .15s ease;
 }
 .tool-pill:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); transform: translateY(-2px); color: var(--accent); }
+/* 브랜드명 옆에 '무슨 도구인지'를 한 줄로. 알약 안이라 줄바꿈 대신 가운뎃점으로 잇는다. */
+.tool-pill-what { color: var(--muted); font-size: 13px; }
+.tool-pill-what::before { content: '·'; margin-right: 8px; }
 
 .intro-body.slim { margin: 34px 0 0; font-size: 1rem; }
 

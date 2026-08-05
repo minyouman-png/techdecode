@@ -11,7 +11,7 @@ const alternates = Object.fromEntries(
   (Object.keys(languages) as Lang[]).map((l) => [l, toolsIndexUrl(l)])
 ) as Partial<Record<Lang, string>>;
 ---
-<BaseLayout lang={lang} title={g.pageTitle} description={g.metaDescription} alternates={alternates}>
+<BaseLayout lang={lang} title={g.pageTitle} description={g.metaDescription} alternates={alternates} noindex={true}>
   <section class="tools-hero">
     <div class="wrap">
       <p class="kicker">{g.kicker}</p>
@@ -27,7 +27,9 @@ const alternates = Object.fromEntries(
           const c = tool.copy[lang];
           return (
             <a class="tool-card" href={toolUrl(tool.slug, lang)}>
-              <h2>{c.title}</h2>
+              {/* 제목은 '하는 일', 브랜드명은 작게 — 목록에서 브랜드만 보이면 무슨 도구인지 모른다 */}
+              {c.h1 && <span class="tool-card-brand">{c.title}</span>}
+              <h2>{c.h1 ?? c.title}</h2>
               <p class="tagline">{c.tagline}</p>
               <span class="openlink">{g.openTool}</span>
             </a>
@@ -53,6 +55,10 @@ const alternates = Object.fromEntries(
     transition: transform .15s ease, border-color .15s ease; color: inherit;
   }
   .tool-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+  .tool-card-brand {
+    display: block; margin: 0 0 4px; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.07em; text-transform: uppercase; color: var(--accent);
+  }
   .tool-card h2 {
     font-family: var(--serif); font-size: 1.3rem; font-weight: 600;
     color: var(--fg-strong); margin: 0 0 10px;

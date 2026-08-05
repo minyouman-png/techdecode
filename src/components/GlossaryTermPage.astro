@@ -34,7 +34,7 @@ const ld = {
   inDefinedTermSet: new URL(glossaryIndexUrl(lang), Astro.site).href,
 };
 ---
-<BaseLayout lang={lang} title={c.term} description={c.short} alternates={alternates}>
+<BaseLayout lang={lang} title={c.term} description={c.short} alternates={alternates} noindex={true}>
   <article class="term-page">
     <div class="wrap">
       <p class="backlink"><a href={glossaryIndexUrl(lang)}>{g.backToList}</a></p>

@@ -1,0 +1,54 @@
+---
+// ⚠️**은퇴한 컴포넌트(2026-08-05)** — 어디서도 import 하지 않는다.
+//   사이트 성격이 '업체 홈페이지 제작'으로 바뀌면서 홈·가게목록을 모두
+//   `ShopsDirectory.astro` 가 담당한다. 예전 구조(AI 분석 랜딩/가게 목록)를
+//   되살릴 때 참고용으로만 남겨둔 파일이다.
+// 지역 가게 목록 페이지 (언어별 공용)
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { languages, type Lang } from '../i18n/ui';
+import { shopsUi, shops, shopCopy, shopUrl, shopsIndexUrl } from '../i18n/shops';
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const s = shopsUi[lang];
+const alternates = Object.fromEntries(
+  (Object.keys(languages) as Lang[]).map((l) => [l, shopsIndexUrl(l)])
+) as Partial<Record<Lang, string>>;
+---
+<BaseLayout lang={lang} title={s.pageTitle} description={s.metaDescription} alternates={alternates}>
+  <section class="games-hero">
+    <div class="wrap">
+      <p class="kicker">{s.kicker}</p>
+      <h1>{s.pageTitle}</h1>
+      <p class="games-intro">{s.intro}</p>
+    </div>
+  </section>
+
+  <section class="games-list">
+    <div class="wrap">
+      <div class="game-grid">
+        {shops.map((shop) => {
+          const c = shopCopy(shop, lang);
+          return (
+            <div class="game-card">
+              <a class="cover" href={shopUrl(shop.slug, lang)}>
+                <img src={shop.cover} alt={c.name} loading="lazy" />
+              </a>
+              <div class="game-card-body">
+                <div class="chips">
+                  <span class="chip ai">{shop.region}</span>
+                  <span class="chip">{s.sinceLabel} {shop.since}</span>
+                </div>
+                <h2><a href={shopUrl(shop.slug, lang)}>{c.name}</a></h2>
+                <p class="tagline">{c.tagline}</p>
+                <div class="card-actions">
+                  <a class="playlink" href={shopUrl(shop.slug, lang)}>{s.viewShop}</a>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

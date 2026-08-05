@@ -1,4 +1,9 @@
 ---
+// ⚠️★2026-08-05 격리: 블로그(`/blog/`)·용어사전(`/glossary/`)·도구(`/tools/`) 링크를 **의도적으로
+//   뺐다.** 사이트 성격이 '업체 홈페이지 제작 + 등록 업체 소식'으로 바뀌었고, 그 셋을 남겨두면
+//   방문자에게도 검색엔진에게도 이 사이트가 무엇인지 흐려진다. 경로 자체는 살아 있어서 기존
+//   링크와 blog2video 파이프라인은 그대로 동작한다(사이트맵 제외 + noindex 와 세트).
+//   되살리려면 이 파일과 Footer 에 링크를 넣고 astro.config 의 sitemap filter 를 풀면 된다.
 import { SITE_NAME, type Lang } from '../i18n/ui';
 import { useTranslations, localizeUrl } from '../i18n/utils';
 import LanguageSwitcher from './LanguageSwitcher.astro';
@@ -16,10 +21,8 @@ const [brandA, brandB] = SITE_NAME.split(' ');
     <a class="brand" href={localizeUrl('/', lang)}>{brandA}<span>{brandB}</span></a>
     <nav class="nav">
       <a href={localizeUrl('/', lang)}>{t('nav_home')}</a>
-      <a href={localizeUrl('/blog/', lang)}>{t('nav_articles')}</a>
+      <a href={localizeUrl('/news/', lang)}>{t('nav_news')}</a>
       <a href={localizeUrl('/games/', lang)}>{t('nav_games')}</a>
-      <a href={localizeUrl('/tools/', lang)}>{t('nav_tools')}</a>
-      <a href={localizeUrl('/glossary/', lang)}>{t('nav_glossary')}</a>
       <a href={localizeUrl('/about/', lang)}>{t('nav_about')}</a>
       <a href={localizeUrl('/contact/', lang)}>{t('nav_contact')}</a>
       <LanguageSwitcher lang={lang} alternates={alternates} />

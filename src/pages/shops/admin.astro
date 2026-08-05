@@ -1,0 +1,265 @@
+---
+// 가게 공지 작성기.
+//
+// ⚠️★여기에 로그인은 없다 — 일부러 없다.
+//   menewsoft.com 은 GitHub Pages 정적 사이트라 서버가 없다. 프론트에 아이디/비밀번호를 넣으면
+//   ① 비밀번호가 방문자 모두가 받는 JS 안에 평문으로 들어가고(F12 로 바로 보임)
+//   ② 저장한 공지는 그 브라우저 localStorage 에만 남아 **다른 사람에겐 안 보인다**.
+//   '되는 것처럼 보이지만 아무 데도 안 가는' 화면이 되는 게 최악이라, 그 대신
+//   **작성 → JSON 내보내기 → 커밋/배포**라는 실제로 게시되는 경로를 만들었다.
+//   사장님이 직접 발행까지 하게 하려면 Decap/Sveltia CMS + GitHub OAuth 가 필요하다(별도 작업).
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout lang="ko" title="가게 공지 작성기" description="지역 가게 공지 작성 도구" noindex={true}>
+  <section class="wrap adm">
+    <h1>가게 공지 작성기</h1>
+    <p class="lead">
+      공지를 작성하고 <strong>JSON 내보내기</strong>를 누르면 파일이 하나 저장됩니다.
+      그 파일을 <code>src/data/shop-notices/&lt;가게slug&gt;.json</code> 에 넣고 배포하면 게시됩니다.
+    </p>
+    <p class="warn">
+      ⚠️ 이 페이지에는 로그인이 없습니다. 정적 사이트라 프론트에 넣는 비밀번호는
+      누구나 볼 수 있어 보호 기능을 하지 못하고, 저장한 내용도 이 브라우저 밖으로 나가지 않습니다.
+      그래서 <strong>실제로 게시되는 경로(JSON 내보내기 → 배포)</strong>만 제공합니다.
+    </p>
+
+    <div class="adm-grid">
+      <div class="adm-form">
+        <label>가게 slug<input id="slug" value="nambu-tongdak-wonju" /></label>
+        <label>공지 제목<input id="title" placeholder="예: 8월 15일 휴무 안내" /></label>
+        <label>날짜<input id="date" type="date" /></label>
+
+        <h2>내용 블록</h2>
+        <div id="blocks"></div>
+        <div class="adm-add">
+          <button type="button" data-add="text">＋ 글</button>
+          <button type="button" data-add="image">＋ 이미지</button>
+          <button type="button" data-add="video">＋ 영상</button>
+        </div>
+
+        <div class="adm-actions">
+          <button type="button" id="addNotice" class="primary">이 공지를 목록에 추가</button>
+          <button type="button" id="export">JSON 내보내기</button>
+          <button type="button" id="copy">JSON 복사</button>
+          <button type="button" id="reset" class="danger">전체 지우기</button>
+        </div>
+        <p class="hint">추가한 공지는 이 브라우저에 임시 보관됩니다(새로고침해도 남음). 실제 게시는 내보낸 JSON 을 사이트에 반영해야 됩니다.</p>
+      </div>
+
+      <div class="adm-preview">
+        <h2>미리보기</h2>
+        <div id="preview" class="pv"></div>
+        <h2>JSON</h2>
+        <pre id="json" class="pv json"></pre>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .adm { max-width: 1100px; padding-bottom: 4rem; }
+  .adm h1 { margin-top: 1.5rem; }
+  .lead { line-height: 1.7; }
+  .warn {
+    border: 1px solid rgba(210,82,31,0.5); background: rgba(210,82,31,0.07);
+    border-radius: 10px; padding: 0.8rem 1rem; line-height: 1.65; font-size: 0.93rem;
+  }
+  .adm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; margin-top: 1.4rem; }
+  @media (max-width: 900px) { .adm-grid { grid-template-columns: 1fr; } }
+  .adm-form label { display: block; margin: 0.6rem 0; font-size: 0.9rem; font-weight: 600; }
+  .adm-form input, .adm-form textarea, .adm-form select {
+    width: 100%; margin-top: 0.25rem; padding: 0.5rem 0.6rem; font: inherit;
+    border: 1px solid rgba(128,128,128,0.4); border-radius: 8px; background: transparent; color: inherit;
+  }
+  .adm-form textarea { min-height: 4.5rem; resize: vertical; }
+  .blk {
+    border: 1px solid rgba(128,128,128,0.3); border-radius: 10px;
+    padding: 0.7rem 0.8rem; margin: 0.6rem 0;
+  }
+  .blk-head { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; font-weight: 700; opacity: 0.8; }
+  .blk-head button { margin-left: auto; }
+  .blk-opts { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.4rem; }
+  .blk-opts label { display: flex; align-items: center; gap: 0.3rem; margin: 0; font-weight: 500; font-size: 0.83rem; }
+  .blk-opts select, .blk-opts input[type=checkbox] { width: auto; margin: 0; }
+  .adm-add, .adm-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.9rem 0; }
+  button {
+    font: inherit; padding: 0.45rem 0.9rem; border-radius: 8px; cursor: pointer;
+    border: 1px solid rgba(128,128,128,0.45); background: transparent; color: inherit;
+  }
+  button.primary { border-color: #d2521f; color: #d2521f; font-weight: 700; }
+  button.danger { border-color: rgba(190,60,60,0.6); }
+  .hint { font-size: 0.83rem; opacity: 0.7; line-height: 1.6; }
+  .pv {
+    border: 1px solid rgba(128,128,128,0.3); border-radius: 10px; padding: 1rem;
+    min-height: 6rem; overflow-x: auto;
+  }
+  .pv.json { font-size: 0.78rem; white-space: pre-wrap; word-break: break-all; }
+  .pv .notice { padding: 0.8rem 0; border-top: 1px solid rgba(128,128,128,0.2); }
+  .pv .notice:first-child { border-top: 0; }
+  .pv h3 { margin: 0 0 0.3rem; }
+  .pv .nt-sm { font-size: 0.88rem; } .pv .nt-md { font-size: 1rem; }
+  .pv .nt-lg { font-size: 1.2rem; } .pv .nt-xl { font-size: 1.45rem; }
+  .pv .nt-b { font-weight: 700; } .pv .nt-accent { color: #d2521f; } .pv .nt-muted { opacity: 0.65; }
+  .pv img { max-width: 100%; border-radius: 8px; }
+  .pv .nt-video { position: relative; padding-top: 56.25%; margin: 0.6rem 0; }
+  .pv .nt-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; border-radius: 8px; }
+</style>
+
+<script is:inline>
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    const KEY = 'menewsoft.shopNotices.v1';
+    let notices = [];
+    try { notices = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { notices = []; }
+    let blocks = [];
+
+    $('date').value = new Date().toISOString().slice(0, 10);
+
+    // 유튜브 링크에서 ID만 뽑는다(주소 형태가 여러 가지라 정규식으로 통일)
+    function ytId(v) {
+      const m = String(v || '').match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([A-Za-z0-9_-]{11})/);
+      return m ? m[1] : (/^[A-Za-z0-9_-]{11}$/.test(v || '') ? v : '');
+    }
+
+    function renderBlocks() {
+      const box = $('blocks');
+      box.innerHTML = '';
+      blocks.forEach((b, i) => {
+        const el = document.createElement('div');
+        el.className = 'blk';
+        if (b.type === 'text') {
+          el.innerHTML =
+            '<div class="blk-head">글<button type="button" data-del="' + i + '">삭제</button></div>' +
+            '<textarea data-f="text" placeholder="공지 내용을 쓰세요"></textarea>' +
+            '<div class="blk-opts">' +
+              '<label>크기<select data-f="size">' +
+                '<option value="sm">작게</option><option value="md" selected>보통</option>' +
+                '<option value="lg">크게</option><option value="xl">아주 크게</option></select></label>' +
+              '<label>색<select data-f="color">' +
+                '<option value="">기본</option><option value="accent">강조(주황)</option>' +
+                '<option value="muted">흐리게</option></select></label>' +
+              '<label><input type="checkbox" data-f="bold" /> 굵게</label>' +
+            '</div>';
+        } else if (b.type === 'image') {
+          el.innerHTML =
+            '<div class="blk-head">이미지<button type="button" data-del="' + i + '">삭제</button></div>' +
+            '<label>파일 선택<input type="file" accept="image/*" data-f="file" /></label>' +
+            '<label>또는 이미지 주소<input data-f="src" placeholder="/blog-assets/... 또는 https://..." /></label>' +
+            '<label>설명(대체 텍스트)<input data-f="alt" /></label>';
+        } else {
+          el.innerHTML =
+            '<div class="blk-head">영상(유튜브)<button type="button" data-del="' + i + '">삭제</button></div>' +
+            '<label>유튜브 주소 또는 ID<input data-f="youtube" placeholder="https://youtu.be/..." /></label>' +
+            '<label>설명<input data-f="alt" /></label>';
+        }
+        box.appendChild(el);
+        el.querySelectorAll('[data-f]').forEach((inp) => {
+          const f = inp.dataset.f;
+          if (f === 'file') {
+            inp.addEventListener('change', () => {
+              const file = inp.files && inp.files[0];
+              if (!file) return;
+              const r = new FileReader();
+              // 이미지를 data URI 로 넣으면 파일을 따로 올리지 않아도 JSON 하나로 끝난다.
+              // ⚠️큰 사진은 JSON 이 매우 커진다 — 1MB 넘으면 경고한다.
+              r.onload = () => {
+                if (String(r.result).length > 1400000) {
+                  alert('이미지가 큽니다(1MB+). 사이트가 무거워지니 줄여서 올리거나 주소로 넣어주세요.');
+                }
+                blocks[i].src = r.result; update();
+              };
+              r.readAsDataURL(file);
+            });
+            return;
+          }
+          if (inp.type === 'checkbox') { inp.checked = !!b[f]; }
+          else { inp.value = b[f] == null ? '' : b[f]; }
+          inp.addEventListener('input', () => {
+            blocks[i][f] = inp.type === 'checkbox' ? inp.checked
+              : (f === 'youtube' ? ytId(inp.value) : inp.value);
+            update();
+          });
+        });
+        el.querySelector('[data-del]').addEventListener('click', () => {
+          blocks.splice(i, 1); renderBlocks(); update();
+        });
+      });
+    }
+
+    function noticeHtml(n) {
+      let h = '<div class="notice"><h3></h3><div class="nd"></div></div>';
+      const wrap = document.createElement('div');
+      wrap.innerHTML = h;
+      wrap.querySelector('h3').textContent = (n.title || '(제목 없음)') + '  ';
+      const body = wrap.querySelector('.nd');
+      (n.blocks || []).forEach((b) => {
+        if (b.type === 'text' && b.text) {
+          const p = document.createElement('p');
+          p.className = ['nt-' + (b.size || 'md'), b.bold ? 'nt-b' : '', b.color ? 'nt-' + b.color : '']
+            .filter(Boolean).join(' ');
+          p.textContent = b.text;              // textContent = HTML 주입 불가
+          body.appendChild(p);
+        } else if (b.type === 'image' && b.src) {
+          const im = document.createElement('img'); im.src = b.src; im.alt = b.alt || '';
+          body.appendChild(im);
+        } else if (b.type === 'video' && b.youtube) {
+          const d = document.createElement('div'); d.className = 'nt-video';
+          const f = document.createElement('iframe');
+          f.src = 'https://www.youtube-nocookie.com/embed/' + b.youtube;
+          f.allowFullscreen = true; d.appendChild(f); body.appendChild(d);
+        }
+      });
+      return wrap.firstElementChild;
+    }
+
+    function currentNotice() {
+      return { date: $('date').value, title: $('title').value, blocks: blocks.filter((b) => b.type) };
+    }
+    function payload() {
+      return { notices: [currentNotice(), ...notices].filter((n) => n.title) };
+    }
+    function update() {
+      const pv = $('preview'); pv.innerHTML = '';
+      payload().notices.forEach((n) => pv.appendChild(noticeHtml(n)));
+      const j = JSON.stringify(payload(), null, 2);
+      // data URI 이미지는 JSON 미리보기에서 길이만 표시(화면이 뭉개지지 않게)
+      $('json').textContent = j.replace(/"data:image\/[^"]{80,}"/g,
+        (m) => '"data:image/…(' + Math.round(m.length / 1024) + 'KB)…"');
+      localStorage.setItem(KEY, JSON.stringify(notices));
+    }
+
+    document.querySelectorAll('[data-add]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const t = btn.dataset.add;
+        blocks.push(t === 'text' ? { type: 'text', text: '', size: 'md' }
+          : t === 'image' ? { type: 'image', src: '', alt: '' }
+          : { type: 'video', youtube: '', alt: '' });
+        renderBlocks(); update();
+      });
+    });
+    $('addNotice').addEventListener('click', () => {
+      const n = currentNotice();
+      if (!n.title) { alert('제목을 입력하세요.'); return; }
+      notices = [n, ...notices];
+      $('title').value = ''; blocks = []; renderBlocks(); update();
+    });
+    $('export').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(payload(), null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = ($('slug').value || 'shop') + '.json';
+      a.click(); URL.revokeObjectURL(a.href);
+    });
+    $('copy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(JSON.stringify(payload(), null, 2)); alert('JSON 을 복사했습니다.'); }
+      catch (e) { alert('복사에 실패했습니다. JSON 상자에서 직접 선택해 복사하세요.'); }
+    });
+    $('reset').addEventListener('click', () => {
+      if (!confirm('작성한 공지를 전부 지웁니다.')) return;
+      notices = []; blocks = []; $('title').value = ''; renderBlocks(); update();
+    });
+    ['title', 'date'].forEach((id) => $(id).addEventListener('input', update));
+
+    renderBlocks(); update();
+  })();
+</script>

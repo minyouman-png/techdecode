@@ -1,0 +1,313 @@
+---
+// 업체 디렉토리 — 이 사이트의 **메인 페이지**(2026-08-05 전환).
+//
+// 설계 원칙 세 가지. 고치기 전에 읽을 것:
+//  1) ★**빈 칸을 만들지 않는다.** 등록이 0인 지역·업종은 필터 칩 자체를 렌더하지 않는다
+//     (`regionFacets`/`categoryFacets` 가 0건을 걸러낸다). 업체가 한 곳인데 '서울 0곳'을
+//     보여주면 이 페이지의 첫인상이 텅 빈 서랍이 된다. 사장님께 보여줄 카탈로그이기도 하다.
+//  2) ★**검색은 자체 색인이 기본, 구글은 보조.** 구글 CSE 는 색인되지 않은 신규 업체를
+//     못 찾아서 방금 등록한 가게가 '없음'으로 나온다. 즉시 동작하는 클라이언트 검색이 먼저다.
+//  3) **없는 걸 있는 척하지 않는다.** 등록 수를 그대로 표기하고, 문의는 정적 사이트라
+//     폼이 아니라 mailto 로 받는다(shops.ts 규칙: '접수되는 척하는 폼이 제일 나쁘다').
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { languages, ui, defaultLang, type Lang } from '../i18n/ui';
+import { useTranslations, localizeUrl } from '../i18n/utils';
+import {
+  shops,
+  shopCopy,
+  shopUrl,
+  shopLocation,
+  shopCategoryText,
+  regionFacets,
+  categoryFacets,
+  searchIndex,
+  shopsUi,
+} from '../i18n/shops';
+
+interface Props {
+  lang: Lang;
+  /** `/shops/` 처럼 같은 내용을 다른 경로에서도 낼 때 대표 주소를 홈으로 몰아준다 */
+  canonicalPath?: string;
+  noindex?: boolean;
+}
+const { lang, canonicalPath, noindex } = Astro.props;
+const t = useTranslations(lang);
+const s = shopsUi[lang];
+
+const alternates = Object.fromEntries(
+  (Object.keys(languages) as Lang[]).map((l) => [l, localizeUrl('/', l)])
+) as Partial<Record<Lang, string>>;
+
+const regions = regionFacets(lang);
+const cats = categoryFacets(lang);
+const index = searchIndex(lang);
+const contactUrl = localizeUrl('/contact/', lang);
+// 배열이라 t() 로는 못 가져온다(t 는 문자열 전용) — 사전에서 직접 읽는다.
+const promises = (ui[lang] as any).dir_promise ?? (ui[defaultLang as Lang] as any).dir_promise;
+
+// 구글 사이트 검색(보조). Programmable Search Engine ID 를 넣으면 CSE 로, 비워두면
+// 일반 구글 `site:` 검색으로 새 탭을 연다. 어느 쪽이든 **색인된 것만** 나온다.
+const GOOGLE_CSE_ID = '';
+
+const cards = shops.map((shop) => {
+  const c = shopCopy(shop, lang);
+  return {
+    slug: shop.slug,
+    region: shop.region,
+    category: shop.category,
+    url: shopUrl(shop.slug, lang),
+    cover: shop.cover,
+    name: c.name,
+    tagline: c.tagline,
+    location: shopLocation(shop, lang),
+    trade: shopCategoryText(shop, lang),
+    since: shop.since,
+  };
+});
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: t('dir_title'),
+  description: t('metaDescription'),
+  url: new URL(canonicalPath ?? Astro.url.pathname, Astro.site).href,
+};
+---
+<BaseLayout
+  lang={lang}
+  titleFull={`${t('hero_title')} — MeNew Soft`}
+  description={t('metaDescription')}
+  alternates={alternates}
+  canonicalPath={canonicalPath}
+  noindex={noindex}
+  jsonLd={jsonLd}
+>
+  <section class="dir-hero">
+    <div class="wrap">
+      <p class="kicker">{t('hero_kicker')}</p>
+      <h1>{t('hero_title')}</h1>
+      <p class="dir-sub">{t('hero_sub')}</p>
+      <a class="dir-cta-btn" href={contactUrl}>{t('hero_cta')}</a>
+    </div>
+  </section>
+
+  <section class="dir-main">
+    <div class="wrap">
+      <div class="dir-head">
+        <h2>{t('dir_title')}</h2>
+        <span class="dir-count" id="dirCount">{t('dir_count').replace('{n}', String(shops.length))}</span>
+      </div>
+
+      <label class="dir-search">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14"
+          />
+        </svg>
+        <input type="search" id="dirQ" placeholder={t('dir_search_ph')} autocomplete="off" />
+      </label>
+
+      {/* 0건인 지역·업종은 facet 함수가 이미 걸러냈다. 남은 것이 하나뿐이어도 보여준다 —
+          '지금 어디를 다루고 있는지'를 정직하게 알려주는 정보이기 때문이다. */}
+      {regions.length > 0 && (
+        <div class="dir-facet">
+          <span class="facet-label">{t('dir_region')}</span>
+          <div class="chips" data-facet="region">
+            <button class="fchip on" data-val="">{t('dir_all')}</button>
+            {regions.map((r) => (
+              <button class="fchip" data-val={r.code}>{r.label} <em>{r.count}</em></button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {cats.length > 0 && (
+        <div class="dir-facet">
+          <span class="facet-label">{t('dir_category')}</span>
+          <div class="chips" data-facet="category">
+            <button class="fchip on" data-val="">{t('dir_all')}</button>
+            {cats.map((c) => (
+              <button class="fchip" data-val={c.code}>{c.label} <em>{c.count}</em></button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div class="dir-grid" id="dirGrid">
+        {cards.map((card) => (
+          <article class="dir-card" data-slug={card.slug} data-region={card.region} data-category={card.category}>
+            <a class="dir-cover" href={card.url}>
+              <img src={card.cover} alt={card.name} loading="lazy" />
+            </a>
+            <div class="dir-body">
+              <div class="chips">
+                <span class="chip ai">{card.location}</span>
+                <span class="chip">{card.trade}</span>
+                <span class="chip">{s.sinceLabel} {card.since}</span>
+              </div>
+              <h3><a href={card.url}>{card.name}</a></h3>
+              <p class="dir-tagline">{card.tagline}</p>
+              <a class="playlink" href={card.url}>{t('dir_view')}</a>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <p class="dir-none" id="dirNone" hidden>{t('dir_none')}</p>
+
+      <form class="dir-google" id="dirGoogle" role="search">
+        <input type="search" name="q" placeholder={t('dir_google')} aria-label={t('dir_google')} />
+        <button type="submit">{t('dir_google')}</button>
+      </form>
+      <p class="dir-google-hint">{t('dir_google_hint')}</p>
+    </div>
+  </section>
+
+  <section class="dir-sell">
+    <div class="wrap">
+      <h2>{t('dir_cta_title')}</h2>
+      <p>{t('dir_cta_body')}</p>
+      {/* ★정직 고지 — 이 세 줄이 이 사업의 유일한 차별점이다. 경쟁자(블로그 체험단·SEO 대행)가
+          약속하는 것을 우리는 하지 않는다고 먼저 말한다. 광고 문구로 바꾸지 말 것. */}
+      <ul class="dir-promise">
+        {promises.map((line) => <li>{line}</li>)}
+      </ul>
+      <a class="dir-cta-btn" href={contactUrl}>{t('dir_cta_btn')}</a>
+    </div>
+  </section>
+
+  {/* ⚠️스크립트는 반드시 <BaseLayout> **안**에 둔다. 밖에 두면 Astro 가 `</html>` 뒤에
+      붙여서 문법상 깨진 HTML 이 나온다(브라우저는 참고 실행하지만 검증기는 오류로 잡는다). */}
+  <script define:vars={{ index, cseId: GOOGLE_CSE_ID, countTpl: t('dir_count') }} is:inline>
+    (function () {
+      var q = document.getElementById('dirQ');
+      var grid = document.getElementById('dirGrid');
+      var none = document.getElementById('dirNone');
+      var count = document.getElementById('dirCount');
+      if (!grid) return;
+      var cards = Array.prototype.slice.call(grid.querySelectorAll('.dir-card'));
+      var byId = {};
+      index.forEach(function (row) { byId[row.slug] = row; });
+      var state = { q: '', region: '', category: '' };
+
+      function apply() {
+        var needle = state.q.trim().toLowerCase();
+        var shown = 0;
+        cards.forEach(function (card) {
+          var row = byId[card.dataset.slug] || { q: '' };
+          var ok =
+            (!state.region || card.dataset.region === state.region) &&
+            (!state.category || card.dataset.category === state.category) &&
+            (!needle || row.q.indexOf(needle) !== -1);
+          card.hidden = !ok;
+          if (ok) shown++;
+        });
+        if (none) none.hidden = shown !== 0;
+        if (count) count.textContent = countTpl.replace('{n}', String(shown));
+      }
+
+      if (q) q.addEventListener('input', function () { state.q = q.value; apply(); });
+
+      document.querySelectorAll('.chips[data-facet]').forEach(function (group) {
+        var facet = group.dataset.facet;
+        group.addEventListener('click', function (e) {
+          var btn = e.target.closest('.fchip');
+          if (!btn) return;
+          group.querySelectorAll('.fchip').forEach(function (b) { b.classList.remove('on'); });
+          btn.classList.add('on');
+          state[facet] = btn.dataset.val || '';
+          apply();
+        });
+      });
+
+      // 보조 검색: CSE ID 가 있으면 CSE 결과 페이지, 없으면 구글 site: 검색으로 새 탭을 연다.
+      var gform = document.getElementById('dirGoogle');
+      if (gform) {
+        gform.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var term = (gform.querySelector('input[name=q]').value || '').trim();
+          if (!term) return;
+          var url = cseId
+            ? 'https://cse.google.com/cse?cx=' + encodeURIComponent(cseId) + '&q=' + encodeURIComponent(term)
+            : 'https://www.google.com/search?q=' + encodeURIComponent('site:menewsoft.com/shops ' + term);
+          window.open(url, '_blank', 'noopener');
+        });
+      }
+    })();
+  </script>
+</BaseLayout>
+
+<style>
+  .dir-hero { padding: 56px 0 32px; }
+  .dir-hero h1 { margin: 6px 0 12px; font-size: clamp(1.6rem, 4vw, 2.4rem); line-height: 1.25; }
+  .dir-sub { max-width: 60ch; color: var(--muted, #666); margin: 0 0 20px; }
+  .dir-cta-btn {
+    display: inline-block; padding: 11px 20px; border-radius: 999px;
+    background: var(--accent, #2a6df5); color: #fff; font-weight: 600; text-decoration: none;
+  }
+  .dir-cta-btn:hover { filter: brightness(1.08); }
+
+  .dir-main { padding: 8px 0 48px; }
+  .dir-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+  .dir-head h2 { margin: 0; font-size: 1.25rem; }
+  .dir-count { font-size: 0.9rem; color: var(--muted, #666); }
+
+  .dir-search {
+    display: flex; align-items: center; gap: 8px; padding: 11px 14px; margin-bottom: 16px;
+    border: 1px solid var(--line, #e3e3e6); border-radius: 999px; background: var(--card, #fff);
+  }
+  .dir-search svg { flex: none; opacity: 0.5; }
+  .dir-search input { flex: 1; border: 0; outline: 0; background: transparent; font: inherit; min-width: 0; }
+
+  .dir-facet { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .facet-label { font-size: 0.85rem; color: var(--muted, #666); min-width: 3em; }
+  .fchip {
+    border: 1px solid var(--line, #e3e3e6); background: var(--card, #fff); color: inherit;
+    border-radius: 999px; padding: 6px 13px; font: inherit; font-size: 0.88rem; cursor: pointer;
+  }
+  .fchip em { font-style: normal; opacity: 0.5; font-size: 0.85em; margin-left: 3px; }
+  .fchip.on { background: var(--accent, #2a6df5); border-color: var(--accent, #2a6df5); color: #fff; }
+  .fchip.on em { opacity: 0.75; }
+
+  .dir-grid {
+    display: grid; gap: 18px; margin: 22px 0 8px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+  .dir-card {
+    border: 1px solid var(--line, #e3e3e6); border-radius: 14px; overflow: hidden;
+    background: var(--card, #fff); display: flex; flex-direction: column;
+  }
+  .dir-card[hidden] { display: none; }
+  .dir-cover { display: block; aspect-ratio: 16 / 10; overflow: hidden; }
+  .dir-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .dir-body { padding: 14px 15px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .dir-body h3 { margin: 0; font-size: 1.08rem; }
+  .dir-body h3 a { text-decoration: none; color: inherit; }
+  .dir-tagline { margin: 0; font-size: 0.92rem; color: var(--muted, #666); line-height: 1.5; }
+  .dir-none { text-align: center; color: var(--muted, #666); padding: 28px 0; }
+
+  .dir-google { display: flex; gap: 8px; margin: 26px 0 6px; flex-wrap: wrap; }
+  .dir-google input {
+    flex: 1; min-width: 180px; padding: 10px 14px; font: inherit;
+    border: 1px solid var(--line, #e3e3e6); border-radius: 999px; background: var(--card, #fff);
+  }
+  .dir-google button {
+    padding: 10px 18px; font: inherit; cursor: pointer; border-radius: 999px;
+    border: 1px solid var(--line, #e3e3e6); background: var(--card, #fff); color: inherit;
+  }
+  .dir-google-hint { font-size: 0.82rem; color: var(--faint, #999); margin: 0; }
+
+  .dir-sell {
+    padding: 34px 0 56px; margin-top: 26px;
+    border-top: 1px solid var(--line, #e3e3e6);
+  }
+  .dir-sell h2 { margin: 0 0 8px; font-size: 1.2rem; }
+  .dir-promise { list-style: none; padding: 0; margin: 0 0 18px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .dir-promise li {
+    font-size: 0.86rem; color: var(--muted, #666);
+    border: 1px solid var(--line, #e3e3e6); border-radius: 999px; padding: 5px 12px;
+  }
+  .dir-promise li::before { content: '✓ '; opacity: 0.55; }
+  .dir-sell p { margin: 0 0 16px; max-width: 60ch; color: var(--muted, #666); }
+</style>

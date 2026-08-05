@@ -1,0 +1,10 @@
+---
+import ShopPage from '../../components/ShopPage.astro';
+import { shops } from '../../i18n/shops';
+
+export function getStaticPaths() {
+  return shops.map((shop) => ({ params: { slug: shop.slug }, props: { shop } }));
+}
+const { shop } = Astro.props;
+---
+<ShopPage lang="ko" shop={shop} />

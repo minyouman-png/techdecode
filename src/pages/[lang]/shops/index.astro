@@ -1,0 +1,13 @@
+---
+import ShopsDirectory from '../../../components/ShopsDirectory.astro';
+import { languages, defaultLang, type Lang } from '../../../i18n/ui';
+import { localizeUrl } from '../../../i18n/utils';
+
+export function getStaticPaths() {
+  return (Object.keys(languages) as Lang[])
+    .filter((l) => l !== defaultLang)
+    .map((lang) => ({ params: { lang }, props: { lang } }));
+}
+const { lang } = Astro.props;
+---
+<ShopsDirectory lang={lang} canonicalPath={localizeUrl('/', lang)} noindex={true} />

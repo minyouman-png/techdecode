@@ -10,16 +10,27 @@ interface Props {
   title?: string;
   description?: string;
   // hreflang 및 언어 전환기용 대응 URL
-  alternates: Partial<Record<Lang, string>>;
+  alternates?: Partial<Record<Lang, string>>;
   // 공유 카드 이미지(사이트 루트 기준 경로). 없으면 사이트 기본 이미지.
   image?: string;
+  // 검색엔진 색인 제외(도구·관리 페이지처럼 공개는 되지만 검색에 뜰 필요 없는 것)
+  noindex?: boolean;
+  // 완성된 <title> 을 그대로 쓴다(사이트명 접미사를 붙이지 않음).
+  // 검색어로 승부하는 페이지는 접미사 12자가 잘림을 유발하므로 이쪽을 쓴다.
+  titleFull?: string;
+  // <head> 에 추가로 넣을 JSON-LD 구조화 데이터
+  jsonLd?: unknown;
+  // canonical 을 현재 경로가 아닌 다른 URL 로 지정한다.
+  // (같은 내용이 두 경로에 있을 때 대표 주소를 하나로 몰아주기 위한 것 — 예: `/shops/` → `/`)
+  canonicalPath?: string;
 }
-const { lang, title, description, alternates, image } = Astro.props;
+const { lang, title, description, alternates: alts, image, noindex, titleFull, jsonLd, canonicalPath } = Astro.props;
+const alternates = alts ?? {};
 const t = useTranslations(lang);
 
-const fullTitle = title ? `${title} — ${SITE_NAME}` : `${SITE_NAME} — ${t('tagline')}`;
+const fullTitle = titleFull ?? (title ? `${title} — ${SITE_NAME}` : `${SITE_NAME} — ${t('tagline')}`);
 const desc = description ?? t('metaDescription');
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const canonical = new URL(canonicalPath ?? Astro.url.pathname, Astro.site).href;
 // og:image 는 반드시 절대 URL 이어야 한다(상대경로면 대부분의 SNS 가 무시).
 const ogImage = new URL(image ?? '/og/default.png', Astro.site).href;
 
@@ -36,11 +47,12 @@ const ADSENSE_PUBLISHER_ID = '';
     <meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok" />
     <meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d" />
     <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
 
     {Object.entries(alternates).map(([code, href]) => (
       <link rel="alternate" hreflang={code} href={new URL(href, Astro.site).href} />
     ))}
-    {alternates.en && <link rel="alternate" hreflang="x-default" href={new URL(alternates.en, Astro.site).href} />}
+    {alternates.ko && <link rel="alternate" hreflang="x-default" href={new URL(alternates.ko, Astro.site).href} />}
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={fullTitle} />
@@ -55,7 +67,8 @@ const ADSENSE_PUBLISHER_ID = '';
     <meta name="twitter:image" content={ogImage} />
 
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <link rel="alternate" type="application/rss+xml" title={SITE_NAME} href={lang === 'en' ? '/rss.xml' : `/${lang}/rss.xml`} />
+    <!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. -->
 
     {ADSENSE_PUBLISHER_ID && (
       <script
@@ -71,10 +84,12 @@ const ADSENSE_PUBLISHER_ID = '';
     <script type="application/ld+json" is:inline set:html={JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      name: 'Tech Decode',
-      alternateName: ['menewsoft', 'menewsoft.com', 'MeNew Soft', '미뉴소프트', '메뉴소프트'],
+      name: 'MeNew Soft',
+      alternateName: ['menewsoft', 'menewsoft.com', '미뉴소프트', '메뉴소프트', 'Tech Decode'],
       url: 'https://menewsoft.com/',
     })} />
+
+    {jsonLd && <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />}
   </head>
   <body>
     <Header lang={lang} alternates={alternates} />

@@ -1,0 +1,242 @@
+---
+// 지역 가게 상세 페이지 (언어별 공용)
+//
+// ⚠️★가게의 공식 홈페이지가 아니다. 아래 세 가지가 이 페이지의 안전장치이고, 새 가게를 추가할 때도
+//   반드시 유지할 것:
+//   ① 최근 소식(news)은 항목마다 **출처 링크**를 단다 — 가게 명의 공지처럼 보이면 안 된다.
+//   ② 건의·문의는 **가게 전화로 직행**시킨다. 접수되는 것처럼 보이는 폼을 만들지 않는다
+//      (정적 사이트라 실제로 전달될 곳이 없다 — 그게 제일 나쁜 UX 다).
+//   ③ 페이지 하단에 '독립 소개 · 공식 아님 · 광고 없음 · 출처' 고지를 항상 노출한다.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { languages, type Lang } from '../i18n/ui';
+import { useTranslations, localizeUrl } from '../i18n/utils';
+import { shopsUi, shopCopy, shopUrl, shopsIndexUrl, telHref, shopLocation, shopCategoryText, type ShopEntry } from '../i18n/shops';
+
+interface Props { lang: Lang; shop: ShopEntry; }
+const { lang, shop } = Astro.props;
+const s = shopsUi[lang];
+const c = shopCopy(shop, lang);
+
+// 가게가 직접 제공한 공지(`src/data/shop-notices/<slug>.json`).
+// ⚠️**원시 HTML 을 받지 않는다** — 블록 구조체(text/image/video)만 렌더한다. 작성기가 만든
+//   JSON 을 사람이 커밋하는 경로라 신뢰 가능하지만, 구조체로 제한해 두면 실수로 스크립트가
+//   섞여 들어와도 그냥 글자로 출력된다.
+const noticeFiles = import.meta.glob<{ notices?: any[] }>('../data/shop-notices/*.json', { eager: true });
+const noticeData = noticeFiles[`../data/shop-notices/${shop.slug}.json`];
+const notices = (noticeData?.notices ?? []).filter((n: any) => n && n.title);
+const SIZE: Record<string, string> = { sm: 'nt-sm', md: 'nt-md', lg: 'nt-lg', xl: 'nt-xl' };
+const alternates = Object.fromEntries(
+  (Object.keys(languages) as Lang[]).map((l) => [l, shopUrl(shop.slug, l)])
+) as Partial<Record<Lang, string>>;
+const menu = [...c.menu].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
+---
+<BaseLayout lang={lang} title={`${c.name} — ${shopLocation(shop, lang)}`} description={c.tagline} alternates={alternates}>
+  <article class="shop">
+    <section class="shop-hero">
+      <img class="shop-hero-img" src={shop.cover} alt={c.name} />
+      <div class="shop-hero-body wrap">
+        <p class="kicker">{shopLocation(shop, lang)} · {shopCategoryText(shop, lang)}</p>
+        <h1>{c.name}</h1>
+        <p class="shop-tagline">{c.tagline}</p>
+        <div class="chips">
+          <span class="chip ai">{s.sinceLabel} {shop.since}</span>
+          <span class="chip">{s.verifiedPrefix} {shop.verified}</span>
+        </div>
+        <div class="shop-cta">
+          <a class="btn-call" href={telHref(shop.tel)}>📞 {s.callNow} {shop.tel}</a>
+          <a class="btn-map" href={shop.mapUrl} target="_blank" rel="noopener nofollow">🗺 지도</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap shop-body">
+      {/* 가게 제공 공지 — 여기만 '가게가 직접 쓴 것'이다. 아래 '최근 소식'과 구분해 표기한다. */}
+      {notices.length > 0 && (
+        <section class="shop-block shop-notices">
+          <h2>공지사항 <span class="by-shop">가게 제공</span></h2>
+          {notices.map((n: any) => (
+            <article class="notice">
+              <div class="notice-head">
+                <h3>{n.title}</h3>
+                <span class="notice-date">{n.date}</span>
+              </div>
+              {(n.blocks ?? []).map((b: any) => {
+                if (b.type === 'image' && b.src) {
+                  return <figure class="nt-fig"><img src={b.src} alt={b.alt ?? ''} loading="lazy" />{b.alt && <figcaption>{b.alt}</figcaption>}</figure>;
+                }
+                if (b.type === 'video' && b.youtube) {
+                  return (
+                    <div class="nt-video">
+                      <iframe src={`https://www.youtube-nocookie.com/embed/${b.youtube}`}
+                              title={b.alt ?? '영상'} loading="lazy" allowfullscreen
+                              referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                    </div>
+                  );
+                }
+                if (b.type === 'text' && b.text) {
+                  const cls = [SIZE[b.size] ?? 'nt-md', b.bold ? 'nt-b' : '', b.color ? `nt-${b.color}` : '']
+                    .filter(Boolean).join(' ');
+                  return <p class={cls}>{b.text}</p>;
+                }
+                return null;
+              })}
+            </article>
+          ))}
+          <p class="shop-note">이 항목은 가게가 제공한 공지입니다. 아래 ‘최근 소식’은 menewsoft 가 공개 자료에서 정리한 것으로 출처를 함께 표기합니다.</p>
+        </section>
+      )}
+
+      {/* 최근 소식 — 항목마다 출처를 단다(가게 명의 공지가 아님) */}
+      <section class="shop-block">
+        <h2>{s.newsTitle}</h2>
+        <ul class="news-list">
+          {c.news.map((n) => (
+            <li>
+              <span class="news-date">{n.date}</span>
+              <span class="news-text">{n.text}</span>
+              {n.source && (
+                <a class="news-src" href={n.source.url} target="_blank" rel="noopener nofollow">
+                  {s.sourceLabel}: {n.source.label} ↗
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="shop-block">
+        {c.story.map((p) => <p class="shop-story">{p}</p>)}
+      </section>
+
+      <section class="shop-block">
+        <h2>{s.menuTitle}</h2>
+        <div class="menu-grid">
+          {menu.map((m, i) => (
+            <div class="menu-item">
+              <div class="menu-head">
+                {m.rank && <span class="menu-rank">{m.rank}</span>}
+                <h3>{m.name}</h3>
+                <span class="menu-price">{m.price}</span>
+              </div>
+              <p class="menu-pride"><strong>{s.prideTitle}</strong> — {m.pride}</p>
+              {shop.images[i] && <img class="menu-img" src={shop.images[i]} alt={m.name} loading="lazy" />}
+            </div>
+          ))}
+        </div>
+        <p class="shop-note">{s.priceNote}</p>
+      </section>
+
+      <section class="shop-block">
+        <h2>{s.visitTitle}</h2>
+        <dl class="visit-list">
+          {c.visit.map((v) => (<><dt>{v.label}</dt><dd>{v.value}</dd></>))}
+        </dl>
+        <ul class="tip-list">{c.tips.map((t) => <li>{t}</li>)}</ul>
+      </section>
+
+      {/* ⚠️건의는 가게로 직행. '접수되는 것처럼 보이는' 폼을 두지 않는다. */}
+      <section class="shop-block shop-contact">
+        <h2>{s.contactTitle}</h2>
+        <p>
+          가게에 하실 말씀은 <strong>가게로 직접</strong> 전해 주세요. 이 페이지는 menewsoft 가 만든
+          독립 소개 페이지라, 여기 남기신 글은 사장님께 전달되지 않습니다.
+        </p>
+        <a class="btn-call big" href={telHref(shop.tel)}>📞 {c.name} {shop.tel}</a>
+        <p class="shop-note">
+          이 소개 내용에서 <strong>틀린 부분</strong>(가격·영업시간 변경 등)을 발견하셨다면
+          <a href={localizeUrl('/contact/', lang)}>menewsoft 로 알려주세요</a>. 확인해서 고치겠습니다.
+        </p>
+      </section>
+
+      <section class="shop-block shop-disclaimer">
+        <h2>{s.disclaimerTitle}</h2>
+        <p>
+          이 페이지는 <strong>{c.name}의 공식 홈페이지가 아닙니다.</strong> menewsoft 가 공개된 자료를
+          모아 정리한 독립 소개 페이지이며, 가게와 아무런 관계가 없고 광고·협찬을 받지 않았습니다.
+        </p>
+        <p class="shop-note">{s.illustNote}</p>
+        <p class="shop-note">
+          {s.sourceLabel}:
+          {shop.sources.map((src, i) => (
+            <>{i > 0 && ' · '}<a href={src.url} target="_blank" rel="noopener nofollow">{src.label}</a></>
+          ))}
+          <br />{s.verifiedPrefix}: {shop.verified}
+        </p>
+      </section>
+
+      <p class="back"><a href={localizeUrl('/', lang)}>{s.backToList}</a></p>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .shop-hero { position: relative; margin-bottom: 2rem; }
+  .shop-hero-img { width: 100%; max-height: 380px; object-fit: cover; display: block; }
+  .shop-hero-body { padding: 1.5rem 0 0.5rem; }
+  .shop-tagline { font-size: 1.05rem; opacity: 0.85; margin: 0.4rem 0 0.9rem; }
+  .shop-cta { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
+  .btn-call, .btn-map {
+    display: inline-block; padding: 0.6rem 1.1rem; border-radius: 999px;
+    font-weight: 600; text-decoration: none; border: 1px solid currentColor;
+  }
+  .btn-call.big { font-size: 1.1rem; padding: 0.8rem 1.4rem; margin: 0.6rem 0; }
+  .shop-body { max-width: 780px; }
+  .shop-block { margin: 2.4rem 0; }
+  .shop-block h2 { font-size: 1.35rem; margin-bottom: 0.8rem; }
+  .shop-story { line-height: 1.75; margin: 0 0 0.9rem; }
+  .news-list { list-style: none; padding: 0; margin: 0; }
+  .news-list li {
+    display: grid; grid-template-columns: 5.5rem 1fr; gap: 0.2rem 0.8rem;
+    padding: 0.7rem 0; border-top: 1px solid rgba(128,128,128,0.22);
+  }
+  .news-date { font-variant-numeric: tabular-nums; opacity: 0.7; font-size: 0.9rem; }
+  .news-src { grid-column: 2; font-size: 0.82rem; opacity: 0.7; }
+  .menu-grid { display: grid; gap: 1.1rem; }
+  .menu-item { border: 1px solid rgba(128,128,128,0.25); border-radius: 12px; padding: 1rem 1.1rem; }
+  .menu-head { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+  .menu-head h3 { margin: 0; font-size: 1.1rem; }
+  .menu-rank {
+    display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem;
+    border-radius: 50%; background: rgba(200,80,40,0.15); font-size: 0.8rem; font-weight: 700;
+  }
+  .menu-price { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .menu-pride { margin: 0.6rem 0 0; line-height: 1.7; font-size: 0.96rem; }
+  .menu-img { width: 100%; border-radius: 10px; margin-top: 0.9rem; display: block; }
+  .visit-list { display: grid; grid-template-columns: 5.5rem 1fr; gap: 0.45rem 0.9rem; margin: 0 0 1rem; }
+  .visit-list dt { font-weight: 600; opacity: 0.75; }
+  .visit-list dd { margin: 0; }
+  .tip-list { line-height: 1.75; padding-left: 1.1rem; }
+  .shop-note { font-size: 0.87rem; opacity: 0.72; line-height: 1.65; }
+  .shop-contact, .shop-disclaimer {
+    border: 1px solid rgba(128,128,128,0.25); border-radius: 12px; padding: 1.1rem 1.2rem;
+  }
+  /* 가게 제공 공지 */
+  .shop-notices { border: 1px solid rgba(200,80,40,0.35); border-radius: 12px; padding: 1.1rem 1.2rem; }
+  .by-shop {
+    font-size: 0.7rem; font-weight: 700; vertical-align: middle; margin-left: 0.5rem;
+    padding: 0.15rem 0.5rem; border-radius: 999px; background: rgba(200,80,40,0.16);
+  }
+  .notice { padding: 0.9rem 0; border-top: 1px solid rgba(128,128,128,0.2); }
+  .notice:first-of-type { border-top: 0; }
+  .notice-head { display: flex; align-items: baseline; gap: 0.7rem; flex-wrap: wrap; }
+  .notice-head h3 { margin: 0; font-size: 1.05rem; }
+  .notice-date { font-size: 0.85rem; opacity: 0.65; margin-left: auto; font-variant-numeric: tabular-nums; }
+  .nt-sm { font-size: 0.88rem; } .nt-md { font-size: 1rem; }
+  .nt-lg { font-size: 1.2rem; } .nt-xl { font-size: 1.45rem; }
+  .nt-b { font-weight: 700; }
+  .nt-accent { color: #d2521f; }
+  .nt-muted { opacity: 0.65; }
+  .notice p { line-height: 1.7; margin: 0.5rem 0; }
+  .nt-fig { margin: 0.8rem 0; }
+  .nt-fig img { width: 100%; border-radius: 10px; display: block; }
+  .nt-fig figcaption { font-size: 0.82rem; opacity: 0.7; margin-top: 0.35rem; }
+  .nt-video { position: relative; padding-top: 56.25%; margin: 0.8rem 0; }
+  .nt-video iframe {
+    position: absolute; inset: 0; width: 100%; height: 100%; border: 0; border-radius: 10px;
+  }
+  .back { margin: 2.5rem 0 3rem; }
+  @media (max-width: 560px) {
+    .news-list li, .visit-list { grid-template-columns: 1fr; }
+    .news-src { grid-column: 1; }
+  }
+</style>

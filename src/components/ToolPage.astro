@@ -16,12 +16,37 @@ const t = useTranslations(lang);
 const alternates = Object.fromEntries(
   (Object.keys(languages) as Lang[]).map((l) => [l, toolUrl(slug, l)])
 ) as Partial<Record<Lang, string>>;
+
+// 앱형 도구는 구글에 '무료 웹 앱'으로 알린다. price 0 을 명시해야 무료 배지가 붙을 수 있다.
+const jsonLd = tool.appUrl
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: c.title,
+      alternateName: c.h1,
+      description: c.tagline,
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web browser',
+      url: new URL(toolUrl(slug, lang), 'https://menewsoft.com/').href,
+      isAccessibleForFree: true,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    }
+  : undefined;
 ---
-<BaseLayout lang={lang} title={c.title} description={c.tagline} alternates={alternates}>
+<BaseLayout
+  lang={lang}
+  title={c.title}
+  titleFull={c.seoTitle}
+  description={c.tagline}
+  alternates={alternates}
+  jsonLd={jsonLd}
+  noindex={true}
+>
   <article class="tool-page">
     <div class="wrap">
       <p class="backlink"><a href={toolsIndexUrl(lang)}>{g.backToList}</a></p>
-      <h1>{c.title}</h1>
+      {c.h1 && <p class="brand-kicker">{c.title}</p>}
+      <h1>{c.h1 ?? c.title}</h1>
       <p class="tagline">{c.tagline}</p>
 
       {tool.appUrl ? (
@@ -55,6 +80,10 @@ const alternates = Object.fromEntries(
 <style>
   .tool-page { padding: 56px 0 90px; }
   .backlink { margin: 0 0 22px; font-size: 14px; }
+  .brand-kicker {
+    margin: 0 0 6px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--accent);
+  }
   .tool-page h1 {
     font-family: var(--serif); font-weight: 600; font-size: clamp(1.7rem, 4vw, 2.6rem);
     color: var(--fg-strong); margin: 0 0 12px; letter-spacing: -0.01em;

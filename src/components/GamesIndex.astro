@@ -2,21 +2,25 @@
 // AI 인디게임 목록 페이지 (언어별 공용)
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { languages, type Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
 import { gamesUi, games, gameUrl, gamesIndexUrl, playerUrl } from '../i18n/games';
 import WeeklyChallenge from './WeeklyChallenge.astro';
 
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
 const g = gamesUi[lang];
+// ⚠️2026-08-05: 게임은 이제 본업이 아니라 '미뉴소프트의 놀이공간'이라는 부가 메뉴다.
+const t = useTranslations(lang);
 const alternates = Object.fromEntries(
   (Object.keys(languages) as Lang[]).map((l) => [l, gamesIndexUrl(l)])
 ) as Partial<Record<Lang, string>>;
 ---
-<BaseLayout lang={lang} title={g.pageTitle} description={g.metaDescription} alternates={alternates}>
+<BaseLayout lang={lang} title={t('play_title')} description={t('play_desc')} alternates={alternates}>
   <section class="games-hero">
     <div class="wrap">
       <p class="kicker">{g.kicker}</p>
-      <h1>{g.pageTitle}</h1>
+      <h1>{t('play_title')}</h1>
+      <p class="games-intro">{t('play_desc')}</p>
       <p class="games-intro">{g.intro1}</p>
       <p class="games-intro">{g.intro2}</p>
       <WeeklyChallenge lang={lang} />

@@ -1,0 +1,16 @@
+---
+import ShopPage from '../../../components/ShopPage.astro';
+import { languages, defaultLang, type Lang } from '../../../i18n/ui';
+import { shops } from '../../../i18n/shops';
+
+export function getStaticPaths() {
+  const paths = [];
+  for (const lang of (Object.keys(languages) as Lang[])) {
+    if (lang === defaultLang) continue;
+    for (const shop of shops) paths.push({ params: { lang, slug: shop.slug }, props: { lang, shop } });
+  }
+  return paths;
+}
+const { lang, shop } = Astro.props;
+---
+<ShopPage lang={lang} shop={shop} />

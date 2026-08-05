@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import { languages, type Lang } from '../../../i18n/ui';
+import { languages, defaultLang, type Lang } from '../../../i18n/ui';
 import { useTranslations, blogUrl } from '../../../i18n/utils';
 import { categoryLabel, categoryUrl } from '../../../i18n/categories';
 import RelatedBlock from '../../../components/RelatedBlock.astro';
@@ -13,7 +13,7 @@ const localeMap: Record<string, string> = {
 export async function getStaticPaths() {
   const all = await getCollection('blog');
   return all
-    .filter((p) => p.data.lang !== 'en')
+    .filter((p) => p.data.lang !== defaultLang)
     .map((post) => {
       const alternates: Partial<Record<Lang, string>> = {};
       for (const code of Object.keys(languages) as Lang[]) {
@@ -52,7 +52,7 @@ const ld = {
   ...(d.category ? { articleSection: d.category } : {}),
 };
 ---
-<BaseLayout lang={lang} title={d.title} description={d.description} alternates={alternates} image={ogImage}>
+<BaseLayout lang={lang} title={d.title} description={d.description} alternates={alternates} image={ogImage} noindex={true}>
   <article class="article">
     <div class="wrap">
       <div class="article-head">

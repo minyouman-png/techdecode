@@ -67,7 +67,11 @@ export const toolsUi: Record<Lang, Record<string, string>> = {
 
 /* ===== 도구별 카피 ===== */
 export interface ToolCopy {
-  title: string;
+  title: string; // 브랜드명. 목록·런처 버튼처럼 '어느 도구인가'를 가리킬 때 쓴다
+  // ⚠️검색 유입용 <title>. 브랜드명만 있는 제목("MeNew HWP")은 아무도 검색하지 않는다 —
+  //   실제로 검색되는 말(한글 뷰어·PDF 합치기)을 앞에 두고, 사이트명 접미사는 붙이지 않는다.
+  seoTitle?: string;
+  h1?: string; // 화면 제목. 없으면 title 을 쓴다
   tagline: string;
   about: string[];
 }
@@ -86,6 +90,8 @@ export const tools: ToolEntry[] = [
     copy: {
       en: {
         title: 'MeNew Sheet',
+        seoTitle: 'Free Online Excel (XLSX) Editor — Open & Save in Your Browser',
+        h1: 'Online Excel (XLSX) editor',
         tagline: 'A free spreadsheet editor that runs in your browser — open, edit and save XLSX and CSV files without uploading them anywhere.',
         about: [
           'MeNew Sheet opens Excel-format workbooks (.xlsx, .xls, .csv) directly in your browser. You can edit cells, use formulas, apply formatting, merge cells, work across multiple sheets, and save the result back as a real .xlsx or .csv file.',
@@ -95,6 +101,8 @@ export const tools: ToolEntry[] = [
       },
       ko: {
         title: 'MeNew Sheet',
+        seoTitle: '엑셀(XLSX) 온라인 편집기 — 설치·업로드 없이 열고 저장',
+        h1: '엑셀(XLSX) 온라인 편집기',
         tagline: '브라우저에서 바로 도는 무료 스프레드시트 편집기 — XLSX·CSV 파일을 어디에도 업로드하지 않고 열고, 편집하고, 저장합니다.',
         about: [
           'MeNew Sheet는 엑셀 형식 문서(.xlsx, .xls, .csv)를 브라우저에서 바로 엽니다. 셀 편집, 수식, 서식, 셀 병합, 다중 시트 작업이 가능하고, 결과를 다시 실제 .xlsx나 .csv 파일로 저장할 수 있습니다.',
@@ -104,6 +112,8 @@ export const tools: ToolEntry[] = [
       },
       ja: {
         title: 'MeNew Sheet',
+        seoTitle: 'エクセル(XLSX) オンライン編集 — インストール不要、ブラウザで保存',
+        h1: 'エクセル(XLSX) オンライン編集',
         tagline: 'ブラウザで動く無料の表計算エディタ — XLSX・CSVファイルをどこにもアップロードせずに開き、編集し、保存できます。',
         about: [
           'MeNew SheetはExcel形式のファイル(.xlsx、.xls、.csv)をブラウザで直接開きます。セル編集、数式、書式設定、セル結合、複数シートでの作業ができ、結果を本物の.xlsxや.csvファイルとして保存できます。',
@@ -113,6 +123,8 @@ export const tools: ToolEntry[] = [
       },
       es: {
         title: 'MeNew Sheet',
+        seoTitle: 'Editor de Excel (XLSX) en línea — Abre y guarda en tu navegador',
+        h1: 'Editor de Excel (XLSX) en línea',
         tagline: 'Un editor de hojas de cálculo gratuito que funciona en tu navegador — abre, edita y guarda archivos XLSX y CSV sin subirlos a ningún sitio.',
         about: [
           'MeNew Sheet abre libros en formato Excel (.xlsx, .xls, .csv) directamente en tu navegador. Puedes editar celdas, usar fórmulas, aplicar formato, combinar celdas, trabajar con varias hojas y guardar el resultado como un archivo .xlsx o .csv real.',
@@ -122,6 +134,8 @@ export const tools: ToolEntry[] = [
       },
       zh: {
         title: 'MeNew Sheet',
+        seoTitle: 'Excel(XLSX) 在线编辑器 — 免安装，浏览器打开并保存',
+        h1: 'Excel(XLSX) 在线编辑器',
         tagline: '在浏览器中运行的免费电子表格编辑器——无需上传即可打开、编辑并保存 XLSX 和 CSV 文件。',
         about: [
           'MeNew Sheet 可以直接在浏览器中打开 Excel 格式的工作簿(.xlsx、.xls、.csv)。你可以编辑单元格、使用公式、设置格式、合并单元格、在多个工作表间切换，并把结果保存为真正的 .xlsx 或 .csv 文件。',
@@ -137,6 +151,8 @@ export const tools: ToolEntry[] = [
     copy: {
       en: {
         title: 'MeNew Write',
+        seoTitle: 'Free Online Word (DOCX) Editor — Open & Save in Your Browser',
+        h1: 'Online Word (DOCX) editor',
         tagline: 'A free document editor that runs in your browser — open DOCX files, write with headings, tables and images, and save back to real DOCX.',
         about: [
           'MeNew Write is a word processor in your browser. Open a .docx file or start blank, then write with headings, bold/italic/underline, colors, bullet and numbered lists, tables, images and links. Saving produces a genuine .docx file that opens in Word, LibreOffice and Google Docs — and the print button gives you a PDF.',
@@ -146,6 +162,8 @@ export const tools: ToolEntry[] = [
       },
       ko: {
         title: 'MeNew Write',
+        seoTitle: '워드(DOCX) 온라인 편집기 — 설치·업로드 없이 열고 저장',
+        h1: '워드(DOCX) 온라인 편집기',
         tagline: '브라우저에서 바로 도는 무료 문서 편집기 — DOCX 파일을 열어 제목·표·이미지로 문서를 작성하고, 다시 진짜 DOCX로 저장합니다.',
         about: [
           'MeNew Write는 브라우저 속 워드프로세서입니다. .docx 파일을 열거나 빈 문서에서 시작해 제목, 굵게/기울임/밑줄, 글자색, 글머리·번호 목록, 표, 이미지, 링크로 문서를 작성하세요. 저장하면 Word·LibreOffice·Google Docs에서 열리는 진짜 .docx 파일이 만들어지고, 인쇄 버튼으로 PDF도 만들 수 있습니다.',
@@ -155,6 +173,8 @@ export const tools: ToolEntry[] = [
       },
       ja: {
         title: 'MeNew Write',
+        seoTitle: 'Word(DOCX) オンライン編集 — インストール不要、ブラウザで保存',
+        h1: 'Word(DOCX) オンライン編集',
         tagline: 'ブラウザで動く無料の文書エディタ — DOCXファイルを開き、見出し・表・画像を使って文書を書き、本物のDOCXとして保存できます。',
         about: [
           'MeNew Writeはブラウザ内のワープロです。.docxファイルを開くか白紙から始めて、見出し、太字/斜体/下線、文字色、箇条書き・番号付きリスト、表、画像、リンクで文書を作成できます。保存するとWord・LibreOffice・Google Docsで開ける本物の.docxファイルが生成され、印刷ボタンからPDFも作れます。',
@@ -164,6 +184,8 @@ export const tools: ToolEntry[] = [
       },
       es: {
         title: 'MeNew Write',
+        seoTitle: 'Editor de Word (DOCX) en línea — Abre y guarda en tu navegador',
+        h1: 'Editor de Word (DOCX) en línea',
         tagline: 'Un editor de documentos gratuito que funciona en tu navegador — abre archivos DOCX, escribe con títulos, tablas e imágenes, y guarda de nuevo en DOCX real.',
         about: [
           'MeNew Write es un procesador de textos en tu navegador. Abre un archivo .docx o empieza en blanco, y escribe con títulos, negrita/cursiva/subrayado, colores, listas con viñetas y numeradas, tablas, imágenes y enlaces. Al guardar se genera un archivo .docx auténtico que se abre en Word, LibreOffice y Google Docs — y el botón de imprimir te da un PDF.',
@@ -173,6 +195,8 @@ export const tools: ToolEntry[] = [
       },
       zh: {
         title: 'MeNew Write',
+        seoTitle: 'Word(DOCX) 在线编辑器 — 免安装，浏览器打开并保存',
+        h1: 'Word(DOCX) 在线编辑器',
         tagline: '在浏览器中运行的免费文档编辑器——打开 DOCX 文件，用标题、表格和图片撰写文档，再保存为真正的 DOCX。',
         about: [
           'MeNew Write 是浏览器里的文字处理器。打开 .docx 文件或从空白开始，使用标题、加粗/斜体/下划线、文字颜色、项目符号和编号列表、表格、图片和链接来撰写文档。保存后会生成可在 Word、LibreOffice 和 Google Docs 中打开的真正 .docx 文件，打印按钮还能输出 PDF。',
@@ -188,6 +212,8 @@ export const tools: ToolEntry[] = [
     copy: {
       en: {
         title: 'MeNew Show',
+        seoTitle: 'Free Online PowerPoint (PPTX) Editor — Open & Save in Your Browser',
+        h1: 'Online PowerPoint (PPTX) editor',
         tagline: 'A free presentation editor that runs in your browser — build slides with text and images, present full-screen, and save as real PPTX.',
         about: [
           'MeNew Show lets you build a slide deck in your browser: add and reorder 16:9 slides, drop in text boxes and images, drag and resize them, set colors and backgrounds, then present full-screen with keyboard or tap navigation. Saving produces a real .pptx file that opens in PowerPoint, Keynote and Google Slides, and you can open existing .pptx files too (text boxes, images and backgrounds).',
@@ -197,6 +223,8 @@ export const tools: ToolEntry[] = [
       },
       ko: {
         title: 'MeNew Show',
+        seoTitle: 'PPT(PPTX) 온라인 편집기 — 설치·업로드 없이 열고 저장',
+        h1: 'PPT(PPTX) 온라인 편집기',
         tagline: '브라우저에서 바로 도는 무료 프레젠테이션 편집기 — 텍스트와 이미지로 슬라이드를 만들고, 전체화면으로 발표하고, 진짜 PPTX로 저장합니다.',
         about: [
           'MeNew Show로 브라우저에서 슬라이드 덱을 만들 수 있습니다. 16:9 슬라이드를 추가·복제·정렬하고, 텍스트 상자와 이미지를 넣어 드래그·크기조절하고, 색과 배경을 정한 뒤 전체화면으로 발표하세요(키보드·탭 넘김). 저장하면 PowerPoint·Keynote·Google Slides에서 열리는 진짜 .pptx 파일이 만들어지고, 기존 .pptx 파일(텍스트 상자·이미지·배경)도 열 수 있습니다.',
@@ -206,6 +234,8 @@ export const tools: ToolEntry[] = [
       },
       ja: {
         title: 'MeNew Show',
+        seoTitle: 'PowerPoint(PPTX) オンライン編集 — インストール不要、ブラウザで保存',
+        h1: 'PowerPoint(PPTX) オンライン編集',
         tagline: 'ブラウザで動く無料のプレゼンテーションエディタ — テキストと画像でスライドを作り、フルスクリーンで発表し、本物のPPTXとして保存できます。',
         about: [
           'MeNew Showならブラウザでスライドを作成できます。16:9のスライドを追加・複製・並べ替えし、テキストボックスや画像を配置してドラッグ・リサイズし、色や背景を設定して、フルスクリーンで発表できます(キーボード・タップ操作)。保存するとPowerPoint・Keynote・Google Slidesで開ける本物の.pptxファイルが生成され、既存の.pptxファイル(テキストボックス・画像・背景)を開くこともできます。',
@@ -215,6 +245,8 @@ export const tools: ToolEntry[] = [
       },
       es: {
         title: 'MeNew Show',
+        seoTitle: 'Editor de PowerPoint (PPTX) en línea — Abre y guarda en tu navegador',
+        h1: 'Editor de PowerPoint (PPTX) en línea',
         tagline: 'Un editor de presentaciones gratuito que funciona en tu navegador — crea diapositivas con texto e imágenes, preséntalas a pantalla completa y guárdalas como PPTX real.',
         about: [
           'MeNew Show te permite crear una presentación en tu navegador: añade y reordena diapositivas 16:9, inserta cuadros de texto e imágenes, arrástralos y cambia su tamaño, define colores y fondos, y presenta a pantalla completa con teclado o toques. Al guardar se genera un archivo .pptx real que se abre en PowerPoint, Keynote y Google Slides, y también puedes abrir archivos .pptx existentes (cuadros de texto, imágenes y fondos).',
@@ -224,6 +256,8 @@ export const tools: ToolEntry[] = [
       },
       zh: {
         title: 'MeNew Show',
+        seoTitle: 'PowerPoint(PPTX) 在线编辑器 — 免安装，浏览器打开并保存',
+        h1: 'PowerPoint(PPTX) 在线编辑器',
         tagline: '在浏览器中运行的免费演示文稿编辑器——用文字和图片制作幻灯片，全屏放映，并保存为真正的 PPTX。',
         about: [
           'MeNew Show 让你在浏览器里制作幻灯片:添加、复制、排序 16:9 幻灯片，插入文本框和图片并拖拽、缩放，设置颜色和背景，然后全屏放映(支持键盘和触摸翻页)。保存后会生成可在 PowerPoint、Keynote 和 Google Slides 中打开的真正 .pptx 文件，也可以打开现有的 .pptx 文件(文本框、图片和背景)。',
@@ -239,6 +273,8 @@ export const tools: ToolEntry[] = [
     copy: {
       en: {
         title: 'MeNew PDF',
+        seoTitle: 'Merge, Split & Rotate PDF — Free, in Your Browser, No Upload',
+        h1: 'Merge, split and rotate PDF',
         tagline: 'A free PDF editor that runs in your browser — merge, split, reorder, rotate and export pages without uploading the file anywhere.',
         about: [
           'MeNew PDF opens one or more PDF files directly in your browser and lays every page out as a thumbnail. Open several files at once and they are merged into a single document; drag the thumbnails to reorder pages, select pages to rotate or delete them, and save the result as a new PDF.',
@@ -249,6 +285,8 @@ export const tools: ToolEntry[] = [
       },
       ko: {
         title: 'MeNew PDF',
+        seoTitle: 'PDF 합치기·분할·회전 — 업로드 없이 브라우저에서 무료로',
+        h1: 'PDF 합치기·분할·회전',
         tagline: '브라우저에서 바로 쓰는 무료 PDF 편집기 — 합치기·나누기·순서 변경·회전·이미지 변환을 업로드 없이.',
         about: [
           'MeNew PDF는 PDF 파일을 브라우저에서 바로 열어 모든 페이지를 썸네일로 펼쳐 보여줍니다. 여러 파일을 한 번에 열면 하나로 합쳐지고, 썸네일을 끌어 순서를 바꾸거나 페이지를 선택해 회전·삭제한 뒤 새 PDF로 저장할 수 있습니다.',
@@ -259,6 +297,8 @@ export const tools: ToolEntry[] = [
       },
       ja: {
         title: 'MeNew PDF',
+        seoTitle: 'PDF 結合・分割・回転 — アップロード不要、ブラウザで無料',
+        h1: 'PDF の結合・分割・回転',
         tagline: 'ブラウザで動く無料PDF編集ツール — 結合・分割・並べ替え・回転・画像書き出しを、アップロードせずに。',
         about: [
           'MeNew PDF はPDFファイルをブラウザで直接開き、全ページをサムネイルで並べます。複数のファイルを同時に開けば1つに結合され、サムネイルをドラッグして並べ替え、ページを選んで回転・削除し、新しいPDFとして保存できます。',
@@ -269,6 +309,8 @@ export const tools: ToolEntry[] = [
       },
       es: {
         title: 'MeNew PDF',
+        seoTitle: 'Unir, dividir y rotar PDF — Gratis en tu navegador, sin subir nada',
+        h1: 'Unir, dividir y rotar PDF',
         tagline: 'Un editor de PDF gratuito que funciona en tu navegador: combina, divide, reordena, rota y exporta páginas sin subir el archivo a ningún sitio.',
         about: [
           'MeNew PDF abre uno o varios archivos PDF directamente en tu navegador y muestra todas las páginas como miniaturas. Si abres varios archivos a la vez se combinan en un solo documento; arrastra las miniaturas para reordenar, selecciona páginas para rotarlas o borrarlas y guarda el resultado como un PDF nuevo.',
@@ -279,6 +321,8 @@ export const tools: ToolEntry[] = [
       },
       zh: {
         title: 'MeNew PDF',
+        seoTitle: 'PDF 合并·拆分·旋转 — 无需上传，浏览器免费完成',
+        h1: 'PDF 合并、拆分与旋转',
         tagline: '在浏览器中运行的免费 PDF 编辑器——合并、拆分、排序、旋转与导出页面，无需上传文件。',
         about: [
           'MeNew PDF 直接在浏览器中打开一个或多个 PDF 文件，并把每一页排列成缩略图。同时打开多个文件即可合并为一个文档;拖动缩略图重新排序，选中页面进行旋转或删除，然后保存为新的 PDF。',
@@ -295,6 +339,8 @@ export const tools: ToolEntry[] = [
     copy: {
       en: {
         title: 'MeNew HWP',
+        seoTitle: 'HWP Viewer Online — Open Hancom .hwp / .hwpx Files in Your Browser',
+        h1: 'HWP file viewer, online',
         tagline: 'Read Hancom Hangul (.hwp, .hwpx) documents in your browser — useful on a Mac or Linux machine with no Hancom Office installed.',
         about: [
           'HWP is the standard word processor format of South Korean government offices, schools and universities, which makes it a recurring problem for anyone outside Windows: the file arrives, and there is nothing installed that opens it. MeNew HWP reads both the older binary .hwp format and the newer XML-based .hwpx directly in your browser.',
@@ -305,6 +351,8 @@ export const tools: ToolEntry[] = [
       },
       ko: {
         title: 'MeNew HWP',
+        seoTitle: '한글(.hwp·.hwpx) 온라인 뷰어 — 설치·업로드 없이 열기',
+        h1: '한글 파일(.hwp) 온라인 뷰어',
         tagline: '한글(.hwp, .hwpx) 문서를 브라우저에서 바로 읽습니다 — 한컴오피스가 없는 맥·리눅스에서 특히 유용합니다.',
         about: [
           'HWP는 관공서·학교·대학이 표준으로 쓰는 형식이라, 윈도우가 아닌 환경에서는 파일은 왔는데 열 프로그램이 없는 상황이 반복됩니다. MeNew HWP는 예전 바이너리 형식(.hwp)과 최신 XML 형식(.hwpx)을 모두 브라우저에서 바로 읽습니다.',
@@ -315,6 +363,8 @@ export const tools: ToolEntry[] = [
       },
       ja: {
         title: 'MeNew HWP',
+        seoTitle: 'HWPビューア(オンライン) — .hwp / .hwpx をブラウザで開く',
+        h1: 'HWPファイル オンラインビューア',
         tagline: '韓国のワープロ形式(.hwp / .hwpx)をブラウザで読めます — Hancom Office のない Mac や Linux で特に便利です。',
         about: [
           'HWP は韓国の官公庁・学校・大学が標準的に使う形式のため、Windows 以外の環境では「ファイルは届いたが開くソフトがない」という状況が繰り返し起こります。MeNew HWP は旧来のバイナリ形式(.hwp)と新しい XML 形式(.hwpx)の両方をブラウザで直接読み取ります。',
@@ -325,6 +375,8 @@ export const tools: ToolEntry[] = [
       },
       es: {
         title: 'MeNew HWP',
+        seoTitle: 'Visor HWP en línea — Abre archivos .hwp y .hwpx en tu navegador',
+        h1: 'Visor de archivos HWP en línea',
         tagline: 'Lee documentos Hancom Hangul (.hwp, .hwpx) en tu navegador, útil en un Mac o Linux sin Hancom Office instalado.',
         about: [
           'HWP es el formato de procesador de textos estándar en las administraciones, colegios y universidades de Corea del Sur, lo que lo convierte en un problema recurrente fuera de Windows: llega el archivo y no hay nada instalado que lo abra. MeNew HWP lee tanto el formato binario antiguo (.hwp) como el más reciente basado en XML (.hwpx) directamente en tu navegador.',
@@ -335,6 +387,8 @@ export const tools: ToolEntry[] = [
       },
       zh: {
         title: 'MeNew HWP',
+        seoTitle: 'HWP 在线阅读器 — 浏览器直接打开 .hwp / .hwpx 文件',
+        h1: 'HWP 文件在线阅读器',
         tagline: '在浏览器中阅读韩国 Hangul(.hwp、.hwpx)文档——在没有安装 Hancom Office 的 Mac 或 Linux 上尤其实用。',
         about: [
           'HWP 是韩国政府机关、学校和大学的标准文字处理格式，因此在非 Windows 环境下经常出现「文件收到了却没有软件能打开」的情况。MeNew HWP 可以在浏览器中直接读取旧版二进制格式(.hwp)和新版 XML 格式(.hwpx)。',

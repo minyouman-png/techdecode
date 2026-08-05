@@ -25,10 +25,10 @@ const ui = {
   es: { back: 'Todos los juegos', switch: 'Cambiar de juego', fs: 'Pantalla completa', hint: 'Mueve el ratón al borde superior (o toca ▾) para mostrar esta barra' },
   zh: { back: '全部游戏', switch: '切换游戏', fs: '全屏', hint: '将鼠标移到屏幕顶端(手机点按▾)即可再次显示此栏' },
 };
-const title = game.copy.en.title;
+const title = game.copy.ko.title;
 ---
 <!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -93,7 +93,7 @@ const title = game.copy.en.title;
   <script is:inline define:vars={{ registry, ui, slug, langCodes }}>
     var params = new URLSearchParams(location.search);
     var lang = params.get('lang');
-    if (langCodes.indexOf(lang) < 0) lang = 'en';
+    if (langCodes.indexOf(lang) < 0) lang = 'ko';
     var T = ui[lang];
     var current = registry.find(function (r) { return r.slug === slug; });
 
@@ -103,7 +103,7 @@ const title = game.copy.en.title;
     document.title = current.titles[lang] + ' — MeNew Soft';
 
     var back = document.getElementById('backlink');
-    back.href = (lang === 'en' ? '' : '/' + lang) + '/games/';
+    back.href = (lang === 'ko' ? '' : '/' + lang) + '/games/';
     back.textContent = '← ' + T.back;
 
     var sw = document.getElementById('switcher');

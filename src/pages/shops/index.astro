@@ -1,0 +1,6 @@
+---
+// ⚠️`/shops/` 는 홈(`/`)과 같은 디렉토리다. 예전에 배포된 링크(`/ko/shops/` 등)가 404 나지
+// 않도록 남겨두되, 색인은 홈이 대표가 되도록 canonical 을 홈으로 보내고 noindex 를 건다.
+import ShopsDirectory from '../../components/ShopsDirectory.astro';
+---
+<ShopsDirectory lang="ko" canonicalPath="/" noindex={true} />

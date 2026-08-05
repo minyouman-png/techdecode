@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import { languages, type Lang } from '../../../i18n/ui';
+import { languages, defaultLang, type Lang } from '../../../i18n/ui';
 import { useTranslations, blogUrl } from '../../../i18n/utils';
 import { categoryOrder, categoryLabel, categoryUrl } from '../../../i18n/categories';
 
@@ -9,7 +9,7 @@ export async function getStaticPaths() {
   const all = await getCollection('blog');
   const paths = [];
   for (const code of Object.keys(languages) as Lang[]) {
-    if (code === 'en') continue;
+    if (code === defaultLang) continue;
     for (const slug of categoryOrder) {
       const posts = all.filter((p) => p.data.lang === code && p.data.category === slug);
       if (posts.length === 0) continue;
@@ -30,7 +30,7 @@ const t = useTranslations(lang);
 const label = categoryLabel(slug, lang);
 const sorted = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
-<BaseLayout lang={lang} title={label} description={`${label} — ${t('tagline')}`} alternates={alternates}>
+<BaseLayout lang={lang} title={label} description={`${label} — ${t('tagline')}`} alternates={alternates} noindex={true}>
   <section class="latest">
     <div class="wrap">
       <h1 class="cat-title">{label}</h1>

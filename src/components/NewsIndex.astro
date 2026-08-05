@@ -1,0 +1,125 @@
+---
+// 등록 업체 소식 — 블로그가 있던 자리를 대신하는 섹션(2026-08-05).
+//
+// ⚠️★이 페이지의 유일한 규칙: **소식의 출처를 반드시 밝힌다.**
+//   두 종류만 싣는다. ①가게가 작성기로 직접 올린 공지(`src/data/shop-notices/<slug>.json`)
+//   ②공개 자료에서 확인한 소식(`shops.ts` 의 `news`, 출처 링크가 타입상 필수).
+//   우리가 지어낸 소식은 여기에 들어오지 못한다 — 손님이 그걸 믿고 헛걸음하면 가게가 피해를 본다.
+//   두 종류는 배지로 구분해 표시한다. 섞이면 ②가 가게 명의 공지처럼 읽힌다.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { languages, type Lang } from '../i18n/ui';
+import { useTranslations, localizeUrl } from '../i18n/utils';
+import { shops, shopCopy, shopUrl, allShopNews } from '../i18n/shops';
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const alternates = Object.fromEntries(
+  (Object.keys(languages) as Lang[]).map((l) => [l, localizeUrl('/news/', l)])
+) as Partial<Record<Lang, string>>;
+
+// 가게가 직접 올린 공지. blocks 는 안전한 구조체만 허용하므로(원시 HTML 금지) 여기서는
+// 목록용으로 첫 텍스트 블록만 요약해 쓰고, 본문은 가게 페이지에서 보여준다.
+const noticeFiles = import.meta.glob<{ notices?: any[] }>('../data/shop-notices/*.json', { eager: true });
+const shopNotices = shops.flatMap((shop) => {
+  const data = noticeFiles[`../data/shop-notices/${shop.slug}.json`];
+  const c = shopCopy(shop, lang);
+  return (data?.notices ?? [])
+    .filter((n: any) => n && n.title)
+    .map((n: any) => {
+      const firstText = (n.blocks ?? []).find((b: any) => b?.type === 'text' && b.text);
+      return {
+        origin: 'shop' as const,
+        date: String(n.date ?? ''),
+        title: String(n.title),
+        text: firstText ? String(firstText.text) : '',
+        shopName: c.name,
+        shopHref: shopUrl(shop.slug, lang),
+        source: null as null | { label: string; url: string },
+      };
+    });
+});
+
+const pressNews = allShopNews(lang).map((n) => ({
+  origin: 'press' as const,
+  date: n.date,
+  title: '',
+  text: n.text,
+  shopName: n.shopName,
+  shopHref: shopUrl(n.shop.slug, lang),
+  source: n.source,
+}));
+
+const rows = [...shopNotices, ...pressNews].sort((a, b) => (a.date < b.date ? 1 : -1));
+---
+<BaseLayout lang={lang} title={t('news_title')} description={t('news_desc')} alternates={alternates}>
+  <section class="news-hero">
+    <div class="wrap">
+      <p class="kicker">{t('news_title')}</p>
+      <h1>{t('news_title')}</h1>
+      <p class="news-lede">{t('news_desc')}</p>
+    </div>
+  </section>
+
+  <section class="news-body">
+    <div class="wrap">
+      {rows.length === 0 ? (
+        <p class="news-empty">{t('news_empty')}</p>
+      ) : (
+        <ol class="news-feed">
+          {rows.map((row) => (
+            <li class="news-item">
+              <div class="news-meta">
+                <span class={`badge ${row.origin}`}>
+                  {row.origin === 'shop' ? t('news_badge_shop') : t('news_badge_press')}
+                </span>
+                <a class="news-shop" href={row.shopHref}>{row.shopName}</a>
+                <time class="news-when">{row.date}</time>
+              </div>
+              {row.title && <h2 class="news-title">{row.title}</h2>}
+              {row.text && <p class="news-text">{row.text}</p>}
+              <div class="news-foot">
+                {row.source && (
+                  <a class="news-src" href={row.source.url} target="_blank" rel="noopener nofollow">
+                    {t('news_source')}: {row.source.label} ↗
+                  </a>
+                )}
+                <a class="news-more" href={row.shopHref}>{t('news_shop_link')}</a>
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .news-hero { padding: 48px 0 18px; }
+  .news-hero h1 { margin: 6px 0 10px; font-size: clamp(1.5rem, 3.6vw, 2.1rem); }
+  .news-lede { max-width: 62ch; color: var(--muted, #666); margin: 0; }
+  .news-body { padding: 10px 0 60px; }
+  .news-empty { color: var(--muted, #666); padding: 30px 0; }
+
+  .news-feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  .news-item {
+    border: 1px solid var(--line, #e3e3e6); border-radius: 14px; padding: 15px 17px;
+    background: var(--card, #fff);
+  }
+  .news-meta { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 7px; }
+  .badge {
+    font-size: 0.74rem; font-weight: 700; letter-spacing: 0.02em;
+    padding: 3px 9px; border-radius: 999px; border: 1px solid transparent;
+  }
+  /* 가게가 직접 낸 말 vs 우리가 공개 자료에서 정리한 것 — 색으로도 갈라 놓는다. */
+  .badge.shop { background: rgba(42, 109, 245, 0.12); color: var(--accent, #2a6df5); }
+  .badge.press { background: transparent; border-color: var(--line, #d8d8dc); color: var(--muted, #666); }
+  .news-shop { font-weight: 600; text-decoration: none; color: inherit; }
+  .news-when { font-size: 0.84rem; color: var(--faint, #999); font-variant-numeric: tabular-nums; }
+  .news-title { margin: 0 0 5px; font-size: 1.05rem; }
+  .news-text { margin: 0; line-height: 1.6; }
+  .news-foot { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 9px; font-size: 0.83rem; }
+  .news-src, .news-more { color: var(--muted, #666); text-decoration: none; }
+  .news-src:hover, .news-more:hover { text-decoration: underline; }
+</style>

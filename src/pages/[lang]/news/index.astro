@@ -1,0 +1,12 @@
+---
+import NewsIndex from '../../../components/NewsIndex.astro';
+import { languages, defaultLang, type Lang } from '../../../i18n/ui';
+
+export function getStaticPaths() {
+  return (Object.keys(languages) as Lang[])
+    .filter((l) => l !== defaultLang)
+    .map((lang) => ({ params: { lang }, props: { lang } }));
+}
+const { lang } = Astro.props;
+---
+<NewsIndex lang={lang} />

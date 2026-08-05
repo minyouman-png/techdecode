@@ -2,7 +2,8 @@ import { type Lang } from './ui';
 import { localizeUrl } from './utils';
 
 // 테크 계열 카테고리(공통 슬러그). frontmatter의 category 값은 이 슬러그를 씀.
-export const categoryOrder = ['semiconductors', 'ai', 'markets', 'regulation'] as const;
+// 'food' = 지역 맛집(2026-08-01 신설). 테크가 아닌 첫 카테고리라 맨 뒤에 둔다.
+export const categoryOrder = ['semiconductors', 'ai', 'markets', 'regulation', 'food'] as const;
 export type CategorySlug = (typeof categoryOrder)[number];
 
 export const categoryLabels: Record<CategorySlug, Record<Lang, string>> = {
@@ -15,6 +16,13 @@ export const categoryLabels: Record<CategorySlug, Record<Lang, string>> = {
     ja: '規制・独占禁止',
     es: 'Regulación y antimonopolio',
     zh: '监管与反垄断',
+  },
+  food: {
+    en: 'Local Eats',
+    ko: '지역 맛집',
+    ja: 'ご当地グルメ',
+    es: 'Sabores locales',
+    zh: '本地美食',
   },
 };
 
