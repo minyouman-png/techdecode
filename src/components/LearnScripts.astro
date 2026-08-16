@@ -1,0 +1,939 @@
+---
+// 학습 코너 클라이언트 엔진 — 페이지당 딱 한 번만 넣는다.
+// ⚠️서버가 없으므로 이름·별은 전부 이 브라우저의 localStorage 에만 있다(개인정보를 보내지 않는다).
+---
+<script is:inline>
+(function () {
+  'use strict';
+  var KEY = 'menew_learn_v1';
+
+  /* ---------- 저장소 ---------- */
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; }
+  }
+  function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function addStars(n) {
+    var s = load(); s.stars = (s.stars || 0) + n; save(s); paintStars(); return s.stars;
+  }
+  function paintStars() {
+    var s = load();
+    document.querySelectorAll('[data-total-stars]').forEach(function (el) { el.textContent = String(s.stars || 0); });
+  }
+  function markDone(topicKey, score, total) {
+    var s = load(); s.topics = s.topics || {};
+    var prev = s.topics[topicKey] || 0;
+    if (score > prev) s.topics[topicKey] = score;
+    s.lastTotal = total; save(s);
+  }
+
+  /* ---------- 도구 ---------- */
+  var TESTMODE = location.search.indexOf('test=learn') >= 0;
+  function rnd(n) { return Math.floor(Math.random() * n); }
+  function pick(a) { return a[rnd(a.length)]; }
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) { var j = rnd(i + 1); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  /** 정답 1개 + 오답 후보에서 뽑은 3개를 섞어 {choices, answer} 로 만든다 */
+  function mc(correct, pool, n) {
+    n = n || 4;
+    // ⚠️오답 후보는 **중복을 제거하고** 뽑는다. 계산으로 만든 후보는 값이 겹칠 때가 있고
+    //   (예: 20 → tens+ones 와 ones*10+tens 가 둘 다 2), 같은 보기가 두 개 뜨면 문제가 망가진다.
+    var seen = {};
+    var wrong = shuffle(pool.filter(function (x) {
+      var k = String(x);
+      if (k === String(correct) || seen[k]) return false;
+      seen[k] = 1; return true;
+    })).slice(0, n - 1);
+    var all = shuffle([correct].concat(wrong));
+    return { choices: all.map(String), answer: all.map(String).indexOf(String(correct)) };
+  }
+  function rep(ch, n) { var s = ''; for (var i = 0; i < n; i++) s += ch; return s; }
+
+  /* ---------- 한글 조합 ---------- */
+  var CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  var JUNG = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+  var JONG = ['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  function compose(c, v, j) {
+    return String.fromCharCode(0xAC00 + (CHO.indexOf(c) * 21 + JUNG.indexOf(v)) * 28 + (j ? JONG.indexOf(j) : 0));
+  }
+  function decompose(ch) {
+    var c = ch.charCodeAt(0) - 0xAC00;
+    if (c < 0 || c > 11171) return null;
+    return { cho: CHO[Math.floor(c / 588)], jung: JUNG[Math.floor((c % 588) / 28)], jong: JONG[c % 28] };
+  }
+
+  var BASIC_CHO = ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  var BASIC_JUNG = ['ㅏ','ㅑ','ㅓ','ㅕ','ㅗ','ㅛ','ㅜ','ㅠ','ㅡ','ㅣ'];
+  var CHO_NAME = { 'ㄱ':'기역','ㄴ':'니은','ㄷ':'디귿','ㄹ':'리을','ㅁ':'미음','ㅂ':'비읍','ㅅ':'시옷','ㅇ':'이응','ㅈ':'지읒','ㅊ':'치읓','ㅋ':'키읔','ㅌ':'티읕','ㅍ':'피읖','ㅎ':'히읗' };
+  var JUNG_NAME = { 'ㅏ':'아','ㅑ':'야','ㅓ':'어','ㅕ':'여','ㅗ':'오','ㅛ':'요','ㅜ':'우','ㅠ':'유','ㅡ':'으','ㅣ':'이' };
+
+  /* ---------- 문제 생성기 ----------
+     각 생성기는 { q, choices, answer, visual? , hint? } 를 돌려준다.
+     visual = {emoji:'…'} | {big:'…'} | {clock:[시,분]} | {shape:'circle|tri|square'} */
+  var G = {};
+
+  G.jamo = function () {
+    var isCho = Math.random() < 0.6;
+    var letters = isCho ? BASIC_CHO : BASIC_JUNG;
+    var names = isCho ? CHO_NAME : JUNG_NAME;
+    var L = pick(letters);
+    if (Math.random() < 0.5) {
+      var o = mc(names[L], letters.map(function (x) { return names[x]; }));
+      return { q: '이 글자의 이름은 무엇일까요?', visual: { big: L }, choices: o.choices, answer: o.answer };
+    }
+    var o2 = mc(L, letters);
+    return { q: '‘' + names[L] + '’은 어느 글자일까요?', choices: o2.choices, answer: o2.answer };
+  };
+
+  G.syllable = function () {
+    var c = pick(BASIC_CHO), v = pick(BASIC_JUNG);
+    var target = compose(c, v);
+    if (Math.random() < 0.6) {
+      var pool = [];
+      BASIC_JUNG.forEach(function (vv) { pool.push(compose(c, vv)); });
+      BASIC_CHO.forEach(function (cc) { pool.push(compose(cc, v)); });
+      var o = mc(target, pool);
+      return { q: c + ' + ' + v + ' = ?', choices: o.choices, answer: o.answer };
+    }
+    var right = c + ' + ' + v;
+    var pool2 = [];
+    BASIC_CHO.forEach(function (cc) { BASIC_JUNG.forEach(function (vv) { pool2.push(cc + ' + ' + vv); }); });
+    var o3 = mc(right, pool2);
+    return { q: '이 글자는 무엇과 무엇으로 만들었을까요?', visual: { big: target }, choices: o3.choices, answer: o3.answer };
+  };
+
+  var BATCHIM_WORDS = [
+    ['강','🏞'], ['밥','🍚'], ['산','⛰'], ['물','💧'], ['곰','🐻'], ['눈','👀'], ['별','⭐'],
+    ['문','🚪'], ['발','🦶'], ['손','✋'], ['밤','🌰'], ['옷','👕'], ['컵','☕'], ['책','📖'],
+    ['국','🍲'], ['집','🏠'], ['공','⚽'], ['말','🐴'], ['빵','🍞'], ['콩','🫘'], ['달','🌙'], ['불','🔥']
+  ];
+  G.batchim = function () {
+    var w = pick(BATCHIM_WORDS);
+    var d = decompose(w[0]);
+    if (Math.random() < 0.7) {
+      var o = mc(d.jong, ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ']);
+      return { q: '‘' + w[0] + '’의 받침은 무엇일까요?', visual: { emoji: w[1] }, choices: o.choices, answer: o.answer };
+    }
+    var o2 = mc(w[0], [
+      compose(d.cho, d.jung),
+      compose(d.cho, d.jung, 'ㅇ'), compose(d.cho, d.jung, 'ㄴ'),
+      compose(d.cho, d.jung, 'ㄹ'), compose(d.cho, d.jung, 'ㅁ')
+    ]);
+    return { q: '이 그림에 알맞은 글자는 어느 것일까요?', visual: { emoji: w[1] }, choices: o2.choices, answer: o2.answer };
+  };
+
+  var MIMETIC_SOUND = [
+    ['🐸 개구리는 어떻게 울까요?', '개굴개굴'], ['🐶 강아지는 어떻게 짖을까요?', '멍멍'],
+    ['🐱 고양이는 어떻게 울까요?', '야옹야옹'], ['🐤 병아리는 어떻게 울까요?', '삐약삐약'],
+    ['🐷 돼지는 어떻게 울까요?', '꿀꿀'], ['🦆 오리는 어떻게 울까요?', '꽥꽥'],
+    ['🐄 소는 어떻게 울까요?', '음메'], ['⏰ 시계는 어떤 소리를 낼까요?', '똑딱똑딱'],
+    ['🌧️ 비가 세차게 오는 소리는?', '주룩주룩'], ['💨 바람이 세게 부는 소리는?', '쌩쌩']
+  ];
+  var MIMETIC_SHAPE = [
+    ['🐰 토끼가 뛰는 모양은?', '깡충깡충'], ['⭐ 별이 빛나는 모양은?', '반짝반짝'],
+    ['🦆 오리가 걷는 모양은?', '뒤뚱뒤뚱'], ['❄️ 눈이 내리는 모양은?', '펄펄'],
+    ['🍲 찌개가 끓는 모양은?', '보글보글'], ['😭 눈물이 흐르는 모양은?', '주르륵'],
+    ['🐍 뱀이 기어가는 모양은?', '스르르'], ['🎈 풍선이 떠가는 모양은?', '둥실둥실']
+  ];
+  G.mimetic = function () {
+    var all = MIMETIC_SOUND.concat(MIMETIC_SHAPE);
+    var item = pick(all);
+    var o = mc(item[1], all.map(function (x) { return x[1]; }));
+    return { q: item[0], choices: o.choices, answer: o.answer };
+  };
+
+  var PUNCT = [
+    ['너는 지금 무엇을 하니', '물음표 ?'], ['우아, 정말 멋지다', '느낌표 !'],
+    ['나는 학교에 간다', '마침표 .'], ['오늘 날씨가 참 좋다', '마침표 .'],
+    ['이게 정말 네 것이니', '물음표 ?'], ['앗, 깜짝이야', '느낌표 !'],
+    ['너 어디 가는 거야', '물음표 ?'], ['사과와 배를 샀다', '마침표 .']
+  ];
+  G.punct = function () {
+    if (Math.random() < 0.75) {
+      var it = pick(PUNCT);
+      var o = mc(it[1], ['마침표 .', '물음표 ?', '느낌표 !', '쉼표 ,']);
+      return { q: '「' + it[0] + '___」\n빈칸에 알맞은 문장 부호는?', choices: o.choices, answer: o.answer };
+    }
+    var qa = pick([
+      ['묻는 문장 끝에 쓰는 부호는?', '물음표 ?'],
+      ['놀라거나 기쁠 때 쓰는 부호는?', '느낌표 !'],
+      ['설명하는 문장 끝에 쓰는 부호는?', '마침표 .'],
+      ['여러 가지를 늘어놓을 때 쓰는 부호는?', '쉼표 ,']
+    ]);
+    var o2 = mc(qa[1], ['마침표 .', '물음표 ?', '느낌표 !', '쉼표 ,']);
+    return { q: qa[0], choices: o2.choices, answer: o2.answer };
+  };
+
+  var COUNT_EMOJI = ['🍎','🍓','🐥','🚗','⭐','🐟','🍪','🎈','🌻','🧸'];
+  G.count9 = function () {
+    var n = 1 + rnd(9);
+    var e = pick(COUNT_EMOJI);
+    var o = mc(n, [1,2,3,4,5,6,7,8,9]);
+    return { q: '모두 몇 개일까요?', visual: { emoji: rep(e, n) }, choices: o.choices, answer: o.answer };
+  };
+
+  G.order9 = function () {
+    var m = rnd(3);
+    if (m === 0) {
+      var a = 1 + rnd(8);
+      var o = mc(a + 1, [1,2,3,4,5,6,7,8,9]);
+      return { q: a + '보다 1 큰 수는 얼마일까요?', choices: o.choices, answer: o.answer };
+    }
+    if (m === 1) {
+      var b = 2 + rnd(8);
+      var o2 = mc(b - 1, [1,2,3,4,5,6,7,8,9]);
+      return { q: b + '보다 1 작은 수는 얼마일까요?', choices: o2.choices, answer: o2.answer };
+    }
+    var c = 2 + rnd(7);
+    var o3 = mc(c, [1,2,3,4,5,6,7,8,9]);
+    return { q: (c - 1) + ' , ___ , ' + (c + 1) + '\n가운데 빈칸에 알맞은 수는?', choices: o3.choices, answer: o3.answer };
+  };
+
+  var SOLIDS = [
+    ['📦', '상자 모양'], ['🎁', '상자 모양'], ['📚', '상자 모양'], ['🧃', '상자 모양'],
+    ['🥫', '둥근 기둥 모양'], ['🥁', '둥근 기둥 모양'], ['🕯️', '둥근 기둥 모양'], ['🧻', '둥근 기둥 모양'],
+    ['⚽', '공 모양'], ['🏀', '공 모양'], ['🌍', '공 모양'], ['🍊', '공 모양']
+  ];
+  G.shape3d = function () {
+    if (Math.random() < 0.75) {
+      var it = pick(SOLIDS);
+      return { q: '이 물건은 어떤 모양일까요?', visual: { emoji: it[0] },
+        choices: ['상자 모양', '둥근 기둥 모양', '공 모양'], answer: ['상자 모양','둥근 기둥 모양','공 모양'].indexOf(it[1]) };
+    }
+    var qa = pick([
+      ['어느 방향으로도 잘 굴러가는 모양은?', '공 모양'],
+      ['잘 쌓을 수 있고 평평한 면만 있는 모양은?', '상자 모양'],
+      ['눕히면 굴러가고 세우면 쌓을 수 있는 모양은?', '둥근 기둥 모양']
+    ]);
+    return { q: qa[0], choices: ['상자 모양', '둥근 기둥 모양', '공 모양'], answer: ['상자 모양','둥근 기둥 모양','공 모양'].indexOf(qa[1]) };
+  };
+
+  G.shape2d = function () {
+    if (Math.random() < 0.7) {
+      var s = pick(['circle', 'tri', 'square']);
+      var name = { circle: '동그라미', tri: '세모', square: '네모' }[s];
+      return { q: '이 모양의 이름은 무엇일까요?', visual: { shape: s },
+        choices: ['동그라미', '세모', '네모'], answer: ['동그라미','세모','네모'].indexOf(name) };
+    }
+    var qa = pick([
+      ['곧은 선이 3개인 모양은?', '세모'],
+      ['곧은 선이 4개인 모양은?', '네모'],
+      ['뾰족한 곳이 하나도 없는 모양은?', '동그라미'],
+      ['뾰족한 곳이 4개인 모양은?', '네모']
+    ]);
+    return { q: qa[0], choices: ['동그라미', '세모', '네모'], answer: ['동그라미','세모','네모'].indexOf(qa[1]) };
+  };
+
+  G.addsub = function () {
+    if (Math.random() < 0.5) {
+      var a = 1 + rnd(7), b = 1 + rnd(9 - a);
+      var e = pick(COUNT_EMOJI);
+      var o = mc(a + b, [0,1,2,3,4,5,6,7,8,9]);
+      return { q: a + ' + ' + b + ' = ?', visual: { emoji: rep(e, a) + '  ➕  ' + rep(e, b) }, choices: o.choices, answer: o.answer };
+    }
+    var x = 3 + rnd(7), y = 1 + rnd(x - 1);
+    var o2 = mc(x - y, [0,1,2,3,4,5,6,7,8,9]);
+    return { q: x + ' - ' + y + ' = ?', visual: { emoji: rep('🔵', x - y) + rep('⚪', y) }, choices: o2.choices, answer: o2.answer, hint: '흰 구슬을 빼고 남은 파란 구슬을 세어 보세요.' };
+  };
+
+  // [큰 쪽 이모지, 큰 쪽 이름, 작은 쪽 이모지, 작은 쪽 이름, 큰 쪽을 묻는 말, 작은 쪽을 묻는 말]
+  var COMPARE = [
+    ['🚆','기차','✏️','연필','더 긴 것은 무엇일까요?','더 짧은 것은 무엇일까요?'],
+    ['🐍','뱀','🪱','지렁이','더 긴 것은 무엇일까요?','더 짧은 것은 무엇일까요?'],
+    ['🚌','버스','🚲','자전거','더 긴 것은 무엇일까요?','더 짧은 것은 무엇일까요?'],
+    ['🐘','코끼리','🐜','개미','더 무거운 것은 무엇일까요?','더 가벼운 것은 무엇일까요?'],
+    ['🍉','수박','🍓','딸기','더 무거운 것은 무엇일까요?','더 가벼운 것은 무엇일까요?'],
+    ['🚗','자동차','🎈','풍선','더 무거운 것은 무엇일까요?','더 가벼운 것은 무엇일까요?'],
+    ['🛁','욕조','☕','컵','물을 더 많이 담을 수 있는 것은?','물을 더 적게 담을 수 있는 것은?'],
+    ['🏫','운동장','📕','공책','더 넓은 것은 무엇일까요?','더 좁은 것은 무엇일까요?'],
+    ['🛏️','이불','🧻','손수건','더 넓은 것은 무엇일까요?','더 좁은 것은 무엇일까요?']
+  ];
+  G.compare = function () {
+    var it = pick(COMPARE);
+    var askBig = Math.random() < 0.5;
+    var ans = askBig ? it[1] : it[3];
+    var pair = Math.random() < 0.5 ? [it[1], it[3]] : [it[3], it[1]];
+    return {
+      q: askBig ? it[4] : it[5],
+      visual: { emoji: it[0] + '   ' + it[2] },
+      choices: pair,
+      answer: pair.indexOf(ans)
+    };
+  };
+
+  var KOR_NUM = ['','열','스물','서른','마흔','쉰'];
+  var KOR_ONE = ['','하나','둘','셋','넷','다섯','여섯','일곱','여덟','아홉'];
+  G.num50 = function () {
+    var m = rnd(3);
+    var tens = 1 + rnd(4), ones = rnd(10);
+    var n = tens * 10 + ones;
+    if (m === 0) {
+      var o = mc(n, [n + 1, n - 1, n + 10, n - 10, tens + ones, ones * 10 + tens].filter(function (x) { return x > 0 && x <= 50; }));
+      return { q: '10개씩 묶음 ' + tens + '개와 낱개 ' + ones + '개는 얼마일까요?',
+        visual: { emoji: rep('🟦', tens) + ' ' + rep('🔹', ones) }, choices: o.choices, answer: o.answer,
+        hint: '큰 네모 하나가 10개예요.' };
+    }
+    if (m === 1) {
+      var right = tens + '개와 ' + ones + '개';
+      var pool = [];
+      for (var i = 1; i <= 5; i++) for (var j = 0; j < 10; j++) pool.push(i + '개와 ' + j + '개');
+      var o2 = mc(right, pool);
+      return { q: n + '은 10개씩 묶음 몇 개와 낱개 몇 개일까요?', choices: o2.choices, answer: o2.answer };
+    }
+    var t2 = 1 + rnd(4), o1 = 1 + rnd(9), n2 = t2 * 10 + o1;
+    var korean = KOR_NUM[t2] + KOR_ONE[o1];
+    var poolK = [];
+    for (var a = 1; a <= 5; a++) for (var b = 1; b <= 9; b++) poolK.push(KOR_NUM[a] + KOR_ONE[b]);
+    var o3 = mc(korean, poolK);
+    return { q: n2 + '을 우리말로 어떻게 읽을까요?', choices: o3.choices, answer: o3.answer };
+  };
+
+  G.num100 = function () {
+    var m = rnd(3);
+    if (m === 0) {
+      var a = 10 + rnd(89), b = 10 + rnd(89);
+      while (b === a) b = 10 + rnd(89);
+      var big = Math.max(a, b);
+      var arr = Math.random() < 0.5 ? [a, b] : [b, a];
+      return { q: '더 큰 수는 어느 것일까요?', choices: [String(arr[0]), String(arr[1])],
+        answer: arr.indexOf(big), hint: '10개씩 묶음의 수를 먼저 비교해요.' };
+    }
+    if (m === 1) {
+      var t = 1 + rnd(9);
+      var o = mc(t * 10, [10,20,30,40,50,60,70,80,90,100]);
+      return { q: '10개씩 묶음 ' + t + '개는 얼마일까요?', choices: o.choices, answer: o.answer };
+    }
+    var s = 50 + rnd(45);
+    var o2 = mc(s + 2, [s + 1, s + 2, s + 3, s + 10, s - 1]);
+    return { q: s + ' , ' + (s + 1) + ' , ___\n다음에 올 수는?', choices: o2.choices, answer: o2.answer };
+  };
+
+  G.make10 = function () {
+    var m = rnd(3);
+    if (m === 0) {
+      var a = 1 + rnd(9);
+      var o = mc(10 - a, [0,1,2,3,4,5,6,7,8,9]);
+      return { q: a + ' + ___ = 10', visual: { emoji: rep('🟡', a) + rep('⚪', 10 - a) }, choices: o.choices, answer: o.answer,
+        hint: '10을 채우려면 몇 개가 더 필요할까요?' };
+    }
+    if (m === 1) {
+      var x = 5 + rnd(5), y = 2 + rnd(7);
+      var o2 = mc(x + y, [x + y, x + y + 1, x + y - 1, x + y + 2, x + y - 2]);
+      return { q: x + ' + ' + y + ' = ?', choices: o2.choices, answer: o2.answer,
+        hint: x + '에 ' + (10 - x) + '을 더해 10을 먼저 만들어 보세요.' };
+    }
+    var z = 11 + rnd(8), w = 2 + rnd(7);
+    var o3 = mc(z - w, [z - w + 1, z - w - 1, z - w + 2, z - w - 2, z - w + 3]);
+    return { q: z + ' - ' + w + ' = ?', choices: o3.choices, answer: o3.answer,
+      hint: '10에서 먼저 빼고, 남은 낱개를 더해 보세요.' };
+  };
+
+  G.clock = function () {
+    var h = 1 + rnd(12);
+    var half = Math.random() < 0.5;
+    var right = h + '시' + (half ? ' 30분' : '');
+    var pool = [];
+    for (var i = 1; i <= 12; i++) { pool.push(i + '시'); pool.push(i + '시 30분'); }
+    var o = mc(right, pool);
+    return { q: '지금은 몇 시일까요?', visual: { clock: [h, half ? 30 : 0] }, choices: o.choices, answer: o.answer,
+      hint: '짧은바늘을 먼저 보세요.' };
+  };
+
+  var PATTERNS = [
+    ['🔴','🔵'], ['⭐','🌙'], ['🍎','🍌'], ['🐶','🐱','🐰'], ['🔺','🟦'], ['🟩','🟨','🟪']
+  ];
+  G.pattern = function () {
+    if (Math.random() < 0.6) {
+      var p = pick(PATTERNS);
+      var seq = [];
+      for (var i = 0; i < 7; i++) seq.push(p[i % p.length]);
+      var next = p[7 % p.length];
+      // 오답은 **같은 규칙 안의 다른 기호**에서만 뽑는다(엉뚱한 그림이 섞이면 규칙을 안 보고도 찍힌다).
+      var o = mc(next, p);
+      return { q: '다음에 올 것은 무엇일까요?', visual: { emoji: seq.join('') + '❓' }, choices: o.choices, answer: o.answer };
+    }
+    var step = pick([2, 5, 10]);
+    var start = 1 + rnd(5);
+    var seqN = [start, start + step, start + step * 2, start + step * 3];
+    var next2 = start + step * 4;
+    var o2 = mc(next2, [next2, next2 + 1, next2 - 1, next2 + step, next2 - step]);
+    return { q: seqN.join(' , ') + ' , ___\n다음에 올 수는?', choices: o2.choices, answer: o2.answer,
+      hint: '몇씩 커지고 있나요?' };
+  };
+
+  var ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  G.alphabet = function () {
+    var m = rnd(3);
+    var L = pick(ALPHA);
+    if (m === 0) {
+      var o = mc(L.toLowerCase(), ALPHA.map(function (x) { return x.toLowerCase(); }));
+      return { q: '대문자 ' + L + ' 의 소문자는?', choices: o.choices, answer: o.answer };
+    }
+    if (m === 1) {
+      var o2 = mc(L, ALPHA);
+      return { q: '소문자 ' + L.toLowerCase() + ' 의 대문자는?', choices: o2.choices, answer: o2.answer };
+    }
+    var i = rnd(23);
+    var o3 = mc(ALPHA[i + 3], ALPHA);
+    return { q: ALPHA[i] + ' , ' + ALPHA[i + 1] + ' , ' + ALPHA[i + 2] + ' , ___\n다음 글자는?', choices: o3.choices, answer: o3.answer };
+  };
+
+  var PHONICS = [
+    ['🍎','apple','A'], ['⚽','ball','B'], ['🐱','cat','C'], ['🐶','dog','D'], ['🥚','egg','E'],
+    ['🐟','fish','F'], ['🐐','goat','G'], ['🎩','hat','H'], ['🧊','ice','I'], ['🧃','juice','J'],
+    ['🪁','kite','K'], ['🦁','lion','L'], ['🐵','monkey','M'], ['👃','nose','N'], ['🍊','orange','O'],
+    ['🐷','pig','P'], ['👑','queen','Q'], ['🐰','rabbit','R'], ['☀️','sun','S'], ['🐯','tiger','T'],
+    ['☂️','umbrella','U'], ['🚐','van','V'], ['💧','water','W'], ['💛','yellow','Y'], ['🦓','zebra','Z']
+  ];
+  G.phonics = function () {
+    var it = pick(PHONICS);
+    var o = mc(it[2], PHONICS.map(function (x) { return x[2]; }));
+    return { q: '‘' + it[1] + '’ 은 어떤 글자로 시작할까요?', visual: { emoji: it[0] }, choices: o.choices, answer: o.answer };
+  };
+
+
+
+  /* ---------- 학습 과정(진도) ----------
+     ⚠️진도도 이름·별과 같이 **localStorage 에만** 둔다. 아이 기록을 서버로 보내지 않는다.
+     ⚠️'완료' 판정을 사람 손에만 맡기지 않는다 — 1학년은 체크를 안 누른다.
+       그 주제의 연습에서 **3문제를 맞히면 자동으로** 완료 처리한다(연습 위젯이 호출).
+     ⚠️주제 id 만으로는 과목이 겹칠 수 있어(예: math/shape2d vs world/…) `과목:주제` 를 키로 쓴다. */
+  function doneMap() { var s = load(); return s.done || {}; }
+  // ⚠️기존 `markDone(topicKey, score, total)`(주제별 최고점 기록)과 **다른 것**이다.
+  //   이름이 겹치면 같은 스코프에서 뒤에 선언된 쪽이 앞을 덮어 조용히 망가진다.
+  function markStep(id) {
+    if (!id) return;
+    var s = load(); s.done = s.done || {};
+    if (s.done[id]) return;
+    s.done[id] = Date.now(); save(s); paintCourse();
+  }
+
+  function paintCourse() {
+    var root = document.querySelector('[data-course]');
+    if (!root) return;
+    var weeks = [];
+    try { weeks = JSON.parse(root.getAttribute('data-course') || '[]'); } catch (e) { return; }
+    var total = parseInt(root.getAttribute('data-total-steps') || '0', 10) || 1;
+    var done = doneMap();
+    var flat = [];
+    weeks.forEach(function (w) { w.steps.forEach(function (s) { flat.push({ w: w, s: s }); }); });
+
+    var n = flat.filter(function (x) { return done[x.s.id]; }).length;
+    var fill = root.querySelector('[data-course-fill]');
+    if (fill) fill.style.width = Math.round((n / total) * 100) + '%';
+    var dn = root.querySelector('[data-course-done]');
+    if (dn) dn.textContent = String(n);
+
+    // 다음 단계 = 아직 안 한 것 중 가장 앞. 전부 마쳤으면 축하 카드.
+    var next = null;
+    for (var i = 0; i < flat.length; i++) { if (!done[flat[i].s.id]) { next = flat[i]; break; } }
+    var box = root.querySelector('[data-course-next]');
+    if (box) {
+      if (next) {
+        box.innerHTML =
+          '<a class="next-card" href="' + next.s.url + '">' +
+          '<span class="next-label">' + next.w.no + '주차 · 다음 단계</span>' +
+          '<span class="next-title">' + next.s.emoji + ' ' + next.s.title + '</span>' +
+          '<span class="next-sub">' + next.s.subject + ' · ' + next.w.title + '</span>' +
+          '<span class="next-goal">' + next.s.goal + '</span>' +
+          '<span class="next-go">시작하기 →</span></a>';
+      } else {
+        box.innerHTML = '<div class="next-card done"><span class="next-title">🎉 12주 과정을 모두 마쳤어요!</span>' +
+          '<span class="next-sub">이제 아무 과목이나 골라 복습해 보세요.</span></div>';
+      }
+    }
+    var now = root.querySelector('[data-course-now]');
+    if (now) now.hidden = false;
+    var who = (load().name || '').trim();
+    var ttl = root.querySelector('[data-course-title]');
+    if (ttl) ttl.textContent = who ? (who + '이의 학습 과정') : '학습 과정';
+
+    root.querySelectorAll('[data-step]').forEach(function (li) {
+      var ok = !!done[li.getAttribute('data-step')];
+      li.classList.toggle('is-done', ok);
+      var c = li.querySelector('.step-check');
+      if (c) c.textContent = ok ? '●' : '○';
+    });
+  }
+
+  /* ---------- 한 걸음 더 (2026-08-16 추가) ----------
+     ⚠️보기는 반드시 `mc()` 로 만든다 — 중복 보기·빈 보기·정답 인덱스 오류를 `?test=learn` 이
+       400회씩 돌려 잡아내는데, 손으로 배열을 만들면 그 검사를 우회해 버린다. */
+
+  // 낱말 만들기 — 두 글자 낱말. 오답은 **같은 글자를 뒤집은 것**이라 순서를 봐야 풀린다.
+  var WORDS2 = [
+    ['나무','🌳'], ['바다','🌊'], ['구름','☁️'], ['사과','🍎'], ['우산','☂️'], ['모자','🎩'],
+    ['가방','🎒'], ['시계','⏰'], ['토끼','🐰'], ['도시','🏙️'], ['바지','👖'], ['수박','🍉'],
+    ['기차','🚂'], ['고기','🍖'], ['다리','🌉'], ['머리','🧑'], ['나비','🦋'], ['치마','👗']
+  ];
+  G.wordmake = function () {
+    var it = pick(WORDS2), w = it[0];
+    var rev = w[1] + w[0];
+    var others = WORDS2.filter(function (x) { return x[0] !== w; }).map(function (x) { return x[0][1] + x[0][0]; });
+    var o = mc(w, [w, rev].concat(others));
+    return { q: '그림에 맞는 낱말은 무엇일까요?', visual: { emoji: it[1] }, choices: o.choices, answer: o.answer,
+      hint: '글자 순서를 바꾸면 뜻이 달라져요.' };
+  };
+
+  // 문장 만들기 — 어절을 섞어 보여 주고 바른 순서를 고르게 한다.
+  var SENT = [
+    ['나는', '밥을', '먹어요'], ['동생이', '공을', '던져요'], ['아빠가', '신문을', '읽어요'],
+    ['고양이가', '생선을', '먹어요'], ['나는', '학교에', '가요'], ['엄마가', '빵을', '구워요'],
+    ['친구가', '그림을', '그려요'], ['새가', '하늘을', '날아요']
+  ];
+  G.sentence = function () {
+    var s = pick(SENT), right = s.join(' ');
+    // 오답은 같은 어절의 다른 배열 — 낱말이 아니라 **순서**를 보게 만든다.
+    var wrongs = [];
+    for (var i = 0; i < 8 && wrongs.length < 4; i++) {
+      var c = shuffle(s.slice()).join(' ');
+      if (c !== right && wrongs.indexOf(c) < 0) wrongs.push(c);
+    }
+    var o = mc(right, [right].concat(wrongs));
+    // ⚠️`visual.big` 은 **큰 글자 하나**(4.4rem)를 위한 자리다 — 문장을 넣으면 320px 에서 넘친다.
+    //   섞인 낱말은 문제문(`q`)에 넣는다(`white-space: pre-line` 이라 줄바꿈이 산다).
+    return { q: '낱말을 바른 순서로 놓은 것은?\n' + shuffle(s.slice()).join('  /  '),
+      choices: o.choices, answer: o.answer, hint: '누가 → 무엇을 → 어떻게' };
+  };
+
+  // 받아쓰기 — 소리 나는 대로 쓴 것과 바르게 쓴 것을 가른다(1학년 최다 오답: 받침·연음).
+  var DICT = [
+    ['같이','가치'], ['꽃이','꼬치'], ['앉아요','안자요'], ['좋아요','조아요'], ['많이','마니'],
+    ['읽어요','일거요'], ['웃어요','우서요'], ['넓어요','널버요'], ['핥아요','할타요'], ['밖에','바께'],
+    ['옷을','오슬'], ['국물','궁물'], ['해돋이','해도지'], ['굳이','구지']
+  ];
+  G.dictation = function () {
+    var it = pick(DICT);
+    var others = DICT.filter(function (x) { return x[0] !== it[0]; });
+    var pool = [it[0], it[1]];
+    for (var i = 0; i < 3 && i < others.length; i++) pool.push(others[i][1]);
+    var o = mc(it[0], pool);
+    return { q: '“' + it[1] + '” — 바르게 쓴 것은?', choices: o.choices, answer: o.answer,
+      hint: '소리 나는 대로 쓰면 틀리는 낱말이에요.' };
+  };
+
+  // 이야기 덧셈·뺄셈 — 식이 아니라 상황을 읽게 한다.
+  var THINGS = [['사탕','🍬'], ['구슬','🔮'], ['색연필','✏️'], ['딸기','🍓'], ['블록','🧱'], ['풍선','🎈']];
+  G.story = function () {
+    var it = pick(THINGS), a = 2 + rnd(7), b = 1 + rnd(Math.min(a, 6));
+    var plus = Math.random() < 0.5;
+    var q, ans;
+    if (plus) {
+      ans = a + b;
+      q = it[0] + ' ' + a + '개가 있었어요.\n' + b + '개를 더 받았어요. 모두 몇 개일까요?';
+    } else {
+      ans = a - b;
+      q = it[0] + ' ' + a + '개가 있었어요.\n' + b + '개를 먹었어요. 남은 것은 몇 개일까요?';
+    }
+    var pool = [ans, ans + 1, ans - 1, a + b, a - b, ans + 2].filter(function (n) { return n >= 0; });
+    var o = mc(ans, pool);
+    return { q: q, visual: { emoji: rep(it[1], Math.min(a, 9)) }, choices: o.choices, answer: o.answer,
+      hint: plus ? '“모두”는 더하기예요.' : '“남은”은 빼기예요.' };
+  };
+
+  // 뛰어 세기 — 2·5·10씩. 곱셈의 씨앗.
+  G.skip = function () {
+    var step = pick([2, 5, 10]);
+    var start = step * (1 + rnd(4));
+    var seq = [start, start + step, start + step * 2];
+    var ans = start + step * 3;
+    var o = mc(ans, [ans, ans + 1, ans - 1, ans + step, ans - step, ans + 2]);
+    return { q: seq.join(' , ') + ' , ___\n' + step + '씩 뛰어 세면 다음은?', choices: o.choices, answer: o.answer,
+      hint: step + '씩 커지고 있어요.' };
+  };
+
+  // 몇 시 몇 분 — 5분 단위. 캔버스 시계를 그대로 재사용한다.
+  G.time2 = function () {
+    var h = 1 + rnd(12);
+    var m = 5 * (1 + rnd(11));            // 5~55분(정각·30분은 clock 위젯이 이미 다룬다)
+    var right = h + '시 ' + m + '분';
+    var pool = [right];
+    [m + 5, m - 5, m + 10, m - 10].forEach(function (x) {
+      if (x > 0 && x < 60) pool.push(h + '시 ' + x + '분');
+    });
+    pool.push(((h % 12) + 1) + '시 ' + m + '분');
+    var o = mc(right, pool);
+    return { q: '지금은 몇 시 몇 분일까요?', visual: { clock: [h, m] }, choices: o.choices, answer: o.answer,
+      hint: '긴바늘이 가리키는 숫자에 5를 곱해요.' };
+  };
+
+  // 색깔 영어 — 듣고 말하기가 목표라 철자가 아니라 낱말을 고르게 한다.
+  var COLORS = [
+    ['red','🍎','빨강'], ['blue','🫐','파랑'], ['yellow','🍋','노랑'], ['green','🥦','초록'],
+    ['black','🖤','검정'], ['white','🤍','하양'], ['orange','🍊','주황'], ['purple','🍇','보라'],
+    ['pink','🌸','분홍'], ['brown','🐻','갈색']
+  ];
+  G.color = function () {
+    var it = pick(COLORS);
+    if (Math.random() < 0.5) {
+      var o = mc(it[0], COLORS.map(function (x) { return x[0]; }));
+      return { q: '‘' + it[2] + '’ 은 영어로?', visual: { emoji: it[1] }, choices: o.choices, answer: o.answer };
+    }
+    var o2 = mc(it[2], COLORS.map(function (x) { return x[2]; }));
+    return { q: '‘' + it[0] + '’ 은 무슨 색일까요?', visual: { emoji: it[1] }, choices: o2.choices, answer: o2.answer };
+  };
+
+  // 숫자 영어 1~20 — 13~19의 -teen 규칙을 몸으로 익히게 한다.
+  var NUMEN = ['zero','one','two','three','four','five','six','seven','eight','nine','ten',
+    'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
+  G.numen = function () {
+    var n = 1 + rnd(20);
+    if (Math.random() < 0.5) {
+      var o = mc(NUMEN[n], NUMEN.slice(1));
+      return { q: '숫자 ' + n + ' 을 영어로?', visual: { big: String(n) }, choices: o.choices, answer: o.answer };
+    }
+    var o2 = mc(String(n), NUMEN.slice(1).map(function (_, i) { return String(i + 1); }));
+    return { q: '‘' + NUMEN[n] + '’ 은 몇일까요?', choices: o2.choices, answer: o2.answer,
+      hint: n >= 13 && n <= 19 ? '-teen 으로 끝나면 십몇이에요.' : undefined };
+  };
+
+  /* ---------- 캔버스 그림 ---------- */
+  function drawClock(box, h, m) {
+    var size = 220;
+    var cv = document.createElement('canvas');
+    var dpr = window.devicePixelRatio || 1;
+    cv.width = size * dpr; cv.height = size * dpr;
+    cv.style.width = size + 'px'; cv.style.height = size + 'px';
+    var x = cv.getContext('2d');
+    x.scale(dpr, dpr);
+    var cs = getComputedStyle(document.body);
+    var ink = cs.getPropertyValue('--fg-strong').trim() || '#111';
+    var acc = cs.getPropertyValue('--accent').trim() || '#c9a227';
+    var face = cs.getPropertyValue('--bg-elev').trim() || '#fff';
+    var c = size / 2, r = size / 2 - 8;
+    x.fillStyle = face; x.beginPath(); x.arc(c, c, r, 0, Math.PI * 2); x.fill();
+    x.strokeStyle = ink; x.lineWidth = 3; x.stroke();
+    x.fillStyle = ink; x.font = 'bold 17px ' + (cs.fontFamily || 'sans-serif');
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    for (var i = 1; i <= 12; i++) {
+      var a = (i / 12) * Math.PI * 2 - Math.PI / 2;
+      x.fillText(String(i), c + Math.cos(a) * (r - 22), c + Math.sin(a) * (r - 22));
+      x.beginPath();
+      x.moveTo(c + Math.cos(a) * (r - 6), c + Math.sin(a) * (r - 6));
+      x.lineTo(c + Math.cos(a) * (r - 11), c + Math.sin(a) * (r - 11));
+      x.lineWidth = 2; x.strokeStyle = ink; x.stroke();
+    }
+    var ha = ((h % 12) + m / 60) / 12 * Math.PI * 2 - Math.PI / 2;
+    var ma = (m / 60) * Math.PI * 2 - Math.PI / 2;
+    x.lineCap = 'round';
+    x.strokeStyle = ink; x.lineWidth = 7;
+    x.beginPath(); x.moveTo(c, c); x.lineTo(c + Math.cos(ha) * (r * 0.5), c + Math.sin(ha) * (r * 0.5)); x.stroke();
+    x.strokeStyle = acc; x.lineWidth = 4;
+    x.beginPath(); x.moveTo(c, c); x.lineTo(c + Math.cos(ma) * (r * 0.74), c + Math.sin(ma) * (r * 0.74)); x.stroke();
+    x.fillStyle = ink; x.beginPath(); x.arc(c, c, 5, 0, Math.PI * 2); x.fill();
+    box.appendChild(cv);
+  }
+
+  function drawShape(box, kind) {
+    var size = 180;
+    var cv = document.createElement('canvas');
+    var dpr = window.devicePixelRatio || 1;
+    cv.width = size * dpr; cv.height = size * dpr;
+    cv.style.width = size + 'px'; cv.style.height = size + 'px';
+    var x = cv.getContext('2d');
+    x.scale(dpr, dpr);
+    var cs = getComputedStyle(document.body);
+    var acc = cs.getPropertyValue('--accent').trim() || '#c9a227';
+    var ink = cs.getPropertyValue('--fg-strong').trim() || '#111';
+    x.fillStyle = acc; x.strokeStyle = ink; x.lineWidth = 3;
+    if (kind === 'circle') {
+      x.beginPath(); x.arc(90, 90, 66, 0, Math.PI * 2); x.fill(); x.stroke();
+    } else if (kind === 'tri') {
+      x.beginPath(); x.moveTo(90, 20); x.lineTo(160, 155); x.lineTo(20, 155); x.closePath(); x.fill(); x.stroke();
+    } else {
+      x.beginPath(); x.rect(25, 25, 130, 130); x.fill(); x.stroke();
+    }
+    box.appendChild(cv);
+  }
+
+  /* ---------- 퀴즈 실행기 ---------- */
+  var PRAISE = ['정답이야! 🎉', '와, 맞았어! ⭐', '잘했어! 👏', '멋지다! 💫', '역시! 🌟', '척척박사! 🧠'];
+  var RETRY = ['아쉬워요. 정답은 ', '다시 한 번! 정답은 ', '괜찮아요. 정답은 '];
+
+  function startPractice(el) {
+    var kind = el.getAttribute('data-kind');
+    var topicKey = el.getAttribute('data-topic') || kind;
+    var qEl = el.querySelector('[data-q]');
+    var cEl = el.querySelector('[data-choices]');
+    var fEl = el.querySelector('[data-feedback]');
+    var pEl = el.querySelector('[data-progress]');
+    var sEl = el.querySelector('[data-score]');
+    var vEl = el.querySelector('[data-visual]');
+    if (!qEl) return;
+
+    var items = null;
+    if (kind === 'quiz') {
+      try { items = shuffle(JSON.parse(el.getAttribute('data-quiz') || '[]')); } catch (e) { items = []; }
+    }
+    var total = kind === 'quiz' ? Math.min(items.length, 8) : 8;
+    var idx = 0, score = 0, cur = null, locked = false;
+
+    function next() {
+      if (idx >= total) return finish();
+      locked = false;
+      fEl.textContent = ''; fEl.className = 'pr-feedback';
+      pEl.textContent = '문제 ' + (idx + 1) + ' / ' + total;
+      sEl.textContent = '⭐ ' + score;
+      if (kind === 'quiz') {
+        var it = items[idx];
+        cur = { q: it.q, choices: it.choices, answer: it.answer, hint: it.hint };
+      } else {
+        cur = G[kind] ? G[kind]() : { q: '준비 중입니다.', choices: ['확인'], answer: 0 };
+      }
+      vEl.innerHTML = '';
+      if (cur.visual) {
+        if (cur.visual.emoji) {
+          var d = document.createElement('div'); d.className = 'pr-emoji'; d.textContent = cur.visual.emoji; vEl.appendChild(d);
+        } else if (cur.visual.big) {
+          var b = document.createElement('div'); b.className = 'pr-big'; b.textContent = cur.visual.big; vEl.appendChild(b);
+        } else if (cur.visual.clock) {
+          drawClock(vEl, cur.visual.clock[0], cur.visual.clock[1]);
+        } else if (cur.visual.shape) {
+          drawShape(vEl, cur.visual.shape);
+        }
+      }
+      qEl.textContent = cur.q;
+      cEl.innerHTML = '';
+      cur.choices.forEach(function (label, i) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pr-choice';
+        btn.textContent = label;
+        // 자가 테스트에서만 정답 버튼에 표시를 남긴다(평소에는 DOM 에 정답이 없다).
+        if (TESTMODE && i === cur.answer) btn.setAttribute('data-correct', '1');
+        btn.addEventListener('click', function () { answer(i, btn); });
+        cEl.appendChild(btn);
+      });
+    }
+
+    function answer(i, btn) {
+      if (locked) return;
+      locked = true;
+      var right = i === cur.answer;
+      var all = cEl.querySelectorAll('.pr-choice');
+      all.forEach(function (b, j) {
+        b.disabled = true;
+        if (j === cur.answer) b.classList.add('right');
+      });
+      if (right) {
+        score++;
+        // ★3문제를 맞히면 그 단계가 끝난 것으로 본다(수동 체크를 기대하지 않는다).
+        // `data-topic` 은 이미 `과목슬러그:주제id` 다(LearnSubject.astro 가 그렇게 넘긴다).
+        if (score === 3) markStep(el.getAttribute('data-topic'));
+        addStars(1);
+        fEl.textContent = pick(PRAISE);
+        fEl.className = 'pr-feedback good';
+      } else {
+        btn.classList.add('wrong');
+        fEl.textContent = pick(RETRY) + '‘' + cur.choices[cur.answer] + '’ 이에요.' + (cur.hint ? ' ' + cur.hint : '');
+        fEl.className = 'pr-feedback bad';
+      }
+      sEl.textContent = '⭐ ' + score;
+      idx++;
+      setTimeout(next, right ? 900 : 2200);
+    }
+
+    function finish() {
+      markDone(topicKey, score, total);
+      vEl.innerHTML = '';
+      var pct = score / total;
+      var msg = pct === 1 ? '전부 다 맞혔어요! 완벽해요 🏆'
+        : pct >= 0.7 ? '아주 잘했어요! 👏'
+        : pct >= 0.4 ? '좋아요, 조금만 더! 💪'
+        : '괜찮아요. 영상을 다시 보고 도전해 볼까요? 🎬';
+      qEl.textContent = total + '문제 중 ' + score + '개를 맞혔어요!';
+      cEl.innerHTML = '';
+      fEl.textContent = msg;
+      fEl.className = 'pr-feedback done';
+      pEl.textContent = '완료';
+    }
+
+    el.querySelector('[data-restart]').addEventListener('click', function () {
+      idx = 0; score = 0; next();
+    });
+    next();
+  }
+
+  /* ---------- 그림일기 도우미 ---------- */
+  function initDiary(el) {
+    var out = el.querySelector('[data-diary-out]');
+    function make() {
+      var g = function (k) { var n = el.querySelector('[data-d="' + k + '"]'); return n ? n.value.trim() : ''; };
+      var what = g('what') || '(무엇을 했는지 적어 보세요)';
+      var d = new Date();
+      var line1 = d.getMonth() + 1 + '월 ' + d.getDate() + '일 ' + ['일','월','화','수','목','금','토'][d.getDay()] + '요일  날씨: ' + g('weather');
+      var line2 = g('when') + ' ' + g('where') + ' ' + g('who') + ' ' + what + '.';
+      var line3 = g('feel') + '.';
+      out.textContent = line1 + '\n\n' + line2 + '\n' + line3;
+    }
+    el.querySelector('[data-diary-make]').addEventListener('click', make);
+    el.querySelector('[data-diary-copy]').addEventListener('click', function () {
+      if (!out.textContent) make();
+      var btn = el.querySelector('[data-diary-copy]');
+      var done = function () { btn.textContent = '복사했어요 ✓'; setTimeout(function () { btn.textContent = '복사하기'; }, 1500); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(out.textContent).then(done, function () {});
+      }
+    });
+  }
+
+  /* ---------- 홈: 이름 · 별 · 오늘의 추천 ---------- */
+  function initHome() {
+    var host = document.querySelector('[data-learn-home]');
+    if (!host) return;
+    var greet = host.querySelector('[data-greet]');
+    var form = host.querySelector('[data-name-form]');
+    var input = host.querySelector('[data-name-input]');
+    var s = load();
+
+    // 호격 조사: 받침이 있으면 '아', 없으면 '야'. (민준아 / 유자야)
+    function callName(n) {
+      var last = n.charAt(n.length - 1);
+      var d = decompose(last);
+      if (!d) return n + '아';
+      return n + (d.jong ? '아' : '야');
+    }
+
+    // ★첫 방문에 이름을 물어보지 않고 바로 인사한다 — 이 페이지는 유진이를 위해 만든 것이다.
+    //   ⚠️이름은 여전히 **localStorage 에만** 있고 서버로 나가지 않는다. 다른 아이가 열면
+    //     이름을 바꿔 쓰면 되도록 입력창은 그대로 둔다.
+    //   ⚠️`<title>`·메타 설명에는 넣지 않았다 — 이 페이지는 색인 대상이라 검색 결과에
+    //     아이 이름이 노출되는 것과 화면에 보이는 것은 다른 문제다.
+    (function seedName() {
+      var st = load();
+      if (!st.name && !st.nameCleared) { st.name = '유진'; save(st); }
+    })();
+
+    function paintGreet() {
+      var st = load();
+      if (st.name) {
+        greet.textContent = callName(st.name) + ', 안녕! 오늘도 같이 공부해 볼까?';
+        form.hidden = true;
+      } else {
+        greet.textContent = '안녕! 오늘은 뭘 배워 볼까?';
+        form.hidden = false;
+      }
+    }
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var v = (input.value || '').trim().slice(0, 12);
+        if (!v) return;
+        var st = load(); st.name = v; save(st);
+        paintGreet();
+      });
+    }
+    paintGreet();
+
+    var recBox = host.querySelector('[data-rec]');
+    var roll = host.querySelector('[data-rec-roll]');
+    var pool = [];
+    try { pool = JSON.parse(host.getAttribute('data-topics') || '[]'); } catch (e) { pool = []; }
+    function paintRec() {
+      if (!recBox || !pool.length) return;
+      var t = pick(pool);
+      recBox.innerHTML = '';
+      var a = document.createElement('a');
+      a.className = 'rec-card';
+      a.href = t.url;
+      a.innerHTML = '<span class="rec-emoji">' + t.emoji + '</span>' +
+        '<span class="rec-body"><span class="rec-subject">' + t.subject + ' · ' + t.term + '</span>' +
+        '<strong class="rec-title">' + t.title + '</strong>' +
+        '<span class="rec-goal">' + t.goal + '</span></span>';
+      recBox.appendChild(a);
+    }
+    if (roll) roll.addEventListener('click', paintRec);
+    paintRec();
+  }
+
+  /* ---------- 자가 테스트 (`?test=learn`) ----------
+     문제 생성기는 무작위라 눈으로 한 번 본 것만으로는 검증이 안 된다.
+     각 생성기를 400번씩 돌려 “정답이 보기 안에 있고, 보기가 겹치지 않고,
+     빈 값이 없다”를 확인한다. 결과는 #learn-test 와 document.title 에 찍힌다. */
+  function selfTest() {
+    var fails = [];
+    var kinds = Object.keys(G);
+    kinds.forEach(function (k) {
+      for (var i = 0; i < 400; i++) {
+        var r;
+        try { r = G[k](); } catch (e) { fails.push(k + ': 예외 ' + e.message); break; }
+        if (!r || !r.q) { fails.push(k + ': 문제 문장 없음'); break; }
+        if (!r.choices || r.choices.length < 2) { fails.push(k + ': 보기 부족'); break; }
+        if (typeof r.answer !== 'number' || r.answer < 0 || r.answer >= r.choices.length) {
+          fails.push(k + ': answer 범위 오류 (' + r.answer + '/' + r.choices.length + ')'); break;
+        }
+        var bad = r.choices.some(function (c) { return c === undefined || c === null || String(c).trim() === ''; });
+        if (bad) { fails.push(k + ': 빈 보기 — ' + JSON.stringify(r.choices)); break; }
+        var uniq = {}, dup = false;
+        r.choices.forEach(function (c) { if (uniq[c]) dup = true; uniq[c] = 1; });
+        if (dup) { fails.push(k + ': 보기 중복 — ' + JSON.stringify(r.choices)); break; }
+        if (/undefined|NaN/.test(r.q + r.choices.join(''))) { fails.push(k + ': undefined/NaN — ' + r.q); break; }
+      }
+    });
+    // 한글 조합/분해 왕복 검사
+    ['강','밥','산','물','곰','가','뷁'].forEach(function (ch) {
+      var d = decompose(ch);
+      if (!d) return;
+      if (compose(d.cho, d.jung, d.jong) !== ch) fails.push('한글조합: ' + ch + ' 왕복 실패');
+    });
+    // 실제 클릭 한 번까지 확인한다(렌더 → 정답 클릭 → 별 증가 → 다음 문제).
+    var w = document.querySelector('.practice:not([data-kind="diary"])');
+    if (w) {
+      var before = (load().stars || 0);
+      var target = w.querySelector('.pr-choice[data-correct]');
+      if (!target) fails.push('상호작용: 문제가 렌더되지 않았거나 정답 버튼을 못 찾음');
+      else {
+        target.click();
+        var fb = w.querySelector('[data-feedback]');
+        if (!fb || fb.className.indexOf('good') < 0) fails.push('상호작용: 정답인데 칭찬이 안 나옴');
+        if ((load().stars || 0) !== before + 1) fails.push('상호작용: 별이 늘지 않음');
+        if (w.querySelector('[data-score]').textContent.indexOf('1') < 0) fails.push('상호작용: 점수 표시 안 됨');
+      }
+    } else if (document.querySelector('[data-learn-home]')) {
+      // 목차 페이지에는 연습 위젯이 없다 — 대신 '오늘의 추천'이 그려졌는지 본다.
+      var rec = document.querySelector('[data-rec] .rec-card');
+      if (!rec || !rec.getAttribute('href')) fails.push('홈: 오늘의 추천 카드가 그려지지 않음');
+      var g = document.querySelector('[data-greet]');
+      if (!g || !g.textContent.trim()) fails.push('홈: 인사말이 비어 있음');
+    } else {
+      fails.push('상호작용: 이 페이지에 연습 위젯도 홈 위젯도 없음');
+    }
+    // 그림일기 도우미(있는 페이지에서만)
+    var dia = document.querySelector('.practice[data-kind="diary"]');
+    if (dia) {
+      dia.querySelector('[data-diary-make]').click();
+      if (!(dia.querySelector('[data-diary-out]').textContent || '').trim()) fails.push('그림일기: 문장이 만들어지지 않음');
+    }
+
+    // 가로 넘침 — 좁은 화면에서 본문이 잘리는 걸 사람 눈보다 먼저 잡는다.
+    var over = document.documentElement.scrollWidth - window.innerWidth;
+    if (over > 1) fails.push('레이아웃: 가로로 ' + over + 'px 넘침 (뷰포트 ' + window.innerWidth + 'px)');
+
+    var out = document.createElement('pre');
+    out.id = 'learn-test';
+    out.style.cssText = 'padding:20px;white-space:pre-wrap;font-size:14px';
+    out.textContent = fails.length
+      ? 'LEARN-TEST FAIL (' + fails.length + ')\n' + fails.join('\n')
+      : 'LEARN-TEST PASS — 생성기 ' + kinds.length + '종 × 400회 + 클릭/별/그림일기 확인 (뷰포트 ' + window.innerWidth + 'px)';
+    document.title = fails.length ? 'LEARN-TEST FAIL' : 'LEARN-TEST PASS';
+    document.body.insertBefore(out, document.body.firstChild);
+  }
+
+  /* ---------- 시작 ---------- */
+  function boot() {
+    document.querySelectorAll('.practice').forEach(function (el) {
+      if (el.getAttribute('data-kind') === 'diary') initDiary(el);
+      else startPractice(el);
+    });
+    initHome();
+    paintStars();
+    paintCourse();
+    // ⚠️자가 테스트는 위젯이 다 그려진 **뒤에** 돌아야 클릭 검사를 할 수 있다.
+    if (TESTMODE) selfTest();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>

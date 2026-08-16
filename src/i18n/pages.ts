@@ -148,6 +148,9 @@ function contact(lang: Lang): PageCopy {
         <p>Tech Decode is an independent publication written by <strong>menew</strong>, and we take accuracy seriously. If you spot an error in an article, have a question about our analysis, or want to suggest a topic, please email us:</p>
         <p style="font-size:1.15rem;"><strong><a href="mailto:${EMAIL}">${EMAIL}</a></strong></p>
         <p>We read every message. For corrections, please include the article title and a link if you can — we update pieces when the facts warrant it and note significant changes.</p>
+        <h2>Shop listings</h2>
+        <p>Our <a href="${p.shops}">shop pages</a> are independent write-ups compiled from public sources. They are not official pages, and the shops did not ask us to make them.</p>
+        <p>If a price, opening time or menu item is wrong, tell us and we will check it and re-date the page. <strong>And if you run the shop and would rather the page did not exist, just say so — we will take it down, and we will not ask why.</strong></p>
         <h2>What we can't do</h2>
         <p>We can't offer personalized financial, investment, or legal advice. Everything we publish is general analysis for information only. Please see our <a href="${p.about}">About</a> and <a href="${p.privacy}">Privacy Policy</a> pages for more.</p>
       `,
@@ -178,6 +181,9 @@ function contact(lang: Lang): PageCopy {
         <p>Tech Decodeは<strong>menew</strong>が執筆する独立系メディアであり、正確性を重視しています。記事の誤りを見つけた場合、分析について質問がある場合、取り上げてほしいテーマがある場合は、メールでお知らせください:</p>
         <p style="font-size:1.15rem;"><strong><a href="mailto:${EMAIL}">${EMAIL}</a></strong></p>
         <p>いただいたメッセージはすべて読んでいます。訂正のご指摘には、可能であれば記事タイトルとリンクを添えてください — 事実関係に応じて記事を更新し、重要な変更は明記します。</p>
+        <h2>店舗紹介ページについて</h2>
+        <p><a href="${p.shops}">店舗ページ</a>は公開情報をもとに独自にまとめた紹介ページです。公式ページではなく、店舗から依頼を受けて作成したものでもありません。</p>
+        <p>価格・営業時間・メニューに誤りがあればお知らせください。確認のうえ修正し、確認日を更新します。<strong>また、店舗関係者の方で掲載をご希望されない場合は、お知らせいただくだけで結構です。理由を伺うことなく取り下げます。</strong></p>
         <h2>できないこと</h2>
         <p>個別の財務・投資・法律アドバイスは提供できません。私たちが公開するものはすべて、情報提供のみを目的とした一般的な分析です。詳しくは<a href="${p.about}">概要</a>および<a href="${p.privacy}">プライバシーポリシー</a>ページをご覧ください。</p>
       `,
@@ -191,6 +197,9 @@ function contact(lang: Lang): PageCopy {
         <p>Tech Decode es una publicación independiente escrita por <strong>menew</strong>, y nos tomamos la precisión en serio. Si detectas un error en un artículo, tienes una pregunta sobre nuestro análisis o quieres sugerir un tema, escríbenos a:</p>
         <p style="font-size:1.15rem;"><strong><a href="mailto:${EMAIL}">${EMAIL}</a></strong></p>
         <p>Leemos todos los mensajes. Para correcciones, incluye el título del artículo y un enlace si puedes — actualizamos las piezas cuando los hechos lo justifican y señalamos los cambios importantes.</p>
+        <h2>Fichas de locales</h2>
+        <p>Nuestras <a href="${p.shops}">fichas de locales</a> son reseñas independientes elaboradas a partir de fuentes públicas. No son páginas oficiales y los locales no nos pidieron que las hiciéramos.</p>
+        <p>Si un precio, un horario o un plato no es correcto, dínoslo: lo comprobamos y actualizamos la fecha de verificación. <strong>Y si regentas el local y prefieres que la página no exista, solo tienes que decirlo: la retiramos sin preguntar por qué.</strong></p>
         <h2>Lo que no podemos hacer</h2>
         <p>No podemos ofrecer asesoramiento financiero, de inversión o legal personalizado. Todo lo que publicamos es análisis general con fines informativos. Consulta nuestras páginas de <a href="${p.about}">Sobre nosotros</a> y <a href="${p.privacy}">Política de privacidad</a> para más información.</p>
       `,
@@ -204,6 +213,9 @@ function contact(lang: Lang): PageCopy {
         <p>Tech Decode 是由 <strong>menew</strong> 撰写的独立媒体,我们非常重视准确性。如果你在文章中发现错误、对我们的分析有疑问,或想建议一个话题,请发邮件告诉我们:</p>
         <p style="font-size:1.15rem;"><strong><a href="mailto:${EMAIL}">${EMAIL}</a></strong></p>
         <p>我们会阅读每一条消息。如需更正,请尽量附上文章标题和链接——我们会在事实需要时更新文章,并标注重大改动。</p>
+        <h2>关于店铺介绍页</h2>
+        <p>我们的<a href="${p.shops}">店铺页面</a>是根据公开资料独立整理的介绍页,并非官方页面,也不是店家委托我们制作的。</p>
+        <p>若价格、营业时间或菜品有误,请告知我们,我们会核实更正并更新核实日期。<strong>如果您是店家且不希望该页面继续展示,只需告知我们即可——我们会立即撤下,且不会追问原因。</strong></p>
         <h2>我们做不到的事</h2>
         <p>我们无法提供个性化的财务、投资或法律建议。我们发布的一切内容都只是用于信息参考的一般性分析。更多信息请参阅<a href="${p.about}">关于我们</a>和<a href="${p.privacy}">隐私政策</a>页面。</p>
       `,

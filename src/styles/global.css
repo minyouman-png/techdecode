@@ -207,7 +207,11 @@ a.cat:hover { text-decoration: underline; }
 .site-footer { border-top: 1px solid var(--border-soft); padding: 40px 0; margin-top: 20px; }
 .foot-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .foot-brand { font-family: var(--serif); font-size: 18px; color: var(--fg-strong); }
-.site-footer .links { display: flex; gap: 20px; }
+/* ⚠️`flex-wrap` 이 없어 링크 7개가 한 줄로 뻗어 **320px 화면에서 가로 스크롤**이 났다
+   (2026-08-16 `/learn/` 자가검증에서 발견 — 학습 페이지가 아니라 전역 푸터 문제였다).
+   좁은 화면에서는 줄바꿈하고 가운데로 모은다. */
+.site-footer .links { display: flex; flex-wrap: wrap; gap: 12px 20px; min-width: 0; }
+@media (max-width: 420px) { .site-footer .links { justify-content: center; } }
 .site-footer .links a { color: var(--muted); font-size: 14px; }
 .site-footer .links a:hover { color: var(--fg-strong); }
 .foot-note { color: var(--faint); font-size: 13px; margin: 18px 0 0; }

@@ -1,0 +1,12 @@
+---
+// ⚠️학습 코너는 **한국어 전용**이라 `[lang]/learn/` 라우트를 만들지 않는다.
+//   (기본 언어가 ko 라서 `/learn/…` 이 곧 한국어 주소다 — astro.config 의 defaultLocale 참고)
+import LearnSubject from '../../components/LearnSubject.astro';
+import { subjects } from '../../i18n/learn';
+
+export function getStaticPaths() {
+  return subjects.map((subject) => ({ params: { slug: subject.slug }, props: { subject } }));
+}
+const { subject } = Astro.props;
+---
+<LearnSubject subject={subject} />

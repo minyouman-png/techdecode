@@ -166,7 +166,8 @@ const jsonLd = {
               <span class="shop-place">{card.location}</span>
             </a>
             <div class="shop-body">
-              <p class="shop-meta">{card.trade} · {s.sinceLabel} {card.since}</p>
+              {/* ⚠️개업연도가 없는 가게가 있다 → 구분점까지 같이 빼야 '막국수 · 개업' 이 안 남는다. */}
+              <p class="shop-meta">{card.trade}{card.since ? ` · ${s.sinceLabel} ${card.since}` : ''}</p>
               <h3><a href={card.url}>{card.name}</a></h3>
               <p class="shop-tagline">{card.tagline}</p>
               <a class="shop-more" href={card.url}>{t('dir_view')}<span>→</span></a>

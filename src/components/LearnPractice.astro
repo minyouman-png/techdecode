@@ -1,0 +1,131 @@
+---
+// 연습 문제 위젯의 껍데기. 실제 문제 생성/채점은 LearnScripts.astro 의 엔진이 한다.
+// (엔진 스크립트는 페이지당 한 번만 들어가고, 이 컴포넌트는 여러 번 들어갈 수 있다.)
+import type { PracticeKind, QuizItem } from '../i18n/learn';
+
+interface Props {
+  kind: PracticeKind;
+  /** 진행도 저장 키 (과목슬러그:주제id) */
+  topicKey: string;
+  /** kind === 'quiz' 일 때 쓰는 문제 목록 */
+  quiz?: QuizItem[];
+}
+const { kind, topicKey, quiz } = Astro.props;
+---
+<div class="practice" data-kind={kind} data-topic={topicKey} data-quiz={quiz ? JSON.stringify(quiz) : undefined}>
+  {kind === 'diary' ? (
+    <div class="pr-diary">
+      <p class="pr-diary-lead">칸을 채우면 그림일기 문장이 만들어져요. 완성한 문장을 공책에 옮겨 적어 보세요.</p>
+      <div class="pr-diary-grid">
+        <label>언제<select data-d="when"><option>아침에</option><option>학교에서</option><option>점심에</option><option>학교 끝나고</option><option>저녁에</option><option>주말에</option></select></label>
+        <label>어디서<select data-d="where"><option>교실에서</option><option>운동장에서</option><option>집에서</option><option>놀이터에서</option><option>할머니 댁에서</option><option>학원에서</option></select></label>
+        <label>누구와<select data-d="who"><option>친구와</option><option>엄마와</option><option>아빠와</option><option>동생과</option><option>선생님과</option><option>혼자</option></select></label>
+        <label>무엇을<input data-d="what" type="text" placeholder="예: 그림을 그렸다" maxlength="30" /></label>
+        <label>기분은<select data-d="feel"><option>정말 즐거웠다</option><option>조금 힘들었다</option><option>깜짝 놀랐다</option><option>참 뿌듯했다</option><option>많이 웃었다</option><option>조금 아쉬웠다</option></select></label>
+        <label>날씨<select data-d="weather"><option>맑음 ☀️</option><option>흐림 ☁️</option><option>비 🌧️</option><option>눈 ❄️</option><option>바람 🌬️</option></select></label>
+      </div>
+      <div class="pr-diary-out" data-diary-out aria-live="polite"></div>
+      <div class="pr-diary-actions">
+        <button type="button" class="pr-btn" data-diary-make>문장 만들기 ✏️</button>
+        <button type="button" class="pr-btn ghost" data-diary-copy>복사하기</button>
+      </div>
+    </div>
+  ) : (
+    <>
+      <div class="pr-head">
+        <span class="pr-progress" data-progress>문제 1 / 8</span>
+        <span class="pr-score" data-score>⭐ 0</span>
+      </div>
+      <div class="pr-visual" data-visual></div>
+      <p class="pr-q" data-q>준비 중…</p>
+      <div class="pr-choices" data-choices></div>
+      <p class="pr-feedback" data-feedback aria-live="polite"></p>
+      <div class="pr-foot">
+        <button type="button" class="pr-btn ghost" data-restart>처음부터 다시 ↺</button>
+      </div>
+    </>
+  )}
+</div>
+
+<style is:global>
+  /* 연습 위젯 — 1학년이 손가락으로 누르는 곳이라 버튼을 크게 잡았다. */
+  .practice {
+    margin: 18px 0 4px;
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--accent) 5%, var(--bg-elev));
+    padding: 20px;
+  }
+  .pr-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .pr-progress { font-size: 13px; color: var(--muted); font-weight: 600; letter-spacing: 0.02em; }
+  .pr-score { font-size: 15px; font-weight: 700; color: var(--accent); }
+  .pr-visual { text-align: center; min-height: 0; }
+  .pr-visual:not(:empty) { margin-bottom: 14px; }
+  .pr-visual .pr-emoji {
+    font-size: clamp(1.8rem, 6vw, 2.6rem); line-height: 1.5; letter-spacing: 6px;
+    word-break: break-all;
+  }
+  .pr-visual .pr-big {
+    font-family: var(--serif); font-size: clamp(2.6rem, 11vw, 4.4rem); font-weight: 600;
+    color: var(--fg-strong); line-height: 1.1;
+    /* ⚠️생성기가 무엇을 넣든 넘치지 않게 막는다 — 2026-08-16 에 문장을 넣어 320px 가로 넘침이 났다. */
+    overflow-wrap: anywhere; max-width: 100%;
+  }
+  .pr-visual canvas { max-width: 100%; height: auto; }
+  .pr-q {
+    font-size: clamp(1.05rem, 3.4vw, 1.35rem); font-weight: 600; color: var(--fg-strong);
+    text-align: center; margin: 0 0 16px; line-height: 1.5;
+    /* 문제에 줄바꿈(\n)이 들어오는 유형이 있다(수 배열·문장 부호). */
+    white-space: pre-line;
+  }
+  .pr-choices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  /* 아주 좁은 화면에서는 2열이 문장 보기를 감당하지 못한다 → 1열로 내린다. */
+  @media (max-width: 360px) { .pr-choices { grid-template-columns: 1fr; } }
+  .pr-choice {
+    font-family: inherit; font-size: clamp(1rem, 3.2vw, 1.15rem); font-weight: 600;
+    /* 보기가 문장인 유형(문장 만들기·안전 퀴즈)이 있어 줄바꿈을 허용한다. */
+    overflow-wrap: anywhere; min-width: 0;
+    padding: 16px 12px; min-height: 60px;
+    border: 2px solid var(--border); border-radius: 12px;
+    background: var(--bg-elev); color: var(--fg-strong);
+    cursor: pointer; transition: transform .1s ease, border-color .15s ease, background .15s ease;
+  }
+  .pr-choice:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-2px); }
+  .pr-choice:disabled { cursor: default; opacity: 0.55; }
+  .pr-choice.right { border-color: #2fa36b; background: color-mix(in srgb, #2fa36b 18%, var(--bg-elev)); opacity: 1; }
+  .pr-choice.wrong { border-color: #d0555b; background: color-mix(in srgb, #d0555b 14%, var(--bg-elev)); opacity: 1; }
+  .pr-feedback { text-align: center; min-height: 28px; margin: 14px 0 0; font-weight: 600; font-size: 1.02rem; }
+  .pr-feedback.good { color: #2fa36b; }
+  .pr-feedback.bad { color: #d0555b; }
+  .pr-feedback.done { color: var(--accent); font-size: 1.1rem; }
+  .pr-foot { display: flex; justify-content: center; margin-top: 12px; }
+  .pr-btn {
+    font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+    padding: 9px 18px; border-radius: 999px;
+    background: var(--accent); color: var(--accent-ink); border: 1px solid transparent;
+  }
+  .pr-btn.ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+  .pr-btn.ghost:hover { color: var(--fg-strong); border-color: var(--accent); }
+
+  /* 그림일기 도우미 */
+  .pr-diary-lead { margin: 0 0 14px; color: var(--muted); font-size: 0.95rem; }
+  .pr-diary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .pr-diary-grid label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+  .pr-diary-grid select, .pr-diary-grid input {
+    font-family: inherit; font-size: 15px; padding: 10px 12px;
+    border: 1px solid var(--border); border-radius: 10px;
+    background: var(--bg-elev); color: var(--fg-strong);
+  }
+  .pr-diary-out {
+    margin: 16px 0 0; padding: 16px; min-height: 40px;
+    border: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--border)); border-radius: 12px;
+    font-size: 1.08rem; line-height: 2; color: var(--fg-strong); white-space: pre-line;
+  }
+  .pr-diary-out:empty { display: none; }
+  .pr-diary-actions { display: flex; gap: 10px; justify-content: center; margin-top: 14px; }
+
+  @media (max-width: 480px) {
+    .practice { padding: 16px 14px; }
+    .pr-choices { grid-template-columns: 1fr; }
+  }
+</style>

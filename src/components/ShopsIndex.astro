@@ -37,7 +37,7 @@ const alternates = Object.fromEntries(
               <div class="game-card-body">
                 <div class="chips">
                   <span class="chip ai">{shop.region}</span>
-                  <span class="chip">{s.sinceLabel} {shop.since}</span>
+                  {shop.since && <span class="chip">{s.sinceLabel} {shop.since}</span>}
                 </div>
                 <h2><a href={shopUrl(shop.slug, lang)}>{c.name}</a></h2>
                 <p class="tagline">{c.tagline}</p>

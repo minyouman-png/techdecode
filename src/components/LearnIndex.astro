@@ -1,0 +1,316 @@
+---
+// 초등 1학년 학습 놀이터 — 목차 페이지 (`/learn/`). 한국어 전용.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LearnScripts from './LearnScripts.astro';
+import { learnUi, subjects, allTopics, countTopics, countVideos, subjectUrl, emphasize,
+  course, stepId, findTopic } from '../i18n/learn';
+
+const totalVideos = subjects.reduce((a, s) => a + countVideos(s), 0);
+const totalTopics = subjects.reduce((a, s) => a + countTopics(s), 0);
+
+// '오늘의 추천' 후보 — 클라이언트에서 하나를 뽑는다.
+const recPool = allTopics().map(({ subject, unit, topic }) => ({
+  emoji: subject.emoji,
+  subject: subject.title,
+  term: unit.term,
+  title: topic.title,
+  goal: emphasize(topic.goal),
+  url: `${subjectUrl(subject.slug)}#${topic.id}`,
+}));
+
+// 학습 과정 — 서버에서 주차·단계를 전부 펼쳐 두고, 브라우저는 '어디까지 했는지'만 칠한다.
+// ⚠️진도는 localStorage 에만 둔다(이름·별과 같은 원칙 — 아이 기록을 서버로 보내지 않는다).
+const courseData = course.map((w) => ({
+  no: w.no,
+  title: w.title,
+  goal: w.goal,
+  steps: w.steps.map((s) => {
+    const f = findTopic(s.subject, s.topic)!;
+    return {
+      id: stepId(s),
+      emoji: f.subject.emoji,
+      subject: f.subject.title,
+      title: f.topic.title,
+      goal: emphasize(f.topic.goal),
+      url: `${subjectUrl(s.subject)}#${s.topic}`,
+    };
+  }),
+}));
+const totalSteps = courseData.reduce((a, w) => a + w.steps.length, 0);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: learnUi.pageTitle,
+  description: learnUi.metaDescription,
+  inLanguage: 'ko',
+  educationalLevel: '초등학교 1학년',
+  teaches: subjects.map((s) => s.title).join(', '),
+  isAccessibleForFree: true,
+  provider: { '@type': 'Organization', name: 'MeNew Soft', url: 'https://menewsoft.com/' },
+  hasCourseInstance: {
+    '@type': 'CourseInstance',
+    courseMode: 'online',
+    courseWorkload: 'PT20M',
+  },
+};
+---
+<BaseLayout
+  lang="ko"
+  titleFull={`${learnUi.pageTitle} — 국어·수학·통합교과 무료 학습`}
+  description={learnUi.metaDescription}
+  alternates={{ ko: '/learn/' }}
+  jsonLd={jsonLd}
+>
+  <section class="learn-hero">
+    <div class="wrap">
+      <p class="kicker">{learnUi.kicker}</p>
+      <h1>{learnUi.pageTitle}</h1>
+      <p class="learn-lead">{learnUi.hero1}</p>
+      <p class="learn-lead">{learnUi.hero2}</p>
+      <p class="learn-stat">{subjects.length}과목 · {totalTopics}가지 주제 · 학습 영상 {totalVideos}개</p>
+
+      <div class="learn-home" data-learn-home data-topics={JSON.stringify(recPool)}>
+        <div class="home-top">
+          <p class="greet" data-greet>안녕! 오늘은 뭘 배워 볼까?</p>
+          <p class="stars">⭐ 모은 별 <strong data-total-stars>0</strong>개</p>
+        </div>
+        <form class="name-form" data-name-form hidden>
+          <label for="learn-name">{learnUi.namePrompt}</label>
+          <div class="name-row">
+            <input id="learn-name" type="text" maxlength="12" data-name-input placeholder={learnUi.namePlaceholder} autocomplete="off" />
+            <button type="submit" class="pr-btn">{learnUi.nameSave}</button>
+          </div>
+        </form>
+
+        <div class="rec-head">
+          <span class="rec-label">{learnUi.todayLabel}</span>
+          <button type="button" class="pr-btn ghost" data-rec-roll>{learnUi.todayNew}</button>
+        </div>
+        <div data-rec></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="learn-course" data-course={JSON.stringify(courseData)} data-total-steps={totalSteps}>
+    <div class="wrap">
+      <p class="section-label"><span data-course-title>학습 과정</span> · {course.length}주 {totalSteps}단계</p>
+      <p class="course-lead">
+        무엇부터 할지 고민하지 않아도 됩니다. <strong>다음 단계</strong>만 누르면 순서대로 이어집니다.
+      </p>
+
+      <div class="course-now" data-course-now hidden>
+        <div class="course-bar"><span data-course-fill></span></div>
+        <p class="course-progress"><strong data-course-done>0</strong> / {totalSteps}단계 마쳤어요</p>
+        <div data-course-next></div>
+      </div>
+
+      <details class="course-all">
+        <summary>전체 과정 보기 ({course.length}주)</summary>
+        <ol class="week-list">
+          {courseData.map((w) => (
+            <li class="week">
+              <div class="week-head">
+                <span class="week-no">{w.no}주</span>
+                <span class="week-title">{w.title}</span>
+              </div>
+              <p class="week-goal">{w.goal}</p>
+              <ul class="step-list">
+                {w.steps.map((s) => (
+                  <li class="step" data-step={s.id}>
+                    <a href={s.url}>
+                      <span class="step-check" aria-hidden="true">○</span>
+                      <span class="step-emoji">{s.emoji}</span>
+                      <span class="step-text"><b>{s.title}</b><em>{s.subject}</em></span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ol>
+      </details>
+    </div>
+  </section>
+
+  <section class="learn-subjects">
+    <div class="wrap">
+      <p class="section-label">{learnUi.subjectsLabel}</p>
+      <div class="subject-grid">
+        {subjects.map((s) => (
+          <a class="subject-card" href={subjectUrl(s.slug)} style={`--card-hue:${s.hue}`}>
+            <span class="sc-emoji">{s.emoji}</span>
+            <span class="sc-body">
+              <span class="sc-label">{s.subjectLabel}</span>
+              <strong class="sc-title">{s.title}</strong>
+              <span class="sc-tag">{s.tagline}</span>
+              <span class="sc-meta">{learnUi.topicCount(countTopics(s))} · {learnUi.videoCount(countVideos(s))}</span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="learn-parents">
+    <div class="wrap">
+      <p class="section-label">{learnUi.parentsLabel}</p>
+      <div class="parents-box">
+        <p>
+          이 페이지는 <strong>2022 개정 교육과정</strong>(2024학년도부터 초등 1~2학년 적용) 기준으로 정리했습니다.
+          단원 이름과 순서는 교과서 출판사와 개정 시기에 따라 조금씩 다를 수 있으니, 학교 진도와 함께 참고해 주세요.
+        </p>
+        <p>
+          영상은 전부 <strong>유튜브 원본으로 연결되는 링크</strong>입니다. 이 사이트에 영상을 퍼오거나 저장하지 않고,
+          재생은 유튜브에서 이루어집니다. 채널 이름을 모두 표시해 두었으니 마음에 드는 채널은 직접 구독하셔도 좋습니다.
+          모든 링크는 게시 전에 실제로 열리는지 자동으로 확인했지만, 원저작자가 영상을 내리면 링크가 사라질 수 있습니다.
+        </p>
+        <p>
+          아이 이름과 모은 별은 <strong>이 브라우저 안에만</strong> 저장됩니다. 회원가입도, 서버 전송도 없습니다.
+          기기를 바꾸거나 브라우저 데이터를 지우면 기록도 함께 사라집니다.
+        </p>
+        <p class="parents-note">
+          하루 10~20분이면 충분합니다. 영상 한 편 보고, 아래 문제 몇 개를 같이 풀고, “오늘 뭐 배웠어?” 하고 물어봐 주세요.
+          그게 이 페이지가 할 수 있는 전부이자 가장 중요한 부분입니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <LearnScripts />
+</BaseLayout>
+
+<style>
+  /* ---------- 학습 과정 ---------- */
+  .learn-course { padding: 8px 0 4px; min-width: 0; }
+  .learn-course * { min-width: 0; }
+  .course-lead { margin: 6px 0 14px; color: #4b5563; line-height: 1.7; }
+  .course-now {
+    border: 2px solid #e5e7eb; border-radius: 16px; padding: 16px; background: #fff;
+  }
+  .course-bar {
+    height: 10px; border-radius: 999px; background: #eef2f7; overflow: hidden; margin-bottom: 8px;
+  }
+  .course-bar > span {
+    display: block; height: 100%; width: 0; border-radius: 999px;
+    background: linear-gradient(90deg, #f59e0b, #f97316); transition: width .4s ease;
+  }
+  .course-progress { margin: 0 0 12px; font-size: .95rem; color: #6b7280; }
+  .course-progress strong { color: #b45309; font-size: 1.15rem; }
+  .next-card {
+    display: grid; gap: 4px; min-width: 0; overflow-wrap: anywhere; padding: 16px; border-radius: 14px; text-decoration: none;
+    background: linear-gradient(135deg, #fff7ed, #fffbeb); border: 2px solid #fcd34d; color: inherit;
+  }
+  .next-card:hover { border-color: #f59e0b; }
+  .next-card.done { background: #f0fdf4; border-color: #86efac; }
+  .next-label { font-size: .8rem; font-weight: 700; color: #b45309; letter-spacing: .02em; }
+  .next-title { font-size: 1.25rem; font-weight: 800; line-height: 1.35; }
+  .next-sub { font-size: .9rem; color: #6b7280; }
+  .next-goal { font-size: .92rem; color: #374151; line-height: 1.6; margin-top: 4px; }
+  .next-go { margin-top: 6px; font-weight: 700; color: #b45309; }
+
+  .course-all { margin-top: 14px; }
+  .course-all > summary {
+    cursor: pointer; font-weight: 700; color: #4b5563; padding: 8px 2px;
+  }
+  .week-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 14px; }
+  .week { border-left: 3px solid #e5e7eb; padding-left: 12px; }
+  .week-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; min-width: 0; }
+  .week-title { min-width: 0; overflow-wrap: anywhere; }
+  .week-no {
+    font-size: .78rem; font-weight: 800; color: #fff; background: #f59e0b;
+    border-radius: 999px; padding: 2px 8px; flex: 0 0 auto;
+  }
+  .week-title { font-weight: 700; }
+  .week-goal { margin: 4px 0 8px; font-size: .9rem; color: #6b7280; line-height: 1.6; }
+  .step-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .step > a {
+    display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit;
+    padding: 8px 10px; border-radius: 10px; background: #f9fafb; border: 1px solid #eef2f7;
+    min-width: 0;
+  }
+  .step > a:hover { background: #fff7ed; border-color: #fcd34d; }
+  .step-check { color: #d1d5db; font-size: 1rem; }
+  .step.is-done > a { background: #f0fdf4; border-color: #bbf7d0; }
+  .step.is-done .step-check { color: #22c55e; }
+  .step.is-done .step-text b { color: #16a34a; }
+  .step-emoji { font-size: 1.1rem; }
+  /* ⚠️`min-width:0` 이 없으면 좁은 화면(320px)에서 글자가 밖으로 밀려 가로 스크롤이 생긴다
+     — 08-13 에 .toc-group 에서 똑같이 겪은 문제다. */
+  .step-text { display: flex; flex-direction: column; min-width: 0; }
+  .step-text b { font-weight: 700; font-size: .95rem; overflow-wrap: anywhere; }
+  .step-text em { font-style: normal; font-size: .78rem; color: #9ca3af; }
+
+  .learn-hero { padding: 64px 0 8px; }
+  .learn-hero h1 {
+    font-family: var(--serif); font-weight: 600; font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--fg-strong); margin: 0 0 18px; letter-spacing: -0.01em;
+  }
+  .learn-lead { max-width: var(--readw); color: var(--muted); font-size: 1.08rem; margin: 0 0 12px; }
+  .learn-stat { margin: 16px 0 0; font-size: 13px; color: var(--faint); letter-spacing: 0.02em; }
+
+  .learn-home {
+    margin-top: 30px; padding: 22px;
+    border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--border));
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--accent) 6%, var(--bg-elev));
+  }
+  .home-top { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: baseline; }
+  .greet { margin: 0; font-family: var(--serif); font-size: clamp(1.2rem, 3.6vw, 1.6rem); color: var(--fg-strong); font-weight: 600; }
+  .stars { margin: 0; color: var(--muted); font-size: 0.95rem; }
+  .stars strong { color: var(--accent); font-size: 1.15rem; }
+  .name-form { margin-top: 14px; }
+  .name-form label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .name-row { display: flex; gap: 8px; max-width: 380px; }
+  .name-row input {
+    flex: 1; font-family: inherit; font-size: 15px; padding: 10px 14px;
+    border: 1px solid var(--border); border-radius: 999px; background: var(--bg-elev); color: var(--fg-strong);
+  }
+  .rec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 22px 0 10px; }
+  .rec-label { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--faint); font-weight: 700; }
+
+  .subject-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+  .subject-card {
+    display: flex; gap: 16px; align-items: flex-start; color: inherit;
+    padding: 22px 20px; border-radius: 16px;
+    border: 1px solid var(--border);
+    background: linear-gradient(160deg, hsl(var(--card-hue) 60% 50% / 0.10), transparent 70%), var(--bg-elev);
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .subject-card:hover {
+    transform: translateY(-3px); color: inherit;
+    border-color: hsl(var(--card-hue) 60% 50% / 0.55);
+    box-shadow: 0 12px 30px hsl(var(--card-hue) 60% 50% / 0.14);
+  }
+  .sc-emoji { font-size: 2.2rem; line-height: 1; flex: none; }
+  .sc-body { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .sc-label { font-size: 11px; letter-spacing: 0.1em; color: var(--faint); font-weight: 700; text-transform: uppercase; }
+  .sc-title { font-family: var(--serif); font-size: 1.4rem; color: var(--fg-strong); font-weight: 600; }
+  .sc-tag { color: var(--muted); font-size: 0.95rem; }
+  .sc-meta { color: var(--faint); font-size: 12.5px; margin-top: 4px; }
+
+  .learn-parents { padding-bottom: 90px; }
+  .parents-box {
+    max-width: var(--readw); border-left: 3px solid color-mix(in srgb, var(--accent) 50%, var(--border));
+    padding-left: 20px;
+  }
+  .parents-box p { color: var(--muted); font-size: 0.98rem; margin: 0 0 14px; }
+  .parents-box strong { color: var(--fg-strong); }
+  .parents-note { border-top: 1px solid var(--border-soft); padding-top: 14px; }
+</style>
+
+<style is:global>
+  /* 추천 카드는 클라이언트에서 만들어 넣기 때문에 전역 스타일이어야 한다. */
+  .rec-card {
+    display: flex; gap: 14px; align-items: flex-start; color: inherit;
+    padding: 16px 18px; border-radius: 14px;
+    border: 1px solid var(--border); background: var(--bg-elev);
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .rec-card:hover { border-color: var(--accent); transform: translateY(-2px); color: inherit; }
+  .rec-emoji { font-size: 1.9rem; line-height: 1.2; flex: none; }
+  .rec-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .rec-subject { font-size: 12px; color: var(--faint); font-weight: 600; letter-spacing: 0.04em; }
+  .rec-title { font-family: var(--serif); font-size: 1.2rem; color: var(--fg-strong); font-weight: 600; }
+  .rec-goal { font-size: 0.92rem; color: var(--muted); }
+</style>
