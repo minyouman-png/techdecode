@@ -170,6 +170,62 @@ export function copyFor(game: GameEntry, lang: Lang): GameCopy {
 
 export const games: GameEntry[] = [
   {
+    slug: 'uja-science',
+    released: '2026-08',
+    tech: 'Canvas 2D · Web Audio · AI 합성 나레이션(edge-tts)',
+    playPath: '/games/ujaquest/science.html',
+    cover: '/games/ujaquest/cover-science.jpg',
+    koOnly: true,
+    copy: {
+      ko: {
+        title: '유자의 과학동산 여행',
+        tagline: '정답이 적힌 벽돌만 부서지는 횡스크롤 게임 — 여덟 동산에서 만나는 생활 속 과학 80문제, 문제를 읽어 주는 목소리, 그리고 틀렸을 때 답 대신 생각하는 방법을 주는 힌트.',
+        about: [
+          '동물, 식물, 날씨, 물, 자석, 빛과 그림자, 소리, 우주 — 여덟 개의 동산을 유자와 함께 달립니다. 동산마다 문제가 뜨고, 보기는 <b>한글 낱말이 적힌 벽돌</b>로 공중에 떠 있거나 <b>낱말을 등에 진 몬스터</b>로 걸어 다닙니다. "다리가 여섯 개인 동물은?" 정답 벽돌만 부서지고, 정답 몬스터만 밟힙니다.',
+          '문제는 <b>소리로 읽어 줍니다.</b> 1학년에게는 글을 읽는 것 자체가 문제보다 어려울 수 있어서, 동산 안내와 문제 문장, 정답일 때의 까닭까지 모두 음성으로 준비했습니다. 이 사이트의 영상 나레이션과 같은 AI 음성 합성으로 만들었고, 속도만 늦췄습니다.',
+          '틀렸을 때는 <b>답을 알려 주지 않고 힌트만 줍니다.</b> "자석은 쇠로 만든 것에만 붙어. 무엇으로 만든 물건인지 봐." 답을 바로 말해 버리면 다시 풀어 볼 기회가 사라지니까요. 그리고 힌트가 끝나면 문제를 한 번 더 읽어 줍니다.',
+          '<b>오답으로는 목숨을 잃지 않습니다.</b> 학습 게임에서 실수를 벌하면 아이는 생각하기가 아니라 찍기와 회피를 배웁니다. 목숨은 몬스터 몸에 부딪히거나 물에 빠지는 액션 실패에만 줄어들고, 시간 제한도 없습니다. 한 판에 나오는 네 문제는 동산의 열 문제 중에서 매번 새로 뽑힙니다.',
+          '2026년 8월, AI가 전부 만들었습니다 — 엔진, 물리, 그림, 문제 은행 80문제, 그리고 214개의 음성.',
+        ],
+        how: [
+          '←→ 또는 A·D — 움직이기 · Space 또는 ↑ — 점프',
+          '문제를 듣고, 정답이 적힌 벽돌을 아래에서 머리로 치세요',
+          '또는 정답을 진 몬스터를 밟으세요 — 오답은 튕겨 나올 뿐 다치지 않습니다',
+          '🔊 버튼으로 문제를 몇 번이든 다시 들을 수 있습니다',
+          '📱 모바일 — 화면 아래 버튼으로 조작합니다',
+        ],
+      },
+    },
+  },
+  {
+    slug: 'uja-moral',
+    released: '2026-08',
+    tech: 'Canvas 2D · Web Audio · AI 합성 나레이션(edge-tts)',
+    playPath: '/games/ujaquest/moral.html',
+    cover: '/games/ujaquest/cover-moral.jpg',
+    koOnly: true,
+    copy: {
+      ko: {
+        title: '유자의 도덕동산 여행',
+        tagline: '정답이 적힌 벽돌만 부서지는 횡스크롤 게임 — 인사·정직·약속·배려·질서·절제·감사·생명, 여덟 동산의 바른 생활 80문제.',
+        about: [
+          '인사동산, 정직동산, 약속동산, 배려동산, 질서동산, 절제동산, 감사동산, 생명동산. 여덟 개의 동산을 유자와 함께 달리며 <b>바르게 살아가는 방법</b>을 하나씩 만납니다. "친구가 넘어졌을 때 하는 말은?" 보기는 한글 낱말이 적힌 벽돌과 몬스터로 나오고, 정답만 부서지고 밟힙니다.',
+          '이 게임의 문제에는 정답이 하나씩 있지만, 중요한 건 <b>왜 그것이 바른 행동인지</b>입니다. 그래서 맞혔을 때 이유를 함께 들려줍니다 — "아픈 친구에게 먼저 괜찮은지 물어봐 주는 것이 배려야."',
+          '틀렸을 때는 <b>답 대신 생각할 거리를 줍니다.</b> "상대의 마음이 어떨지 먼저 생각해 볼까?" 도덕은 정답을 외우는 것이 아니라 남의 마음을 헤아려 보는 연습이니까요.',
+          '<b>오답으로는 목숨을 잃지 않습니다.</b> 실수를 벌하면 아이는 생각하기가 아니라 찍기를 배웁니다. 시간 제한도 없고, 몇 번이든 다시 풀 수 있습니다. 한 판에 나오는 네 문제는 동산의 열 문제 중에서 매번 새로 뽑힙니다.',
+          '2026년 8월, AI가 전부 만들었습니다 — 엔진, 물리, 그림, 문제 은행 80문제, 그리고 214개의 음성.',
+        ],
+        how: [
+          '←→ 또는 A·D — 움직이기 · Space 또는 ↑ — 점프',
+          '문제를 듣고, 정답이 적힌 벽돌을 아래에서 머리로 치세요',
+          '또는 정답을 진 몬스터를 밟으세요 — 오답은 튕겨 나올 뿐 다치지 않습니다',
+          '🔊 버튼으로 문제를 몇 번이든 다시 들을 수 있습니다',
+          '📱 모바일 — 화면 아래 버튼으로 조작합니다',
+        ],
+      },
+    },
+  },
+  {
     slug: 'yujin-math',
     released: '2026-08',
     tech: 'Canvas 2D · Web Audio · AI 합성 나레이션(edge-tts)',
@@ -868,7 +924,7 @@ export function playerUrl(slug: string, lang: Lang): string {
   return `/play/${slug}/?lang=${lang}`;
 }
 // 홈 화면 '인기 게임' 노출 순서 (앞에서부터 4개 노출)
-export const homeGameOrder = ['yujin-math', 'voxel-world', 'super-uja', 'menew-kart', 'yuja-knight', 'fruit-blocks', 'menew-empires', 'ppanggeul-adventure'];
+export const homeGameOrder = ['yujin-math', 'uja-science', 'uja-moral', 'voxel-world', 'super-uja', 'menew-kart', 'yuja-knight', 'fruit-blocks', 'menew-empires', 'ppanggeul-adventure'];
 
 // 주간 도전과제: ISO 주차 % 게임 수로 로테이션 (클라이언트에서 계산)
 export const weeklyChallenges: Record<string, Record<Lang, string>> = {
