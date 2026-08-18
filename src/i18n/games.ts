@@ -150,10 +150,53 @@ export interface GameEntry {
   tech: string;
   playPath: string;          // 실제 게임 정적 파일 (?lang= 붙여 사용)
   cover: string;
-  copy: Record<Lang, GameCopy>;
+  /** ⚠️한국어 전용 게임 — 한국어 교육과정에 묶여 있어 번역해도 아무도 안 읽는다.
+   *   ([[menewsoft-learn-grade1]] 의 학습 코너와 같은 판단)
+   *   true 면 한국어 목록·상세 페이지에만 나오고, 다른 언어에서는 아예 없는 것으로 친다. */
+  koOnly?: boolean;
+  /** koOnly 게임은 ko 만 있으면 된다. 나머지 언어는 없을 수 있다. */
+  copy: { ko: GameCopy } & Partial<Record<Lang, GameCopy>>;
+}
+
+/** 그 언어에서 보여 줄 게임 목록. 한국어 전용 게임은 다른 언어에서 빠진다. */
+export function gamesFor(lang: Lang): GameEntry[] {
+  return games.filter((g) => !g.koOnly || lang === 'ko');
+}
+
+/** 그 언어의 카피(한국어 전용 게임은 항상 ko). */
+export function copyFor(game: GameEntry, lang: Lang): GameCopy {
+  return game.copy[lang] ?? game.copy.ko;
 }
 
 export const games: GameEntry[] = [
+  {
+    slug: 'yujin-math',
+    released: '2026-08',
+    tech: 'Canvas 2D · Web Audio · AI 합성 나레이션(edge-tts)',
+    playPath: '/games/yujin/index.html',
+    cover: '/games/yujin/cover.jpg',
+    koOnly: true,
+    copy: {
+      ko: {
+        title: '유진이의 수학여행',
+        tagline: '부수는 것이 곧 정답인 횡스크롤 게임 — 초등 1학년 수학 8개 마을, 매번 새로 만들어지는 문제, 그리고 틀렸을 때 벌 대신 방법을 알려주는 목소리.',
+        about: [
+          '초등학교 1학년은 세고, 더하고, 덜어 내고, 두 자리 수를 읽는 법을 배웁니다. 이 게임은 그 교육과정을 달리고 뛰는 여행으로 바꿉니다. 마을마다 문제가 화면에 뜨고, 보기는 숫자가 적힌 벽돌로 공중에 떠 있거나 숫자를 등에 진 몬스터로 걸어 다닙니다. 정답 벽돌만 머리로 치면 부서지고, 정답 몬스터만 밟힙니다. 나머지는 아무리 쳐도 부서지지 않습니다.',
+          '문제의 숫자는 <b>매번 새로 만들어집니다.</b> 미리 만들어 둔 문제를 돌려쓰는 게 아니라, 유형별 규칙에 따라 그 자리에서 숫자를 뽑습니다. 덕분에 같은 마을을 몇 번을 다시 가도 같은 문제가 나오지 않습니다.',
+          '목소리는 숫자를 읽어 주는 대신 <b>방법을 가르칩니다.</b> "이번 문제는 더하기를 알아보는 거야", "정답이야! 더하기는 앞의 수 다음부터 뒤의 수만큼 더 세는 거야", "아쉽다, 틀렸어. 손가락을 앞의 수만큼 펴고 뒤의 수만큼 더 펴 봐." 이 음성은 이 사이트의 영상 나레이션과 같은 AI 음성 합성으로 만들었고, 속도만 늦췄습니다 — 영상 속도로 수학 문제를 읽어 주면 문제가 아니라 재촉이 되기 때문입니다.',
+          '게임 전체를 관통하는 설계 원칙이 하나 있습니다: <b>오답으로는 목숨을 잃지 않습니다.</b> 학습 게임에서 실수를 벌하면 아이는 생각하기가 아니라 찍기와 회피를 배웁니다. 틀리면 어떻게 생각하면 되는지 알려 주고, 그냥 다시 풀면 됩니다. 목숨은 몬스터 몸에 부딪히거나 물에 빠지는 액션 실패에만 줄어듭니다. 시간 제한도 없습니다.',
+          '여덟 마을은 1학년 수학 과정을 순서대로 따라갑니다 — 아홉까지 세기, 수의 순서, 덧셈, 뺄셈, 50까지의 수, 10 만들기, 100까지 비교, 뛰어 세기. 이 사이트의 무료 학습 코너와 같은 주제입니다. 2026년 8월, AI가 전부 만들었습니다: 엔진, 물리, 그림, 문제 생성기, 그리고 모든 음성.',
+        ],
+        how: [
+          '←→ 또는 A·D — 움직이기 · Space 또는 ↑ — 점프',
+          '문제를 보고, 정답이 적힌 벽돌을 아래에서 머리로 치세요',
+          '또는 정답을 진 몬스터를 밟으세요 — 오답은 튕겨 나올 뿐 다치지 않습니다',
+          '🔊 버튼으로 설명을 몇 번이든 다시 들을 수 있습니다',
+          '📱 모바일 — 화면 아래 버튼으로 조작합니다',
+        ],
+      },
+    },
+  },
   {
     slug: 'yuja-knight',
     released: '2026-07',
@@ -825,7 +868,7 @@ export function playerUrl(slug: string, lang: Lang): string {
   return `/play/${slug}/?lang=${lang}`;
 }
 // 홈 화면 '인기 게임' 노출 순서 (앞에서부터 4개 노출)
-export const homeGameOrder = ['voxel-world', 'super-uja', 'menew-kart', 'yuja-knight', 'fruit-blocks', 'menew-empires', 'ppanggeul-adventure'];
+export const homeGameOrder = ['yujin-math', 'voxel-world', 'super-uja', 'menew-kart', 'yuja-knight', 'fruit-blocks', 'menew-empires', 'ppanggeul-adventure'];
 
 // 주간 도전과제: ISO 주차 % 게임 수로 로테이션 (클라이언트에서 계산)
 export const weeklyChallenges: Record<string, Record<Lang, string>> = {

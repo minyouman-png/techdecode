@@ -8,7 +8,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { languages, type Lang } from '../i18n/ui';
 import { useTranslations, localizeUrl, blogUrl } from '../i18n/utils';
 import { categoryOrder, categoryLabel, categoryUrl } from '../i18n/categories';
-import { games, gamesUi, gameUrl, gamesIndexUrl, playerUrl, homeGameOrder } from '../i18n/games';
+import { games, gamesUi, gamesFor, copyFor, gameUrl, gamesIndexUrl, playerUrl, homeGameOrder } from '../i18n/games';
 import { tools, toolUrl, toolsIndexUrl } from '../i18n/tools';
 import WeeklyChallenge from './WeeklyChallenge.astro';
 
@@ -40,8 +40,9 @@ for (const code of Object.keys(languages) as Lang[]) {
 }
 
 // 인기 게임 4개 (curated 순서)
+// ⚠️한국어 전용 게임은 다른 언어 홈에 올리지 않는다(gamesFor 가 걸러 준다)
 const homeGames = homeGameOrder
-  .map((slug) => games.find((x) => x.slug === slug))
+  .map((slug) => gamesFor(lang).find((x) => x.slug === slug))
   .filter(Boolean)
   .slice(0, 4) as typeof games;
 
@@ -103,7 +104,7 @@ const cats = categoryOrder.map((slug) => ({
       </div>
       <div class="hgame-grid">
         {homeGames.map((game) => {
-          const c = game.copy[lang];
+          const c = copyFor(game, lang);
           return (
             <div class="hgame-card">
               <a class="hgame-cover" href={playerUrl(game.slug, lang)} target="_blank" rel="noopener" title={g.newTabNote}>

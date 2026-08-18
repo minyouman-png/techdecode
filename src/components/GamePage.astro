@@ -2,12 +2,12 @@
 // 게임 상세 페이지: 소개 + 브라우저 내 플레이(iframe) (언어별 공용)
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { languages, type Lang } from '../i18n/ui';
-import { gamesUi, games, gameUrl, gamesIndexUrl, playerUrl } from '../i18n/games';
+import { gamesUi, games, copyFor, gameUrl, gamesIndexUrl, playerUrl } from '../i18n/games';
 
 interface Props { lang: Lang; slug: string; }
 const { lang, slug } = Astro.props;
 const game = games.find((x) => x.slug === slug)!;
-const c = game.copy[lang];
+const c = copyFor(game, lang);
 const g = gamesUi[lang];
 const alternates = Object.fromEntries(
   (Object.keys(languages) as Lang[]).map((l) => [l, gameUrl(slug, l)])

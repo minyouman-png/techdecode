@@ -1,7 +1,7 @@
 ---
 // 전용 게임 플레이어: 전체 화면 iframe + 자동 숨김 상단 바(게임 전환·전체화면·목록 복귀).
 // 새 탭에서 열리는 것을 전제로 하며, 검색엔진에는 상세 페이지가 대표가 되도록 noindex.
-import { games } from '../../i18n/games';
+import { games, copyFor } from '../../i18n/games';
 import { languages } from '../../i18n/ui';
 
 export function getStaticPaths() {
@@ -11,10 +11,11 @@ const { slug } = Astro.params;
 const game = games.find((x) => x.slug === slug)!;
 
 // 게임 전환 드롭다운용: 전 게임의 언어별 제목 + 실행 경로
+// ⚠️한국어 전용 게임은 다른 언어 이름이 없다 — copyFor 가 ko 로 되돌려 준다
 const registry = games.map((x) => ({
   slug: x.slug,
   path: x.playPath,
-  titles: Object.fromEntries(Object.keys(languages).map((l) => [l, x.copy[l as keyof typeof x.copy].title])),
+  titles: Object.fromEntries(Object.keys(languages).map((l) => [l, copyFor(x, l as any).title])),
 }));
 const langCodes = Object.keys(languages);
 
@@ -37,7 +38,7 @@ const title = game.copy.ko.title;
   <!-- noindex 라도 공유 카드는 필요하다(이 URL 이 '지금 바로 플레이' 링크로 공유됨). -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />
-  <meta property="og:description" content={game.copy.en.tagline} />
+  <meta property="og:description" content={copyFor(game, 'en').tagline} />
   <meta property="og:url" content={new URL(`/play/${slug}`, Astro.site).href} />
   <meta property="og:image" content={new URL(game.cover, Astro.site).href} />
   <meta name="twitter:card" content="summary_large_image" />

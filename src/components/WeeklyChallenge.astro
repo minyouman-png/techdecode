@@ -3,7 +3,7 @@
 // 정적 빌드라 현재 주차는 클라이언트 JS에서 계산해 채운다.
 import { type Lang } from '../i18n/ui';
 import { useTranslations } from '../i18n/utils';
-import { games, homeGameOrder, weeklyChallenges } from '../i18n/games';
+import { games, homeGameOrder, weeklyChallenges, copyFor } from '../i18n/games';
 
 interface Props {
   lang: Lang;
@@ -17,7 +17,7 @@ const entries = homeGameOrder
     if (!game || !weeklyChallenges[slug]) return null;
     return {
       slug,
-      title: game.copy[lang].title,
+      title: copyFor(game, lang).title,
       cover: game.cover,
       challenge: weeklyChallenges[slug][lang],
     };

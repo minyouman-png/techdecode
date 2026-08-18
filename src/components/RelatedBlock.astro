@@ -5,7 +5,7 @@ import { getCollection } from 'astro:content';
 import { type Lang } from '../i18n/ui';
 import { useTranslations, blogUrl } from '../i18n/utils';
 import { categoryLabel } from '../i18n/categories';
-import { games, gamesUi, playerUrl, homeGameOrder } from '../i18n/games';
+import { gamesFor, copyFor, gamesUi, playerUrl, homeGameOrder } from '../i18n/games';
 
 interface Props {
   lang: Lang;
@@ -28,9 +28,10 @@ const related = [...same, ...rest].slice(0, 3);
 // 글 key 해시로 게임 1개 선택 (결정적)
 let hash = 0;
 for (const ch of currentKey) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-const gameSlug = homeGameOrder[hash % homeGameOrder.length];
-const game = games.find((x) => x.slug === gameSlug)!;
-const gc = game.copy[lang];
+const pool = homeGameOrder.filter((slug) => gamesFor(lang).some((x) => x.slug === slug));
+const gameSlug = pool[hash % pool.length];
+const game = gamesFor(lang).find((x) => x.slug === gameSlug)!;
+const gc = copyFor(game, lang);
 ---
 {related.length > 0 && (
   <aside class="related">

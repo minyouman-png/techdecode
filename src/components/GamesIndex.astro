@@ -3,7 +3,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { languages, type Lang } from '../i18n/ui';
 import { useTranslations } from '../i18n/utils';
-import { gamesUi, games, gameUrl, gamesIndexUrl, playerUrl } from '../i18n/games';
+import { gamesUi, gamesFor, copyFor, gameUrl, gamesIndexUrl, playerUrl } from '../i18n/games';
 import WeeklyChallenge from './WeeklyChallenge.astro';
 
 interface Props { lang: Lang; }
@@ -30,8 +30,8 @@ const alternates = Object.fromEntries(
   <section class="games-list">
     <div class="wrap">
       <div class="game-grid">
-        {games.map((game) => {
-          const c = game.copy[lang];
+        {gamesFor(lang).map((game) => {
+          const c = copyFor(game, lang);
           return (
             <div class="game-card">
               <a class="cover" href={playerUrl(game.slug, lang)} target="_blank" rel="noopener" title={g.newTabNote}>
