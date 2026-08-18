@@ -253,7 +253,11 @@ const korean: LearnSubject = {
             '“나무”, “바다”처럼 아는 낱말을 손가락으로 짚어 가며 읽게 해 보세요.',
             '틀린 낱말(“무나”)을 일부러 보여 주고 어디가 이상한지 물어보면 글자 순서 감각이 생깁니다.',
           ],
-          videos: [],
+          videos: [
+            { id: 'ZwXSZDnR5qI', title: '한글 단어 배우기 — 가~하로 시작하는 낱말', channel: 'For Kids [포키즈]', len: '9분' },
+            { id: 'lPrDnVp1HwQ', title: '동물의 이름을 맞춰 보세요 — 낱말 카드', channel: '한글씽씽', len: '5분' },
+            { id: 'Uk5FlhkFMO4', title: '글자의 짜임 알기 (교과서 진도용)', channel: '밀크티타임', len: '1분' },
+          ],
           practice: 'wordmake',
         },
         {
@@ -264,7 +268,11 @@ const korean: LearnSubject = {
             '말할 때는 잘하는데 쓸 때 순서가 엉키는 시기입니다. 소리 내어 읽어 보게 하면 스스로 고칩니다.',
             '“누가?”, “무엇을?”, “어디서?”를 차례로 물어 주면 문장이 저절로 길어집니다.',
           ],
-          videos: [],
+          videos: [
+            { id: 'j15SzHtcY5w', title: '1학년 1학기 7단원 — 문장을 만들어요', channel: '경기초등온배움교실', len: '5분' },
+            { id: 'J2uzYlL4oaQ', title: '그림을 보고 문장 만들기', channel: '밀크티타임', len: '1분' },
+            { id: 'w4PUoW_qIis', title: '주어진 낱말로 문장 만들기', channel: 'Aurora', len: '4분' },
+          ],
           practice: 'sentence',
         },
         {
@@ -275,7 +283,11 @@ const korean: LearnSubject = {
             '1학년 받아쓰기에서 가장 많이 틀리는 자리가 **받침**과 **연음**입니다.',
             '틀린 글자를 지적하기보다 맞는 글자를 옆에 크게 써 주는 편이 오래 남습니다.',
           ],
-          videos: [],
+          videos: [
+            { id: 'WBDcZ2DlHZ0', title: '1학년 받아쓰기 급수장 1회 따라쓰기', channel: 'teacher Yoon 혜인쌤', len: '7분' },
+            { id: 'TlShVubMrxg', title: '1학년 받아쓰기 급수장 4회 — 마침표 찍는 법까지', channel: 'teacher Yoon 혜인쌤', len: '6분' },
+            { id: 'sIySXkV1DYY', title: '하루하루 맞춤법 + 받아쓰기 급수 1', channel: '랭귀지북스', len: '4분' },
+          ],
           practice: 'dictation',
         },
       ],
@@ -488,7 +500,11 @@ const math: LearnSubject = {
             '“모두”, “남은”, “더”, “먹었다” 같은 말이 힌트입니다. 그 말에 동그라미를 치게 해 보세요.',
             '식을 먼저 쓰게 하지 말고 손가락이나 그림으로 풀게 두면 개념이 더 단단해집니다.',
           ],
-          videos: [],
+          videos: [
+            { id: 'uXVU1OGh0H4', title: '그림을 보고 덧셈을 해 볼까요', channel: '밀크티타임', len: '2분' },
+            { id: 'KzdBZUoeEwA', title: '수학동화 — 핫도그 더 주세요! (더하기 이야기)', channel: '대발이TV', len: '4분' },
+            { id: 'z-pyCRH7Rw0', title: '초1 수학 — 덧셈과 뺄셈 이야기', channel: '엄마의성장', len: '6분' },
+          ],
           practice: 'story',
         },
         {
@@ -499,7 +515,11 @@ const math: LearnSubject = {
             '곱셈의 씨앗입니다. 계단을 오르며 “2, 4, 6…” 세는 놀이가 그대로 공부가 됩니다.',
             '10씩 뛰어 세기가 익숙해지면 100까지의 수가 훨씬 쉬워집니다.',
           ],
-          videos: [],
+          videos: [
+            { id: 'bPcTDkJb04c', title: '10씩 뛰어 세기 (수동요)', channel: '핑크퐁', len: '1분' },
+            { id: '5qx75Cb8Nqw', title: '뛰어 세기 — 2씩 5씩 노래로', channel: '핑크퐁', len: '3분' },
+            { id: '2IQneQ5owkQ', title: '10개씩 묶어 세기 (1학년 1학기)', channel: '키출판사', len: '2분' },
+          ],
           practice: 'skip',
         },
         {
@@ -510,7 +530,11 @@ const math: LearnSubject = {
             '“몇 시, 몇 시 30분”을 먼저 완전히 익힌 뒤에 시작하세요.',
             '긴바늘의 숫자 1은 5분, 2는 10분 — **5씩 뛰어 세기**와 이어서 알려 주면 빨리 붙습니다.',
           ],
-          videos: [],
+          videos: [
+            { id: 'gZBppbLDpy4', title: '몇 시 몇 분? 5분 단위 시각 퀴즈', channel: '나다움교육', len: '5분' },
+            { id: 'japJUYaIqW0', title: '1학년 2학기 5단원 — 몇 시 몇 분', channel: '박영수', len: '6분' },
+            { id: 'bp6DZeP2MuM', title: '몇 시 몇 분을 알아볼까요 (한 걸음 더)', channel: '밀크티타임', len: '2분' },
+          ],
           practice: 'time2',
         },
       ],
@@ -653,7 +677,11 @@ const world: LearnSubject = {
             '아침에 창밖을 보며 “오늘은 무슨 옷이 좋을까?” 하고 아이가 정하게 해 보세요.',
             '계절이 바뀌는 이유까지 설명할 필요는 없습니다. 1학년은 **관찰과 말하기**가 목표입니다.',
           ],
-          videos: [],
+          videos: [
+            { id: 'HoV_bb14ISk', title: '곰끼의 사계절 열두 달 (노래)', channel: 'EBS 키즈', len: '1분' },
+            { id: 'lnzKs2QSu0c', title: '봄 인사 — 봄의 동식물과 생활 모습', channel: '밀크티타임', len: '4분' },
+            { id: 'CuwHv3jPGRg', title: '여름철 건강 지키기 — 날씨·음식·옷차림', channel: '밀크티타임', len: '10분' },
+          ],
           practice: 'quiz',
           quiz: [
             { q: '봄 다음에 오는 계절은?', choices: ['여름', '가을', '겨울', '봄'], answer: 0, hint: '봄 → 여름 → 가을 → 겨울' },
@@ -766,7 +794,12 @@ const safety: LearnSubject = {
             '**설명보다 연습**입니다. 집에서 한 번이라도 “나가는 길”을 같이 걸어 보세요.',
             '“불이야!” 하고 크게 외치는 연습도 해 두면 실제 상황에서 목소리가 나옵니다.',
           ],
-          videos: [],
+          videos: [
+            { id: 'yxRdPgtstTc', title: '초등 1~3학년 — 불이 나면, 이렇게 대피해요!', channel: '학교안전공제중앙회', len: '9분' },
+            { id: 'yVQ1sTDEAvA', title: '갑자기 불이 났을 때 어떻게 해야 할까?', channel: '행정안전부', len: '5분' },
+            { id: '5ANoKYg0Dbo', title: '땅이 흔들려요 — 지진 대피', channel: '아이클래스', len: '7분' },
+            { id: 'eoCVuTQ7uG4', title: '으악! 지진이다! 지진 대피 방법', channel: '깨비키즈', len: '9분' },
+          ],
           practice: 'quiz',
           quiz: [
             { q: '불이 난 것을 보면 가장 먼저 할 일은?', choices: ['크게 “불이야!” 하고 알려요', '가방을 챙겨요', '숨어요', '사진을 찍어요'], answer: 0 },
@@ -844,7 +877,11 @@ const english: LearnSubject = {
             '옷·과일·자동차를 보며 “What color?” 하고 물어보는 것만으로 충분합니다.',
             '철자를 외우게 하지 마세요. 1학년 영어는 **듣고 말하기**가 전부입니다.',
           ],
-          videos: [],
+          videos: [
+            { id: 'SLZcWGQQsmg', title: 'Rainbow Colors Song — 색깔 노래', channel: 'The Singing Walrus', len: '3분' },
+            { id: 'zxIpA5nF_LY', title: 'What\'s Your Favorite Color?', channel: 'Super Simple Songs', len: '2분' },
+            { id: 'iCrQVRq8UMM', title: '색깔 영단어 배우기 (한국어 안내)', channel: '길벗스쿨', len: '1분' },
+          ],
           practice: 'color',
         },
         {
@@ -855,7 +892,11 @@ const english: LearnSubject = {
             '계단·사탕·손가락을 세며 영어로 말해 보게 하세요.',
             '13~19는 -teen 으로 끝난다는 규칙을 알려 주면 스무 개가 아니라 열 개만 외우면 됩니다.',
           ],
-          videos: [],
+          videos: [
+            { id: 'D0Ajq682yrA', title: 'Number Song 1-20 — 1부터 20까지', channel: 'The Singing Walrus', len: '2분' },
+            { id: 'S84fcGdEULk', title: 'Counting Up To 20', channel: 'Super Simple Songs', len: '3분' },
+            { id: '6mqdzGUUVE8', title: 'Number Rock — 숫자송 영어 1~20', channel: '비비파닉스', len: '2분' },
+          ],
           practice: 'numen',
         },
       ],
