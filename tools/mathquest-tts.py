@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""유진이의 수학여행 — 나레이션 음성 생성.
+"""수학여행(유진·수호) — 나레이션 음성 생성.
 
 쇼츠공장([[shorts-factory-project]])과 **같은 TTS 스택**(edge-tts)을 쓴다. 다만 파라미터는 다르다:
 ⚠️쇼츠 나레이션 속도(1.35)로 1학년에게 문제를 읽어 주면 문제가 아니라 재촉이 된다.
@@ -19,8 +19,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-BANK = ROOT / 'public' / 'games' / 'yujin' / 'bank.json'
-VOICE_DIR = ROOT / 'public' / 'games' / 'yujin' / 'voice'
+BASE = ROOT / 'public' / 'games'
+HEROES = ('yujin', 'suho')      # 수학여행은 아이마다 자기 이름으로 부르는 음성을 따로 갖는다
 
 VOICE = 'ko-KR-SunHiNeural'
 RATE = '-8%'      # 1학년이 따라올 수 있는 속도
@@ -60,8 +60,19 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('--force', action='store_true')
     ap.add_argument('--only', default='')
+    ap.add_argument('--hero', default='', choices=('',) + HEROES)
     args = ap.parse_args()
 
+    made = skipped = failed = 0
+    for hero in ([args.hero] if args.hero else list(HEROES)):
+        made_h, skipped_h, failed_h = run_hero(hero, args)
+        made += made_h; skipped += skipped_h; failed += failed_h
+    return 1 if failed else 0
+
+
+def run_hero(hero: str, args) -> tuple[int, int, int]:
+    BANK = BASE / hero / 'bank.json'
+    VOICE_DIR = BASE / hero / 'voice'
     bank = json.loads(BANK.read_text(encoding='utf-8'))
     VOICE_DIR.mkdir(parents=True, exist_ok=True)
     todo = [(n, t) for n, t in clips(bank) if not args.only or args.only in n]
@@ -76,14 +87,14 @@ def main() -> int:
             shrink(path)
             made += 1
             if made % 20 == 0:
-                print(f'  … {i}/{len(todo)}', flush=True)
+                print(f'  [{hero}] … {i}/{len(todo)}', flush=True)
         except Exception as e:              # 네트워크 실패는 다시 돌리면 이어서 채워진다
             print(f'  ⚠️ {name}: {e}', file=sys.stderr)
             failed += 1
     total = sum(f.stat().st_size for f in VOICE_DIR.glob('*.mp3'))
-    print(f'생성 {made} · 건너뜀 {skipped} · 실패 {failed} · '
+    print(f'[{hero}] 생성 {made} · 건너뜀 {skipped} · 실패 {failed} · '
           f'총 {len(list(VOICE_DIR.glob("*.mp3")))}개 {total/1024/1024:.2f}MB')
-    return 1 if failed else 0
+    return made, skipped, failed
 
 
 if __name__ == '__main__':

@@ -29,8 +29,11 @@ var BRICK = 46;
 var BRICK_BOTTOM = GY - 150;  // 벽돌 아랫면 — 점프 한 번으로 머리가 닿는 높이
 var QUIZ_PER_STAGE = 4;       // 한 판에 나오는 문제 수(은행 8개 중에서 뽑는다)
 var LIVES = 3;
-var SAVE_TAG = 'yujin_math';
-var SAVE_KEY = 'yujin_math_v1';
+// 주인공 — 같은 놀이를 아이마다 자기 이름·자기 모습으로 한다.
+// 나레이션(bank.json)과 음성(voice/)은 각 게임 폴더에 따로 있고, 이 엔진만 공유한다.
+var HERO = window.MATH_HERO || 'yujin';
+var SAVE_TAG = HERO + '_math';
+var SAVE_KEY = HERO + '_math_v1';
 
 var THEMES = [
   { sky: ['#8fd3ff', '#dff4ff'], hill: '#7cc46a', ground: '#8b5a2b', top: '#5fa845', deco: 'house' },
@@ -963,8 +966,94 @@ function roundRect(x, y, w, h, r) {
   cx.closePath();
 }
 
-/* ---------- 유진 ---------- */
+/* ---------- 주인공 ----------
+   ⚠️두 아이는 **몸 크기와 히트박스가 같다** — 물리·검증이 아이마다 갈라지면 안 된다.
+      다른 것은 머리 모양과 옷차림뿐이다. */
 function drawPlayer() {
+  if (HERO === 'suho') { drawSuho(); return; }
+  drawYujin();
+}
+
+/* 수호 — 남자아이(짧은 머리, 반팔 티셔츠와 반바지) */
+function drawSuho() {
+  var x = P.x, y = P.y, d = P.dir;
+  if (P.inv > 0 && Math.floor(P.inv * 12) % 2) return;
+  var walk = P.onG && Math.abs(P.vx) > 20 ? Math.sin(P.anim * 6) : 0;
+  var lean = P.onG ? walk * 0.06 : clamp(P.vy / 1400, -0.16, 0.16);
+  cx.save();
+  cx.fillStyle = 'rgba(20,14,30,.2)';
+  cx.beginPath(); cx.ellipse(x + PW / 2, GY - 2, 16, 5, 0, 0, 7); cx.fill();
+  cx.translate(x + PW / 2, y + PH);
+  cx.rotate(lean * d);
+  cx.scale(d, 1);
+
+  // 다리
+  cx.fillStyle = '#ffd9c0';
+  cx.fillRect(-9, -16, 7, 16 + walk * 3);
+  cx.fillRect(3, -16, 7, 16 - walk * 3);
+  cx.fillStyle = '#2f5fa8';                       // 반바지
+  cx.fillRect(-10, -26, 9, 12);
+  cx.fillRect(2, -26, 9, 12);
+  cx.fillStyle = '#f0f3f7';                       // 운동화
+  cx.fillRect(-11, -5 + Math.max(0, walk * 3), 11, 5);
+  cx.fillRect(1, -5 + Math.max(0, -walk * 3), 11, 5);
+
+  // 티셔츠
+  cx.fillStyle = '#3fa66b';
+  cx.beginPath();
+  cx.moveTo(-10, -36); cx.lineTo(10, -36); cx.lineTo(11, -22); cx.lineTo(-11, -22);
+  cx.closePath(); cx.fill();
+  cx.fillStyle = '#ffe28a';                       // 가슴 줄무늬
+  cx.fillRect(-11, -30, 22, 4);
+  var gd = cx.createLinearGradient(-11, -36, 11, -22);
+  gd.addColorStop(0, 'rgba(255,255,255,.42)'); gd.addColorStop(0.6, 'rgba(255,255,255,0)');
+  gd.addColorStop(1, 'rgba(0,0,0,.16)');
+  cx.fillStyle = gd;
+  cx.beginPath();
+  cx.moveTo(-10, -36); cx.lineTo(10, -36); cx.lineTo(11, -22); cx.lineTo(-11, -22);
+  cx.closePath(); cx.fill();
+
+  // 팔(반팔이라 소매 아래는 살색)
+  cx.fillStyle = '#3fa66b';
+  cx.fillRect(-14, -35, 5, 6);
+  cx.fillRect(9, -35, 5, 6);
+  cx.fillStyle = '#ffd9c0';
+  cx.fillRect(-14, -29, 5, 9 + walk * 2);
+  cx.fillRect(9, -29, 5, 9 - walk * 2);
+
+  // 머리
+  var hy = -47;
+  var fg = cx.createRadialGradient(-4, hy - 5, 2, 0, hy, 15);
+  fg.addColorStop(0, '#fff2e6'); fg.addColorStop(0.6, '#ffdcc4'); fg.addColorStop(1, '#e8b79a');
+  cx.fillStyle = fg;
+  cx.beginPath(); cx.arc(0, hy, 14, 0, 7); cx.fill();
+  cx.fillStyle = '#2e1d14';                       // 짧은 머리 + 앞머리 삐죽
+  cx.beginPath(); cx.arc(0, hy - 1, 14.2, Math.PI, 0); cx.fill();
+  cx.fillRect(-14.2, hy - 3, 28.4, 5);
+  cx.beginPath();
+  cx.moveTo(2, hy - 14); cx.lineTo(9, hy - 20); cx.lineTo(10, hy - 11);
+  cx.closePath(); cx.fill();
+  // 눈
+  cx.fillStyle = '#fff';
+  cx.beginPath(); cx.ellipse(-5, hy + 3, 3.4, 4.2, 0, 0, 7); cx.fill();
+  cx.beginPath(); cx.ellipse(5.5, hy + 3, 3.4, 4.2, 0, 0, 7); cx.fill();
+  cx.fillStyle = '#2b1a12';
+  cx.beginPath(); cx.arc(-4.4, hy + 3.6, 2.2, 0, 7); cx.fill();
+  cx.beginPath(); cx.arc(6.2, hy + 3.6, 2.2, 0, 7); cx.fill();
+  cx.fillStyle = 'rgba(255,255,255,.95)';
+  cx.beginPath(); cx.arc(-5.2, hy + 2.2, 1.1, 0, 7); cx.fill();
+  cx.beginPath(); cx.arc(5.4, hy + 2.2, 1.1, 0, 7); cx.fill();
+  // 볼 · 입
+  cx.fillStyle = 'rgba(255,140,150,.35)';
+  cx.beginPath(); cx.arc(-8, hy + 7, 3, 0, 7); cx.fill();
+  cx.beginPath(); cx.arc(9, hy + 7, 3, 0, 7); cx.fill();
+  cx.strokeStyle = '#a5523f'; cx.lineWidth = 1.6; cx.beginPath();
+  cx.arc(0.6, hy + 7, 3.2, 0.15 * Math.PI, 0.85 * Math.PI); cx.stroke();
+  cx.restore();
+}
+
+/* 유진 — 여자아이(양갈래 머리, 원피스) */
+function drawYujin() {
   var x = P.x, y = P.y, d = P.dir;
   if (P.inv > 0 && Math.floor(P.inv * 12) % 2) return;   // 무적 깜빡임
   var walk = P.onG && Math.abs(P.vx) > 20 ? Math.sin(P.anim * 6) : 0;

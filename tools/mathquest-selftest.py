@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""유진이의 수학여행 — `?test=sim` 을 실제 크롬에서 돌리고 결과를 읽는다.
+"""수학여행(유진·수호) — `?test=sim` 을 실제 크롬에서 돌리고 결과를 읽는다.
 
 usage: python3 tools/yujin-selftest.py [--shot 3] [--width 900]
 
@@ -63,6 +63,7 @@ def main() -> int:
     ap.add_argument("--shot", default="")        # 스테이지 번호 → 화면 캡처
     ap.add_argument("--wait", type=float, default=3.0)
     ap.add_argument("--run", type=float, default=0.0)   # 캡처 전 오른쪽으로 달릴 초
+    ap.add_argument("--hero", default="yujin")   # yujin | suho
     ap.add_argument("--pad", default="")   # 1 이면 태블릿 모드 켠 화면
     ap.add_argument("--out", default="")
     args = ap.parse_args()
@@ -71,7 +72,7 @@ def main() -> int:
         [CHROME, "--headless=new", f"--remote-debugging-port={args.debug_port}",
          "--remote-allow-origins=*", "--no-first-run", "--no-default-browser-check",
          "--autoplay-policy=no-user-gesture-required", "--mute-audio",
-         "--user-data-dir=/tmp/yujin-selftest-profile", "about:blank"],
+         f"--user-data-dir=/tmp/{args.hero}-selftest-profile", "about:blank"],
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         for _ in range(80):
@@ -85,7 +86,7 @@ def main() -> int:
           {"width": args.width, "height": args.height, "deviceScaleFactor": 1,
            "mobile": args.width < 500})
         c("Runtime.enable")
-        base = f"http://127.0.0.1:{args.port}/games/yujin/index.html"
+        base = f"http://127.0.0.1:{args.port}/games/{args.hero}/index.html"
         c("Page.navigate", {"url": f"{base}?stage={args.shot}" + (f"&pad={args.pad}" if args.pad else "") if args.shot else f"{base}?test=sim"})
         time.sleep(args.wait)
         if args.shot:

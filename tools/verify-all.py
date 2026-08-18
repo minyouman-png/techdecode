@@ -38,14 +38,19 @@ def main() -> int:
     jobs.append(('자산 검사(음성·커버·등록 경로)',
                  [PY, 'tools/verify-games.py'] + (['--quick'] if args.quick else [])))
     for i in range(args.rounds):
-        jobs.append((f'유진이의 수학여행 sim #{i + 1}', [PY, 'tools/yujin-selftest.py']))
+        jobs.append((f'유진이의 수학여행 sim #{i + 1}',
+                     [PY, 'tools/mathquest-selftest.py', '--hero', 'yujin']))
+        jobs.append((f'수호의 수학여행 sim #{i + 1}',
+                     [PY, 'tools/mathquest-selftest.py', '--hero', 'suho']))
         jobs.append((f'과학동산 sim #{i + 1}',
                      [PY, 'tools/ujaquest-selftest.py', '--subject', 'science']))
         jobs.append((f'도덕동산 sim #{i + 1}',
                      [PY, 'tools/ujaquest-selftest.py', '--subject', 'moral']))
     if args.narrow:
-        jobs.append(('수학여행 sim (360px)',
-                     [PY, 'tools/yujin-selftest.py', '--width', '360', '--height', '760']))
+        for _h in ('yujin', 'suho'):
+            jobs.append((f'수학여행 sim {_h} (360px)',
+                         [PY, 'tools/mathquest-selftest.py', '--hero', _h,
+                          '--width', '360', '--height', '760']))
         jobs.append(('과학동산 sim (360px)',
                      [PY, 'tools/ujaquest-selftest.py', '--subject', 'science',
                       '--width', '360', '--height', '760']))

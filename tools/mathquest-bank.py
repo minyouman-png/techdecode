@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""유진이의 수학여행 — 나레이션 대본 생성기 (v3).
+"""수학여행(유진·수호) — 나레이션 대본 생성기 (v3).
 
 ★v3 설계 — **나레이션은 숫자를 말하지 않는다.**
    숫자를 읽어 주려면 문제를 미리 녹음해야 하고, 그러면 매번 같은 문제만 나온다.
@@ -14,10 +14,21 @@
 
 출력: public/games/yujin/bank.json   (음성 파일 이름 = 각 항목의 키)
 """
+import argparse
 import json
 from pathlib import Path
 
-OUT = Path(__file__).resolve().parent.parent / 'public' / 'games' / 'yujin' / 'bank.json'
+BASE = Path(__file__).resolve().parent.parent / 'public' / 'games'
+
+# 주인공 = 게임 폴더. 나레이션이 아이 이름을 부르기 때문에 은행도 아이마다 따로 만든다.
+HEROES = {'yujin': ('유진', 'yujin'), 'suho': ('수호', 'suho')}
+
+
+def voc(name: str) -> str:
+    """부름말 — 받침이 있으면 '~아', 없으면 '~야'. (유진아 / 수호야)"""
+    last = name[-1]
+    jong = (ord(last) - 0xAC00) % 28 != 0 if '가' <= last <= '힣' else False
+    return name + ('아' if jong else '야')
 
 # key, 마을 이름, 개념(음성에서 부르는 이름)
 STAGES = [
@@ -91,6 +102,13 @@ DO = {
             '정답을 가진 몬스터만 밟을 수 있어. 어느 몬스터일까?'],
 }
 
+_ap = argparse.ArgumentParser()
+_ap.add_argument('--hero', default='yujin', choices=list(HEROES))
+_args = _ap.parse_args()
+HERO_NAME, HERO_DIR = HEROES[_args.hero]
+VOC = voc(HERO_NAME)
+OUT = BASE / HERO_DIR / 'bank.json'
+
 lines = {}          # 파일이름 -> 읽을 문장 (자막도 같은 문장을 쓴다)
 stages = []
 
@@ -100,7 +118,7 @@ for no, (key, title, concept) in enumerate(STAGES, 1):
             # 조사 '~을/를' 은 개념 이름의 받침으로 고른다
             jong = (ord(concept[-1]) - 0xAC00) % 28 != 0 if '가' <= concept[-1] <= '힣' else False
             lines[f'q_{key}_{mode}_{v}'] = (
-                f'유진아, 이번 문제는 {concept}{"을" if jong else "를"} 알아보는 거야. {do}')
+                f'{VOC}, 이번 문제는 {concept}{"을" if jong else "를"} 알아보는 거야. {do}')
     okr, xkr = TEACH[key]
     for v, t in enumerate(okr):
         lines[f'o_{key}_{v}'] = f'정답이야! {t}'
@@ -111,20 +129,20 @@ for no, (key, title, concept) in enumerate(STAGES, 1):
     stages.append({'no': no, 'key': key, 'title': title, 'concept': concept})
 
 COMMON = {
-    'welcome': '유진아, 안녕! 나랑 같이 수학여행을 떠나 볼까? '
+    'welcome': f'{VOC}, 안녕! 나랑 같이 수학여행을 떠나 볼까? '
                '숫자가 적힌 벽돌하고 몬스터가 나올 거야. 정답만 골라서 부수면 돼!',
     'stage': '새로운 마을에 도착했어. 문제를 잘 보고 정답을 찾아보자!',
-    'clear': '와, 이 마을의 문제를 다 풀었어! 정말 잘했어, 유진아.',
+    'clear': f'와, 이 마을의 문제를 다 풀었어! 정말 잘했어, {VOC}.',
     'hurt': '앗, 조심해! 몬스터 몸에 닿으면 아파. 머리 위에서 콩 하고 밟아야 해.',
     'over': '괜찮아. 실수해도 괜찮아. 다시 한 번 해 볼까?',
-    'win': '유진아, 축하해! 수학여행을 모두 마쳤어. 정말 대단하다!',
+    'win': f'{VOC}, 축하해! 수학여행을 모두 마쳤어. 정말 대단하다!',
 }
 for k, v in COMMON.items():
     lines[f'c_{k}'] = v
 
-data = {'version': 3, 'stages': stages, 'lines': lines, 'variants': 2}
+data = {'version': 3, 'hero': HERO_NAME, 'stages': stages, 'lines': lines, 'variants': 2}
 OUT.parent.mkdir(parents=True, exist_ok=True)
 OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding='utf-8')
-print(f'스테이지 {len(stages)}개 · 음성 클립 {len(lines)}개 → {OUT}')
+print(f'[{HERO_NAME}] 스테이지 {len(stages)}개 · 음성 클립 {len(lines)}개 → {OUT}')
 for k in list(lines)[:4]:
     print(f'  {k}: {lines[k]}')

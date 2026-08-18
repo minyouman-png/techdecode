@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""학습 게임 3종의 **자산 검사** — 브라우저 자가검증(`?test=sim`)이 못 보는 것을 본다.
+"""학습 게임 4종의 **자산 검사** — 브라우저 자가검증(`?test=sim`)이 못 보는 것을 본다.
 
 `?test=sim` 은 파일이 200 으로 내려오는지까지만 안다. 그런데 실제로 겪는 사고는 그 앞이다:
   · TTS 가 문장을 **중간에서 잘라** 내보낸 mp3 (파일은 멀쩡히 존재한다)
@@ -26,6 +26,8 @@ PUB = ROOT / 'public' / 'games'
 GAMES = [
     ('유진이의 수학여행', PUB / 'yujin' / 'bank.json', PUB / 'yujin' / 'voice',
      [PUB / 'yujin' / 'cover.jpg']),
+    ('수호의 수학여행', PUB / 'suho' / 'bank.json', PUB / 'suho' / 'voice',
+     [PUB / 'suho' / 'cover.jpg']),
     ('유자의 과학동산 여행', PUB / 'ujaquest' / 'science.json', PUB / 'ujaquest' / 'voice' / 'science',
      [PUB / 'ujaquest' / 'cover-science.jpg']),
     ('유자의 도덕동산 여행', PUB / 'ujaquest' / 'moral.json', PUB / 'ujaquest' / 'voice' / 'moral',
