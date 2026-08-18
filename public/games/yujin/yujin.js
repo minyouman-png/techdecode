@@ -28,6 +28,7 @@ var BRICK = 46;
 var BRICK_BOTTOM = GY - 150;  // 벽돌 아랫면 — 점프 한 번으로 머리가 닿는 높이
 var QUIZ_PER_STAGE = 4;       // 한 판에 나오는 문제 수(은행 8개 중에서 뽑는다)
 var LIVES = 3;
+var SAVE_TAG = 'yujin_math';
 var SAVE_KEY = 'yujin_math_v1';
 
 var THEMES = [
@@ -120,6 +121,17 @@ var Voice = {
     return a;
   },
   prefetch: function (names) { for (var i = 0; i < names.length; i++) this.get(names[i]).load(); },
+  /** 여러 클립을 순서대로 재생한다(문장 경계라 이어 붙여도 자연스럽다). */
+  seq: function (list, kind, onEnd) {
+    var self = this, i = 0;
+    function step() {
+      if (i >= list.length) { if (onEnd) onEnd(); return; }
+      var it = list[i++];
+      self.say(it.n, it.t, kind, step);
+    }
+    this.stop();
+    step();
+  },
   say: function (name, text, kind, onEnd) {
     this.stop();
     this.curName = name; this.onEnd = onEnd || null;
@@ -290,7 +302,10 @@ function buildLevel(stage) {
         z.items.push({
           kind: 'mob', v: choices[k], dead: false, wrong: 0, squash: 0,
           x: (c - 3 + k * 2) * TILE, y: GY - 40, w: 38, h: 40,
-          vx: (k % 2 ? 42 : -42), x0: (c - 4) * TILE, x1: (c + 4) * TILE, z: z
+          // ⚠️네 마리가 같은 순찰 구간을 공유하면 서로 지나치며 숫자를 가린다(자가검증이 잡음).
+          //   각자 제자리 근처에서만 어슬렁거리게 한다.
+          vx: (k % 2 ? 30 : -30),
+          x0: (c - 3 + k * 2) * TILE - 14, x1: (c - 3 + k * 2) * TILE + 14, z: z
         });
       }
     }
@@ -1395,6 +1410,127 @@ function selfTest() {
   var b = best();
   ck(b.max === 5 && b.stars === 7 && b.cleared[3], '세이브 왕복 실패');
   if (keep === null) localStorage.removeItem(SAVE_KEY); else localStorage.setItem(SAVE_KEY, keep);
+
+
+  /* ===== 11. 소리를 껐을 때도 진행이 멈추지 않는가 =====
+     ⚠️이 게임은 **나레이션이 끝나야** 다음으로 넘어간다(해설 → 배너 내림 → 다음 문제).
+        음소거에서 콜백이 안 불리면 게임이 그 자리에서 멈춘다 — 소리를 끄고 노는 아이가 있다. */
+  var wasMuted = Voice.muted;
+  Voice.muted = true;
+  var called = 0;
+  Voice.say('c_stage', '검사', '', function () { called++; });
+  ck(called === 1, '음소거일 때 나레이션 콜백이 안 불림 — 진행이 멈춘다');
+  Voice.seq([{ n: 'c_stage', t: '하나' }, { n: 'c_clear', t: '둘' }], '', function () { called++; });
+  ck(called === 2, '음소거일 때 seq 콜백이 안 불림 — 진행이 멈춘다');
+
+  /* 12. 나레이션이 겹치지 않는가 — 새 말이 나오면 이전 말은 끊겨야 한다 */
+  var stopped = 0;
+  Voice.cur = { pause: function () { stopped++; }, onended: null, onerror: null };
+  Voice.say('c_stage', '검사', '', null);
+  ck(stopped === 1, '새 나레이션이 이전 것을 안 끊는다 — 목소리가 겹쳐 들린다');
+
+  /* 13. seq 재생 순서 */
+  var order = [], origSub = Voice.subtitle;
+  Voice.subtitle = function (t, k) { order.push(t); origSub.call(Voice, t, k); };
+  Voice.seq([{ n: 'c_stage', t: '하나' }, { n: 'c_clear', t: '둘' }, { n: 'c_win', t: '셋' }],
+            '', function () { order.push('끝'); });
+  Voice.subtitle = origSub;
+  ck(order.join('>') === '하나>둘>셋>끝', 'seq 재생 순서가 어긋남: ' + order.join('>'));
+  Voice.muted = wasMuted;
+  Voice.stop();
+
+  /* ===== 14. 클리어하면 저장되고 다음이 열리는가 ===== */
+  var keep2 = localStorage.getItem(SAVE_KEY);
+  localStorage.removeItem(SAVE_KEY);
+  G.mode = 'play'; startStage(2); G.stars = 5;
+  LV.zones.forEach(function (z) { z.state = 'done'; });
+  stageClear();
+  ck(best().cleared[2], '클리어했는데 저장이 안 됨');
+  ck(best().max >= 3, '클리어했는데 다음 단계가 안 열림 (max=' + best().max + ')');
+  ck(best().stars >= 5, '클리어했는데 별이 저장 안 됨');
+  if (keep2 === null) localStorage.removeItem(SAVE_KEY); else localStorage.setItem(SAVE_KEY, keep2);
+
+  /* 15. 목숨이 0이면 게임오버로 간다 */
+  G.mode = 'play'; startStage(1); G.lives = 1;
+  die();
+  P.deadT = 0; update(STEP);
+  ck(G.lives === 0, '마지막 목숨이 안 줄었다');
+  ck(G.mode === 'result', '목숨이 0인데 게임오버가 안 됐다 (mode=' + G.mode + ')');
+
+  /* 16. 세이브 키가 게임마다 분리되어 있는가 (섞이면 진도가 뒤엉킨다) */
+  ck(SAVE_KEY.indexOf(SAVE_TAG) >= 0, '세이브 키가 이 게임 것이 아님: ' + SAVE_KEY);
+
+  /* ===== 17. 여덟 단계 전부 완주할 수 있는가 =====
+     ⚠️한 단계만 돌려 보고 넘어가면, 뒤쪽 단계에서 못 넘는 구덩이나 못 닿는 벽돌이 남는다. */
+  for (var sN = 1; sN <= 8; sN++) {
+    G.mode = 'play'; startStage(sN); G.lives = 99; G.introT = 0;
+    keys['ArrowRight'] = 1;
+    var ok = false, guard = 0;
+    for (var fN = 0; fN < 6000; fN++) {
+      var zz = zoneOf();
+      if (zz && zz.state === 'asking') {
+        var right = zz.items.filter(function (t) { return t.v === zz.p.a; })[0];
+        if (right && !right.dead && !right.squash) {
+          if (zz.mode === 'brick') hitBrick(right); else stompMob(right);
+        }
+        P.x = (zz.cc - 2) * TILE; P.y = GY - PH; P.vy = 0;
+      }
+      var ah = Math.floor((P.x + PW + 26) / TILE);
+      keys[' '] = (inGap(ah) || inGap(ah + 1)) && P.onG ? 1 : (P.vy < 0 ? keys[' '] : 0);
+      update(STEP);
+      if (!isFinite(P.x) || !isFinite(P.y)) { fails.push(sN + '단계: 좌표가 NaN'); break; }
+      if (P.flag) { ok = true; break; }
+      guard = fN;
+    }
+    keys['ArrowRight'] = 0; keys[' '] = 0;
+    ck(ok, sN + '단계: 문제를 다 풀었는데 깃발까지 못 감 (' + guard + '프레임)');
+    ck(G.solved === QUIZ_PER_STAGE, sN + '단계: 완주했는데 푼 문제가 ' + G.solved);
+  }
+
+  /* ===== 18. 보기가 서로 겹치지 않는가 (순찰 폭까지 고려) ===== */
+  for (var sO = 1; sO <= 8; sO++) {
+    G.stage = sO; LV = buildLevel(sO);
+    LV.zones.forEach(function (z) {
+      var its = z.items.slice().sort(function (a, b) { return a.x - b.x; });
+      for (var k = 1; k < its.length; k++) {
+        var prevR = (its[k - 1].x1 !== undefined ? its[k - 1].x1 : its[k - 1].x) + its[k - 1].w;
+        var curL = its[k].x0 !== undefined ? its[k].x0 : its[k].x;
+        ck(curL - prevR >= 12,
+           sO + '단계: 보기가 겹친다 (' + its[k - 1].v + ' ↔ ' + its[k].v + ')');
+      }
+    });
+  }
+
+  /* ===== 19. 좁은 화면(620px)에서도 보기가 전부 보이는가 =====
+     ⚠️문제를 푸는 동안 카메라는 구역에 고정된다. 그 상태에서 보기가 화면 밖이면
+        아이는 있는 줄도 모르는 답을 고르지 못한다. */
+  var NARROW = 620;
+  for (var sV = 1; sV <= 8; sV++) {
+    G.stage = sV; LV = buildLevel(sV);
+    LV.zones.forEach(function (z) {
+      var cam = z.cc * TILE + TILE / 2 - NARROW / 2;
+      z.items.forEach(function (it) {
+        var left = (it.x0 !== undefined ? it.x0 : it.x) - cam;
+        var right = (it.x1 !== undefined ? it.x1 : it.x) + it.w - cam;
+        ck(left >= 0 && right <= NARROW,
+           sV + '단계: 좁은 화면에서 보기 "' + it.v + '" 가 화면 밖 (' +
+           Math.round(left) + '~' + Math.round(right) + ' / 0~' + NARROW + ')');
+      });
+    });
+  }
+
+  /* ===== 20. 구덩이를 실제로 넘을 수 있는가 (물리로 계산) ===== */
+  var airT = 2 * Math.abs(JUMP_V) / GRAV;          // 최대 체공 시간
+  var reach = RUN_MAX * airT;                       // 최대 도약 거리
+  for (var sG = 1; sG <= 8; sG++) {
+    G.stage = sG; LV = buildLevel(sG);
+    LV.gaps.forEach(function (g) {
+      var need = (g.c1 - g.c0 + 1) * TILE + PW;
+      ck(reach >= need * 1.25,
+         sG + '단계: 구덩이가 너무 넓다 (필요 ' + Math.round(need) +
+         'px / 최대 도약 ' + Math.round(reach) + 'px)');
+    });
+  }
 
   /* 음성 파일 존재 확인은 비동기 — 끝나면 결과를 갱신한다 */
   report(fails, need.length, true);
