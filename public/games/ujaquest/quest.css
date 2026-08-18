@@ -8,7 +8,7 @@
 
   /* ===== HUD ===== */
   #hud { position: fixed; top: 0; left: 0; right: 0; z-index: 5; display: none;
-    align-items: center; gap: 7px; padding: 8px 150px 8px 10px; pointer-events: none;
+    align-items: center; gap: 7px; padding: 8px 202px 8px 10px; pointer-events: none;
     flex-wrap: wrap; }
   body.playing #hud { display: flex; }
   .chip { color: #fff; font-weight: 900; font-size: 15px; background: rgba(24,18,40,.55);
@@ -75,25 +75,43 @@
   #resStats .big { font-size: 32px; color: #ffe28a; }
 
   /* ===== 터치 ===== */
+  /* ⚠️화면 조작 버튼은 '터치 기기 감지'에 맡기지 않는다 — 태블릿·노트북 겸용 기기에서
+     감지가 어긋나면 아이는 조작할 방법이 아예 없어진다. body.pad 로 사람이 켜고 끈다. */
   #touch { display: none; }
-  body.touch.playing #touch { display: block; }
+  body.pad.playing #touch { display: block; }
   #touch .tbtn { position: fixed; z-index: 7; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,.45); background: rgba(24,18,40,.4); color: #fff;
+    border: 2px solid rgba(255,255,255,.5); background: rgba(24,18,40,.42); color: #fff;
     font-weight: 900; display: flex; align-items: center; justify-content: center;
     touch-action: none; -webkit-user-select: none; user-select: none;
-    -webkit-tap-highlight-color: transparent; }
-  #touch .tbtn.on { background: rgba(255,255,255,.35); }
-  #tLeft  { left: 16px;  bottom: 22px; width: 76px; height: 76px; font-size: 30px; }
-  #tRight { left: 106px; bottom: 22px; width: 76px; height: 76px; font-size: 30px; }
-  #tJump  { right: 18px; bottom: 22px; width: 88px; height: 88px; font-size: 26px;
-    background: rgba(80,170,90,.5); }
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 3px 10px rgba(0,0,0,.25); transition: transform .06s ease, background .06s ease; }
+  #touch .tbtn.on { background: rgba(255,255,255,.4); transform: scale(.94); }
+  /* ⚠️손가락 크기는 화면 크기와 상관없다 — 태블릿이라고 버튼이 작아지면 안 된다.
+     기본을 넉넉히 잡고, 아주 좁은 화면에서만 줄인다. */
+  #tLeft  { left: 20px;  bottom: 26px; width: 88px; height: 88px; font-size: 34px; }
+  #tRight { left: 122px; bottom: 26px; width: 88px; height: 88px; font-size: 34px; }
+  #tJump  { right: 22px; bottom: 26px; width: 104px; height: 104px; font-size: 30px;
+    background: rgba(80,170,90,.52); }
+  @media (max-width: 520px) {
+    #tLeft  { left: 14px; bottom: 18px; width: 74px; height: 74px; font-size: 29px; }
+    #tRight { left: 96px; bottom: 18px; width: 74px; height: 74px; font-size: 29px; }
+    #tJump  { right: 16px; bottom: 18px; width: 86px; height: 86px; font-size: 26px; }
+  }
+  @media (min-width: 1000px) and (min-height: 700px) {
+    #tLeft  { left: 26px;  bottom: 34px; width: 104px; height: 104px; font-size: 40px; }
+    #tRight { left: 146px; bottom: 34px; width: 104px; height: 104px; font-size: 40px; }
+    #tJump  { right: 28px; bottom: 34px; width: 124px; height: 124px; font-size: 34px; }
+  }
+  #padBtn.on { background: rgba(126,224,138,.5); border-color: #7ee08a; }
+  #padToggle.on { background: #3f8a44; border-color: #276b2c; }
 
   #err { display: none; position: fixed; left: 10px; bottom: 10px; z-index: 99; color: #fff;
     background: #b32; padding: 8px 12px; border-radius: 6px; font-size: 13px; max-width: 90vw; }
   @media (max-width: 560px) {
     .screen h1 { font-size: 34px; }
-    .chip { font-size: 12px; padding: 4px 9px; }
+    .chip { font-size: 11px; padding: 3px 8px; }
+    .iconbtn { width: 36px; height: 36px; font-size: 16px; border-radius: 10px; }
+    #hud { padding-right: 168px; }
     #qText { font-size: 20px; }
-    #topui { top: 40px; }
     #say { font-size: 14px; }
   }

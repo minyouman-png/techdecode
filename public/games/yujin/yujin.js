@@ -15,7 +15,8 @@
 
 /* ---------- 상수 ---------- */
 var VH = 540;                 // 캔버스 논리 높이(세로 화면에서는 커진다 — layout 참조)
-var WORLD_H = 560;            // 세계의 높이(ROWS*TILE). 세계는 캔버스 '아래'에 붙인다.
+var WORLD_H = 560;
+var PAD_INSET = 0;           // 화면 조작 버튼이 차지하는 아래쪽 높이(논리 px)            // 세계의 높이(ROWS*TILE). 세계는 캔버스 '아래'에 붙인다.
 var TILE = 40;
 var ROWS = 14;
 var GROUND_ROW = 11;          // 지면 윗면이 놓이는 행
@@ -703,7 +704,7 @@ function render() {
   g.addColorStop(0, th.sky[0]); g.addColorStop(1, th.sky[1]);
   cx.fillStyle = g; cx.fillRect(0, 0, VW, VH);
 
-  cx.translate(0, VH - WORLD_H);      // 세계를 아래에 붙인다(남는 위쪽은 하늘)
+  cx.translate(0, VH - WORLD_H - PAD_INSET);   // 세계를 아래에 붙인다(조작 버튼 높이만큼 띄운다)
   drawClouds();
   drawHills(th);
   cx.save();
@@ -800,7 +801,10 @@ function drawGround(th) {
         cx.fillRect(c * TILE + 6 + w * 12, wy, 16, 3);
       }
     } else {
-      for (var r = GROUND_ROW; r < ROWS; r++) {
+      // ⚠️태블릿 모드에서는 세계를 버튼 높이만큼 올렸다 — 그만큼 땅을 **이어서** 그린다.
+      //   평평한 색으로 메우면 아래쪽이 커다란 갈색 판처럼 보인다.
+      var rEnd = ROWS + (PAD_INSET > 0 ? Math.ceil(PAD_INSET / TILE) + 1 : 0);
+      for (var r = GROUND_ROW; r < rEnd; r++) {
         var x = c * TILE, y = r * TILE;
         cx.fillStyle = r === GROUND_ROW ? th.top : th.ground;
         cx.fillRect(x, y, TILE, TILE);
@@ -1044,9 +1048,9 @@ function drawToast() {
   cx.font = '900 19px sans-serif'; cx.textAlign = 'center';
   var w = cx.measureText(G.msg).width + 40;
   cx.fillStyle = 'rgba(24,18,40,.85)';
-  roundRect(VW / 2 - w / 2, VH - 74, w, 40, 14); cx.fill();
+  roundRect(VW / 2 - w / 2, VH - 74 - PAD_INSET, w, 40, 14); cx.fill();
   cx.fillStyle = '#ffe28a';
-  cx.fillText(G.msg, VW / 2, VH - 48);
+  cx.fillText(G.msg, VW / 2, VH - 48 - PAD_INSET);
   cx.restore();
   cx.textAlign = 'left';
 }
@@ -1069,6 +1073,7 @@ function paintHud() {
   if ($('hStar')) $('hStar').textContent = '⭐ ' + G.stars;
   if ($('hLife')) $('hLife').textContent = '❤️'.repeat(Math.max(0, G.lives));
   if ($('hQ')) $('hQ').textContent = '문제 ' + G.solved + '/' + QUIZ_PER_STAGE;
+  placeTopUi();      // 칩 내용이 바뀌면 줄 수가 바뀔 수 있다
 }
 
 function paintStagePick() {
@@ -1106,10 +1111,33 @@ function layout() {
   //   남는 공간은 하늘로 채운다 — 세계는 캔버스 아래쪽에 붙인다.
   VW = clamp(Math.round(540 * aspect), 620, 1600);
   VH = Math.max(540, Math.round(VW / aspect));
+  // ⚠️화면 조작 버튼은 화면 아래를 덮는다. 세계를 그대로 바닥에 붙이면 **버튼이 캐릭터가
+  //   걸어다니는 자리를 가린다**(폰에서 특히). 버튼 높이만큼 세계를 위로 올리고,
+  //   생긴 아래 여백은 땅으로 메운다.
+  // ⚠️필요한 만큼만 올린다. 고정값을 쓰면 가로 태블릿처럼 원래도 여유가 있는 화면에서
+  //   아래가 갈색 벌판이 된다. **버튼의 실제 위치를 재서** 지면이 버튼 위에 오도록만 맞춘다.
+  PAD_INSET = 0;
+  if (document.body.classList.contains('pad')) {
+    var jb = document.getElementById('tJump');
+    var r = jb ? jb.getBoundingClientRect() : null;
+    var topCss = r && r.height ? r.top : h - 130;      // 아직 안 그려졌으면 대략값
+    var need = GY + VH - WORLD_H - topCss * (VH / h) + 10;
+    PAD_INSET = Math.max(0, Math.round(need));
+  }
   cv.width = Math.round(VW * DPR); cv.height = Math.round(VH * DPR);
   cv.style.width = w + 'px'; cv.style.height = h + 'px';
   cx.setTransform(DPR, 0, 0, DPR, 0, 0);
   cx.imageSmoothingEnabled = true;
+  placeTopUi();
+}
+
+/** ⚠️좁은 화면에서는 HUD 칩이 두 줄로 접힌다 — 배너 위치를 고정해 두면 그 위에 겹쳐 앉는다.
+    HUD 가 실제로 차지한 높이를 재서 그만큼 내린다. */
+function placeTopUi() {
+  var hud = $('hud'), top = $('topui');
+  if (!top) return;
+  var h = hud && hud.offsetHeight ? hud.offsetHeight : 40;
+  top.style.top = (h + 10) + 'px';
 }
 
 function bindInput() {
@@ -1132,7 +1160,13 @@ function bindInput() {
     window.addEventListener('mouseup', off);
   }
   tb('tLeft', 'l'); tb('tRight', 'r'); tb('tJump', 'j');
-  if ('ontouchstart' in window) document.body.classList.add('touch');
+  // ?pad=1 / ?pad=0 으로 강제할 수 있다(기기 감지가 틀렸을 때 링크 하나로 해결된다)
+  var padQ = new URLSearchParams(location.search).get('pad');
+  setPad(padQ === null ? padOn() : padQ === '1');
+  if ($('padBtn')) $('padBtn').onclick = function () { setPad(!document.body.classList.contains('pad')); };
+  if ($('padToggle')) $('padToggle').onclick = function () {
+    setPad(!document.body.classList.contains('pad'));
+  };
 
   $('startBtn').onclick = function () { startGame(Math.min(best().max, BANK.stages.length)); };
   $('retryBtn').onclick = function () { startGame(G.stage); };
@@ -1153,6 +1187,35 @@ function bindInput() {
     Voice.say(qn, BANK.lines[qn], '', null);
   };
   window.addEventListener('resize', layout);
+}
+
+
+/* ---------- 태블릿 모드(화면 조작 버튼) ----------
+   ⚠️'ontouchstart 가 있으면 터치 기기' 라는 감지는 자주 틀린다 — 터치 되는 노트북에서는
+     쓸데없이 뜨고, 일부 태블릿 브라우저에서는 안 뜬다. 안 뜨면 아이는 조작할 방법이 없다.
+     그래서 **감지는 첫 기본값을 정하는 데만 쓰고, 최종 결정은 사람이 버튼으로 한다.**
+     선택은 저장해 두어 다음에 열 때 그대로 나온다. */
+var PAD_KEY = SAVE_KEY + '_pad';
+
+function padGuess() {
+  return ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
+}
+function padOn() {
+  var v = null;
+  try { v = localStorage.getItem(PAD_KEY); } catch (e) {}
+  return v === null ? padGuess() : v === '1';
+}
+function setPad(on) {
+  document.body.classList.toggle('pad', !!on);
+  try { localStorage.setItem(PAD_KEY, on ? '1' : '0'); } catch (e) {}
+  var b = $('padBtn'), t = $('padToggle');
+  if (b) { b.classList.toggle('on', !!on); b.title = on ? '태블릿 모드 켜짐' : '태블릿 모드 꺼짐'; }
+  if (t) {
+    t.classList.toggle('on', !!on);
+    t.textContent = on ? '📱 태블릿 모드 켜짐' : '📱 태블릿 모드';
+  }
+  if (!on) { touch.l = touch.r = touch.j = 0; }   // 끌 때 눌린 채로 남지 않게
+  if (cv) layout();                              // 세계를 올리고/내리려면 다시 재야 한다
 }
 
 function togglePause() {
@@ -1531,6 +1594,112 @@ function selfTest() {
          'px / 최대 도약 ' + Math.round(reach) + 'px)');
     });
   }
+
+
+  /* ===== 21. 태블릿 모드 — 폰·태블릿에서 손가락으로 조작할 수 있는가 =====
+     ⚠️버튼이 보이는 것만으로는 부족하다. **눌렀을 때 실제로 움직여야** 한다.
+        여기서는 진짜 이벤트를 쏘아 입력 경로 전체(리스너 → touch 상태 → 물리)를 확인한다. */
+  var padKeep = null;
+  try { padKeep = localStorage.getItem(PAD_KEY); } catch (e) {}
+
+  setPad(true);
+  ck(document.body.classList.contains('pad'), '태블릿 모드를 켰는데 body.pad 가 없다');
+  var padEl = document.getElementById('touch');
+  document.body.classList.add('playing');
+  ck(padEl && getComputedStyle(padEl).display !== 'none', '태블릿 모드인데 조작 버튼이 안 보인다');
+  ['tLeft', 'tRight', 'tJump'].forEach(function (id) {
+    var el = document.getElementById(id);
+    ck(!!el, '조작 버튼이 없다: ' + id);
+    if (!el) return;
+    var r = el.getBoundingClientRect();
+    // 손가락으로 누를 크기인가 (접근성 권고 44px)
+    ck(r.width >= 44 && r.height >= 44, id + ' 버튼이 너무 작다 ' + Math.round(r.width) + 'px');
+    ck(r.right <= window.innerWidth + 1 && r.bottom <= window.innerHeight + 1 && r.left >= -1,
+       id + ' 버튼이 화면 밖에 있다');
+  });
+
+  /* 실제로 눌러 본다 — 오른쪽 버튼을 누르면 오른쪽으로 가야 한다 */
+  G.mode = 'play'; startStage(1); G.lives = 99;
+  LV.zones.forEach(function (z) { z.items = []; });
+  function press(id, type) {
+    var el = document.getElementById(id);
+    var ev;
+    try {
+      ev = new TouchEvent(type, { bubbles: true, cancelable: true });
+    } catch (e) {                       // TouchEvent 를 못 만드는 환경(데스크톱 크롬)
+      ev = new MouseEvent(type === 'touchstart' ? 'mousedown' : 'mouseup',
+                          { bubbles: true, cancelable: true });
+      (type === 'touchstart' ? el : window).dispatchEvent(ev);
+      return;
+    }
+    el.dispatchEvent(ev);
+  }
+  var x0 = P.x;
+  press('tRight', 'touchstart');
+  for (var pf = 0; pf < 40; pf++) update(STEP);
+  press('tRight', 'touchend');
+  ck(P.x > x0 + 30, '오른쪽 버튼을 눌렀는데 안 움직였다 (' +
+     Math.round(x0) + ' → ' + Math.round(P.x) + ')');
+  for (var pf2 = 0; pf2 < 30; pf2++) update(STEP);
+  ck(Math.abs(P.vx) < 1, '버튼에서 손을 뗐는데 계속 움직인다 (vx=' + Math.round(P.vx) + ')');
+
+  var y0 = P.y;
+  press('tJump', 'touchstart');
+  var apexPad = P.y;
+  for (var pf3 = 0; pf3 < 30; pf3++) { update(STEP); apexPad = Math.min(apexPad, P.y); }
+  press('tJump', 'touchend');
+  ck(apexPad < y0 - 60, '점프 버튼을 눌렀는데 안 뛴다 (' +
+     Math.round(y0) + ' → ' + Math.round(apexPad) + ')');
+
+  /* ⚠️태블릿 모드에서만 도는 코드(세계를 위로 올리고 아래를 땅으로 메우는 부분)는
+     기본값이 '꺼짐'인 환경에서 한 번도 실행되지 않는다 — 실제로 그 길에서 한 번 터졌다.
+     그래서 **켠 상태로 직접 한 프레임을 그려 본다.** */
+  setPad(true); layout();
+  ck(PAD_INSET >= 0 && isFinite(PAD_INSET), '태블릿 모드 여백 계산이 이상하다 (' + PAD_INSET + ')');
+  var drawErr = '';
+  try { render(); } catch (e) { drawErr = e.message; }
+  ck(!drawErr, '태블릿 모드에서 그리기가 터진다: ' + drawErr);
+
+  /* 버튼이 캐릭터가 걸어다니는 자리를 덮지 않는가 */
+  var scaleY = window.innerHeight / VH;
+  var groundScreenY = (GY + (VH - WORLD_H - PAD_INSET)) * scaleY;
+  ['tLeft', 'tRight', 'tJump'].forEach(function (id) {
+    var r = document.getElementById(id).getBoundingClientRect();
+    ck(r.top >= groundScreenY - 2,
+       id + ' 버튼이 지면(캐릭터가 걸어다니는 자리)을 덮는다 (버튼 위 ' +
+       Math.round(r.top) + ' / 지면 ' + Math.round(groundScreenY) + ')');
+  });
+
+  /* 문제 배너가 HUD 를 덮지 않는가 (좁은 화면에서 칩이 두 줄이 되면 겹쳤다) */
+  document.body.classList.add('quizon');
+  paintHud(); placeTopUi();
+  var hudR = document.getElementById('hud').getBoundingClientRect();
+  var quizR = document.getElementById('quiz').getBoundingClientRect();
+  ck(quizR.top >= hudR.bottom - 1,
+     '문제 배너가 HUD 를 덮는다 (배너 위 ' + Math.round(quizR.top) +
+     ' / HUD 아래 ' + Math.round(hudR.bottom) + ')');
+  document.body.classList.remove('quizon');
+
+  /* 껐을 때: 버튼이 사라지고, 눌려 있던 입력도 풀려야 한다 */
+  press('tLeft', 'touchstart');
+  setPad(false);
+  ck(!document.body.classList.contains('pad'), '태블릿 모드를 껐는데 body.pad 가 남았다');
+  ck(getComputedStyle(padEl).display === 'none', '껐는데 조작 버튼이 아직 보인다');
+  var vxBefore = P.vx;
+  for (var pf4 = 0; pf4 < 20; pf4++) update(STEP);
+  ck(P.vx >= vxBefore - 1, '태블릿 모드를 껐는데 버튼이 눌린 채로 남아 계속 움직인다');
+
+  /* 선택이 저장되는가 (다음에 열었을 때 그대로여야 한다) */
+  setPad(true);
+  ck(padOn() === true, '태블릿 모드 켬이 저장되지 않는다');
+  setPad(false);
+  ck(padOn() === false, '태블릿 모드 끔이 저장되지 않는다');
+  try {
+    if (padKeep === null) localStorage.removeItem(PAD_KEY);
+    else localStorage.setItem(PAD_KEY, padKeep);
+  } catch (e) {}
+  setPad(padOn());
+  document.body.classList.remove('playing');
 
   /* 음성 파일 존재 확인은 비동기 — 끝나면 결과를 갱신한다 */
   report(fails, need.length, true);

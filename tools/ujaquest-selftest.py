@@ -64,6 +64,7 @@ def main() -> int:
     ap.add_argument("--wait", type=float, default=3.0)
     ap.add_argument("--run", type=float, default=0.0)   # 캡처 전 오른쪽으로 달릴 초
     ap.add_argument("--subject", default="science")   # science | moral
+    ap.add_argument("--pad", default="")
     ap.add_argument("--out", default="")
     args = ap.parse_args()
     serve(args.port)
@@ -86,7 +87,7 @@ def main() -> int:
            "mobile": args.width < 500})
         c("Runtime.enable")
         base = f"http://127.0.0.1:{args.port}/games/ujaquest/{args.subject}.html"
-        c("Page.navigate", {"url": f"{base}?stage={args.shot}" if args.shot else f"{base}?test=sim"})
+        c("Page.navigate", {"url": f"{base}?stage={args.shot}" + (f"&pad={args.pad}" if args.pad else "") if args.shot else f"{base}?test=sim"})
         time.sleep(args.wait)
         if args.shot:
             # 실제 키 입력으로 오른쪽으로 달리게 해서 '문제 구역'이 보이는 장면을 잡는다
