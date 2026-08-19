@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>깨비의 과학동산 여행</title>
+<link rel="stylesheet" href="quest.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="hud">
+    <span class="chip" id="hStage"></span>
+    <span class="chip" id="hStar"></span>
+    <span class="chip" id="hLife"></span>
+    <span class="chip" id="hQ"></span>
+  </div>
+  <div id="hudBtns">
+    <button class="iconbtn" id="replayBtn" title="문제 다시 듣기">🔊</button>
+    <button class="iconbtn" id="padBtn" title="태블릿 모드 — 화면 조작 버튼">🎮</button>
+    <button class="iconbtn" id="muteBtn">🔈</button>
+    <button class="iconbtn" id="pauseBtn">⏸</button>
+  </div>
+
+  <div id="topui">
+    <div id="quiz">
+      <div id="qConcept"></div>
+      <div id="qText"></div>
+      <div id="qPic"></div>
+      <div id="qHint"></div>
+    </div>
+    <div id="say"></div>
+  </div>
+
+  <div class="screen" id="menu" style="display:flex">
+    <h1>🔬 깨비의 과학동산 여행<span>KKAEBI QUEST</span></h1>
+    <div id="stagePick"></div>
+    <div class="btnrow">
+      <button class="bigbtn" id="startBtn">여행 시작!</button>
+    </div>
+    <div class="btnrow">
+      <button class="graybtn" id="padToggle">📱 태블릿 모드</button>
+    </div>
+    <div class="help">
+      <b>←→</b> 또는 <b>A·D</b> 움직이기 · <b>Space</b> 또는 <b>↑</b> 점프<br>
+      문제를 잘 듣고 <b>정답이 적힌 벽돌</b>을 머리로 치거나, <b>정답 몬스터</b>를 밟으세요<br>
+      틀려도 괜찮아요 — 다시 생각할 수 있게 알려주고, 몇 번이든 다시 풀 수 있어요
+    </div>
+    <div class="credit">100% AI 제작 · 나레이션 음성도 AI가 만들었습니다</div>
+  </div>
+
+  <div class="screen" id="pause">
+    <h2>잠깐 쉬는 중</h2>
+    <div class="btnrow">
+      <button class="bigbtn" id="resumeBtn">계속하기</button>
+      <button class="graybtn" id="quitBtn">그만두기</button>
+    </div>
+  </div>
+
+  <div class="screen" id="results">
+    <h2 id="resT"></h2>
+    <div id="resStats"></div>
+    <div class="btnrow">
+      <button class="bigbtn" id="nextBtn">다음 동산으로</button>
+      <button class="graybtn" id="retryBtn">다시 하기</button>
+      <button class="graybtn" id="menuBtn">처음으로</button>
+    </div>
+  </div>
+
+  <div id="touch">
+    <div class="tbtn" id="tLeft">◀</div>
+    <div class="tbtn" id="tRight">▶</div>
+    <div class="tbtn" id="tJump">⬆</div>
+  </div>
+
+  <div id="err"></div>
+  <script>window.QUEST_SUBJECT = 'science'; window.QUEST_HERO = 'kkaebi';</script>
+  <script src="engine.js?v=4"></script>
+</body>
+</html>

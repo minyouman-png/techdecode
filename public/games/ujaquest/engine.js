@@ -41,8 +41,13 @@ var BRICK_BOTTOM = GY - 150;  // 벽돌 아랫면 — 점프 한 번으로 머�
 var QUIZ_PER_STAGE = 4;       // 한 판에 나오는 문제 수(동산 은행 10개 중에서 뽑는다)
 var LIVES = 3;
 var SUBJECT = window.QUEST_SUBJECT || 'science';
+// 주인공 — 같은 동산을 아이마다 자기 모습으로 간다. 음성·문제 은행은 그대로 같이 쓰고
+// 이름을 부르는 인사말(c_welcome_<주인공>)만 갈린다. ⚠️몸 크기·히트박스는 모두 같다.
+var HERO = window.QUEST_HERO || 'uja';
+var WELCOME = 'c_welcome' + (HERO === 'uja' ? '' : '_' + HERO);
 var SAVE_TAG = 'uja_quest';
-var SAVE_KEY = 'uja_quest_' + SUBJECT + '_v1';
+// ⚠️유자의 진도가 이미 저장돼 있다 — 유자 키는 건드리지 않고 새 주인공만 뒤에 붙인다.
+var SAVE_KEY = 'uja_quest_' + SUBJECT + (HERO === 'uja' ? '' : '_' + HERO) + '_v1';
 // ⚠️보기가 낱말이라 숫자보다 훨씬 넓다 → 보기는 3개, 벽돌·몬스터를 넓게 벌려 놓는다.
 // ⚠️BOX_H 를 WORLD_H(세계 높이)와 헷갈리지 말 것 — 이름이 비슷해 한 번 위험했다.
 var WORD_W = 144, BOX_H = 54, MOB_H = 62;
@@ -412,7 +417,7 @@ function startGame(stage) {
   hideScreens();
   startStage(stage || 1);
   ac();
-  Voice.say('c_welcome', BANK.lines.c_welcome, '', function () { Voice.hide(); });
+  Voice.say(WELCOME, BANK.lines[WELCOME] || BANK.lines.c_welcome, '', function () { Voice.hide(); });
 }
 
 function hurt() {
@@ -944,6 +949,114 @@ function roundRect(x, y, w, h, r) {
 
 /* ---------- 유진 ---------- */
 function drawPlayer() {
+  if (HERO === 'kkaebi') { drawKkaebi(); return; }
+  drawUja();
+}
+
+/* 깨비 — 도깨비 아이(작은 뿔 두 개, 파란 피부, 호랑이무늬 조끼)
+   ⚠️피부색을 하늘색으로 하면 하늘 배경에 묻힌다 — 하늘보다 진한 청록으로 잡고,
+      주황 호랑이무늬 조끼로 한 번 더 떼어 놓는다. 몸 크기·히트박스는 세 아이가 모두 같다. */
+function drawKkaebi() {
+  var x = P.x, y = P.y, d = P.dir;
+  if (P.inv > 0 && Math.floor(P.inv * 12) % 2) return;
+  var walk = P.onG && Math.abs(P.vx) > 20 ? Math.sin(P.anim * 6) : 0;
+  var lean = P.onG ? walk * 0.06 : clamp(P.vy / 1400, -0.16, 0.16);
+  var SKIN = '#3fb3c9';
+  cx.save();
+  cx.fillStyle = 'rgba(20,14,30,.2)';
+  cx.beginPath(); cx.ellipse(x + PW / 2, GY - 2, 16, 5, 0, 0, 7); cx.fill();
+  cx.translate(x + PW / 2, y + PH);
+  cx.rotate(lean * d);
+  cx.scale(d, 1);
+
+  // 다리
+  cx.fillStyle = SKIN;
+  cx.fillRect(-9, -16, 7, 16 + walk * 3);
+  cx.fillRect(3, -16, 7, 16 - walk * 3);
+  cx.fillStyle = '#6b4326';                       // 반바지
+  cx.fillRect(-10, -26, 9, 12);
+  cx.fillRect(2, -26, 9, 12);
+  cx.fillStyle = '#d9b872';                       // 짚신
+  cx.fillRect(-11, -5 + Math.max(0, walk * 3), 11, 5);
+  cx.fillRect(1, -5 + Math.max(0, -walk * 3), 11, 5);
+
+  // 호랑이무늬 조끼
+  cx.fillStyle = '#f0a03a';
+  cx.beginPath();
+  cx.moveTo(-10, -36); cx.lineTo(10, -36); cx.lineTo(11, -22); cx.lineTo(-11, -22);
+  cx.closePath(); cx.fill();
+  cx.save();                                      // 무늬가 조끼 밖으로 삐져나가지 않게
+  cx.beginPath();
+  cx.moveTo(-10, -36); cx.lineTo(10, -36); cx.lineTo(11, -22); cx.lineTo(-11, -22);
+  cx.closePath(); cx.clip();
+  cx.fillStyle = 'rgba(48,30,16,.8)';       // 줄무늬는 가늘게 — 굵으면 주황이 다 덮여 갈색 옷이 된다
+  cx.fillRect(-7.6, -37, 2.8, 11);
+  cx.fillRect(-1.0, -35, 2.8, 11);
+  cx.fillRect(5.4, -37, 2.8, 11);
+  cx.restore();
+  var gd = cx.createLinearGradient(-11, -36, 11, -22);
+  gd.addColorStop(0, 'rgba(255,255,255,.4)'); gd.addColorStop(0.6, 'rgba(255,255,255,0)');
+  gd.addColorStop(1, 'rgba(0,0,0,.18)');
+  cx.fillStyle = gd;
+  cx.beginPath();
+  cx.moveTo(-10, -36); cx.lineTo(10, -36); cx.lineTo(11, -22); cx.lineTo(-11, -22);
+  cx.closePath(); cx.fill();
+
+  // 팔(조끼라 소매가 없다)
+  cx.fillStyle = SKIN;
+  cx.fillRect(-14, -35, 5, 15 + walk * 2);
+  cx.fillRect(9, -35, 5, 15 - walk * 2);
+
+  // 머리
+  var hy = -47;
+  // 뿔 — 머리보다 먼저 그려 뒤에서 솟아 나오게 한다.
+  // ⚠️바깥으로 눕히면 귀처럼 보인다 — 거의 곧게 세우고 머리 위로 확실히 내보낸다.
+  cx.fillStyle = '#ffe6b8';
+  cx.strokeStyle = '#c99a52'; cx.lineWidth = 1.4;
+  cx.beginPath();
+  cx.moveTo(-8.5, hy - 6); cx.lineTo(-6.2, hy - 25); cx.lineTo(-2.5, hy - 8);
+  cx.closePath(); cx.fill(); cx.stroke();
+  cx.beginPath();
+  cx.moveTo(2.5, hy - 8); cx.lineTo(6.2, hy - 25); cx.lineTo(8.5, hy - 6);
+  cx.closePath(); cx.fill(); cx.stroke();
+
+  var fg = cx.createRadialGradient(-4, hy - 5, 2, 0, hy, 15);
+  fg.addColorStop(0, '#9fe6f2'); fg.addColorStop(0.6, '#4dbdd2'); fg.addColorStop(1, '#2b8ba0');
+  cx.fillStyle = fg;
+  cx.beginPath(); cx.arc(0, hy, 14, 0, 7); cx.fill();
+
+  cx.fillStyle = '#2b2140';                       // 삐죽삐죽한 머리카락
+  cx.beginPath(); cx.arc(0, hy - 1, 14.2, Math.PI, 0); cx.fill();
+  cx.fillRect(-14.2, hy - 3, 28.4, 5);
+  cx.beginPath();
+  cx.moveTo(-6, hy - 13); cx.lineTo(-2, hy - 18); cx.lineTo(1, hy - 12);
+  cx.closePath(); cx.fill();
+
+  // 눈(도깨비라 조금 크다)
+  cx.fillStyle = '#fff';
+  cx.beginPath(); cx.ellipse(-5, hy + 3, 3.8, 4.6, 0, 0, 7); cx.fill();
+  cx.beginPath(); cx.ellipse(5.5, hy + 3, 3.8, 4.6, 0, 0, 7); cx.fill();
+  cx.fillStyle = '#1b2b3a';
+  cx.beginPath(); cx.arc(-4.4, hy + 3.6, 2.4, 0, 7); cx.fill();
+  cx.beginPath(); cx.arc(6.2, hy + 3.6, 2.4, 0, 7); cx.fill();
+  cx.fillStyle = 'rgba(255,255,255,.95)';
+  cx.beginPath(); cx.arc(-5.2, hy + 2.2, 1.2, 0, 7); cx.fill();
+  cx.beginPath(); cx.arc(5.4, hy + 2.2, 1.2, 0, 7); cx.fill();
+  // 볼 · 입 · 작은 송곳니
+  cx.fillStyle = 'rgba(255,120,120,.3)';
+  cx.beginPath(); cx.arc(-9, hy + 7, 3.2, 0, 7); cx.fill();
+  cx.beginPath(); cx.arc(10, hy + 7, 3.2, 0, 7); cx.fill();
+  cx.strokeStyle = '#1d5a66'; cx.lineWidth = 1.6; cx.beginPath();
+  cx.arc(0.6, hy + 7, 3.4, 0.15 * Math.PI, 0.85 * Math.PI); cx.stroke();
+  cx.fillStyle = '#fffdf5';
+  cx.beginPath();
+  cx.moveTo(2.2, hy + 6.6); cx.lineTo(4.6, hy + 6.6); cx.lineTo(3.4, hy + 9.6);
+  cx.closePath(); cx.fill();
+  cx.restore();
+}
+
+/* 유자 — 여자아이(양갈래 머리, 원피스) */
+function drawUja() {
   var x = P.x, y = P.y, d = P.dir;
   if (P.inv > 0 && Math.floor(P.inv * 12) % 2) return;   // 무적 깜빡임
   var walk = P.onG && Math.abs(P.vx) > 20 ? Math.sin(P.anim * 6) : 0;
@@ -1289,7 +1402,7 @@ function selfTest() {
       });
     }
   });
-  ['c_welcome', 'c_stage', 'c_clear', 'c_hurt', 'c_over', 'c_win'].forEach(function (n) {
+  [WELCOME, 'c_stage', 'c_clear', 'c_hurt', 'c_over', 'c_win'].forEach(function (n) {
     ck(need.indexOf(n) >= 0, '대본에 없는 공통 음성: ' + n);
   });
   ck(Object.keys(ids).length >= 40, '문제 총수가 너무 적음: ' + Object.keys(ids).length);

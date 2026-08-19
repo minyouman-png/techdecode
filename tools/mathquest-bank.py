@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""수학여행(유진·수호) — 나레이션 대본 생성기 (v3).
+"""수학여행(유진·수호·깨비) — 나레이션 대본 생성기 (v3).
 
 ★v3 설계 — **나레이션은 숫자를 말하지 않는다.**
    숫자를 읽어 주려면 문제를 미리 녹음해야 하고, 그러면 매번 같은 문제만 나온다.
@@ -21,11 +21,11 @@ from pathlib import Path
 BASE = Path(__file__).resolve().parent.parent / 'public' / 'games'
 
 # 주인공 = 게임 폴더. 나레이션이 아이 이름을 부르기 때문에 은행도 아이마다 따로 만든다.
-HEROES = {'yujin': ('유진', 'yujin'), 'suho': ('수호', 'suho')}
+HEROES = {'yujin': ('유진', 'yujin'), 'suho': ('수호', 'suho'), 'kkaebi': ('깨비', 'kkaebi')}
 
 
 def voc(name: str) -> str:
-    """부름말 — 받침이 있으면 '~아', 없으면 '~야'. (유진아 / 수호야)"""
+    """부름말 — 받침이 있으면 '~아', 없으면 '~야'. (유진아 / 수호야 / 깨비야)"""
     last = name[-1]
     jong = (ord(last) - 0xAC00) % 28 != 0 if '가' <= last <= '힣' else False
     return name + ('아' if jong else '야')

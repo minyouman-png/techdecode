@@ -144,6 +144,18 @@ export interface GameCopy {
   how: string[];
 }
 
+/** 놀이공간 왼쪽 목록의 분류 — 누구의 놀이방인가. 없으면 '공용'(누구나 하는 게임). */
+export type HeroKey = 'yujin' | 'suho' | 'kkaebi';
+
+/** 왼쪽 목록에 나오는 순서·이름. ⚠️유자 게임은 유진이 방에 들어간다(같은 아이의 캐릭터다). */
+export const heroGroups: { key: 'all' | 'common' | HeroKey; label: string }[] = [
+  { key: 'all', label: '전체 게임' },
+  { key: 'common', label: '공용 게임' },
+  { key: 'yujin', label: '유진이 게임' },
+  { key: 'suho', label: '수호 게임' },
+  { key: 'kkaebi', label: '깨비 게임' },
+];
+
 export interface GameEntry {
   slug: string;
   released: string;          // 표기용 (ISO 연-월)
@@ -154,6 +166,8 @@ export interface GameEntry {
    *   ([[menewsoft-learn-grade1]] 의 학습 코너와 같은 판단)
    *   true 면 한국어 목록·상세 페이지에만 나오고, 다른 언어에서는 아예 없는 것으로 친다. */
   koOnly?: boolean;
+  /** 누구의 놀이방인가(왼쪽 목록 분류). 비우면 공용 게임. */
+  hero?: HeroKey;
   /** koOnly 게임은 ko 만 있으면 된다. 나머지 언어는 없을 수 있다. */
   copy: { ko: GameCopy } & Partial<Record<Lang, GameCopy>>;
 }
@@ -170,12 +184,99 @@ export function copyFor(game: GameEntry, lang: Lang): GameCopy {
 
 export const games: GameEntry[] = [
   {
+    slug: 'kkaebi-math',
+    released: '2026-08',
+    tech: 'Canvas 2D · Web Audio · AI 합성 나레이션(edge-tts)',
+    playPath: '/games/kkaebi/index.html',
+    cover: '/games/kkaebi/cover.jpg',
+    koOnly: true,
+    hero: 'kkaebi',
+    copy: {
+      ko: {
+        title: '깨비의 수학여행',
+        tagline: '부수는 것이 곧 정답인 횡스크롤 게임 — 뿔 달린 도깨비 아이 깨비와 함께 가는 초등 1학년 수학 8개 마을.',
+        about: [
+          '«유진이의 수학여행»·«수호의 수학여행»과 같은 여행을, 이번에는 <b>도깨비 아이 깨비</b>와 함께 떠납니다. 작은 뿔 두 개에 호랑이무늬 조끼를 입고 짚신을 신은 아이입니다. 마을마다 문제가 화면에 뜨고, 보기는 숫자가 적힌 벽돌로 공중에 떠 있거나 숫자를 등에 진 몬스터로 걸어 다닙니다. 정답 벽돌만 머리로 치면 부서지고, 정답 몬스터만 밟힙니다.',
+          '나레이션이 <b>“깨비야”</b> 하고 이름을 불러 줍니다. 문제의 숫자는 매번 새로 만들어지고, 목소리는 숫자를 읽는 대신 방법을 가르칩니다 — “이번 문제는 더하기를 알아보는 거야”, “정답이야! 더하기는 앞의 수 다음부터 뒤의 수만큼 더 세는 거야”, “아쉽다, 틀렸어. 손가락을 앞의 수만큼 펴고 뒤의 수만큼 더 펴 봐.”',
+          '<b>오답으로는 목숨을 잃지 않습니다.</b> 학습 게임에서 실수를 벌하면 아이는 생각하기가 아니라 찍기와 회피를 배웁니다. 틀리면 어떻게 생각하면 되는지 알려 주고, 그냥 다시 풀면 됩니다. 목숨은 몬스터 몸에 부딪히거나 물에 빠지는 액션 실패에만 줄어들고, 시간 제한도 없습니다.',
+          '여덟 마을은 1학년 수학 과정을 순서대로 따라갑니다 — 아홉까지 세기, 수의 순서, 덧셈, 뺄셈, 50까지의 수, 10 만들기, 100까지 비교, 뛰어 세기. 태블릿이나 폰에서는 위쪽 🎮 버튼을 누르면 화면에 방향키와 점프 버튼이 나옵니다.',
+        ],
+        how: [
+          '←→ 또는 A·D — 움직이기 · Space 또는 ↑ — 점프',
+          '문제를 보고, 정답이 적힌 벽돌을 아래에서 머리로 치세요',
+          '또는 정답을 진 몬스터를 밟으세요 — 오답은 튕겨 나올 뿐 다치지 않습니다',
+          '🔊 버튼으로 설명을 몇 번이든 다시 들을 수 있습니다',
+          '📱 태블릿·폰 — 위쪽 🎮 버튼을 누르면 화면에 방향키와 점프 버튼이 나옵니다',
+        ],
+      },
+    },
+  },
+  {
+    slug: 'kkaebi-science',
+    released: '2026-08',
+    tech: 'Canvas 2D · Web Audio · AI 합성 나레이션(edge-tts)',
+    playPath: '/games/ujaquest/kkaebi-science.html',
+    cover: '/games/ujaquest/cover-kkaebi-science.jpg',
+    koOnly: true,
+    hero: 'kkaebi',
+    copy: {
+      ko: {
+        title: '깨비의 과학동산 여행',
+        tagline: '정답이 적힌 벽돌만 부서지는 횡스크롤 게임 — 도깨비 아이 깨비와 함께 여덟 동산에서 만나는 생활 속 과학 80문제.',
+        about: [
+          '동물, 식물, 날씨, 물, 자석, 빛과 그림자, 소리, 우주 — 여덟 개의 동산을 <b>도깨비 아이 깨비</b>와 함께 달립니다. 동산마다 문제가 뜨고, 보기는 <b>한글 낱말이 적힌 벽돌</b>로 공중에 떠 있거나 <b>낱말을 등에 진 몬스터</b>로 걸어 다닙니다. "다리가 여섯 개인 동물은?" 정답 벽돌만 부서지고, 정답 몬스터만 밟힙니다.',
+          '문제는 <b>소리로 읽어 줍니다.</b> 1학년에게는 글을 읽는 것 자체가 문제보다 어려울 수 있어서, 동산 안내와 문제 문장, 정답일 때의 까닭까지 모두 음성으로 준비했습니다.',
+          '틀렸을 때는 <b>답을 알려 주지 않고 힌트만 줍니다.</b> "자석은 쇠로 만든 것에만 붙어. 무엇으로 만든 물건인지 봐." 답을 바로 말해 버리면 다시 풀어 볼 기회가 사라지니까요. 그리고 힌트가 끝나면 문제를 한 번 더 읽어 줍니다.',
+          '<b>오답으로는 목숨을 잃지 않습니다.</b> 목숨은 몬스터 몸에 부딪히거나 물에 빠지는 액션 실패에만 줄어들고, 시간 제한도 없습니다. 한 판에 나오는 네 문제는 동산의 열 문제 중에서 매번 새로 뽑힙니다.',
+          '«유자의 과학동산 여행»과 같은 문제·같은 동산을, 주인공만 바꿔서 갑니다. 진도는 아이마다 따로 저장됩니다.',
+        ],
+        how: [
+          '←→ 또는 A·D — 움직이기 · Space 또는 ↑ — 점프',
+          '문제를 듣고, 정답이 적힌 벽돌을 아래에서 머리로 치세요',
+          '또는 정답을 진 몬스터를 밟으세요 — 오답은 튕겨 나올 뿐 다치지 않습니다',
+          '🔊 버튼으로 문제를 몇 번이든 다시 들을 수 있습니다',
+          '📱 태블릿·폰 — 위쪽 🎮 버튼을 누르면 화면에 방향키와 점프 버튼이 나옵니다',
+        ],
+      },
+    },
+  },
+  {
+    slug: 'kkaebi-moral',
+    released: '2026-08',
+    tech: 'Canvas 2D · Web Audio · AI 합성 나레이션(edge-tts)',
+    playPath: '/games/ujaquest/kkaebi-moral.html',
+    cover: '/games/ujaquest/cover-kkaebi-moral.jpg',
+    koOnly: true,
+    hero: 'kkaebi',
+    copy: {
+      ko: {
+        title: '깨비의 도덕동산 여행',
+        tagline: '정답이 적힌 벽돌만 부서지는 횡스크롤 게임 — 도깨비 아이 깨비와 함께 가는 인사·정직·약속·배려·질서·절제·감사·생명 여덟 동산.',
+        about: [
+          '인사동산, 정직동산, 약속동산, 배려동산, 질서동산, 절제동산, 감사동산, 생명동산. 여덟 개의 동산을 <b>도깨비 아이 깨비</b>와 함께 달리며 <b>바르게 살아가는 방법</b>을 하나씩 만납니다. "친구가 넘어졌을 때 하는 말은?" 보기는 한글 낱말이 적힌 벽돌과 몬스터로 나오고, 정답만 부서지고 밟힙니다.',
+          '이 게임의 문제에는 정답이 하나씩 있지만, 중요한 건 <b>왜 그것이 바른 행동인지</b>입니다. 그래서 맞혔을 때 이유를 함께 들려줍니다 — "아픈 친구에게 먼저 괜찮은지 물어봐 주는 것이 배려야."',
+          '틀렸을 때는 <b>답 대신 생각할 거리를 줍니다.</b> "상대의 마음이 어떨지 먼저 생각해 볼까?" 도덕은 정답을 외우는 것이 아니라 남의 마음을 헤아려 보는 연습이니까요.',
+          '<b>오답으로는 목숨을 잃지 않습니다.</b> 시간 제한도 없고, 몇 번이든 다시 풀 수 있습니다. 한 판에 나오는 네 문제는 동산의 열 문제 중에서 매번 새로 뽑힙니다.',
+          '«유자의 도덕동산 여행»과 같은 문제·같은 동산을, 주인공만 바꿔서 갑니다. 진도는 아이마다 따로 저장됩니다.',
+        ],
+        how: [
+          '←→ 또는 A·D — 움직이기 · Space 또는 ↑ — 점프',
+          '문제를 듣고, 정답이 적힌 벽돌을 아래에서 머리로 치세요',
+          '또는 정답을 진 몬스터를 밟으세요 — 오답은 튕겨 나올 뿐 다치지 않습니다',
+          '🔊 버튼으로 문제를 몇 번이든 다시 들을 수 있습니다',
+          '📱 태블릿·폰 — 위쪽 🎮 버튼을 누르면 화면에 방향키와 점프 버튼이 나옵니다',
+        ],
+      },
+    },
+  },
+  {
     slug: 'suho-math',
     released: '2026-08',
     tech: 'Canvas 2D · Web Audio · AI 합성 나레이션(edge-tts)',
     playPath: '/games/suho/index.html',
     cover: '/games/suho/cover.jpg',
     koOnly: true,
+    hero: 'suho',
     copy: {
       ko: {
         title: '수호의 수학여행',
@@ -203,6 +304,7 @@ export const games: GameEntry[] = [
     playPath: '/games/ujaquest/science.html',
     cover: '/games/ujaquest/cover-science.jpg',
     koOnly: true,
+    hero: 'yujin',
     copy: {
       ko: {
         title: '유자의 과학동산 여행',
@@ -231,6 +333,7 @@ export const games: GameEntry[] = [
     playPath: '/games/ujaquest/moral.html',
     cover: '/games/ujaquest/cover-moral.jpg',
     koOnly: true,
+    hero: 'yujin',
     copy: {
       ko: {
         title: '유자의 도덕동산 여행',
@@ -259,6 +362,7 @@ export const games: GameEntry[] = [
     playPath: '/games/yujin/index.html',
     cover: '/games/yujin/cover.jpg',
     koOnly: true,
+    hero: 'yujin',
     copy: {
       ko: {
         title: '유진이의 수학여행',
@@ -286,6 +390,7 @@ export const games: GameEntry[] = [
     tech: 'Canvas 2D · Web Audio · AI-generated realistic art',
     playPath: '/games/yknight/index.html',
     cover: '/games/yknight/cover.jpg',
+    hero: 'yujin',
     copy: {
       en: {
         title: 'YUJA KNIGHT I',
@@ -474,6 +579,7 @@ export const games: GameEntry[] = [
     tech: 'Canvas 2D · Web Audio',
     playPath: '/games/uja/index.html',
     cover: '/games/uja/cover.jpg',
+    hero: 'yujin',
     copy: {
       en: {
         title: 'SUPER UJA',
@@ -951,7 +1057,7 @@ export function playerUrl(slug: string, lang: Lang): string {
   return `/play/${slug}/?lang=${lang}`;
 }
 // 홈 화면 '인기 게임' 노출 순서 (앞에서부터 4개 노출)
-export const homeGameOrder = ['yujin-math', 'suho-math', 'uja-science', 'uja-moral', 'voxel-world', 'super-uja', 'menew-kart', 'yuja-knight', 'fruit-blocks', 'menew-empires', 'ppanggeul-adventure'];
+export const homeGameOrder = ['yujin-math', 'suho-math', 'kkaebi-math', 'uja-science', 'uja-moral', 'kkaebi-science', 'kkaebi-moral', 'voxel-world', 'super-uja', 'menew-kart', 'yuja-knight', 'fruit-blocks', 'menew-empires', 'ppanggeul-adventure'];
 
 // 주간 도전과제: ISO 주차 % 게임 수로 로테이션 (클라이언트에서 계산)
 export const weeklyChallenges: Record<string, Record<Lang, string>> = {

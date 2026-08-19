@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""배포 전 전체 검증 — 학습 코너 + 학습 게임 3종을 한 번에 돌린다.
+"""배포 전 전체 검증 — 학습 코너 + 학습 게임 7종을 한 번에 돌린다.
 
   python3 tools/verify-all.py           # 전부 (학습 코너는 dist 가 필요해 빌드부터)
   python3 tools/verify-all.py --games   # 게임만 (빌드 불필요, 빠름)
@@ -42,24 +42,30 @@ def main() -> int:
                      [PY, 'tools/mathquest-selftest.py', '--hero', 'yujin']))
         jobs.append((f'수호의 수학여행 sim #{i + 1}',
                      [PY, 'tools/mathquest-selftest.py', '--hero', 'suho']))
-        jobs.append((f'과학동산 sim #{i + 1}',
-                     [PY, 'tools/ujaquest-selftest.py', '--subject', 'science']))
-        jobs.append((f'도덕동산 sim #{i + 1}',
-                     [PY, 'tools/ujaquest-selftest.py', '--subject', 'moral']))
+        jobs.append((f'깨비의 수학여행 sim #{i + 1}',
+                     [PY, 'tools/mathquest-selftest.py', '--hero', 'kkaebi']))
+        for _h in ('uja', 'kkaebi'):
+            jobs.append((f'과학동산 sim {_h} #{i + 1}',
+                         [PY, 'tools/ujaquest-selftest.py', '--subject', 'science', '--hero', _h]))
+            jobs.append((f'도덕동산 sim {_h} #{i + 1}',
+                         [PY, 'tools/ujaquest-selftest.py', '--subject', 'moral', '--hero', _h]))
     if args.narrow:
-        for _h in ('yujin', 'suho'):
+        for _h in ('yujin', 'suho', 'kkaebi'):
             jobs.append((f'수학여행 sim {_h} (360px)',
                          [PY, 'tools/mathquest-selftest.py', '--hero', _h,
                           '--width', '360', '--height', '760']))
-        jobs.append(('과학동산 sim (360px)',
-                     [PY, 'tools/ujaquest-selftest.py', '--subject', 'science',
-                      '--width', '360', '--height', '760']))
-        jobs.append(('도덕동산 sim (360px)',
-                     [PY, 'tools/ujaquest-selftest.py', '--subject', 'moral',
-                      '--width', '360', '--height', '760']))
+        for _h in ('uja', 'kkaebi'):
+            jobs.append((f'과학동산 sim {_h} (360px)',
+                         [PY, 'tools/ujaquest-selftest.py', '--subject', 'science', '--hero', _h,
+                          '--width', '360', '--height', '760']))
+            jobs.append((f'도덕동산 sim {_h} (360px)',
+                         [PY, 'tools/ujaquest-selftest.py', '--subject', 'moral', '--hero', _h,
+                          '--width', '360', '--height', '760']))
     if not args.games:
         jobs.insert(0, ('사이트 빌드', ['npm', 'run', 'build']))
         jobs.append(('학습 코너 /learn/ 자가검증', [PY, 'tools/learn-selftest.py']))
+        # dist 가 필요하다 — 게임만 돌릴 때(--games)는 빌드를 건너뛰므로 같이 뺀다
+        jobs.append(('놀이공간 놀이방 목록(좌측 분류)', [PY, 'tools/games-index-selftest.py']))
 
     results = []
     for title, cmd in jobs:

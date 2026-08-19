@@ -20,7 +20,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 BASE = ROOT / 'public' / 'games'
-HEROES = ('yujin', 'suho')      # 수학여행은 아이마다 자기 이름으로 부르는 음성을 따로 갖는다
+HEROES = ('yujin', 'suho', 'kkaebi')      # 수학여행은 아이마다 자기 이름으로 부르는 음성을 따로 갖는다
 
 VOICE = 'ko-KR-SunHiNeural'
 RATE = '-8%'      # 1학년이 따라올 수 있는 속도

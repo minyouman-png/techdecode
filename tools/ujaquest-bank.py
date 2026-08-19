@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""유자의 과학동산 / 도덕동산 여행 — 문제 은행 + 나레이션 대본 생성기.
+"""유자·깨비의 과학동산 / 도덕동산 여행 — 문제 은행 + 나레이션 대본 생성기.
 
 ★[[yujin-math-game]] 과 같은 놀이 방식(정답 벽돌만 부수기 / 정답 몬스터만 밟기)이지만,
   문제의 성질이 다르다 — **답이 숫자가 아니라 낱말**이다. 그래서 설계가 두 곳에서 갈린다:
@@ -450,20 +450,32 @@ DO = {
             '정답을 가진 몬스터만 밟을 수 있어. 어느 몬스터일까?'],
 }
 
+# 주인공 — 동산·문제·힌트는 모두 같고, 이름을 부르는 인사말만 아이마다 따로 만든다.
+# (기본 주인공 유자는 키가 c_welcome, 나머지는 c_welcome_<주인공>)
+HEROES = {'uja': '유자', 'kkaebi': '깨비'}
+DEFAULT_HERO = 'uja'
+
 SUBJECTS = {
     'science': {
-        'title': '유자의 과학동산 여행',
+        'title': '{hero}의 과학동산 여행',
         'data': SCIENCE, 'hint': SCIENCE_HINT,
-        'welcome': '안녕! 유자와 함께 과학동산으로 떠나 볼까? '
+        'welcome': '안녕! {hero}{wa} 함께 과학동산으로 떠나 볼까? '
                    '동산마다 문제가 기다리고 있어. 잘 듣고 정답만 골라서 부수면 돼!',
     },
     'moral': {
-        'title': '유자의 도덕동산 여행',
+        'title': '{hero}의 도덕동산 여행',
         'data': MORAL, 'hint': MORAL_HINT,
-        'welcome': '안녕! 유자와 함께 도덕동산으로 떠나 볼까? '
+        'welcome': '안녕! {hero}{wa} 함께 도덕동산으로 떠나 볼까? '
                    '바르게 살아가는 방법을 하나씩 알아볼 거야. 잘 듣고 정답을 골라 봐!',
     },
 }
+
+
+def wa(name: str) -> str:
+    """'~와/과' — 받침이 있으면 '과', 없으면 '와'. (유자와 / 깨비와)"""
+    last = name[-1]
+    jong = (ord(last) - 0xAC00) % 28 != 0 if '가' <= last <= '힣' else False
+    return '과' if jong else '와'
 
 COMMON = {
     'stage': '새로운 동산에 도착했어. 문제를 잘 듣고 정답을 찾아보자!',
@@ -490,10 +502,14 @@ def build(name: str) -> dict:
             lines[f'o_{p["id"]}'] = f'정답이야! {p["o"]}'
         stages.append({'no': no, 'key': key, 'title': title, 'concept': concept,
                        'problems': probs})
-    lines['c_welcome'] = cfg['welcome']
+    for hero, hname in HEROES.items():
+        key = 'c_welcome' if hero == DEFAULT_HERO else f'c_welcome_{hero}'
+        lines[key] = cfg['welcome'].format(hero=hname, wa=wa(hname))
     for k, v in COMMON.items():
         lines[f'c_{k}'] = v
-    return {'version': 1, 'subject': name, 'title': cfg['title'],
+    return {'version': 1, 'subject': name,
+            'title': cfg['title'].format(hero=HEROES[DEFAULT_HERO]),
+            'titles': {h: cfg['title'].format(hero=n) for h, n in HEROES.items()},
             'stages': stages, 'lines': lines, 'variants': 2}
 
 

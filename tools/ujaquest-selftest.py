@@ -64,6 +64,7 @@ def main() -> int:
     ap.add_argument("--wait", type=float, default=3.0)
     ap.add_argument("--run", type=float, default=0.0)   # 캡처 전 오른쪽으로 달릴 초
     ap.add_argument("--subject", default="science")   # science | moral
+    ap.add_argument("--hero", default="uja")          # uja | kkaebi
     ap.add_argument("--pad", default="")
     ap.add_argument("--out", default="")
     args = ap.parse_args()
@@ -86,7 +87,8 @@ def main() -> int:
           {"width": args.width, "height": args.height, "deviceScaleFactor": 1,
            "mobile": args.width < 500})
         c("Runtime.enable")
-        base = f"http://127.0.0.1:{args.port}/games/ujaquest/{args.subject}.html"
+        page = args.subject if args.hero == "uja" else f"{args.hero}-{args.subject}"
+        base = f"http://127.0.0.1:{args.port}/games/ujaquest/{page}.html"
         c("Page.navigate", {"url": f"{base}?stage={args.shot}" + (f"&pad={args.pad}" if args.pad else "") if args.shot else f"{base}?test=sim"})
         time.sleep(args.wait)
         if args.shot:
@@ -96,7 +98,7 @@ def main() -> int:
                                              "code": "ArrowRight", "windowsVirtualKeyCode": 39})
                 time.sleep(0.1)
             shot = c("Page.captureScreenshot", {"format": "png"})
-            out = Path(args.out or f"/tmp/uja-{args.subject}-{args.shot}.png")
+            out = Path(args.out or f"/tmp/{args.hero}-{args.subject}-{args.shot}.png")
             out.write_bytes(base64.b64decode(shot["result"]["data"]))
             print("캡처 →", out)
             return 0

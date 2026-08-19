@@ -3,7 +3,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { languages, type Lang } from '../i18n/ui';
 import { useTranslations } from '../i18n/utils';
-import { gamesUi, gamesFor, copyFor, gameUrl, gamesIndexUrl, playerUrl } from '../i18n/games';
+import { gamesUi, gamesFor, copyFor, gameUrl, gamesIndexUrl, playerUrl, heroGroups } from '../i18n/games';
 import WeeklyChallenge from './WeeklyChallenge.astro';
 
 interface Props { lang: Lang; }
@@ -14,6 +14,18 @@ const t = useTranslations(lang);
 const alternates = Object.fromEntries(
   (Object.keys(languages) as Lang[]).map((l) => [l, gamesIndexUrl(l)])
 ) as Partial<Record<Lang, string>>;
+
+const list = gamesFor(lang);
+// 왼쪽 놀이방 목록 — 아이 이름은 한국어에서만 뜻이 통한다(그리고 아이 게임은 koOnly 다).
+// 비어 있는 방은 아예 만들지 않는다: 게임이 0개인 이름을 눌러 빈 화면을 보게 하지 않는다.
+const rooms = lang !== 'ko' ? [] : heroGroups
+  .map((r) => ({
+    ...r,
+    count: r.key === 'all' ? list.length
+      : r.key === 'common' ? list.filter((x) => !x.hero).length
+      : list.filter((x) => x.hero === r.key).length,
+  }))
+  .filter((r) => r.count > 0);
 ---
 <BaseLayout lang={lang} title={t('play_title')} description={t('play_desc')} alternates={alternates}>
   <section class="games-hero">
@@ -29,11 +41,27 @@ const alternates = Object.fromEntries(
 
   <section class="games-list">
     <div class="wrap">
+      <div class:list={['games-layout', rooms.length > 1 && 'has-rooms']}>
+        {rooms.length > 1 && (
+          <nav class="rooms" aria-label="놀이방">
+            <p class="rooms-title">놀이방</p>
+            <ul>
+              {rooms.map((r) => (
+                <li>
+                  <a class="room" href={`?who=${r.key}`} data-room={r.key} aria-current={r.key === 'all' ? 'true' : 'false'}>
+                    <span class="room-name">{r.label}</span>
+                    <span class="room-count">{r.count}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
       <div class="game-grid">
-        {gamesFor(lang).map((game) => {
+        {list.map((game) => {
           const c = copyFor(game, lang);
           return (
-            <div class="game-card">
+            <div class="game-card" data-hero={game.hero ?? 'common'}>
               <a class="cover" href={playerUrl(game.slug, lang)} target="_blank" rel="noopener" title={g.newTabNote}>
                 <img src={game.cover} alt={c.title} loading="lazy" />
                 <span class="play-overlay">▶</span>
@@ -54,8 +82,48 @@ const alternates = Object.fromEntries(
           );
         })}
       </div>
+      </div>
     </div>
   </section>
+
+  {rooms.length > 1 && (
+    <script is:inline>
+      (function () {
+        var cards = Array.prototype.slice.call(document.querySelectorAll('.game-card[data-hero]'));
+        var links = Array.prototype.slice.call(document.querySelectorAll('a.room[data-room]'));
+        if (!cards.length || !links.length) return;
+
+        function show(who, push) {
+          var known = links.some(function (a) { return a.dataset.room === who; });
+          if (!known) who = 'all';
+          cards.forEach(function (card) {
+            var mine = who === 'all' || card.dataset.hero === who;
+            card.hidden = !mine;
+          });
+          links.forEach(function (a) {
+            a.setAttribute('aria-current', a.dataset.room === who ? 'true' : 'false');
+          });
+          if (push) {
+            // ⚠️주소를 남겨야 뒤로 가기와 링크 공유가 된다. 자바스크립트가 꺼져 있어도
+            //    ?who= 없는 첫 화면은 전체가 보이므로 아무것도 잃지 않는다.
+            var url = who === 'all' ? location.pathname : location.pathname + '?who=' + who;
+            history.pushState({ who: who }, '', url);
+          }
+        }
+
+        links.forEach(function (a) {
+          a.addEventListener('click', function (e) {
+            e.preventDefault();
+            show(a.dataset.room, true);
+          });
+        });
+        window.addEventListener('popstate', function () {
+          show(new URLSearchParams(location.search).get('who') || 'all', false);
+        });
+        show(new URLSearchParams(location.search).get('who') || 'all', false);
+      })();
+    </script>
+  )}
 </BaseLayout>
 
 <style>
@@ -66,7 +134,39 @@ const alternates = Object.fromEntries(
   }
   .games-intro { max-width: var(--readw); color: var(--muted); font-size: 1.08rem; margin: 0 0 14px; }
   .games-list { padding: 44px 0 90px; }
+
+  /* 왼쪽 놀이방 목록 + 오른쪽 게임 격자 */
+  .games-layout.has-rooms { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 34px; align-items: start; }
+  .rooms { position: sticky; top: 88px; }
+  .rooms-title {
+    font-size: 11px; letter-spacing: 0.12em; font-weight: 700; color: var(--muted);
+    margin: 0 0 10px; padding-left: 12px; text-transform: uppercase;
+  }
+  .rooms ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .room {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 9px 12px; border-radius: 9px; color: var(--muted);
+    font-size: 0.95rem; font-weight: 500; border: 1px solid transparent;
+  }
+  .room:hover { color: var(--fg-strong); background: color-mix(in srgb, var(--fg-strong) 5%, transparent); }
+  .room[aria-current='true'] {
+    color: var(--fg-strong); font-weight: 600;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  }
+  .room-count { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .room[aria-current='true'] .room-count { color: var(--accent); }
+  /* 좁은 화면 — 왼쪽 목록을 위쪽 가로줄로 접는다(세로로 세우면 게임이 화면 밖으로 밀린다) */
+  @media (max-width: 860px) {
+    .games-layout.has-rooms { grid-template-columns: 1fr; gap: 18px; }
+    .rooms { position: static; }
+    .rooms-title { display: none; }
+    .rooms ul { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+    .room { border: 1px solid var(--border); border-radius: 20px; padding: 7px 14px; }
+  }
   .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 26px; }
+  /* ⚠️.game-card 의 display 가 브라우저 기본 [hidden] 규칙을 이긴다 — 이 줄이 없으면 걸러도 그대로 보인다. */
+  .game-card[hidden] { display: none; }
   .game-card {
     display: flex; flex-direction: column;
     border: 1px solid var(--border); border-radius: 14px; overflow: hidden;

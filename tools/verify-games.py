@@ -28,10 +28,16 @@ GAMES = [
      [PUB / 'yujin' / 'cover.jpg']),
     ('수호의 수학여행', PUB / 'suho' / 'bank.json', PUB / 'suho' / 'voice',
      [PUB / 'suho' / 'cover.jpg']),
+    ('깨비의 수학여행', PUB / 'kkaebi' / 'bank.json', PUB / 'kkaebi' / 'voice',
+     [PUB / 'kkaebi' / 'cover.jpg']),
     ('유자의 과학동산 여행', PUB / 'ujaquest' / 'science.json', PUB / 'ujaquest' / 'voice' / 'science',
      [PUB / 'ujaquest' / 'cover-science.jpg']),
     ('유자의 도덕동산 여행', PUB / 'ujaquest' / 'moral.json', PUB / 'ujaquest' / 'voice' / 'moral',
      [PUB / 'ujaquest' / 'cover-moral.jpg']),
+    # ⚠️깨비의 동산 여행은 문제·음성을 유자와 통째로 같이 쓴다(다른 것은 인사말 한 줄뿐).
+    #    같은 은행을 두 번 검사하는 셈이라 커버만 확인한다.
+    ('깨비의 과학동산 여행', None, None, [PUB / 'ujaquest' / 'cover-kkaebi-science.jpg']),
+    ('깨비의 도덕동산 여행', None, None, [PUB / 'ujaquest' / 'cover-kkaebi-moral.jpg']),
 ]
 
 # 한국어 나레이션 속도의 대략치(글자/초). edge-tts SunHi, rate -8% 실측 기준.
@@ -85,6 +91,13 @@ def main() -> int:
 
     bad: list[str] = []
     for name, bankp, vdir, covers in GAMES:
+        if bankp is None:            # 문제·음성을 다른 주인공과 통째로 같이 쓰는 게임 — 커버만 본다
+            for c in covers:
+                if not c.exists():
+                    bad.append(f'{name}: 커버 없음 {c.name}')
+                elif c.stat().st_size < 10_000:
+                    bad.append(f'{name}: 커버가 너무 작다 {c.name}')
+            continue
         if not bankp.exists():
             bad.append(f'{name}: 문제 은행이 없음 {bankp}')
             continue
