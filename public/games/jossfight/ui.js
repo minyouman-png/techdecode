@@ -612,7 +612,47 @@ function runSim() {
     ck(bad.length === 0, bad.slice(0, 4).join(' · '));
   }
 
-  /* 15) 화면 요소가 화면 밖으로 나가지 않는가(선택 화면) */
+  /* 15) ★사람 입력 경로 — 진짜 키를 눌러 커맨드가 나가는가
+     ⚠️matchMotion 만 따로 검사하면 "커맨드는 맞는데 손으로는 안 나가는" 상태를 못 잡는다.
+       실제 키(JOSS.held)를 눌렀다 떼며 ↓ ↘ → + 약손을 넣어 본다. */
+  {
+    var gH = setup(0, 0, 320);
+    gH.p1.human = true;
+    var K = J.KEYMAP[0];
+    function hold(keys, frames) {
+      Object.keys(J.held).forEach(function (k) { J.held[k] = 0; });
+      keys.forEach(function (k) { J.held[k] = 1; });
+      for (var i = 0; i < frames; i++) J.step();
+    }
+    hold([K.down], 3);                    // ↓
+    hold([K.down, K.right], 3);           // ↘
+    hold([K.right], 2);                   // →
+    hold([K.right, K.lp], 2);             // → + 약손
+    ck(gH.projs.length === 1 || (gH.p1.mv && gH.p1.mv.key === 'fireball'),
+       '↓↘→ + 약손을 진짜로 눌렀는데 장풍이 안 나간다');
+    Object.keys(J.held).forEach(function (k) { J.held[k] = 0; });
+
+    // 커맨드 없이 그냥 약손만 누르면 보통기가 나가야 한다(필살기가 아무 때나 나가면 안 된다)
+    var gI = setup(0, 0, 320);
+    gI.p1.human = true;
+    Object.keys(J.held).forEach(function (k) { J.held[k] = 0; });
+    J.held[K.lp] = 1;
+    for (var q = 0; q < 4; q++) J.step();
+    ck(gI.projs.length === 0, '커맨드도 없이 약손만 눌렀는데 장풍이 나갔다');
+    ck(gI.p1.mv && gI.p1.mv.name === '약손', '약손을 눌렀는데 약손이 안 나간다');
+    Object.keys(J.held).forEach(function (k) { J.held[k] = 0; });
+
+    // 초필살기는 게이지가 없으면 나가지 않는다
+    var gJ = setup(0, 0, 320);
+    gJ.p1.human = true; gJ.p1.meter = 0;
+    hold([K.down], 2); hold([K.down, K.right], 2); hold([K.right], 2);
+    hold([K.down], 2); hold([K.down, K.right], 2); hold([K.right], 2);
+    hold([K.right, K.hp], 2);
+    ck(!(gJ.p1.mv && gJ.p1.mv.key === 'super'), '게이지가 없는데 초필살기가 나갔다');
+    Object.keys(J.held).forEach(function (k) { J.held[k] = 0; });
+  }
+
+  /* 16) 화면 요소가 화면 밖으로 나가지 않는가(선택 화면) */
   {
     openSelect('versus');
     var gr = $('grid').getBoundingClientRect();
