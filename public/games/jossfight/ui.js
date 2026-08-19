@@ -12,7 +12,7 @@
 
 var FA = window.FIGHTANIM, CHARS = window.CHARS, STAGES = window.STAGES, J = window.JOSS;
 var SAVE_KEY = 'joss_fighters_v1';
-var SAVE = { cleared: {}, best: {}, level: 'hard' };
+var SAVE = { cleared: {}, best: {}, level: 'normal' };
 
 var UI = {
   mode: 'arcade',
@@ -28,7 +28,11 @@ function loadSave() {
     var d = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
     SAVE.cleared = d.cleared || {};
     SAVE.best = d.best || {};
-    SAVE.level = d.level || 'hard';
+    SAVE.level = d.level || 'normal';
+    // ⚠️처음에는 '어려움'이 기본이었다 — 너무 벅차다는 말이 나와 한 번만 '보통'으로 내린다.
+    //   (딱 한 번 — 그 뒤에 직접 올린 난이도는 건드리지 않는다)
+    if (!d.lvFix) { SAVE.level = 'normal'; SAVE.lvFix = 1; storeSave(); }
+    else SAVE.lvFix = 1;
   } catch (e) {}
   J.setLevel(SAVE.level);
 }
@@ -37,7 +41,7 @@ function storeSave() {
 }
 
 /* ---------- 화면 전환 ---------- */
-var SCREENS = ['title', 'select', 'result', 'pause', 'movelist'];
+var SCREENS = ['title', 'select', 'result', 'pause', 'movelist', 'howto'];
 function show(id) {
   SCREENS.forEach(function (s) { if ($(s)) $(s).style.display = 'none'; });
   if (id && $(id)) $(id).style.display = 'flex';
@@ -110,6 +114,57 @@ function cmdText(cmd) {
   return s + ' + ' + (btn === 'P' ? '손' : '발');
 }
 
+/* ---------- 조작법 ----------
+   ★기술표만 있고 '어떤 키가 무슨 버튼인지'가 없으면 처음 온 사람은 한 대도 못 때린다.
+     그래서 타이틀·잠깐 멈춤·기술표 **세 곳 모두**에서 같은 글을 보여 준다.
+   ★키 이름을 여기 한 번만 적는다 — 키 배치는 J.KEYMAP 이 진짜다. */
+function buildControls() {
+  var rows = [
+    ['앞으로 걷기', 'D', '→', '▶'],
+    ['뒤로 걷기 <i>(= 막기)</i>', 'A', '←', '◀'],
+    ['앉기 <i>(= 하단 막기)</i>', 'S', '↓', '▼'],
+    ['점프', 'W', '↑', '▲'],
+    ['약손 <i>빠르다 · 약하다</i>', 'J', '숫자판 1', '약손'],
+    ['강손 <i>느리다 · 세다</i>', 'K', '숫자판 2', '강손'],
+    ['약발 <i>빠르다 · 약하다</i>', 'U', '숫자판 4', '약발'],
+    ['강발 <i>느리다 · 세다</i>', 'I', '숫자판 5', '강발'],
+    ['잠깐 멈춤', 'ESC', 'ESC', '⏸'],
+  ];
+  var html = '<h3>조작법</h3>' +
+    '<p class="hint">움직이는 건 <b>방향 넷</b>, 때리는 건 <b>손 둘 · 발 둘</b> 네 버튼이 전부입니다. ' +
+    '막기 버튼은 따로 없습니다.</p>' +
+    '<table><tr><th>무엇</th><th>1P 키보드</th><th>2P 키보드</th><th>📱 화면 버튼</th></tr>';
+  rows.forEach(function (r) {
+    html += '<tr><td>' + r[0] + '</td><td><code>' + r[1] + '</code></td><td><code>' + r[2] +
+      '</code></td><td>' + r[3] + '</td></tr>';
+  });
+  html += '</table>' +
+    '<p class="hint">📱 폰·태블릿은 오른쪽 아래 <b>🎮</b> 를 누르면 화면 버튼(왼쪽 방향 · 오른쪽 공격)이 나옵니다. ' +
+    '옆의 <b>🎵</b> 는 배경음악을 켜고 끕니다.</p>' +
+
+    '<h4>막기와 잡기</h4><ul class="tips">' +
+    '<li><b>막기는 뒤로 미는 것</b>입니다 — 상대의 <b>반대쪽</b> 방향을 누르고 있으면 막습니다.</li>' +
+    '<li>발밑을 노리는 <b>하단 기술은 앉아서</b>(뒤 + 아래), 뛰어드는 <b>점프 공격은 서서</b> 막습니다.</li>' +
+    '<li><b>잡기는 막을 수 없습니다.</b> 대신 헛치면 크게 굳으니, 그 틈에 때리면 됩니다.</li>' +
+    '</ul>' +
+
+    '<h4>커맨드 읽는 법</h4><ul class="tips">' +
+    '<li>화살표는 <b>내가 바라보는 쪽</b> 기준입니다. <code>→</code> 는 늘 상대 쪽, <code>←</code> 는 늘 등 뒤쪽.</li>' +
+    '<li><code>↓ ↘ → + 손</code> — 아래에서 앞으로 굴리고 손 버튼. 대개 <b>장풍</b>입니다.</li>' +
+    '<li><code>→ ↓ ↘ + 손</code> — 앞·아래·아래앞. 뛰어드는 상대를 떨어뜨리는 <b>대공기</b>입니다.</li>' +
+    '<li><code>↓ ↙ ← + 손/발</code> — 뒤로 굴리는 기술(잡기·구르기가 여기 많습니다).</li>' +
+    '<li>방향은 <b>연달아</b> 넣습니다. 마지막 방향을 넣자마자 버튼을 누르세요.</li>' +
+    '<li><b>초필살기</b>는 <code>↓ ↘ → ↓ ↘ →</code> 처럼 두 번 굴립니다 — 체력 막대 아래 <b>파란 게이지가 100%</b>일 때만.</li>' +
+    '<li>게이지는 때리고 맞으면서 찹니다. 캐릭터마다 커맨드가 다르니 <b>기술표</b>를 보세요.</li>' +
+    '</ul>' +
+
+    '<h4>대전 규칙</h4><ul class="tips">' +
+    '<li>한 판 60초, <b>2선승</b>입니다. 시간이 다 되면 체력이 많은 쪽이 이깁니다.</li>' +
+    '<li>커맨드가 손에 익지 않으면 <b>연습</b>을 고르세요 — 상대가 가만히 서 있습니다.</li>' +
+    '</ul>';
+  return html;
+}
+
 /* ---------- 기술표 ---------- */
 function buildMoveList(ch) {
   var N = ch.normals;
@@ -135,6 +190,8 @@ function buildMoveList(ch) {
 /* ---------- 대전 시작 ---------- */
 function beginMatch(myIdx, oppIdx, stageIdx, twoPlayers, training) {
   J.Snd.ready();
+  J.Mus.duck(false);
+  J.Mus.play(STAGES[stageIdx].music);
   var g = J.newMatch(CHARS[myIdx], CHARS[oppIdx], STAGES[stageIdx], !!twoPlayers, false);
   if (training) { g.training = true; g.p2.human = true; }   // 상대가 가만히 있는다(입력이 안 들어온다)
   show(null);
@@ -151,6 +208,7 @@ function matchEnd(winner) {
     storeSave();
   }
   show('result');
+  J.Mus.duck(true);              // 결과 화면에서는 음악을 뒤로 물린다
   var last = UI.mode === 'arcade' && UI.arcade && UI.arcade.step >= UI.arcade.order.length;
   $('rTitle').textContent = iWon ? (last ? '🏆 아케이드 제패!' : 'YOU WIN') : 'YOU LOSE';
   $('rSub').textContent = iWon
@@ -187,6 +245,8 @@ function startArcade(myIdx) {
 /* ---------- 화면 만들기 ---------- */
 function toTitle() {
   show('title');
+  J.Mus.duck(false);
+  J.Mus.play('menu');
   if ($('lvBtn')) $('lvBtn').textContent = '난이도 · ' + levelName(SAVE.level);
 }
 function levelName(l) {
@@ -279,6 +339,34 @@ function bindTouch() {
   if (want === '1' || (want === null && ('ontouchstart' in window))) document.body.classList.add('pad');
 }
 
+/* ---------- 배경음악 켜고 끄기 ----------
+   ⚠️브라우저는 **사람이 건드리기 전에는** 소리를 못 내게 막는다. 그래서 첫 클릭·첫 키에서
+     소리 장치를 만들고, 그때 걸려 있던 곡을 시작한다. */
+function bindMusic() {
+  var want = null;
+  try { want = localStorage.getItem('joss_bgm'); } catch (e) {}
+  var on = want !== '0';
+  J.Mus.setOn(on);
+  function label() {
+    if ($('bgmBtn')) $('bgmBtn').textContent = on ? '🎵 음악 · 켬' : '🔇 음악 · 끔';
+    if ($('bgmHud')) $('bgmHud').textContent = on ? '🎵' : '🔇';
+  }
+  function toggle() {
+    on = !on;
+    J.Snd.ready();
+    J.Mus.setOn(on);
+    try { localStorage.setItem('joss_bgm', on ? '1' : '0'); } catch (e) {}
+    label();
+  }
+  label();
+  if ($('bgmBtn')) $('bgmBtn').addEventListener('click', toggle);
+  if ($('bgmHud')) $('bgmHud').addEventListener('click', toggle);
+
+  function wake() { J.Snd.ready(); }        // 첫 손짓에 소리 장치를 만든다
+  window.addEventListener('pointerdown', wake);
+  window.addEventListener('keydown', wake);
+}
+
 /* ---------- 시작 ---------- */
 function boot() {
   loadSave();
@@ -299,10 +387,17 @@ function boot() {
   });
   $('backBtn').addEventListener('click', toTitle);
   $('mlBtn').addEventListener('click', function () {
-    $('mlBody').innerHTML = CHARS.map(buildMoveList).join('<hr>');
+    $('mlBody').innerHTML = '<div class="ctlbox">' + buildControls() + '</div><hr>' +
+      CHARS.map(buildMoveList).join('<hr>');
     show('movelist');
   });
   $('mlClose').addEventListener('click', toTitle);
+  $('howBtn').addEventListener('click', function () {
+    $('howBody').innerHTML = buildControls();
+    show('howto');
+  });
+  $('howClose').addEventListener('click', toTitle);
+  bindMusic();
   $('rNext').addEventListener('click', nextArcade);
   $('rRetry').addEventListener('click', function () {
     beginMatch(UI.myIdx, UI.oppIdx, UI.stageIdx, UI.mode === '2p', UI.mode === 'training');
@@ -323,8 +418,9 @@ function togglePause() {
   var g = J.G;
   if (!g || g.phase === 'match') return;
   g.paused = !g.paused;
+  J.Mus.duck(g.paused);
   if (g.paused) {
-    $('pMoves').innerHTML = buildMoveList(g.p1.ch);
+    $('pMoves').innerHTML = '<div class="ctlbox">' + buildControls() + '</div><hr>' + buildMoveList(g.p1.ch);
     show('pause');
   } else show(null);
 }
@@ -489,9 +585,12 @@ function runSim() {
     ck(g8.p2.hp < hp8, '장풍이 상대에게 닿지 않는다');
 
     var g9 = setup(0, 0, 400);
-    J.startMove(g9.p1, J.findSpecial(g9.p1, ['fireball']));
+    var fb9 = J.findSpecial(g9.p1, ['fireball']);
+    J.startMove(g9.p1, fb9);
     J.startMove(g9.p2, J.findSpecial(g9.p2, ['fireball']));
-    for (var iA = 0; iA < 12; iA++) J.step();
+    // ⚠️좁은 화면(폰)에서는 두 사람이 화면 안으로 끌려와 붙는다 → 장풍이 나오자마자 부딪힌다.
+    //   그래서 '날아가는 도중'이 아니라 **나온 직후**에 센다(화면 크기에 기대는 검사는 검사가 아니다).
+    for (var iA = 0; iA < fb9.startup + 1; iA++) J.step();
     ck(g9.projs.length === 2, '양쪽 장풍이 안 나갔다');
     for (var iB = 0; iB < 60; iB++) J.step();
     ck(g9.projs.length === 0, '장풍끼리 부딪혔는데 안 사라진다');
@@ -661,6 +760,64 @@ function runSim() {
     var pf = $('pf').getBoundingClientRect();
     ck(pf.top >= -1, '캐릭터 설명이 위로 잘렸다');
     toTitle();
+  }
+
+  /* 17) 배경음악 — 무대마다 곡이 있는가, 가락이 마디를 넘거나 모자라지 않는가 */
+  {
+    var TH = J.Mus.THEMES, MO = J.Mus.MOTIF;
+    ck(!!TH.menu, '메뉴 곡이 없다');
+    STAGES.forEach(function (st) {
+      ck(!!st.music && !!TH[st.music], st.name + ': 무대 곡이 없다(' + st.music + ')');
+    });
+    Object.keys(MO).forEach(function (k) {
+      var sum = 0;
+      MO[k].forEach(function (nt) { sum += nt.l; });
+      ck(sum === 16, '가락 ' + k + ': 한 마디가 16칸이 아니다(' + sum + ')');
+    });
+    Object.keys(TH).forEach(function (k) {
+      var t = TH[k];
+      ['kick', 'snare', 'hat', 'bass'].forEach(function (d) {
+        ck(t[d].length === 16, k + '/' + d + ': 북 패턴이 16칸이 아니다');
+        ck(/^[01]+$/.test(t[d]), k + '/' + d + ': 북 패턴에 0·1 아닌 글자가 있다');
+      });
+      ck(t.prog.length === 4, k + ': 화음 진행이 네 마디가 아니다');
+      ck(!!MO[t.motif] && !!MO[t.motif2], k + ': 없는 가락을 가리킨다');
+      ck(t.bpm >= 80 && t.bpm <= 170, k + ': 빠르기가 이상하다 ' + t.bpm);
+    });
+  }
+
+  /* 18) 조작법 — 실제 키 배치와 글이 어긋나면 안 된다(설명이 틀리면 없느니만 못하다) */
+  {
+    var htm = buildControls();
+    ck(htm.length > 600, '조작법 글이 너무 짧다');
+    ['D', 'A', 'S', 'W', 'J', 'K', 'U', 'I'].forEach(function (k) {
+      ck(htm.indexOf('<code>' + k + '</code>') >= 0, '조작법에 1P 키 ' + k + ' 가 없다');
+    });
+    ck(htm.indexOf('막기') >= 0 && htm.indexOf('반대쪽') >= 0, '조작법에 막는 법이 없다');
+    ck(htm.indexOf('게이지') >= 0, '조작법에 게이지 설명이 없다');
+    // 글에 적은 키가 진짜 그 키인지 대조한다
+    var M = J.KEYMAP[0];
+    ck(M.right === 'KeyD' && M.left === 'KeyA' && M.up === 'KeyW' && M.down === 'KeyS',
+       '조작법과 실제 방향키 배치가 다르다');
+    ck(M.lp === 'KeyJ' && M.hp === 'KeyK' && M.lk === 'KeyU' && M.hk === 'KeyI',
+       '조작법과 실제 공격키 배치가 다르다');
+    $('howBody').innerHTML = htm;
+    show('howto');
+    var hb = $('howBody').getBoundingClientRect();
+    ck(hb.left >= -1 && hb.right <= window.innerWidth + 1, '조작법 판이 화면 밖으로 나간다');
+    toTitle();
+  }
+
+  /* 19) 난이도 — 쉬움이 실제로 더 쉬운가(쉬는 틈·피해 배율이 순서대로인가) */
+  {
+    var order = ['easy', 'normal', 'hard', 'master'];
+    for (var li = 1; li < order.length; li++) {
+      var lo = J.DIFF[order[li - 1]], hi = J.DIFF[order[li]];
+      ck(lo.react > hi.react, order[li] + ': 반응이 더 느리다');
+      ck(lo.rest >= hi.rest, order[li] + ': 쉬는 틈이 더 많다');
+      ck(lo.dmg <= hi.dmg, order[li] + ': 피해가 더 크다');
+      ck(lo.block <= hi.block, order[li] + ': 더 잘 막는다');
+    }
   }
 
   var out2 = document.createElement('div');

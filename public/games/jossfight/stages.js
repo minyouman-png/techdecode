@@ -101,6 +101,7 @@ var STAGES = [
   /* ---------------------------------------------------------- 2 */
   {
     key: 'postoffice', name: '원주우체국', where: '앞마당',
+    music: 'post',
     draw: function (cx, VW, VH, camX, gy, t) {
       sky(cx, VW, VH, '#bfe0f5', '#eaf5fb');
       rep(cx, camX, .08, 300, function (x) {          // 구름
@@ -138,6 +139,7 @@ var STAGES = [
   /* ---------------------------------------------------------- 3 */
   {
     key: 'somo', name: '소모그룹', where: '본사 로비 앞',
+    music: 'corp',
     draw: function (cx, VW, VH, camX, gy, t) {
       sky(cx, VW, VH, '#20304e', '#4a6a94');
       rep(cx, camX, .10, 190, function (x) {          // 도시 실루엣
@@ -170,6 +172,7 @@ var STAGES = [
   /* ---------------------------------------------------------- 4 */
   {
     key: 'beer', name: '칭따오 창고', where: '맥주 상자가 쌓인 창고',
+    music: 'beer',
     draw: function (cx, VW, VH, camX, gy, t) {
       sky(cx, VW, VH, '#2a2f3a', '#3c4450');
       rep(cx, camX, .10, 300, function (x) {          // 창고 벽 · 채광창
@@ -208,6 +211,7 @@ var STAGES = [
   /* ---------------------------------------------------------- 5 */
   {
     key: 'jokgu', name: '족구장', where: '동네 족구 코트',
+    music: 'jokgu',
     draw: function (cx, VW, VH, camX, gy, t) {
       sky(cx, VW, VH, '#8fd0f0', '#dff0fa');
       rep(cx, camX, .08, 340, function (x) {          // 나무
@@ -255,6 +259,7 @@ var STAGES = [
   /* ---------------------------------------------------------- 6 */
   {
     key: 'pangyo', name: '판교역', where: '승강장',
+    music: 'pangyo',
     draw: function (cx, VW, VH, camX, gy, t) {
       sky(cx, VW, VH, '#161b26', '#232a3a');
       // 승강장 안쪽 벽 · 노선도
@@ -297,6 +302,7 @@ var STAGES = [
   /* ---------------------------------------------------------- 7 */
   {
     key: 'halla', name: '한라대학교', where: '캠퍼스 잔디밭',
+    music: 'halla',
     draw: function (cx, VW, VH, camX, gy, t) {
       sky(cx, VW, VH, '#a8d0f0', '#e8f2fa');
       rep(cx, camX, .1, 380, function (x) {           // 먼 산

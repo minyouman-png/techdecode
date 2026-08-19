@@ -5,13 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>조스 오브 파이터즈</title>
-<link rel="stylesheet" href="fight.css?v=1">
+<link rel="stylesheet" href="fight.css?v=2">
 </head>
 <body>
   <canvas id="game"></canvas>
 
   <div id="hudBtns">
     <button class="iconbtn" id="padBtn" title="화면 조작 버튼">🎮</button>
+    <button class="iconbtn" id="bgmHud" title="배경음악 켜기/끄기">🎵</button>
     <button class="iconbtn" id="pauseBtn" title="잠깐 멈춤 (ESC)">⏸</button>
   </div>
 
@@ -42,13 +43,16 @@
     <div class="btnrow">
       <button class="graybtn" id="trainBtn">연습</button>
       <button class="graybtn" id="twoBtn">둘이서(한 키보드)</button>
+      <button class="graybtn" id="howBtn">조작법</button>
       <button class="graybtn" id="mlBtn">기술표</button>
       <button class="graybtn" id="lvBtn">난이도 · 어려움</button>
+      <button class="graybtn" id="bgmBtn">🎵 음악 · 켬</button>
     </div>
     <div class="keys">
       <b>1P</b> 이동 <b>A D</b> · 앉기 <b>S</b> · 점프 <b>W</b> · 약손 <b>J</b> 강손 <b>K</b> 약발 <b>U</b> 강발 <b>I</b><br>
       <b>2P</b> 방향키 · 약손 <b>1</b> 강손 <b>2</b> 약발 <b>4</b> 강발 <b>5</b>(숫자판) · 멈춤 <b>ESC</b><br>
-      📱 폰·태블릿은 오른쪽 아래 🎮 를 누르면 화면 조작 버튼이 나옵니다
+      <b>막기</b> 버튼이 없습니다 — 상대 <b>반대쪽</b>을 누르고 있으면 막습니다<br>
+      📱 폰·태블릿은 오른쪽 아래 🎮 를 누르면 화면 조작 버튼이 나옵니다 · 자세한 건 <b>조작법</b>
     </div>
     <div class="credit">
       100% AI 제작 · 캐릭터·배경·효과음까지 전부 그 자리에서 만들어 냅니다(그림 파일 없음)<br>
@@ -69,6 +73,12 @@
       <div id="pfMoves"></div>
     </div>
     <div class="btnrow"><button class="graybtn" id="backBtn">← 처음으로</button></div>
+  </div>
+
+  <!-- 조작법 -->
+  <div class="screen" id="howto">
+    <div id="howBody"></div>
+    <div class="btnrow"><button class="graybtn" id="howClose">닫기</button></div>
   </div>
 
   <!-- 기술표 -->
@@ -103,10 +113,10 @@
   <script>window.__errs = []; window.addEventListener('error', function (e) {
     window.__errs.push(e.message + ' @' + (e.filename || '').split('/').pop() + ':' + e.lineno);
   });</script>
-  <script src="anim.js?v=1"></script>
-  <script src="chars.js?v=1"></script>
-  <script src="stages.js?v=1"></script>
-  <script src="fight.js?v=1"></script>
-  <script src="ui.js?v=1"></script>
+  <script src="anim.js?v=2"></script>
+  <script src="chars.js?v=2"></script>
+  <script src="stages.js?v=2"></script>
+  <script src="fight.js?v=2"></script>
+  <script src="ui.js?v=2"></script>
 </body>
 </html>

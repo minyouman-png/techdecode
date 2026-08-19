@@ -92,7 +92,24 @@ h1.logo span { display: block; font-size: 12px; letter-spacing: .42em; color: #8
 .stagebtn span { display: block; font-weight: 800; font-size: 14px; margin-top: 6px; }
 .stagebtn i { display: block; font-style: normal; font-size: 11px; color: #93a4c8; }
 
-/* 기술표 */
+/* 기술표 · 조작법 */
+#howBody { width: min(860px, 96vw); text-align: left; max-height: 74vh; overflow-y: auto;
+  background: rgba(12,16,28,.75); border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 14px 16px; }
+#howBody h3, #mlBody h3, #pMoves h3 { margin: 14px 0 6px; color: #ffd88a; font-size: 16px; }
+#howBody h4, #mlBody h4, #pMoves h4 { margin: 12px 0 4px; color: #9fd8ff; font-size: 13px; }
+#howBody table, #pMoves table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+#howBody th, #pMoves th { text-align: left; color: #8ea0c8; font-weight: 700; padding: 4px 6px;
+  border-bottom: 1px solid rgba(255,255,255,.12); }
+#howBody td, #pMoves td { padding: 4px 6px; border-bottom: 1px solid rgba(255,255,255,.05); color: #cfd8ee; }
+#howBody code, #pMoves code { color: #9fd8ff; }
+#howBody td i, #mlBody td i, #pMoves td i { font-style: normal; color: #7d8db1; font-size: 11px; margin-left: 4px; }
+.hint { color: #9fb0d4; font-size: 12.5px; line-height: 1.7; margin: 4px 0 10px; }
+.hint b { color: #ffd88a; }
+ul.tips { margin: 4px 0 6px; padding-left: 18px; color: #b7c4de; font-size: 12.5px; line-height: 1.85; }
+ul.tips b { color: #ffd88a; }
+ul.tips code { color: #9fd8ff; }
+.ctlbox h3 { margin-top: 0 !important; }
+
 #mlBody { width: min(860px, 96vw); text-align: left; max-height: 74vh; overflow-y: auto;
   background: rgba(12,16,28,.75); border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 14px 16px; }
 #mlBody h3 { margin: 14px 0 6px; color: #ffd88a; font-size: 16px; }

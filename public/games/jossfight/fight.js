@@ -41,6 +41,7 @@ var Snd = {
     if (AC) { if (AC.state === 'suspended') AC.resume(); return; }
     var A = window.AudioContext || window.webkitAudioContext;
     if (A) { try { AC = new A(); } catch (e) { AC = null; } }
+    if (AC) Mus.resume();                 // 첫 손짓 전에 걸어 둔 곡이 있으면 여기서 시작한다
   },
   blip: function (freq, dur, type, vol) {
     if (!AC || !Snd.on) return;
@@ -70,6 +71,173 @@ var Snd = {
   fire: function () { Snd.blip(520, 0.22, 'sawtooth', 0.08); },
   ko: function () { Snd.blip(160, 0.6, 'sawtooth', 0.22); Snd.noise(0.5, 0.25, 500); },
 };
+
+/* ---------- 배경음악 ----------
+   ★음악도 파일이 없다. 화음 진행과 한 마디짜리 가락만 적어 두고 그 자리에서 합성한다.
+   ★박자는 **오디오 시계**로 맞춘다. setInterval 로 소리를 내면 대전 화면에 눌려 박자가
+     흔들린다 → 타이머가 하는 일은 '앞으로 0.25초치 예약을 채우는' 것뿐이다.
+   ★탭을 가리면 타이머가 느려져 예약이 밀린다. 시계가 이미 지나갔으면 밀린 칸은 버리고
+     그 자리에서 다시 맞춘다(가렸다 돌아온 순간 한꺼번에 쏟아지는 사고를 막는다).
+   ★모든 음은 out 하나로 모은다 — 끄기·잠깐 멈춤(작게 줄이기)이 한 줄로 끝난다.
+   ★음악은 효과음보다 **작아야** 한다. 타격음이 묻히면 격투게임은 손맛을 잃는다.        */
+var SCALES = {
+  minor:   [0, 2, 3, 5, 7, 8, 10],
+  harm:    [0, 2, 3, 5, 7, 8, 11],   // 화성단음계 — 6도와 7도 사이가 넓어 사막 냄새가 난다
+  dorian:  [0, 2, 3, 5, 7, 9, 10],
+  majpent: [0, 2, 4, 7, 9],
+  minpent: [0, 3, 5, 7, 10],
+};
+/* 가락 한 마디(16분음표 16칸). d = 그 마디 화음 뿌리에서 음계 몇 칸 위, l = 길이, d:null 은 쉼표.
+   ⚠️l 의 합은 16이어야 한다(모자라면 뒤가 비고, 넘치면 다음 마디를 먹는다) — ?test=sim 이 센다. */
+var MOTIF = {
+  call:   [{ d: 0, l: 2 }, { d: 2, l: 2 }, { d: 4, l: 2 }, { d: 2, l: 2 }, { d: 5, l: 4 }, { d: 4, l: 4 }],
+  answer: [{ d: 4, l: 3 }, { d: 2, l: 1 }, { d: 0, l: 2 }, { d: 2, l: 2 }, { d: 4, l: 2 }, { d: 6, l: 2 }, { d: 5, l: 4 }],
+  run:    [{ d: 0, l: 1 }, { d: 1, l: 1 }, { d: 2, l: 2 }, { d: 4, l: 1 }, { d: 2, l: 1 }, { d: 0, l: 2 }, { d: null, l: 2 }, { d: 2, l: 2 }, { d: 4, l: 4 }],
+  calm:   [{ d: 2, l: 4 }, { d: 0, l: 4 }, { d: 4, l: 6 }, { d: null, l: 2 }],
+  march:  [{ d: 0, l: 2 }, { d: 0, l: 2 }, { d: 4, l: 4 }, { d: 3, l: 2 }, { d: 2, l: 2 }, { d: 0, l: 4 }],
+  swing:  [{ d: 4, l: 2 }, { d: 5, l: 2 }, { d: 4, l: 2 }, { d: 2, l: 2 }, { d: 0, l: 3 }, { d: 2, l: 1 }, { d: 4, l: 4 }],
+  chase:  [{ d: 0, l: 2 }, { d: 4, l: 2 }, { d: 3, l: 2 }, { d: 4, l: 2 }, { d: 6, l: 2 }, { d: 4, l: 2 }, { d: 2, l: 4 }],
+};
+/* 무대마다 곡이 다르다. prog = 마디별 화음 뿌리(음계 칸), root = A 에서 몇 반음 위인가. */
+var THEMES = {
+  menu:    { bpm: 100, scale: 'minor',   root: 0, prog: [0, 5, 3, 4], motif: 'calm',  motif2: 'call',
+             kick: '1000000010000000', snare: '0000000000000000', hat: '0010001000100010', bass: '1000100010001000', lead: 0.045 },
+  sand:    { bpm: 124, scale: 'harm',    root: 2, prog: [0, 0, 3, 4], motif: 'call',  motif2: 'answer',
+             kick: '1000001000100000', snare: '0000100000001000', hat: '0010101000101010', bass: '1001001010010010', lead: 0.052 },
+  post:    { bpm: 138, scale: 'majpent', root: 5, prog: [0, 3, 4, 3], motif: 'march', motif2: 'swing',
+             kick: '1000000010000100', snare: '0000100000001000', hat: '1010101010101010', bass: '1000100010001010', lead: 0.05 },
+  corp:    { bpm: 132, scale: 'dorian',  root: 7, prog: [0, 4, 5, 4], motif: 'swing', motif2: 'answer',
+             kick: '1000100000100000', snare: '0000100000001000', hat: '0010001010100010', bass: '1010001010100010', lead: 0.048 },
+  beer:    { bpm: 148, scale: 'minpent', root: 3, prog: [0, 0, 3, 4], motif: 'run',   motif2: 'chase',
+             kick: '1000001010000010', snare: '0000100000001000', hat: '1010101010101011', bass: '1010101010101010', lead: 0.05 },
+  jokgu:   { bpm: 134, scale: 'majpent', root: 9, prog: [0, 2, 4, 2], motif: 'swing', motif2: 'march',
+             kick: '1000000010001000', snare: '0000100000001000', hat: '0010101000101010', bass: '1000101010001000', lead: 0.05 },
+  pangyo:  { bpm: 150, scale: 'dorian',  root: 4, prog: [0, 5, 3, 4], motif: 'chase', motif2: 'run',
+             kick: '1000101000101000', snare: '0000100000001000', hat: '1111111111111111', bass: '1010101010101010', lead: 0.046 },
+  halla:   { bpm: 128, scale: 'minor',   root: 10, prog: [0, 3, 5, 4], motif: 'call', motif2: 'chase',
+             kick: '1000001000100000', snare: '0000100000001000', hat: '0010001000100010', bass: '1000100010100010', lead: 0.05 },
+};
+
+var Mus = (function () {
+  var out = null, cur = null, curKey = '', pending = '';
+  var timer = null, nextT = 0, idx = 0, stepDur = 0.12, lead = null, sc = null;
+  var on = true, ducked = false;
+
+  function freq(semi) { return 55 * Math.pow(2, semi / 12); }           // A1 = 55Hz
+  /** 음계 위 d 칸을 반음으로. 음계를 넘어가면 옥타브를 올린다(7칸 = 한 옥타브 위 같은 음). */
+  function degSemi(d) {
+    var n = sc.length, o = Math.floor(d / n), i = ((d % n) + n) % n;
+    return cur.root + sc[i] + 12 * o;
+  }
+  function tone(t, semi, dur, type, vol, cut) {
+    var o1 = AC.createOscillator(), g = AC.createGain(), f = AC.createBiquadFilter();
+    o1.type = type; o1.frequency.setValueAtTime(freq(semi), t);
+    f.type = 'lowpass'; f.frequency.setValueAtTime(cut || 2600, t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.002, vol), t + 0.014);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + Math.max(0.05, dur));
+    o1.connect(f); f.connect(g); g.connect(out);
+    o1.start(t); o1.stop(t + dur + 0.04);
+  }
+  function kick(t) {
+    var o1 = AC.createOscillator(), g = AC.createGain();
+    o1.type = 'sine';
+    o1.frequency.setValueAtTime(148, t);
+    o1.frequency.exponentialRampToValueAtTime(46, t + 0.10);
+    g.gain.setValueAtTime(0.34, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+    o1.connect(g); g.connect(out);
+    o1.start(t); o1.stop(t + 0.2);
+  }
+  function noiseHit(t, dur, vol, hp) {
+    var n = Math.max(1, Math.floor(AC.sampleRate * dur));
+    var buf = AC.createBuffer(1, n, AC.sampleRate), d = buf.getChannelData(0);
+    for (var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    var s = AC.createBufferSource(); s.buffer = buf;
+    var f = AC.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp;
+    var g = AC.createGain(); g.gain.value = vol;
+    s.connect(f); f.connect(g); g.connect(out);
+    s.start(t); s.stop(t + dur + 0.02);
+  }
+  /** 네 마디(=16분음표 64칸) 한 바퀴를 미리 깔아 둔다. 마지막 마디만 다른 가락으로 답한다. */
+  function buildLead() {
+    lead = [];
+    for (var i = 0; i < 64; i++) lead.push(null);
+    for (var b = 0; b < 4; b++) {
+      var m = MOTIF[(b === 3 && cur.motif2) ? cur.motif2 : cur.motif], p = 0;
+      for (var j = 0; j < m.length && p < 16; j++) {
+        if (m[j].d !== null) lead[b * 16 + p] = { d: cur.prog[b] + m[j].d, l: m[j].l };
+        p += m[j].l;
+      }
+    }
+  }
+  function playAt(t, s) {
+    var b = Math.floor(s / 16) % 4, k = s % 16;
+    if (cur.kick.charAt(k) === '1') kick(t);
+    if (cur.snare.charAt(k) === '1') noiseHit(t, 0.13, 0.13, 1500);
+    if (cur.hat.charAt(k) === '1') noiseHit(t, 0.03, 0.04, 7000);
+    if (cur.bass.charAt(k) === '1') tone(t, degSemi(cur.prog[b]), stepDur * 1.8, 'sawtooth', 0.12, 380);
+    if (k === 0) {                                   // 화음은 마디 첫 칸에 길게 깔아 둔다
+      [0, 2, 4].forEach(function (o) {
+        tone(t, degSemi(cur.prog[b] + o) + 24, stepDur * 15, 'triangle', 0.026, 1700);
+      });
+    }
+    var L = lead[s];
+    if (L) tone(t, degSemi(L.d) + 36, stepDur * L.l * 0.92, 'square', cur.lead || 0.05, 3200);
+  }
+  function tick() {
+    if (!AC || !cur || !out) return;
+    if (nextT < AC.currentTime) nextT = AC.currentTime + 0.04;   // 밀린 칸은 버리고 다시 맞춘다
+    var horizon = AC.currentTime + 0.25, guard = 0;
+    while (nextT < horizon && guard++ < 64) {
+      try { playAt(nextT, idx); } catch (e) {}
+      idx = (idx + 1) % 64;
+      nextT += stepDur;
+    }
+  }
+  function setVol() {
+    if (!out || !AC) return;
+    var v = on ? (ducked ? 0.22 : 1) * 0.5 : 0;
+    out.gain.setTargetAtTime(v, AC.currentTime, 0.08);
+  }
+  function attach() {
+    if (out || !AC) return;
+    out = AC.createGain(); out.gain.value = 0; out.connect(AC.destination);
+  }
+  return {
+    THEMES: THEMES, MOTIF: MOTIF,
+    get on() { return on; },
+    /** 곡을 건다. 소리 장치가 아직 없으면(첫 손짓 전) 적어만 두고 ready() 때 시작한다. */
+    play: function (key) {
+      if (!THEMES[key]) key = 'menu';
+      pending = key;
+      if (!AC) return;
+      attach();
+      if (curKey === key && timer) { setVol(); return; }
+      curKey = key; cur = THEMES[key]; sc = SCALES[cur.scale];
+      stepDur = 60 / cur.bpm / 4;
+      buildLead();
+      idx = 0; nextT = AC.currentTime + 0.06;
+      if (!timer) timer = setInterval(tick, 45);
+      setVol();
+    },
+    stop: function () {
+      pending = ''; curKey = ''; cur = null;
+      if (timer) { clearInterval(timer); timer = null; }
+      if (out && AC) out.gain.setTargetAtTime(0, AC.currentTime, 0.05);
+    },
+    /** 잠깐 멈춤·화면 전환에서 음악만 작게 줄인다(끊지 않는다 — 끊으면 다시 붙을 때 튄다) */
+    duck: function (v) { ducked = !!v; setVol(); },
+    setOn: function (v) {
+      on = !!v;
+      if (on) { if (pending) this.play(pending); else setVol(); }
+      else setVol();
+    },
+    /** 소리 장치가 생긴 뒤(첫 손짓) 적어 둔 곡을 시작한다 */
+    resume: function () { if (pending) this.play(pending); },
+    get key() { return curKey; },
+  };
+})();
 
 /* ---------- 입력 ----------
    1P: 이동 A D · 앉기 S · 점프 W · 약손 J · 강손 K · 약발 U · 강발 I
@@ -435,6 +603,9 @@ function resolveHits(g) {
 }
 
 function applyHit(g, att, def, mv, isProj) {
+  // CPU 가 때릴 때만 난이도 배율이 걸린다(사람끼리 붙을 때는 늘 그대로)
+  var LV = (att.human ? 1 : ((DIFF[AI_LEVEL] || DIFF.normal).dmg || 1));
+  var MD = Math.max(1, Math.round(mv.dmg * LV));
   // 막았는가 — 뒤로 밀고 있고, 땅에 있고, 기술을 내지 않는 중이며, 높낮이가 맞아야 한다
   var canBlock = def.blocking && !def.air && !def.mv && !mv.grab;
   if (canBlock) {
@@ -442,7 +613,7 @@ function applyHit(g, att, def, mv, isProj) {
     if (mv.type === 'high' && def.crouch) canBlock = false;      // 점프 공격은 서서 막아야
   }
   if (canBlock) {
-    def.hp -= Math.max(1, Math.round(mv.dmg * 0.12));
+    def.hp -= Math.max(1, Math.round(MD * 0.12));
     def.blockstun = mv.block;
     def.vx = (att.x < def.x ? 1 : -1) * 2.6 * ZOOM;
     att.meter = Math.min(100, att.meter + 2);
@@ -457,14 +628,14 @@ function applyHit(g, att, def, mv, isProj) {
   // 슈퍼아머 — 맞긴 맞되 밀리지 않는다
   if (def.armorLeft > 0 && !mv.grab) {
     def.armorLeft--;
-    def.hp -= Math.round(mv.dmg * 0.5);
+    def.hp -= Math.round(MD * 0.5);
     Snd.hit(false);
     g.fx.push({ x: def.x, y: def.y + GY - 80, vx: 0, vy: 0, life: 12, col: '#ffd27a', r: 16, ring: true });
     if (def.hp <= 0) koCheck(g);
     return;
   }
 
-  var dmg = mv.dmg;
+  var dmg = MD;
   if (att.combo > 0) dmg = Math.round(dmg * Math.max(0.35, 1 - att.combo * 0.08));   // 콤보 보정
   def.hp -= dmg;
   def.mv = null; def.blocking = false;
@@ -583,13 +754,18 @@ function newMatch(charA, charB, stage, humanP2, demo) {
    ★사람 흉내로 커맨드를 넣게 하면 CPU 는 약해지기만 한다. 대신 **기술을 직접 고르되
      반응 시간·막기 확률·거리 판단**으로 세기를 조절한다.
    ============================================================ */
+/* ★난이도는 '반응 속도'만으로 만들지 않는다. 반응만 느리게 하면 CPU 는 **여전히 쉬지 않고**
+     달려들어, 느려도 벅차다. 사람이 숨 돌릴 자리를 주는 건 rest(가만히 있는 틈)와
+     dmg(CPU 가 주는 피해)다 — 실제로 난이도를 가르는 건 이 둘이다.
+   rest  한 번 판단할 때 아무것도 하지 않고 쉴 확률
+   dmg   CPU 가 때릴 때의 피해 배율(사람끼리 붙을 때는 걸리지 않는다) */
 var DIFF = {
-  easy:   { react: 18, block: 0.35, aa: 0.25, punish: 0.25, aggr: 0.45, meter: 0.4 },
-  normal: { react: 11, block: 0.60, aa: 0.50, punish: 0.50, aggr: 0.60, meter: 0.7 },
-  hard:   { react: 6,  block: 0.82, aa: 0.75, punish: 0.75, aggr: 0.75, meter: 0.9 },
-  master: { react: 3,  block: 0.93, aa: 0.90, punish: 0.92, aggr: 0.85, meter: 1.0 },
+  easy:   { react: 30, block: 0.18, aa: 0.08, punish: 0.08, aggr: 0.22, meter: 0.20, rest: 0.55, dmg: 0.50 },
+  normal: { react: 17, block: 0.38, aa: 0.28, punish: 0.28, aggr: 0.45, meter: 0.50, rest: 0.26, dmg: 0.80 },
+  hard:   { react: 9,  block: 0.66, aa: 0.60, punish: 0.60, aggr: 0.68, meter: 0.80, rest: 0.10, dmg: 1.00 },
+  master: { react: 4,  block: 0.90, aa: 0.88, punish: 0.90, aggr: 0.85, meter: 1.00, rest: 0.00, dmg: 1.12 },
 };
-var AI_LEVEL = 'hard';
+var AI_LEVEL = 'normal';
 
 function aiInput(f, opp, g) {
   var inp = blank();
@@ -643,6 +819,13 @@ function aiInput(f, opp, g) {
 
   if (f.aiT > 0 && f.aiPlan) return f.aiPlan(inp, dist, toward, away);
   f.aiT = D.react + Math.floor(Math.random() * 10);
+
+  // 쉬는 틈 — 쉬운 난이도가 쉬워지는 건 느려서가 아니라 **덜 몰아쳐서**다
+  if (Math.random() < (D.rest || 0)) {
+    f.aiPlan = function (o) { return o; };
+    f.aiT = D.react + 12 + Math.floor(Math.random() * 26);
+    return inp;
+  }
 
   var r = Math.random();
   if (dist > 300) {
@@ -745,9 +928,33 @@ function draw() {
   drawHud(g);
 }
 
+/* 발차기·주먹이 지나간 자리 — 큰 기술이 '커 보이는' 것의 절반은 이 자국이다.
+   ⚠️그림이 아니라 **지나간 자리**를 남기는 것이라, 판정과는 아무 상관이 없다(공평은 그대로). */
+var KICK_ANIM = { lk: 1, hk: 1, clk: 1, chk: 1, jk: 1, spin: 1 };
+function drawSmear(f, x, y, pose) {
+  var mv = f.mv;
+  var live = mv && f.mvf >= mv.startup - 1 && f.mvf <= mv.startup + mv.active + 2;
+  if (!live) { f.trail = null; return; }
+  var pt = KICK_ANIM[mv.anim] ? FA.footPos(pose, f.face, SC(f)) : FA.handPos(pose, f.face, SC(f));
+  if (!f.trail) f.trail = [];
+  f.trail.push({ x: x + pt.x, y: y + pt.y });
+  if (f.trail.length > 5) f.trail.shift();
+  if (f.trail.length < 2) return;
+  cx.save();
+  cx.lineCap = 'round';
+  for (var i = 1; i < f.trail.length; i++) {
+    var a = f.trail[i - 1], b = f.trail[i], k = i / f.trail.length;
+    cx.strokeStyle = 'rgba(255,255,255,' + (0.04 + 0.13 * k).toFixed(3) + ')';
+    cx.lineWidth = (5 + 9 * k) * SC(f);
+    cx.beginPath(); cx.moveTo(a.x, a.y); cx.lineTo(b.x, b.y); cx.stroke();
+  }
+  cx.restore();
+}
+
 function drawFighterFull(f, camX) {
   var pose = FA.poseAt(f.anim, f.af, f.loop);
   var x = f.x - camX, y = f.y + GY;
+  drawSmear(f, x, y, pose);
   if (f.flash > 0 && f.flash % 2) {
     cx.save(); cx.globalCompositeOperation = 'lighter';
   }
@@ -907,7 +1114,7 @@ window.JOSS = {
   Fighter: Fighter, startMove: startMove, findSpecial: findSpecial,
   hurtBox: hurtBox, hitBox: hitBox, overlap: overlap, matchMotion: matchMotion,
   setLevel: function (l) { AI_LEVEL = l; }, getLevel: function () { return AI_LEVEL; },
-  DIFF: DIFF, ARENA: ARENA, ZOOM: ZOOM, get GY() { return GY; }, Snd: Snd, held: held,
+  DIFF: DIFF, ARENA: ARENA, ZOOM: ZOOM, get GY() { return GY; }, Snd: Snd, Mus: Mus, held: held,
   KEYMAP: KEYMAP, FPS: FPS, aiInput: aiInput, applyHit: applyHit, blank: blank,
   loop: function () { requestAnimationFrame(frame); },
 };
@@ -918,4 +1125,9 @@ window.addEventListener('keydown', function (e) {
 });
 window.addEventListener('keyup', function (e) { held[e.code] = 0; });
 window.addEventListener('blur', function () { for (var k in held) held[k] = 0; });
+// 탭을 가리면 오디오 시계까지 재운다 — 돌아왔을 때 밀린 음이 쏟아지지 않는다
+document.addEventListener('visibilitychange', function () {
+  if (!AC) return;
+  try { document.hidden ? AC.suspend() : AC.resume(); } catch (e) {}
+});
 })();
