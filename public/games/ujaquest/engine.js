@@ -32,8 +32,20 @@ var TILE = 40;
 var ROWS = 14;
 var GROUND_ROW = 11;          // 지면 윗면이 놓이는 행
 var GY = GROUND_ROW * TILE;   // 지면 윗면 y (=440)
-var GRAV = 2100;
-var JUMP_V = -760;
+/* ---------- 점프 감각 ----------
+   ⚠️상승·꼭짓점·하강의 중력이 다르다. 하나의 중력으로 뜨고 내리면 포물선이 좌우 대칭이라
+     "딱딱한" 느낌이 난다. 올라갈 때는 가볍게, 꼭짓점에서는 아주 잠깐 머물고,
+     내려올 때는 또렷하게 떨어뜨린다(마리오식). 최고점은 예전과 거의 같게 맞춰 두었다
+     — 벽돌 높이·구덩이 폭 같은 지형이 이미 그 값에 맞춰져 있다. */
+var GRAV      = 2100;         // (호환용 기본값 — 실제로는 아래 셋을 쓴다)
+var GRAV_RISE = 1700;         // 올라가는 중
+var GRAV_APEX = 1150;         // 꼭짓점 근처 — 살짝 머무는 구간
+var GRAV_FALL = 2380;         // 떨어지는 중
+var APEX_V    = 170;          // |세로속도| 가 이보다 작으면 꼭짓점으로 본다
+var CUT_G     = 2.3;          // 버튼을 놓으면 상승 중력을 이만큼 곱한다(뚝 끊지 않는다)
+var JUMP_BUF  = 0.14;         // 착지 직전에 누른 점프를 기억하는 시간
+var COYOTE    = 0.10;         // 발판에서 막 벗어난 뒤에도 점프를 받아 주는 시간
+var JUMP_V = -690;
 var RUN_A = 1500, RUN_MAX = 250, FRICT = 1400;
 var PW = 30, PH = 44;         // 플레이어 히트박스
 var BRICK = 46;               // (숫자용 기본값 — 낱말은 WORD_W 를 쓴다)
@@ -96,6 +108,10 @@ var G = {
 var P = null, LV = null, ents = [], fx = [];
 var keys = {}, touch = { l: 0, r: 0, j: 0 };
 var jumpEdge = false, jumpWasDown = false;
+// ⚠️점프 입력은 '그 프레임에 눌려 있었나'로 보면 흘린다 — 한 프레임보다 짧게 톡 누르면
+//   눌림과 뗌이 같은 프레임 안에서 끝나 사라진다. 그래서 keydown 순간에 바로 표를 끊어 두고(jumpBuf),
+//   업데이트가 그 표를 받아 준다. coyote 는 발판에서 막 벗어난 직후의 점프를 받아 주는 유예다.
+var jumpBuf = 0, coyote = 0;
 
 /* ---------- 저장 ---------- */
 function load() {
@@ -264,10 +280,14 @@ function buildLevel(stage) {
           x: cx0 - WORD_W / 2, y: BRICK_BOTTOM - BOX_H, w: WORD_W, h: BOX_H, z: z
         });
       } else {
+        // ⚠️낱말 몬스터는 144px 로 넓다. 200px 간격에 순찰 ±16px 이면 최악일 때 틈이 24px —
+        //   30px 인 아이가 사이에 못 내려서고, 결국 아무거나 밟게 된다.
+        //   순찰을 줄이고, 판정 폭을 그림보다 크게 좁혀 사이로 지나갈 길을 낸다.
         z.items.push({
           kind: 'mob', v: choices[k], dead: false, wrong: 0, squash: 0,
           x: cx0 - WORD_W / 2, y: GY - MOB_H, w: WORD_W, h: MOB_H,
-          vx: (k % 2 ? 18 : -18), x0: cx0 - WORD_W / 2 - 16, x1: cx0 - WORD_W / 2 + 16, z: z
+          hi: 14,                      // 판정은 그림보다 좁다(사이로 지나갈 길)
+          vx: (k % 2 ? 14 : -14), x0: cx0 - WORD_W / 2 - 7, x1: cx0 - WORD_W / 2 + 7, z: z
         });
       }
     }
@@ -395,8 +415,11 @@ function startStage(stage) {
   ents = []; fx = [];
   P = {
     x: 3 * TILE, y: GY - PH, vx: 0, vy: 0, dir: 1, onG: true,
-    inv: 0, anim: 0, dead: 0, flag: 0, spawnX: 3 * TILE
+    inv: 0, anim: 0, dead: 0, flag: 0, spawnX: 3 * TILE,
+    squash: 0, stretch: 0            // 착지에서 찌부, 도약에서 늘어남 — 몸무게가 보이게 한다
   };
+  jumpBuf = coyote = 0;
+  jumpWasDown = false;
   G.camX = 0;
   document.body.classList.remove('quizon');
   Voice.hide();
@@ -443,6 +466,8 @@ function die() {
 function respawn() {
   P.dead = 0; P.deadT = 0; P.inv = 1.4;
   P.x = P.spawnX; P.y = GY - PH - 4; P.vx = 0; P.vy = 0;
+  P.squash = P.stretch = 0;
+  jumpBuf = coyote = 0;                 // 죽기 직전에 눌린 점프가 되살아나지 않게
   paintHud();
 }
 
@@ -495,11 +520,29 @@ function update(dt) {
   }
   P.vx = clamp(P.vx, -RUN_MAX, RUN_MAX);
 
-  /* 점프 — 홀드하면 조금 더 뜬다(작은 손에도 관대하게) */
-  if (jumpEdge && P.onG) { P.vy = JUMP_V; P.onG = false; SFX.jump(); }
-  if (!jumpDown && P.vy < -260) P.vy = -260;
+  /* ---------- 점프 ----------
+     ⚠️아이는 어른보다 **미리** 누른다. 착지하기 몇 프레임 전에 누른 점프를 버리면
+       "스페이스를 눌렀는데 안 뛰었다"가 된다 — 그 몇 프레임을 기억해 두었다가(jumpBuf)
+       땅에 닿는 순간 대신 눌러 준다. 반대로 발판 끝에서 살짝 늦게 누른 것도 받아 준다(coyote). */
+  if (jumpEdge) jumpBuf = JUMP_BUF;              // 키보드가 아닌 입력(터치·자가검증)도 여기로 들어온다
+  if (jumpBuf > 0) jumpBuf -= dt;
+  coyote = P.onG ? COYOTE : coyote - dt;
 
-  P.vy += GRAV * dt;
+  if (jumpBuf > 0 && coyote > 0) {
+    P.vy = JUMP_V; P.onG = false;
+    jumpBuf = 0; coyote = 0;
+    P.stretch = 1;                               // 뜨는 순간 몸이 살짝 늘어난다
+    SFX.jump();
+  }
+
+  /* 중력 — 상승·꼭짓점·하강이 서로 다르다(위 상수 설명 참고).
+     ⚠️버튼을 놓았을 때 속도를 뚝 자르면(예전 방식) 공중에서 끊긴 느낌이 난다.
+       자르는 대신 중력을 무겁게 해서 자연스럽게 가라앉게 한다. */
+  var g;
+  if (P.vy < 0) { g = GRAV_RISE; if (!jumpDown) g *= CUT_G; }
+  else g = GRAV_FALL;
+  if (Math.abs(P.vy) < APEX_V && !P.onG) g = Math.min(g, GRAV_APEX);
+  P.vy += g * dt;
   if (P.vy > 1200) P.vy = 1200;
 
   /* 가로 충돌 */
@@ -524,12 +567,22 @@ function update(dt) {
   if (solidRect(P.x, ny, PW, PH)) {
     if (P.vy > 0) {                       // 착지
       P.y = Math.floor((ny + PH) / TILE) * TILE - PH;
+      // ⚠️착지가 소리 없이 멈추면 점프 전체가 딱딱하게 느껴진다.
+      //   세게 떨어질수록 더 찌부되고, 발밑에서 먼지가 인다.
+      if (!P.onG && P.vy > 320) {
+        P.squash = clamp(P.vy / 1100, 0.25, 1);
+        dust(P.x + PW / 2, GY_at(P.y), Math.round(2 + P.squash * 4));
+      }
       P.onG = true;
     } else {                              // 천장
       P.y = Math.floor(ny / TILE) * TILE + TILE;
     }
     P.vy = 0;
   } else P.y = ny;
+
+  // 찌부·늘어남은 짧게 살았다 사라진다
+  if (P.squash > 0) P.squash = Math.max(0, P.squash - dt * 5.5);
+  if (P.stretch > 0) P.stretch = Math.max(0, P.stretch - dt * 6.5);
 
   if (P.inv > 0) P.inv -= dt;
   P.anim += Math.abs(P.vx) * dt * 0.06;
@@ -612,7 +665,9 @@ function updateItems(dt) {
         if (it.x > it.x1) { it.x = it.x1; it.vx = -Math.abs(it.vx); }
         if (it.squash > 0) { it.squash -= dt * 2.2; if (it.squash <= 0) it.dead = true; continue; }
         if (P.dead) continue;
-        var hit = P.x + PW > it.x + 3 && P.x < it.x + it.w - 3 &&
+        // ⚠️판정 폭은 그림 폭이 아니다(hi 만큼 안쪽). 그래야 몬스터 사이로 내려설 수 있다.
+        var hi = it.hi || 3;
+        var hit = P.x + PW > it.x + hi && P.x < it.x + it.w - hi &&
                   P.y + PH > it.y + 3 && P.y < it.y + it.h;
         if (!hit) continue;
         var stomp = P.vy > 0 && (P.y + PH) < it.y + it.h * 0.7;
@@ -643,6 +698,17 @@ function updateStars() {
     }
   }
 }
+
+/* 착지 먼지 — 발이 닿은 자리에서 옆으로 낮게 퍼진다(폭죽처럼 위로 튀면 안 된다) */
+function dust(x, y, n) {
+  for (var i = 0; i < n; i++) {
+    fx.push({ x: x + (Math.random() - 0.5) * 16, y: y - 2,
+              vx: (Math.random() - 0.5) * 190, vy: -Math.random() * 60 - 10,
+              life: 0.34, col: 'rgba(226,214,190,.85)', r: 2 + Math.random() * 2.5 });
+  }
+}
+/* 발밑 y — 플레이어 위쪽 좌표에서 바로 구한다 */
+function GY_at(py) { return py + PH; }
 
 function burst(x, y, col, n) {
   for (var i = 0; i < n; i++) {
@@ -948,6 +1014,16 @@ function roundRect(x, y, w, h, r) {
 }
 
 /* ---------- 유진 ---------- */
+/* 몸의 찌부·늘어남 배율 — 발(원점)을 기준으로 눌리고 늘어난다.
+   ⚠️가로·세로를 반대로 움직여야(눌리면 넓어지고, 늘어나면 좁아진다) 부피가 있는 몸처럼 보인다. */
+function bodyScale() {
+  var sq = P.squash || 0, st = P.stretch || 0;
+  var air = P.onG ? 0 : clamp(-P.vy / 1600, 0, 0.10);   // 솟구치는 동안 아주 살짝 더
+  var sy = 1 - 0.22 * sq + 0.16 * st + air;
+  var sx = 1 + 0.18 * sq - 0.12 * st - air * 0.8;
+  return [sx, sy];
+}
+
 function drawPlayer() {
   if (HERO === 'kkaebi') { drawKkaebi(); return; }
   drawUja();
@@ -967,7 +1043,8 @@ function drawKkaebi() {
   cx.beginPath(); cx.ellipse(x + PW / 2, GY - 2, 16, 5, 0, 0, 7); cx.fill();
   cx.translate(x + PW / 2, y + PH);
   cx.rotate(lean * d);
-  cx.scale(d, 1);
+  var bs = bodyScale();
+  cx.scale(d * bs[0], bs[1]);
 
   // 다리
   cx.fillStyle = SKIN;
@@ -1066,7 +1143,8 @@ function drawUja() {
   cx.beginPath(); cx.ellipse(x + PW / 2, GY - 2, 16, 5, 0, 0, 7); cx.fill();
   cx.translate(x + PW / 2, y + PH);
   cx.rotate(lean * d);
-  cx.scale(d, 1);
+  var bs = bodyScale();
+  cx.scale(d * bs[0], bs[1]);
 
   // 다리
   cx.fillStyle = '#ffd9c0';
@@ -1233,13 +1311,35 @@ function placeTopUi() {
 }
 
 function bindInput() {
+  /* ⚠️키를 `e.key` 로만 읽으면 **한글 입력 상태에서 WASD 가 죽는다**(a 가 'ㅁ' 로 온다).
+     자판의 물리 위치인 `e.code` 를 먼저 보고, 없을 때만 `e.key` 로 되돌아간다. */
+  var CODE = {
+    Space: ' ', ArrowUp: 'ArrowUp', ArrowDown: 'ArrowDown',
+    ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight',
+    KeyA: 'a', KeyD: 'd', KeyW: 'w', KeyS: 's'
+  };
+  function keyName(e) { return CODE[e.code] || e.key; }
+  function isJumpKey(k) { return k === ' ' || k === 'ArrowUp' || k === 'w' || k === 'W'; }
+
   window.addEventListener('keydown', function (e) {
-    keys[e.key] = 1;
-    if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.key) >= 0) e.preventDefault();
+    var k = keyName(e);
+    keys[k] = 1;
+    // ⚠️톡 누르고 바로 떼면 눌림과 뗌이 **한 프레임 안에서** 끝나 업데이트가 못 본다.
+    //   눌린 그 순간에 표를 끊어 두면 다음 업데이트가 반드시 받아 준다.
+    if (isJumpKey(k) && !e.repeat) jumpBuf = JUMP_BUF;
+    if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(k) >= 0) e.preventDefault();
     if (e.key === 'Escape' && G.mode === 'play') togglePause();
   });
-  window.addEventListener('keyup', function (e) { keys[e.key] = 0; });
-  window.addEventListener('blur', function () { keys = {}; touch.l = touch.r = touch.j = 0; });
+  window.addEventListener('keyup', function (e) { keys[keyName(e)] = 0; });
+  window.addEventListener('blur', function () { keys = {}; touch.l = touch.r = touch.j = 0; jumpBuf = 0; });
+
+  /* ⚠️이 게임은 대개 **iframe 안**에서 돈다(/play/…). 창의 초점이 바깥에 있으면
+     스페이스는 게임까지 오지 않는다 — "가끔 점프가 안 된다"의 진짜 원인이었다.
+     화면을 건드릴 때마다 초점을 다시 가져온다. */
+  function grab() { try { window.focus(); } catch (e) {} }
+  window.addEventListener('pointerdown', grab, true);
+  window.addEventListener('touchstart', grab, { passive: true, capture: true });
+  grab();
 
   function tb(id, prop) {
     var el = $(id); if (!el) return;
@@ -1456,6 +1556,53 @@ function selfTest() {
   keys[' '] = 0;
   ck(apex <= BRICK_BOTTOM - 2, '점프로 벽돌에 못 닿음(머리 최고점 ' + Math.round(apex) +
      ' / 벽돌 아랫면 ' + BRICK_BOTTOM + ')');
+
+  /* 3-b. 착지 직전에 누른 점프가 살아나는가 (점프 버퍼)
+     ⚠️"스페이스를 눌렀는데 안 뛰었다"는 대부분 여기서 생긴다 — 아이는 어른보다 미리 누른다. */
+  startStage(1);
+  keys[' '] = 0; jumpWasDown = false; jumpBuf = coyote = 0;
+  P.y = GY - PH - 30; P.vy = 300; P.onG = false;     // 공중, 0.1초 뒤 착지
+  jumpBuf = JUMP_BUF;                                 // 땅에 닿기 전에 눌렀다
+  var jumped = false;
+  for (var fb = 0; fb < 20; fb++) { update(STEP); if (P.vy < -100) { jumped = true; break; } }
+  ck(jumped, '착지 직전에 누른 점프가 무시됐다(점프 버퍼가 안 먹는다)');
+
+  /* 3-c. 발판을 막 벗어난 뒤에도 점프가 되는가 (코요테 타임) */
+  startStage(1);
+  keys[' '] = 0; jumpWasDown = false; jumpBuf = coyote = 0;
+  P.y = GY - PH; P.vy = 0; P.onG = true;
+  update(STEP);                                       // 땅 위 한 프레임 — coyote 가 채워진다
+  P.onG = false; P.vy = 40;                           // 발판에서 막 벗어났다
+  keys[' '] = 1; update(STEP); keys[' '] = 0;
+  ck(P.vy < -100, '발판에서 막 벗어난 뒤 누른 점프가 무시됐다(코요테 타임이 안 먹는다)');
+
+  /* 3-d. 톡 누르기 — keydown 한 번만으로도 뛰는가
+     ⚠️한 프레임보다 짧게 누르면 keys[' '] 가 이미 0 이라 '눌려 있나'로는 못 잡는다. */
+  startStage(1);
+  keys[' '] = 0; jumpWasDown = false; jumpBuf = coyote = 0;
+  P.y = GY - PH; P.vy = 0; P.onG = true;
+  update(STEP);
+  jumpBuf = JUMP_BUF;                                 // keydown 이 끊어 둔 표 (키는 이미 뗀 상태)
+  update(STEP);
+  ck(P.vy < -100, '톡 누른 점프를 흘렸다(한 프레임 안에 눌렀다 뗀 입력)');
+
+  /* 3-e. 몬스터 사이에 아이가 내려설 자리가 있는가 (판정 폭·순찰 폭까지 고려)
+     ⚠️여기가 좁으면 아이는 "고르는" 게 아니라 "밟히는" 대로 답하게 된다. */
+  for (var sN = 1; sN <= 8; sN++) {
+    G.stage = sN; LV = buildLevel(sN);
+    LV.zones.forEach(function (z) {
+      if (z.mode !== 'mob') return;
+      var its = z.items.slice().sort(function (a, b) { return a.x - b.x; });
+      for (var k = 1; k < its.length; k++) {
+        var a = its[k - 1], b2 = its[k];
+        var ha = (a.hi || 3), hb = (b2.hi || 3);
+        var gap = ((b2.x0 !== undefined ? b2.x0 : b2.x) + hb) -
+                  ((a.x1 !== undefined ? a.x1 : a.x) + a.w - ha);
+        ck(gap >= PW + 8, sN + '단계: 몬스터 "' + a.v + '"–"' + b2.v +
+           '" 사이에 내려설 자리가 없다 (틈 ' + Math.round(gap) + 'px / 아이 ' + PW + 'px)');
+      }
+    });
+  }
 
   /* 4. 정답 벽돌만 부서진다 */
   startStage(1);
@@ -1684,7 +1831,8 @@ function selfTest() {
   }
 
   /* ===== 20. 구덩이를 실제로 넘을 수 있는가 (물리로 계산) ===== */
-  var airT = 2 * Math.abs(JUMP_V) / GRAV;          // 최대 체공 시간
+  // ⚠️상승·하강 중력이 다르므로 2·v/g 로는 못 잰다. 꼭짓점의 여유는 빼고 보수적으로 잡는다.
+  var airT = Math.abs(JUMP_V) / GRAV_RISE + Math.abs(JUMP_V) / GRAV_FALL;
   var reach = RUN_MAX * airT;                       // 최대 도약 거리
   for (var sG = 1; sG <= 8; sG++) {
     G.stage = sG; LV = buildLevel(sG);

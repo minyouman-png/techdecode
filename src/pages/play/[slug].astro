@@ -126,6 +126,7 @@ const title = game.copy.ko.title;
     fsbtn.addEventListener('click', function () {
       if (document.fullscreenElement) document.exitFullscreen();
       else document.documentElement.requestFullscreen().catch(function () {});
+      fsbtn.blur();
     });
 
     // ----- 상단 바 자동 숨김/표시 -----
@@ -142,6 +143,28 @@ const title = game.copy.ko.title;
     bar.addEventListener('mouseenter', function () { clearTimeout(hideTimer); });
     bar.addEventListener('mouseleave', function () { hideTimer = setTimeout(hide, 1200); });
     show();
+
+    /* ----- 키보드 초점 -----
+       ⚠️게임은 iframe 안에서 돈다. 초점이 바깥(이 페이지)에 있으면 스페이스·화살표가
+         게임까지 가지 않는다 — "가끔 점프가 안 된다"의 원인이었다.
+         띄우자마자 안으로 넣어 주고, 상단 바를 만졌다가 돌아올 때마다 다시 넣어 준다. */
+    var frame = document.getElementById('game');
+    function focusGame() {
+      try { frame.contentWindow.focus(); } catch (e) {}
+      frame.focus();
+    }
+    frame.addEventListener('load', function () { setTimeout(focusGame, 0); });
+    document.getElementById('stage').addEventListener('mouseenter', focusGame);
+    document.getElementById('stage').addEventListener('pointerdown', focusGame);
+    window.addEventListener('focus', focusGame);
+    document.addEventListener('fullscreenchange', function () { setTimeout(focusGame, 60); });
+    // 게임 키가 이 페이지로 새어 들어왔다면 초점이 잘못 잡힌 것이다 — 돌려보내고 스크롤은 막는다.
+    window.addEventListener('keydown', function (e) {
+      if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.key) < 0) return;
+      e.preventDefault();
+      focusGame();
+    });
+    setTimeout(focusGame, 300);
 
     // 안내 문구는 처음 한 번만 잠깐
     var hint = document.getElementById('hint');
