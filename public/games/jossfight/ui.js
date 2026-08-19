@@ -41,7 +41,7 @@ function storeSave() {
 }
 
 /* ---------- 화면 전환 ---------- */
-var SCREENS = ['title', 'select', 'result', 'pause', 'movelist', 'howto'];
+var SCREENS = ['title', 'select', 'result', 'pause', 'movelist', 'howto', 'intro'];
 function show(id) {
   SCREENS.forEach(function (s) { if ($(s)) $(s).style.display = 'none'; });
   if (id && $(id)) $(id).style.display = 'flex';
@@ -88,12 +88,26 @@ function buildGrid(box, onPick, markCleared) {
   });
 }
 
+/* 그린 초상 — 있으면 쓰고, 없으면 조용히 넘어간다(그림이 빠져도 화면이 깨지지 않게) */
+var ART = {};
+function artOf(key) {
+  if (ART[key]) return ART[key];
+  var im = new Image();
+  im.src = 'art/char_' + key + '.jpg';
+  ART[key] = im;
+  return im;
+}
+
 function showProfile(i) {
   var ch = CHARS[i];
   if (!$('pf')) return;
+  if ($('pfArt')) {
+    $('pfArt').src = 'art/char_' + ch.key + '.jpg';
+    $('pfArt').alt = ch.name;
+  }
   $('pfName').innerHTML = ch.name + ' <span>' + ch.job + '</span>';
   $('pfTag').textContent = '"' + ch.cry + '"  — ' + ch.tag;
-  $('pfDesc').textContent = ch.desc;
+  $('pfDesc').innerHTML = ch.desc + '<br><span style="color:#8ea0c8;font-size:12px">' + ch.bond + '</span>';
   $('pfStat').innerHTML =
     stat('체력', ch.hp, 900, 1180) + stat('속도', ch.walk, 1.8, 3.2) +
     stat('점프', ch.jump, 11.8, 15.2) + stat('무게', ch.weight, 0.82, 1.4);
@@ -187,6 +201,88 @@ function buildMoveList(ch) {
   return html;
 }
 
+/* ---------- 인물 소개 ----------
+   ★서사를 적어 두면 캐릭터가 '색깔이 다른 열 명'에서 **아는 사람 열 명**이 된다.
+     그림·서사·기술이 한 화면에 같이 있어야 서로를 설명한다. */
+function buildIntro(sel) {
+  var list = $('introList'), body = $('introBody');
+  if (!list || !body) return;
+  list.innerHTML = '';
+  CHARS.forEach(function (ch, i) {
+    var b = document.createElement('button');
+    b.className = 'introItem' + (i === sel ? ' on' : '');
+    b.innerHTML = '<img src="art/char_' + ch.key + '.jpg" alt=""><span><b>' + ch.name +
+      '</b><i>' + ch.job + '</i></span>';
+    b.addEventListener('click', function () { buildIntro(i); });
+    list.appendChild(b);
+  });
+  var c = CHARS[sel];
+  body.innerHTML =
+    '<div class="top">' +
+      '<img src="art/char_' + c.key + '.jpg" alt="' + c.name + '">' +
+      '<div>' +
+        '<h3>' + c.name + '</h3>' +
+        '<div class="job">' + c.job + ' · ' + c.tag + '</div>' +
+        '<div class="cry">"' + c.cry + '"</div>' +
+        '<div class="skills">' +
+          c.specials.map(function (sp) {
+            return '<div><b>' + sp.name + '</b> <code>' + cmdText(sp.cmd) + '</code></div>';
+          }).join('') +
+          '<div><b>초필살기 · ' + c.super.name + '</b> <code>' + cmdText(c.super.cmd) + '</code></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<p class="story">' + c.story.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>') + '</p>' +
+    '<div class="bond">' + c.bond + '</div>';
+}
+
+/* ---------- 승리 컷인 ----------
+   ★이긴 사람을 **크게** 보여 준다. 글자만 뜨는 결과 화면은 '게임이 끝났다'가 아니라
+     '화면이 바뀌었다'로 읽힌다. 뒤에 빛살을 깔고 이름과 대사를 얹는다. */
+function drawCutIn(canvas, ch, won) {
+  var c = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  c.clearRect(0, 0, W, H);
+  // 빛살
+  var g = c.createRadialGradient(W * 0.5, H * 0.55, 10, W * 0.5, H * 0.55, W * 0.6);
+  g.addColorStop(0, won ? 'rgba(255,209,94,.42)' : 'rgba(90,110,160,.34)');
+  g.addColorStop(1, 'rgba(12,16,28,0)');
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
+  c.save();
+  c.translate(W / 2, H * 0.55);
+  for (var i = 0; i < 18; i++) {
+    c.rotate(Math.PI * 2 / 18);
+    c.fillStyle = i % 2 ? (won ? 'rgba(255,209,94,.10)' : 'rgba(150,170,210,.07)') : 'rgba(255,255,255,.03)';
+    c.beginPath(); c.moveTo(0, 0); c.lineTo(W, -26); c.lineTo(W, 26); c.closePath(); c.fill();
+  }
+  c.restore();
+  // 바닥 그림자
+  c.fillStyle = 'rgba(8,10,18,.35)';
+  c.beginPath(); c.ellipse(W / 2, H - 26, 86, 13, 0, 0, 7); c.fill();
+  // 그린 초상이 있으면 그것을, 없으면 그 자리에서 그린 캐릭터를 세운다
+  var im = artOf(ch.key);
+  if (im.complete && im.naturalWidth) {
+    var ih = H * 0.94, iw = ih * (im.naturalWidth / im.naturalHeight);
+    c.save();
+    c.beginPath();
+    c.rect(W / 2 - iw / 2, H - 8 - ih, iw, ih);
+    c.clip();
+    c.drawImage(im, W / 2 - iw / 2, H - 8 - ih, iw, ih);
+    var fade = c.createLinearGradient(0, H - 70, 0, H - 8);   // 아래를 어둡게 지워 바닥에 녹인다
+    fade.addColorStop(0, 'rgba(11,13,20,0)');
+    fade.addColorStop(1, 'rgba(11,13,20,.95)');
+    c.fillStyle = fade; c.fillRect(W / 2 - iw / 2, H - 70, iw, 62);
+    c.restore();
+    c.strokeStyle = 'rgba(255,255,255,.14)'; c.lineWidth = 2;
+    c.strokeRect(W / 2 - iw / 2, H - 8 - ih, iw, ih);
+  } else {
+    c.save();
+    c.translate(W / 2, H - 24);
+    FA.drawFighter(c, 0, 0, 1, ch, FA.poseAt(won ? 'win' : 'lose', won ? 10 : 20, false), { zoom: 1.65 });
+    c.restore();
+  }
+}
+
 /* ---------- 대전 시작 ---------- */
 function beginMatch(myIdx, oppIdx, stageIdx, twoPlayers, training) {
   J.Snd.ready();
@@ -210,6 +306,7 @@ function matchEnd(winner) {
   show('result');
   J.Mus.duck(true);              // 결과 화면에서는 음악을 뒤로 물린다
   var last = UI.mode === 'arcade' && UI.arcade && UI.arcade.step >= UI.arcade.order.length;
+  drawCutIn($('rArt'), iWon ? CHARS[UI.myIdx] : g.p2.ch, iWon);
   $('rTitle').textContent = iWon ? (last ? '🏆 아케이드 제패!' : 'YOU WIN') : 'YOU LOSE';
   $('rSub').textContent = iWon
     ? (last ? CHARS[UI.myIdx].name + '(으)로 아홉 명을 모두 이겼습니다.' : '"' + CHARS[UI.myIdx].cry + '"')
@@ -400,6 +497,8 @@ function boot() {
     show('howto');
   });
   $('howClose').addEventListener('click', toTitle);
+  $('introBtn').addEventListener('click', function () { buildIntro(0); show('intro'); });
+  $('introClose').addEventListener('click', toTitle);
   bindMusic();
   $('rNext').addEventListener('click', nextArcade);
   $('rRetry').addEventListener('click', function () {
@@ -661,16 +760,20 @@ function runSim() {
   {
     var gE = J.newMatch(CHARS[0], CHARS[1], STAGES[0], false, false);
     gE.p1.human = false; gE.p2.human = false;
-    var out = 0;
+    var out = 0, far = 0;
+    // ⚠️'900보다 벌어지면 안 된다'는 **화면 크기에 기댄 숫자**였다. 진짜 규칙은
+    //   '둘 다 화면 안에 있어야 한다' — 넓은 화면에서는 900보다 벌어지는 게 정상이다.
+    var maxGap = J.VW - 60;
     for (var iD = 0; iD < 3000; iD++) {
       J.step();
       [gE.p1, gE.p2].forEach(function (f) {
         if (f.x < 40 || f.x > J.ARENA - 40) out++;
         if (f.y > 1) out++;                     // 바닥을 뚫고 내려가지 않는다
       });
-      if (Math.abs(gE.p1.x - gE.p2.x) > 900) out++;   // 화면 밖으로 갈라지지 않는다
+      if (Math.abs(gE.p1.x - gE.p2.x) > maxGap) far++;
     }
-    ck(out === 0, '무대 밖으로 나가거나 너무 멀어진 프레임이 ' + out + '개');
+    ck(out === 0, '무대 밖으로 나가거나 바닥을 뚫은 프레임이 ' + out + '개');
+    ck(far === 0, '둘이 화면 밖으로 갈라진 프레임이 ' + far + '개(한계 ' + Math.round(maxGap) + ')');
   }
 
   /* 13) ★열 명 × 모든 동작, 무대 일곱을 실제로 그려 본다(그리기 코드의 오타를 잡는다) */
@@ -817,6 +920,36 @@ function runSim() {
       ck(!!MO[t.motif] && !!MO[t.motif2], k + ': 없는 가락을 가리킨다');
       ck(t.bpm >= 80 && t.bpm <= 170, k + ': 빠르기가 이상하다 ' + t.bpm);
     });
+  }
+
+  /* 16-c) 확대 배율 — 화면 폭에 맞게 잡히는가(좁은 화면에서 둘이 몸에 붙으면 장풍이 죽는다) */
+  {
+    ck(J.ZOOM >= 1.35 && J.ZOOM <= 2.1, '확대 배율이 범위 밖이다: ' + J.ZOOM);
+    // 화면이 좁을수록 작아야 한다 — 넓은 화면에서 최대치, 좁으면 그 아래
+    ck(window.innerWidth > 900 ? J.ZOOM > 1.8 : J.ZOOM <= 2.1,
+       '화면 폭 ' + window.innerWidth + '에 배율 ' + J.ZOOM + ' 은 맞지 않는다');
+    // 판정 상자는 배율을 그대로 따라야 한다(그림만 커지면 안 보이는 곳에서 맞는다)
+    var gZ = setup(0, 1, 120);
+    var hb = J.hitBox(gZ.p1, CHARS[0].normals.hp);
+    ck(Math.abs(hb.w - CHARS[0].normals.hp.box[2] * CHARS[0].scale * J.ZOOM) < 0.01,
+       '판정 상자가 확대 배율을 안 따른다');
+  }
+
+  /* 17-b) 인물 소개 — 서사가 비어 있으면 소개 화면이 껍데기가 된다 */
+  {
+    CHARS.forEach(function (ch) {
+      ck(!!ch.story && ch.story.length >= 60, ch.name + ': 서사가 없거나 너무 짧다');
+      ck(!!ch.bond, ch.name + ': 관계 한 줄이 없다');
+      ck(!!ch.tag && !!ch.job, ch.name + ': 별명·직업이 없다');
+    });
+    buildIntro(3);
+    show('intro');
+    var ib = $('introBody');
+    ck(ib.innerHTML.indexOf(CHARS[3].name) >= 0, '소개 화면에 고른 사람이 안 나온다');
+    ck(document.querySelectorAll('#introList .introItem').length === 10, '소개 목록이 10명이 아니다');
+    var r = ib.getBoundingClientRect();
+    ck(r.left >= -1 && r.right <= window.innerWidth + 1, '소개 화면이 옆으로 넘친다');
+    toTitle();
   }
 
   /* 18) 조작법 — 실제 키 배치와 글이 어긋나면 안 된다(설명이 틀리면 없느니만 못하다) */

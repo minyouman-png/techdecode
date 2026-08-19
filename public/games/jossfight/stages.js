@@ -43,6 +43,71 @@ function txt(cx, s, x, y, size, col, weight) {
   cx.textAlign = 'center'; cx.fillText(s, x, y); cx.textAlign = 'left';
 }
 
+/* ---------- 그린 배경(AI) ----------
+   ★배경 그림은 **위층에만** 쓴다. 바닥과 캐릭터가 서는 띠는 코드가 그린다 —
+     그래야 발이 바닥과 맞고, 카메라를 따라가는 정도(시차)를 층마다 다르게 줄 수 있다.
+   ★바닥 색은 **그림 아래쪽에서 뽑아 쓴다**. 그림과 코드 바닥의 색이 다르면 이음매가 보인다.
+   ⚠️그림이 아직 안 실렸으면 조용히 예전(코드로 그린) 배경으로 돌아간다 — 배경이 없어서
+     검은 화면이 되는 일은 없어야 한다. */
+var PHOTO = {};
+function photoFor(st) {
+  var k = st.key;
+  if (PHOTO[k] !== undefined) return PHOTO[k];
+  var rec = { ok: false, img: new Image(), near: '#6b5a44', far: '#8a7458' };
+  PHOTO[k] = rec;
+  rec.img.onload = function () {
+    rec.ok = true;
+    try {                                    // 그림 아래쪽 평균색 = 바닥 색
+      var c = document.createElement('canvas');
+      c.width = 24; c.height = 4;
+      var x = c.getContext('2d');
+      // ⚠️가운데에서만 뽑는다 — 양쪽 끝(벽·기둥·통)까지 섞으면 바닥과 다른 색이 나온다
+      x.drawImage(rec.img, rec.img.width * 0.28, rec.img.height * 0.90,
+                  rec.img.width * 0.44, rec.img.height * 0.10, 0, 0, 24, 4);
+      var d = x.getImageData(0, 0, 24, 4).data, r = 0, g = 0, b = 0, n = 0;
+      for (var i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; n++; }
+      r = Math.round(r / n); g = Math.round(g / n); b = Math.round(b / n);
+      rec.far = 'rgb(' + r + ',' + g + ',' + b + ')';
+      rec.near = 'rgb(' + Math.round(r * 0.62) + ',' + Math.round(g * 0.62) + ',' + Math.round(b * 0.62) + ')';
+    } catch (e) {}
+  };
+  rec.img.src = 'art/stage_' + k + '.jpg';
+  return rec;
+}
+/** 그림 배경을 그린다. 그릴 수 있었으면 true(코드 배경은 건너뛴다). */
+function drawPhoto(cx, st, VW, VH, camX, gy) {
+  var rec = photoFor(st);
+  if (!rec.ok) return false;
+  var im = rec.img;
+  // 화면을 덮되 좌우로 여유를 두고, 카메라를 **천천히** 따라간다(먼 배경이므로)
+  var h = gy * 1.02, w = h * (im.width / im.height), extra = Math.max(0, VW * 1.35 - w);
+  if (w < VW * 1.35) { w = VW * 1.35; h = w * (im.height / im.width); }
+  var ox = -(camX * 0.30) % Math.max(1, w - VW);
+  cx.drawImage(im, ox - (w - VW) * 0.5, gy - h, w, h);
+  // ★바닥은 그림에서 뽑은 색으로 **단색**으로 깐다. 그림 아래쪽을 잘라 이어 붙여 봤더니
+  //   구조물(승강장 턱·선로)까지 같이 반복돼 이음매가 훤히 보였다. 대신 **눈금 선**을
+  //   카메라 속도 1로 흘려 보내 바닥이 움직이는 게 보이게 한다(발이 미끄러져 보이지 않게).
+  floor(cx, VW, VH, gy, rec.near, rec.far, 'rgba(0,0,0,.32)');
+  cx.save();
+  cx.strokeStyle = 'rgba(255,255,255,.06)';
+  cx.lineWidth = 2;
+  var step = 150, off = -(camX % step);
+  for (var i = -1; i <= Math.ceil(VW / step) + 1; i++) {
+    var x0 = off + i * step;
+    cx.beginPath();
+    cx.moveTo(x0, gy + 4);
+    cx.lineTo(x0 - (VH - gy) * 0.55, VH);     // 원근에 맞춰 아래로 벌어진다
+    cx.stroke();
+  }
+  cx.restore();
+  var vg = cx.createLinearGradient(0, gy, 0, VH);
+  vg.addColorStop(0, 'rgba(10,12,20,0)');
+  vg.addColorStop(1, 'rgba(10,12,20,.45)');
+  cx.fillStyle = vg; cx.fillRect(0, gy, VW, VH - gy);
+  shade(cx, VW, gy);
+  return true;
+}
+
 var STAGES = [
   /* ---------------------------------------------------------- 1 */
   {
@@ -337,6 +402,16 @@ var STAGES = [
     },
   },
 ];
+
+// ★무대마다 손대지 않고 한 겹만 씌운다 — 그림이 있으면 그림, 없으면 원래 코드 배경.
+STAGES.forEach(function (st) {
+  var orig = st.draw;
+  st.draw = function (cx, VW, VH, camX, gy, t) {
+    if (drawPhoto(cx, st, VW, VH, camX, gy)) return;
+    orig(cx, VW, VH, camX, gy, t);
+  };
+  st.drawArt = orig;                        // 코드로 그린 원본(자가검증이 둘 다 그려 본다)
+});
 
 window.STAGES = STAGES;
 })();

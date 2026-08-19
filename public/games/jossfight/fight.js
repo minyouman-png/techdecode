@@ -25,8 +25,18 @@ var GY = 430;              // 바닥 높이(화면 좌표)
 // ★확대 배율 — 옛 오락실 격투게임은 캐릭터가 **화면 높이의 3분의 1**쯤 된다.
 //   뼈대는 116px 높이로 그려져 있으므로 여기서 한 번에 키운다.
 //   ⚠️그림만 키우면 판정과 어긋난다 → 몸 상자·판정 상자·속도·중력에 **모두** 같은 배율을 건다.
-var ZOOM = 1.8;
+/* ★확대 배율 — 넓은 화면에서는 크게, **좁은 화면에서는 작게** 잡는다.
+   화면이 좁으면 카메라가 두 사람을 화면 안으로 끌어당기는데, 배율까지 크면 둘이 몸에 붙어
+   버린다(장풍이 나오자마자 서로 부딪히는 지경이 된다). 폭에 맞춰 배율을 줄이면 **세계는
+   그대로 두고 보는 크기만** 달라진다 — 판정·속도·중력이 전부 같은 배율을 쓰기 때문이다.
+   ⚠️배율을 바꾸면 중력도 함께 바꿔야 한다(둘은 한 몸이다) → setZoom() 한 곳에서만 만진다. */
+var BASE_ZOOM = 2.1;
+var ZOOM = BASE_ZOOM;
 var GRAV = 0.85 * ZOOM;
+function setZoom(vw) {
+  ZOOM = Math.max(1.35, Math.min(BASE_ZOOM, BASE_ZOOM * (vw / 1000)));
+  GRAV = 0.85 * ZOOM;
+}
 var FPS = 60;
 var ROUND_TIME = 60;
 var WINS_NEEDED = 2;
@@ -431,6 +441,13 @@ function step() {
   stepProjectiles(g);
   separate(g);
   if (g.msgT > 0) g.msgT--;
+  [g.p1, g.p2].forEach(function (f) {            // 체력 잔상(노란 막대)이 뒤따라 내려온다
+    if (f.hpGhost === undefined) f.hpGhost = f.hp;
+    if (f.hpGhost > f.hp) {
+      f.ghostWait = f.ghostWait > 0 ? f.ghostWait - 1 : 0;
+      if (!f.ghostWait) f.hpGhost = Math.max(f.hp, f.hpGhost - Math.max(0.8, (f.hpGhost - f.hp) * 0.06));
+    } else f.hpGhost = f.hp;
+  });
   stepFx(g);
   if (g.shake > 0) g.shake *= 0.88;
   if (g.zoom > 0.0005) g.zoom *= 0.90; else g.zoom = 0;
@@ -725,6 +742,7 @@ function applyHit(g, att, def, mv, isProj) {
   att.meter = Math.min(100, att.meter + (isProj ? 4 : 6));
   def.meter = Math.min(100, def.meter + 4);
   def.flash = 6;
+  def.ghostWait = 26;
   var dir = att.x <= def.x ? 1 : -1;
   def.vx = dir * (mv.kb || 4) * (1 / (def.ch.weight || 1)) * ZOOM;
   if (mv.launch) { def.vy = mv.launch * ZOOM; def.air = true; }
@@ -1150,58 +1168,167 @@ function drawProj(cx2, p, camX) {
   cx2.restore();
 }
 
-function bar(x, y, w, h, v, max, col, flip) {
-  cx.fillStyle = 'rgba(10,12,20,.75)';
-  cx.fillRect(x - 2, y - 2, w + 4, h + 4);
-  cx.fillStyle = 'rgba(120,20,20,.9)';
-  cx.fillRect(x, y, w, h);
+/* ---------- HUD ----------
+   ★체력바는 '숫자를 보여 주는 막대'가 아니라 **연출**이다. 상용 격투게임이 반드시 하는 세 가지:
+     1) 깎인 만큼이 **노란 잔상**으로 남았다가 천천히 따라 내려간다(얼마나 맞았는지 보인다)
+     2) 막대를 **비스듬히** 깎아 화면 바깥으로 흐르게 한다(네모난 막대는 프로그램처럼 보인다)
+     3) 게이지가 가득 차면 **MAX 가 번쩍인다**(쓸 수 있다는 걸 몸으로 알린다)               */
+function skewRect(x, y, w, h, sk, flip) {
+  var s2 = flip ? -sk : sk;
+  cx.beginPath();
+  cx.moveTo(x + (flip ? 0 : s2), y);
+  cx.lineTo(x + w + (flip ? -sk : sk), y);
+  cx.lineTo(x + w, y + h);
+  cx.lineTo(x, y + h);
+  cx.closePath();
+}
+function bar(x, y, w, h, v, max, col, flip, ghost) {
+  var sk = h * 0.55;
+  cx.save();
+  // 틀
+  cx.fillStyle = 'rgba(8,10,18,.82)';
+  skewRect(x - 3, y - 3, w + 6, h + 6, sk, flip); cx.fill();
+  cx.fillStyle = 'rgba(96,16,16,.95)';
+  skewRect(x, y, w, h, sk, flip); cx.fill();
+  // 잔상(깎인 만큼 노랗게 남았다가 따라 내려온다)
+  if (ghost !== undefined && ghost > v) {
+    var fg = Math.max(0, Math.min(1, ghost / max));
+    cx.save();
+    skewRect(x, y, w, h, sk, flip); cx.clip();
+    cx.fillStyle = 'rgba(240,196,80,.85)';
+    if (flip) cx.fillRect(x + w * (1 - fg) - sk, y, w * fg + sk * 2, h);
+    else cx.fillRect(x - sk, y, w * fg + sk * 2, h);
+    cx.restore();
+  }
+  // 남은 체력
   var f = Math.max(0, Math.min(1, v / max));
+  cx.save();
+  skewRect(x, y, w, h, sk, flip); cx.clip();
+  var gr = cx.createLinearGradient(0, y, 0, y + h);
+  gr.addColorStop(0, 'rgba(255,255,255,.42)');
+  gr.addColorStop(0.35, col);
+  gr.addColorStop(1, 'rgba(0,0,0,.28)');
   cx.fillStyle = col;
-  if (flip) cx.fillRect(x + w * (1 - f), y, w * f, h);
-  else cx.fillRect(x, y, w * f, h);
-  cx.strokeStyle = 'rgba(255,255,255,.35)'; cx.lineWidth = 1;
-  cx.strokeRect(x, y, w, h);
+  if (flip) cx.fillRect(x + w * (1 - f) - sk, y, w * f + sk * 2, h);
+  else cx.fillRect(x - sk, y, w * f + sk * 2, h);
+  cx.fillStyle = gr;
+  if (flip) cx.fillRect(x + w * (1 - f) - sk, y, w * f + sk * 2, h);
+  else cx.fillRect(x - sk, y, w * f + sk * 2, h);
+  cx.restore();
+  cx.strokeStyle = 'rgba(255,255,255,.42)'; cx.lineWidth = 1.4;
+  skewRect(x, y, w, h, sk, flip); cx.stroke();
+  cx.restore();
+}
+/** 기 게이지 — 칸으로 나뉘어 있어야 '얼마나 남았나'가 눈에 들어온다 */
+function meterBar(x, y, w, h, v, flip, t) {
+  var seg = 4, gap = 3, sw = (w - gap * (seg - 1)) / seg;
+  for (var i = 0; i < seg; i++) {
+    var lo = i / seg * 100, f = Math.max(0, Math.min(1, (v - lo) / (100 / seg)));
+    var bx = flip ? x + w - (i + 1) * sw - i * gap : x + i * (sw + gap);
+    cx.fillStyle = 'rgba(8,10,18,.8)';
+    skewRect(bx - 2, y - 2, sw + 4, h + 4, h * 0.5, flip); cx.fill();
+    cx.fillStyle = 'rgba(255,255,255,.10)';
+    skewRect(bx, y, sw, h, h * 0.5, flip); cx.fill();
+    if (f > 0) {
+      cx.save(); skewRect(bx, y, sw, h, h * 0.5, flip); cx.clip();
+      cx.fillStyle = v >= 100 ? (Math.floor(t / 5) % 2 ? '#fff0b0' : '#ffd05e') : '#7cc4ff';
+      var fw = sw * f;
+      cx.fillRect(flip ? bx + sw - fw - h : bx - h, y, fw + h * 2, h);
+      cx.restore();
+    }
+  }
+  if (v >= 100) {                                  // 다 찼다는 건 글자로도 알려 준다
+    cx.save();
+    cx.fillStyle = Math.floor(t / 5) % 2 ? '#fff6d0' : '#ffb347';
+    cx.font = '900 13px sans-serif';
+    cx.textAlign = flip ? 'right' : 'left';
+    cx.fillText('M A X', flip ? x - 6 : x + w + 6, y + h);
+    cx.restore();
+  }
 }
 
 function drawHud(g) {
-  var w = Math.min(360, VW * 0.38), h = 20, y = 18;
-  bar(20, y, w, h, g.p1.hp, g.p1.maxhp, g.p1.hp < g.p1.maxhp * 0.25 ? '#e05a4a' : '#5ec97a', false);
-  bar(VW - 20 - w, y, w, h, g.p2.hp, g.p2.maxhp, g.p2.hp < g.p2.maxhp * 0.25 ? '#e05a4a' : '#5ec97a', true);
-  // 게이지
-  bar(20, y + h + 6, w * 0.7, 8, g.p1.meter, 100, '#7cc4ff', false);
-  bar(VW - 20 - w * 0.7, y + h + 6, w * 0.7, 8, g.p2.meter, 100, '#7cc4ff', true);
-  cx.fillStyle = '#fff'; cx.font = '700 14px sans-serif';
-  cx.textAlign = 'left'; cx.fillText(g.p1.ch.name + ' · ' + g.p1.ch.job, 20, y + h + 30);
-  cx.textAlign = 'right'; cx.fillText(g.p2.ch.name + ' · ' + g.p2.ch.job, VW - 20, y + h + 30);
-  // 라운드 표시
+  var w = Math.min(400, VW * 0.40), h = 22, y = 20;
+  var t = g.frame;
+  bar(24, y, w, h, g.p1.hp, g.p1.maxhp, g.p1.hp < g.p1.maxhp * 0.25 ? '#e05a4a' : '#5ec97a', false, g.p1.hpGhost);
+  bar(VW - 24 - w, y, w, h, g.p2.hp, g.p2.maxhp, g.p2.hp < g.p2.maxhp * 0.25 ? '#e05a4a' : '#5ec97a', true, g.p2.hpGhost);
+  meterBar(24, y + h + 9, w * 0.62, 9, g.p1.meter, false, t);
+  meterBar(VW - 24 - w * 0.62, y + h + 9, w * 0.62, 9, g.p2.meter, true, t);
+
+  // 이름표
+  cx.font = '800 14px sans-serif';
+  cx.fillStyle = 'rgba(8,10,18,.7)';
+  var n1 = g.p1.ch.name + ' · ' + g.p1.ch.job, n2 = g.p2.ch.name + ' · ' + g.p2.ch.job;
+  cx.textAlign = 'left';
+  cx.fillText(n1, 26, y + h + 34);
+  cx.fillStyle = '#fff'; cx.fillText(n1, 25, y + h + 33);
+  cx.textAlign = 'right';
+  cx.fillStyle = 'rgba(8,10,18,.7)'; cx.fillText(n2, VW - 24, y + h + 34);
+  cx.fillStyle = '#fff'; cx.fillText(n2, VW - 25, y + h + 33);
+
+  // 라운드 표시 — 딴 판만큼 별이 켜진다
   cx.textAlign = 'center';
   for (var i = 0; i < 2; i++) {
-    cx.fillStyle = g.p1.wins > i ? '#e8c766' : 'rgba(255,255,255,.25)';
-    cx.beginPath(); cx.arc(20 + w + 14 + i * 16, y + 10, 5.5, 0, 7); cx.fill();
-    cx.fillStyle = g.p2.wins > i ? '#e8c766' : 'rgba(255,255,255,.25)';
-    cx.beginPath(); cx.arc(VW - 20 - w - 14 - i * 16, y + 10, 5.5, 0, 7); cx.fill();
+    [[24 + w + 20 + i * 20, g.p1.wins], [VW - 24 - w - 20 - i * 20, g.p2.wins]].forEach(function (o) {
+      var on = o[1] > i;
+      cx.save(); cx.translate(o[0], y + 11);
+      cx.beginPath();
+      for (var sI = 0; sI < 10; sI++) {
+        var aS = -Math.PI / 2 + sI / 10 * Math.PI * 2, rS = (sI % 2 ? 3.4 : 7.6);
+        cx[sI ? 'lineTo' : 'moveTo'](Math.cos(aS) * rS, Math.sin(aS) * rS);
+      }
+      cx.closePath();
+      cx.fillStyle = on ? '#ffd15e' : 'rgba(255,255,255,.18)';
+      cx.fill();
+      if (on) { cx.strokeStyle = 'rgba(255,240,180,.9)'; cx.lineWidth = 1.2; cx.stroke(); }
+      cx.restore();
+    });
   }
-  // 시간
-  cx.fillStyle = 'rgba(10,12,20,.75)';
-  cx.fillRect(VW / 2 - 36, 12, 72, 44);
-  cx.fillStyle = '#fff'; cx.font = '800 30px sans-serif';
-  cx.fillText(Math.max(0, Math.ceil(g.timeF / FPS)), VW / 2, 44);
+
+  // 시간 — 남은 시간이 적으면 붉어진다
+  var secs = Math.max(0, Math.ceil(g.timeF / FPS));
+  cx.save();
+  cx.fillStyle = 'rgba(10,12,20,.8)';
+  cx.beginPath();
+  if (cx.roundRect) cx.roundRect(VW / 2 - 42, 12, 84, 50, 10); else cx.rect(VW / 2 - 42, 12, 84, 50);
+  cx.fill();
+  cx.strokeStyle = 'rgba(255,255,255,.22)'; cx.lineWidth = 1.5; cx.stroke();
+  cx.fillStyle = secs <= 10 ? (Math.floor(t / 6) % 2 ? '#ff8a6a' : '#ffd15e') : '#fff';
+  cx.font = '900 34px sans-serif'; cx.textAlign = 'center';
+  cx.fillText(secs, VW / 2, 48);
+  cx.restore();
+
   // 콤보
   [g.p1, g.p2].forEach(function (f, i) {
     if (f.combo >= 2 && f.comboT > 0) {
-      cx.fillStyle = '#e8c766'; cx.font = '800 22px sans-serif';
+      var cxp = i === 0 ? 30 : VW - 30;
       cx.textAlign = i === 0 ? 'left' : 'right';
-      cx.fillText(f.combo + ' 연속', i === 0 ? 24 : VW - 24, 110);
+      cx.font = '900 30px sans-serif';
+      cx.lineWidth = 5; cx.strokeStyle = 'rgba(10,12,20,.85)';
+      cx.strokeText(f.combo + ' 연속', cxp, 128);
+      var gr2 = cx.createLinearGradient(0, 104, 0, 132);
+      gr2.addColorStop(0, '#fff2c0'); gr2.addColorStop(1, '#e8a13a');
+      cx.fillStyle = gr2;
+      cx.fillText(f.combo + ' 연속', cxp, 128);
     }
   });
-  // 가운데 글자
+
+  // 가운데 글자 — 나타날 때 커졌다 제자리로
   if (g.msgT > 0 && g.msg) {
+    var age = 1 - Math.min(1, g.msgT / 90);
+    var sc = 1 + Math.max(0, 0.5 - age * 4);
+    cx.save();
+    cx.translate(VW / 2, VH * 0.40);
+    cx.scale(sc, sc);
     cx.textAlign = 'center';
-    cx.font = '900 54px sans-serif';
-    cx.lineWidth = 6; cx.strokeStyle = 'rgba(10,12,20,.8)';
-    cx.strokeText(g.msg, VW / 2, VH * 0.42);
-    cx.fillStyle = '#ffd75e';
-    cx.fillText(g.msg, VW / 2, VH * 0.42);
+    cx.font = '900 58px sans-serif';
+    cx.lineWidth = 8; cx.strokeStyle = 'rgba(10,12,20,.85)';
+    cx.strokeText(g.msg, 0, 0);
+    var gr3 = cx.createLinearGradient(0, -40, 0, 16);
+    gr3.addColorStop(0, '#fff6d6'); gr3.addColorStop(0.55, '#ffd15e'); gr3.addColorStop(1, '#d98a22');
+    cx.fillStyle = gr3;
+    cx.fillText(g.msg, 0, 0);
+    cx.restore();
   }
   cx.textAlign = 'left';
 }
@@ -1215,6 +1342,7 @@ function fit() {
   DPR = Math.min(2, window.devicePixelRatio || 1);
   cv.width = Math.round(w * DPR); cv.height = Math.round(h * DPR);
   VW = w; VH = h;
+  setZoom(VW);
   cx.setTransform(DPR, 0, 0, DPR, 0, 0);
   GY = Math.round(VH * 0.80);
 }
@@ -1236,7 +1364,7 @@ window.JOSS = {
   Fighter: Fighter, startMove: startMove, findSpecial: findSpecial,
   hurtBox: hurtBox, hitBox: hitBox, overlap: overlap, matchMotion: matchMotion,
   setLevel: function (l) { AI_LEVEL = l; }, getLevel: function () { return AI_LEVEL; },
-  DIFF: DIFF, ARENA: ARENA, ZOOM: ZOOM, get GY() { return GY; }, Snd: Snd, Mus: Mus, held: held,
+  DIFF: DIFF, ARENA: ARENA, get ZOOM() { return ZOOM; }, get GY() { return GY; }, get VW() { return VW; }, Snd: Snd, Mus: Mus, held: held,
   KEYMAP: KEYMAP, FPS: FPS, aiInput: aiInput, applyHit: applyHit, blank: blank,
   loop: function () { requestAnimationFrame(frame); },
 };
