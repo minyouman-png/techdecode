@@ -107,7 +107,7 @@ def check(width: int, port: int, dbg: int) -> list[str]:
         if not rooms:
             return [f'{width}px: 왼쪽 놀이방 목록이 아예 없다']
         keys = [r["key"] for r in rooms]
-        for must in ("all", "common", "yujin", "suho", "kkaebi"):
+        for must in ("all", "common", "yujin", "suho", "kkaebi", "munju"):
             if must not in keys:
                 bad.append(f'{width}px: 놀이방에 {must} 가 없다 (있는 것: {keys})')
 

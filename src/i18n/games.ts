@@ -145,7 +145,7 @@ export interface GameCopy {
 }
 
 /** 놀이공간 왼쪽 목록의 분류 — 누구의 놀이방인가. 없으면 '공용'(누구나 하는 게임). */
-export type HeroKey = 'yujin' | 'suho' | 'kkaebi';
+export type HeroKey = 'yujin' | 'suho' | 'kkaebi' | 'munju';
 
 /** 왼쪽 목록에 나오는 순서·이름. ⚠️유자 게임은 유진이 방에 들어간다(같은 아이의 캐릭터다). */
 export const heroGroups: { key: 'all' | 'common' | HeroKey; label: string }[] = [
@@ -154,6 +154,7 @@ export const heroGroups: { key: 'all' | 'common' | HeroKey; label: string }[] = 
   { key: 'yujin', label: '유진이 게임' },
   { key: 'suho', label: '수호 게임' },
   { key: 'kkaebi', label: '깨비 게임' },
+  { key: 'munju', label: '문주 게임' },
 ];
 
 export interface GameEntry {
@@ -183,6 +184,91 @@ export function copyFor(game: GameEntry, lang: Lang): GameCopy {
 }
 
 export const games: GameEntry[] = [
+  {
+    slug: 'munju-piano',
+    released: '2026-08',
+    tech: 'Canvas 2D · Web Audio 합성음(녹음 파일 없음)',
+    playPath: '/games/munju-piano/index.html',
+    cover: '/games/munju-piano/cover.jpg',
+    koOnly: true,
+    hero: 'munju',
+    copy: {
+      ko: {
+        title: '문주의 피아노',
+        tagline: '떨어지는 음을 자판 건반으로 치는 연주 게임 — 저작권이 소멸한 명곡 10곡, 계이름과 악보를 함께 읽으며, 칠 때까지 기다려 주는 연습 모드.',
+        about: [
+          '화면 위에서 음이 떨어져 내려오고, 그 자리의 건반을 누르면 소리가 납니다. 소리는 <b>녹음 파일이 아니라 브라우저가 그 자리에서 만들어 냅니다</b> — 기음과 배음 네 개를 각각 다른 속도로 사라지게 해서 피아노에 가까운 소리를 냅니다. 그래서 파일을 하나도 받지 않고 바로 시작됩니다.',
+          '실린 곡은 반짝반짝 작은 별·학교종·나비야·환희의 송가부터 미뉴에트 G장조, 엘리제를 위하여, 캐논, 터키 행진곡까지 <b>열 곡</b>입니다. 모두 저작권이 소멸한 곡이고, 오른손 한 줄로 칠 수 있게 주제 선율만 옮겼습니다. 곡마다 별 하나에서 다섯 개까지 난이도가 붙어 있습니다.',
+          '<b>연습 모드가 기본입니다.</b> 못 친 자리에서 곡이 멈춰 서서 기다립니다 — 실제 피아노 연습이 그렇게 하니까요. 자신 있으면 연주 모드로 바꿔 정확도와 별을 받을 수 있고, 속도도 ×0.7에서 ×1.6까지 바꿉니다.',
+          '화면 위쪽에는 <b>오선지에 진짜 음표</b>가 함께 흘러갑니다. 계이름을 끄면 악보만 보고 치는 연습이 됩니다 — 치면서 악보 읽는 법이 같이 익도록 만들었습니다.',
+          '한 옥타브짜리 쉬운 곡은 A·S·D·F·G·H·J·K가 도레미파솔라시도, 두 옥타브가 필요한 곡은 아랫줄과 윗줄로 나뉜 실제 피아노 같은 배치로 <b>곡에 맞춰 저절로 바뀝니다.</b> 태블릿에서는 화면 건반을 손가락으로 누르면 됩니다.',
+        ],
+        how: [
+          '곡을 고르면 그 곡에 맞는 자판 배치로 바뀝니다 — 건반에 글자가 적혀 있어요',
+          '떨어지는 음이 판정선에 닿는 순간 그 건반을 누르세요',
+          '연습 모드에서는 칠 때까지 기다려 줍니다 · 틀려도 잃는 것은 없습니다',
+          '🎼 자유 연주 — 아무 곡 없이 그냥 건반을 칠 수도 있습니다',
+          '📱 태블릿·폰 — 화면 아래 건반을 손가락으로 누르세요',
+        ],
+      },
+    },
+  },
+  {
+    slug: 'munju-math',
+    released: '2026-08',
+    tech: 'Canvas 2D · 실행 중 문제 생성',
+    playPath: '/games/munju-math/index.html',
+    cover: '/games/munju-math/cover.jpg',
+    koOnly: true,
+    hero: 'munju',
+    copy: {
+      ko: {
+        title: '문주의 수학 방탈출',
+        tagline: '자물쇠 하나가 문제 하나 — 초등 6학년 수학 여섯 단원을 방 여섯 개로 풀어낸 방탈출. 시간 제한도 목숨도 없고, 힌트는 세 단계로 나옵니다.',
+        about: [
+          '여섯 개의 방에 자물쇠가 세 개씩 걸려 있습니다. 자물쇠 하나가 문제 하나예요. 셋을 다 풀면 문이 열리고 다음 방으로 넘어갑니다 — 분수의 나눗셈, 소수의 나눗셈, 비와 비율·비례식, 원의 둘레와 넓이, 부피와 겉넓이, 평균과 경우의 수. <b>6학년 교육과정 여섯 단원</b>이 그대로 방이 되었습니다.',
+          '문제는 미리 적어 둔 것을 돌려쓰지 않고 <b>들어갈 때마다 규칙에 따라 새로 만들어집니다.</b> 같은 방을 몇 번을 다시 들어가도 같은 문제가 나오지 않습니다. 대신 답이 3.333…처럼 되지 않도록, 만드는 단계에서 나누어떨어지는 수만 고릅니다.',
+          '<b>힌트는 세 단계로 나뉩니다.</b> ①무엇을 묻는 문제인지 ②어떤 식을 세우는지 ③첫 계산까지. 답은 마지막까지 알려 주지 않습니다 — 답을 주면 풀어 볼 기회가 사라지니까요. 힌트를 봐도 벌은 없고, 대신 "힌트 없이 푼 문제"가 따로 세어집니다.',
+          '틀려도 잃는 것이 없습니다. 목숨도 시간 제한도 아예 없고, 틀리면 어디서 어긋나기 쉬운지 짚어 줍니다 — "전체를 두 수의 <b>합</b>으로 나눠야 해요", "지름이 아니라 반지름을 두 번 곱해야 해요" 처럼요.',
+          '분수 답은 분자·분모 두 칸에 적습니다. 약분을 하지 않아도 값이 맞으면 인정하지만, 기약분수로 쓰는 습관을 권합니다.',
+        ],
+        how: [
+          '답을 적고 Enter 또는 확인을 누르세요',
+          '분수는 분자·분모 두 칸에 · 원주율은 3.14로 계산합니다',
+          '💡 힌트는 세 단계 — 필요한 만큼만 열어 보세요',
+          '틀려도 잃는 것이 없습니다. 다시 풀면 됩니다',
+        ],
+      },
+    },
+  },
+  {
+    slug: 'munju-history',
+    released: '2026-08',
+    tech: 'Canvas 2D · 초등 6학년 사회 문제 은행',
+    playPath: '/games/munju-history/index.html',
+    cover: '/games/munju-history/cover.jpg',
+    koOnly: true,
+    hero: 'munju',
+    copy: {
+      ko: {
+        title: '문주의 한국사 탐험',
+        tagline: '조선 후기부터 오늘까지 여덟 정거장 — 사건 카드를 일어난 순서대로 세워 연표를 만들고, 그 시대의 문제를 풉니다.',
+        about: [
+          '시간의 길 위에 정거장이 여덟 개 있습니다. 조선 후기, 개항과 근대화, 대한제국과 국권 침탈, 3·1 운동과 임시정부, 독립을 향한 싸움, 광복과 대한민국 정부 수립, 민주주의의 발전, 경제 성장과 오늘. <b>초등 6학년 사회의 흐름</b> 그대로입니다.',
+          '정거장마다 먼저 <b>사건 카드 네 장을 일어난 순서대로</b> 짚습니다. 6학년 역사는 사건을 외우는 공부가 아니라 흐름을 잇는 공부라서, 연표를 손으로 세우고 나서 문제로 넘어갑니다. 순서를 잘못 짚으면 "그 일은 조금 더 뒤에 일어났어요" 하고 알려 줄 뿐, 잃는 것은 없습니다.',
+          '연표를 세우면 그 시대의 문제 세 개가 나옵니다. 문제는 시대마다 다섯 개 중에서 <b>들어갈 때마다 새로 뽑히고</b>, 틀리면 답 대신 왜 그런지를 알려 줍니다 — "1948년 8월 15일은 정부가 수립된 날이에요. 헷갈리기 쉬워요!" 처럼요.',
+          '정거장을 지나면 <b>완성된 연표</b>를 연도와 함께 다시 보여 줍니다. 방금 손으로 세운 순서가 눈에 한 번 더 남도록요.',
+          '2026년 8월, AI가 전부 만들었습니다 — 시간의 길 그림, 사건 32개, 문제 40개.',
+        ],
+        how: [
+          '① 카드를 가장 먼저 일어난 일부터 눌러 연표를 세우세요',
+          '② 그 시대의 문제 세 개를 풉니다',
+          '틀려도 잃는 것이 없습니다 — 왜 그런지 알려 준 다음 다시 고르면 됩니다',
+          '정거장을 지나면 완성된 연표를 한 번 더 볼 수 있습니다',
+        ],
+      },
+    },
+  },
   {
     slug: 'kkaebi-math',
     released: '2026-08',
@@ -1057,7 +1143,7 @@ export function playerUrl(slug: string, lang: Lang): string {
   return `/play/${slug}/?lang=${lang}`;
 }
 // 홈 화면 '인기 게임' 노출 순서 (앞에서부터 4개 노출)
-export const homeGameOrder = ['yujin-math', 'suho-math', 'kkaebi-math', 'uja-science', 'uja-moral', 'kkaebi-science', 'kkaebi-moral', 'voxel-world', 'super-uja', 'menew-kart', 'yuja-knight', 'fruit-blocks', 'menew-empires', 'ppanggeul-adventure'];
+export const homeGameOrder = ['yujin-math', 'suho-math', 'kkaebi-math', 'uja-science', 'uja-moral', 'kkaebi-science', 'kkaebi-moral', 'munju-piano', 'munju-math', 'munju-history', 'voxel-world', 'super-uja', 'menew-kart', 'yuja-knight', 'fruit-blocks', 'menew-empires', 'ppanggeul-adventure'];
 
 // 주간 도전과제: ISO 주차 % 게임 수로 로테이션 (클라이언트에서 계산)
 export const weeklyChallenges: Record<string, Record<Lang, string>> = {

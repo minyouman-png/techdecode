@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""배포 전 전체 검증 — 학습 코너 + 학습 게임 7종을 한 번에 돌린다.
+"""배포 전 전체 검증 — 학습 코너 + 학습 게임 10종을 한 번에 돌린다.
 
   python3 tools/verify-all.py           # 전부 (학습 코너는 dist 가 필요해 빌드부터)
   python3 tools/verify-all.py --games   # 게임만 (빌드 불필요, 빠름)
@@ -49,7 +49,14 @@ def main() -> int:
                          [PY, 'tools/ujaquest-selftest.py', '--subject', 'science', '--hero', _h]))
             jobs.append((f'도덕동산 sim {_h} #{i + 1}',
                          [PY, 'tools/ujaquest-selftest.py', '--subject', 'moral', '--hero', _h]))
+        for _g in ('piano', 'math', 'history'):
+            jobs.append((f'문주 {_g} sim #{i + 1}',
+                         [PY, 'tools/munju-selftest.py', '--game', _g]))
     if args.narrow:
+        for _g in ('piano', 'math', 'history'):
+            jobs.append((f'문주 {_g} sim (390px)',
+                         [PY, 'tools/munju-selftest.py', '--game', _g,
+                          '--width', '390', '--height', '760']))
         for _h in ('yujin', 'suho', 'kkaebi'):
             jobs.append((f'수학여행 sim {_h} (360px)',
                          [PY, 'tools/mathquest-selftest.py', '--hero', _h,

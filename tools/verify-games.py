@@ -38,6 +38,10 @@ GAMES = [
     #    같은 은행을 두 번 검사하는 셈이라 커버만 확인한다.
     ('깨비의 과학동산 여행', None, None, [PUB / 'ujaquest' / 'cover-kkaebi-science.jpg']),
     ('깨비의 도덕동산 여행', None, None, [PUB / 'ujaquest' / 'cover-kkaebi-moral.jpg']),
+    # 문주(6학년) 게임 3종은 나레이션 음성이 없다 — 6학년은 글을 읽는다. 커버만 본다.
+    ('문주의 피아노', None, None, [PUB / 'munju-piano' / 'cover.jpg']),
+    ('문주의 수학 방탈출', None, None, [PUB / 'munju-math' / 'cover.jpg']),
+    ('문주의 한국사 탐험', None, None, [PUB / 'munju-history' / 'cover.jpg']),
 ]
 
 # 한국어 나레이션 속도의 대략치(글자/초). edge-tts SunHi, rate -8% 실측 기준.
