@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""배포 전 전체 검증 — 학습 코너 + 학습 게임 10종을 한 번에 돌린다.
+"""배포 전 전체 검증 — 학습 코너 + 게임 11종을 한 번에 돌린다.
 
   python3 tools/verify-all.py           # 전부 (학습 코너는 dist 가 필요해 빌드부터)
   python3 tools/verify-all.py --games   # 게임만 (빌드 불필요, 빠름)
@@ -52,6 +52,8 @@ def main() -> int:
         for _g in ('piano', 'math', 'history'):
             jobs.append((f'문주 {_g} sim #{i + 1}',
                          [PY, 'tools/munju-selftest.py', '--game', _g]))
+        jobs.append((f'조스 오브 파이터즈 sim #{i + 1}',
+                     [PY, 'tools/munju-selftest.py', '--game', 'joss', '--wait', '16']))
     if args.narrow:
         for _g in ('piano', 'math', 'history'):
             jobs.append((f'문주 {_g} sim (390px)',

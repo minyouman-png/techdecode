@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""문주 게임 3종 자가검증 — `?test=sim` 을 헤드리스 크롬으로 돌리고 결과를 읽는다.
+"""문주 게임 3종 + 조스 오브 파이터즈 자가검증 — `?test=sim` 을 헤드리스 크롬으로 돌리고 결과를 읽는다.
 
 usage:
   python3 tools/munju-selftest.py --game piano        # 문주의 피아노
@@ -34,6 +34,7 @@ GAMES = {
     "piano": ("문주의 피아노", "/games/munju/piano/index.html"),
     "math": ("문주의 수학 방탈출", "/games/munju/math/index.html"),
     "history": ("문주의 한국사 탐험", "/games/munju/history/index.html"),
+    "joss": ("조스 오브 파이터즈", "/games/jossfight/index.html"),
 }
 
 

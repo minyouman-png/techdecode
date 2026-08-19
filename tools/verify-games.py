@@ -42,6 +42,7 @@ GAMES = [
     ('문주의 피아노', None, None, [PUB / 'munju' / 'piano' / 'cover.jpg']),
     ('문주의 수학 방탈출', None, None, [PUB / 'munju' / 'math' / 'cover.jpg']),
     ('문주의 한국사 탐험', None, None, [PUB / 'munju' / 'history' / 'cover.jpg']),
+    ('조스 오브 파이터즈', None, None, [PUB / 'jossfight' / 'cover.jpg']),
 ]
 
 # 한국어 나레이션 속도의 대략치(글자/초). edge-tts SunHi, rate -8% 실측 기준.

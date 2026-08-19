@@ -185,6 +185,35 @@ export function copyFor(game: GameEntry, lang: Lang): GameCopy {
 
 export const games: GameEntry[] = [
   {
+    slug: 'joss-fighters',
+    released: '2026-08',
+    tech: 'Canvas 2D · Web Audio 합성음 · 뼈대 기반 캐릭터(그림 파일 없음)',
+    playPath: '/games/jossfight/index.html',
+    cover: '/games/jossfight/cover.jpg',
+    koOnly: true,
+    copy: {
+      ko: {
+        title: '조스 오브 파이터즈',
+        tagline: '옛 오락실 대전격투 — 직업이 곧 기술인 열 명의 싸움꾼, 일곱 곳의 무대, ↓↘→로 나가는 장풍과 게이지를 채워 터뜨리는 초필살기.',
+        about: [
+          '1:1 대전격투 게임입니다. 내가 고른 한 명 말고는 전부 <b>CPU</b>가 잡습니다 — 아케이드로 아홉 명을 차례로 상대하거나, 상대와 무대를 골라 한 판만 붙을 수 있습니다. 난이도는 네 단계고 기본은 <b>어려움</b>입니다.',
+          '열 명은 <b>직업으로 갈립니다.</b> 프로그래머 민유(컴파일 에러·스택 오버플로), 집배원 종범(총알 배송·착불 들배지기), 컴퓨터 엔지니어 인우(블루스크린), 족구 선수 노덕(폭풍 스파이크), 축구 선수 길수(바이시클 킥), 한 잔 하는 아저씨 동식(2차 가자), 안경 쓴 아저씨 준원(잔소리 파동·야근 명령), 부자 조스(돈다발 투척·폭등), 20대 유진(별빛 난무), 여고생 유정(야자 탈출). 기술 이름과 손에 든 물건이 전부 그 직업에서 나옵니다.',
+          '커맨드는 옛 오락실 그대로입니다. <b>↓↘→ + 손</b>이 장풍, <b>→↓↘ + 손</b>이 뛰어드는 상대를 떨어뜨리는 대공기, <b>↓↙← + 발</b>이 파고드는 기술입니다. 게이지가 가득 차면 <b>↓↘→↓↘→ + 손</b>으로 초필살기가 나갑니다. 막기는 버튼이 아니라 <b>뒤로 미는 것</b>이고, 하단은 앉아서, 점프 공격은 서서 막아야 합니다.',
+          '무대는 일곱 곳입니다 — <b>노덕후의 궁전</b>(팻말이 걸린 사원 앞뜰), <b>원주우체국</b>, <b>소모그룹</b> 본사, <b>칭따오 창고</b>, <b>족구장</b>, <b>판교역</b>(전동차가 지나갑니다), <b>한라대학교</b>. 배경도 그림 파일이 아니라 그 자리에서 그려집니다.',
+          '캐릭터 그림은 <b>뼈대 하나를 열 명이 함께 씁니다.</b> 걷기·달리기·앉기·점프·주먹·발차기·장풍·대공·회전차기·막기·피격·다운·기상·승리까지 스무 가지 동작을 뼈대 위의 자세로 만들고, 색과 머리 모양과 소품으로 열 명을 갈랐습니다. 그래야 판정 상자가 캐릭터마다 어긋나지 않습니다 — 격투게임에서 그 어긋남은 곧 불공평이니까요.',
+          '2026년 8월, AI가 전부 만들었습니다 — 엔진, 프레임 자료, 캐릭터, 배경, 효과음, 그리고 CPU까지.',
+        ],
+        how: [
+          '이동 A·D · 앉기 S · 점프 W · 약손 J · 강손 K · 약발 U · 강발 I',
+          '장풍 ↓↘→ + 손 · 대공 →↓↘ + 손 · 파고들기 ↓↙← + 발',
+          '초필살기 ↓↘→↓↘→ + 손 (게이지 100%)',
+          '막기는 뒤로 밀기 — 하단은 앉아서, 점프 공격은 서서 막습니다',
+          '📱 폰·태블릿은 오른쪽 아래 🎮 로 화면 조작 버튼을 켜세요 · 멈춤은 ESC',
+        ],
+      },
+    },
+  },
+  {
     slug: 'munju-piano',
     released: '2026-08',
     tech: 'Canvas 2D · Web Audio 합성음(녹음 파일 없음)',
@@ -1143,7 +1172,7 @@ export function playerUrl(slug: string, lang: Lang): string {
   return `/play/${slug}/?lang=${lang}`;
 }
 // 홈 화면 '인기 게임' 노출 순서 (앞에서부터 4개 노출)
-export const homeGameOrder = ['yujin-math', 'suho-math', 'kkaebi-math', 'uja-science', 'uja-moral', 'kkaebi-science', 'kkaebi-moral', 'munju-piano', 'munju-math', 'munju-history', 'voxel-world', 'super-uja', 'menew-kart', 'yuja-knight', 'fruit-blocks', 'menew-empires', 'ppanggeul-adventure'];
+export const homeGameOrder = ['yujin-math', 'suho-math', 'kkaebi-math', 'uja-science', 'uja-moral', 'kkaebi-science', 'kkaebi-moral', 'munju-piano', 'munju-math', 'munju-history', 'joss-fighters', 'voxel-world', 'super-uja', 'menew-kart', 'yuja-knight', 'fruit-blocks', 'menew-empires', 'ppanggeul-adventure'];
 
 // 주간 도전과제: ISO 주차 % 게임 수로 로테이션 (클라이언트에서 계산)
 export const weeklyChallenges: Record<string, Record<Lang, string>> = {
