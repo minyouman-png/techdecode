@@ -56,6 +56,8 @@ def main() -> int:
                      [PY, 'tools/munju-selftest.py', '--game', 'joss', '--wait', '16']))
     # ⚠️소리는 sim 이 못 잡는다 — 실제 출력 파형을 재는 검사가 따로 있어야 한다
     jobs.append(('조스 오브 파이터즈 소리(파형 측정)', [PY, 'tools/joss-audio-check.py']))
+    # ⚠️컷아웃 그림은 비동기로 실린다 — sim 이 끝난 뒤에 와서 sim 으로는 못 잡는다
+    jobs.append(('조스 오브 파이터즈 컷아웃 그림', [PY, 'tools/joss-tex-check.py']))
     if args.narrow:
         for _g in ('piano', 'math', 'history'):
             jobs.append((f'문주 {_g} sim (390px)',

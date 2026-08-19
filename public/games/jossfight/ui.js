@@ -201,6 +201,42 @@ function buildMoveList(ch) {
   return html;
 }
 
+/* ---------- 컷아웃 텍스처 불러오기 ----------
+   ★부위 그림이 있으면 캐릭터를 그림으로 그린다. 없으면 지금까지처럼 벡터로 — 그림 파일이
+     하나라도 빠지면 그 캐릭터만 조용히 벡터로 남는다(반쪽짜리로 그리지 않는다).
+   ★뒤쪽 팔다리용 **어두운 사본**을 여기서 한 번 만들어 둔다(매 프레임 어둡게 칠하면 느리다). */
+function darken(im, amt) {
+  var c = document.createElement('canvas');
+  c.width = im.naturalWidth; c.height = im.naturalHeight;
+  var x = c.getContext('2d');
+  x.drawImage(im, 0, 0);
+  x.globalCompositeOperation = 'source-atop';
+  x.fillStyle = 'rgba(10,14,26,' + amt + ')';
+  x.fillRect(0, 0, c.width, c.height);
+  return c;
+}
+function loadParts(ch) {
+  // ⚠️머리는 늘 벡터로 그리므로 불러오지 않는다(파일은 만들어 두되 쓰지 않는다)
+  var names = ['torso', 'armU', 'armL', 'legU', 'legL'];
+  fetch('art/parts/' + ch.key + '/parts.json')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (meta) {
+      if (!meta) return;
+      var parts = {}, left = names.length, bad = false;
+      names.forEach(function (n) {
+        var im = new Image();
+        im.onload = function () {
+          parts[n] = im;
+          parts[n + "Dark"] = darken(im, 0.52);   // 뒤쪽은 실루엣으로 읽혀야 한다 — 어중간하면 진흙처럼 보인다
+          if (--left === 0 && !bad) FA.setTextures(ch.key, { ready: true, parts: parts, geom: meta });
+        };
+        im.onerror = function () { bad = true; };
+        im.src = 'art/parts/' + ch.key + '/' + n + '.png';
+      });
+    })
+    .catch(function () {});
+}
+
 /* ---------- 인물 소개 ----------
    ★서사를 적어 두면 캐릭터가 '색깔이 다른 열 명'에서 **아는 사람 열 명**이 된다.
      그림·서사·기술이 한 화면에 같이 있어야 서로를 설명한다. */
@@ -470,6 +506,7 @@ function bindMusic() {
 /* ---------- 시작 ---------- */
 function boot() {
   loadSave();
+  CHARS.forEach(loadParts);          // 있으면 그림 텍스처로, 없으면 벡터로
   J.fit();
   window.addEventListener('resize', J.fit);
   bindTouch();

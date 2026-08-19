@@ -457,8 +457,40 @@ function ball(cx, x, y, r, col, edge) {
  *  cx: 캔버스, x·y: 발이 닿는 자리, face: 1(오른쪽 보기)/-1, ch: 캐릭터 자료, p: 포즈
  *  ★뼈 길이는 모두가 같다 — 판정 상자가 캐릭터마다 갈리면 안 된다. 덩치는 scale 로만 바꾼다.
  */
+/* ---------- 컷아웃(그림 텍스처) ----------
+   ★뼈대는 그대로 두고 **살만 갈아 끼운다**. 부위 그림이 있으면 캡슐 대신 그림을 뼈에 맞춰
+     돌리고 늘여 붙인다. 없으면 지금처럼 벡터로 그린다(그림이 빠져도 게임은 돌아간다).
+   ★부위 그림은 '펼친 자세'로 한 번 그린 캐릭터를 잘라 만든다 — 그래서 **관절 위치가
+     정확히 같다**. 관절이 어긋나면 팔이 어깨에서 빠진 것처럼 보인다.
+   ⚠️`only` 는 그 부위 하나만 그린다(잘라낼 때 쓸 마스크를 뽑기 위한 것). */
+var TEX = {};                                  // key -> {ready, parts:{name:Image}, geom}
+function setTextures(key, rec) { TEX[key] = rec; }
+function texOf(ch) { var t = TEX[ch.key]; return t && t.ready ? t : null; }
+
+/** 뼈 하나에 그림을 맞춰 붙인다. (x1,y1)→(x2,y2) 가 그 뼈의 지금 자리. */
+function texLimb(cx, im, g, x1, y1, x2, y2) {
+  var dx = x2 - x1, dy = y2 - y1;
+  var len = Math.hypot(dx, dy) || 1;
+  var k = len / g.len;                          // 원본 뼈 길이 대비 얼마나 늘었나
+  cx.save();
+  cx.translate(x1, y1);
+  cx.rotate(Math.atan2(dy, dx) - g.ang);
+  cx.scale(k, k);
+  cx.drawImage(im, g.ox, g.oy, g.w, g.h);
+  cx.restore();
+}
+
 function drawFighter(cx, x, y, face, ch, p, opt) {
   opt = opt || {};
+  // only = 'torso'|'head'|'armU'|'armL'|'legU'|'legL' — 그 부위 하나만 그린다(마스크 뽑기용)
+  var only = opt.only || null;
+  function want(n) {
+    if (!only) return true;
+    if (only === n) return true;
+    if (n === 'armF') return only === 'armU' || only === 'armL';
+    if (n === 'legF') return only === 'legU' || only === 'legL';
+    return false;
+  }
   var s = (ch.scale || 1) * (opt.zoom || 1);
   var C = ch.col;
   cx.save();
@@ -482,68 +514,57 @@ function drawFighter(cx, x, y, face, ch, p, opt) {
   // ★앞으로 크게 뻗은 뒤쪽 팔다리는 **몸통 앞에** 그린다. 회전 발차기처럼 뒷발로 차는 기술이
   //   몸에 가려 보이지 않으면, 아무리 크게 휘둘러도 관객에게는 아무 일도 일어나지 않은 것이다.
   var legFront = p.lU[0] > 1.05, armFront = p.aU[0] > 1.25;
-  if (!legFront) drawLeg(cx, hipB, p.lU[0], p.lS[0], tint(C.pantsDark, -0.14), tint(C.shoeDark, -0.14), edge, 1);
-  if (!armFront) drawArm(cx, shB, p.aU[0], p.aF[0], tint(C.sleeveDark, -0.14), tint(C.skinDark, -0.12), edge, 1);
+  var T = opt.noTex ? null : texOf(ch);
+  if (!legFront && want('legB')) drawLeg(cx, hipB, p.lU[0], p.lS[0], tint(C.pantsDark, -0.14), tint(C.shoeDark, -0.14), edge, 1, T, true);
+  if (!armFront && want('armB')) drawArm(cx, shB, p.aU[0], p.aF[0], tint(C.sleeveDark, -0.14), tint(C.skinDark, -0.12), edge, 1, T, true);
 
-  drawCloth(cx, px, py, p.torso, C, edge, opt.sway || 0);   // 허리띠 자락(몸통 뒤에)
-  drawTorso(cx, px, py, p.torso, C, edge);
-  if (ch.draw && ch.draw.torso) ch.draw.torso(cx, px, py, cxp, cyp, p);
+  if (want('torso')) {
+    drawCloth(cx, px, py, p.torso, C, edge, opt.sway || 0);   // 허리띠 자락(몸통 뒤에)
+    if (T) texLimb(cx, T.parts.torso, T.geom.torso, px, py, cxp, cyp);
+    else {
+      drawTorso(cx, px, py, p.torso, C, edge);
+      if (ch.draw && ch.draw.torso) ch.draw.torso(cx, px, py, cxp, cyp, p);
+    }
+  }
 
   // 앞쪽 다리
-  if (legFront) drawLeg(cx, hipB, p.lU[0], p.lS[0], tint(C.pantsDark, -0.06), tint(C.shoeDark, -0.06), edge, xL);
-  drawLeg(cx, hipF, p.lU[1], p.lS[1], C.pants, C.shoe, edge, xL);
+  if (legFront && want('legB')) drawLeg(cx, hipB, p.lU[0], p.lS[0], tint(C.pantsDark, -0.06), tint(C.shoeDark, -0.06), edge, xL, T, true);
+  if (want('legF')) drawLeg(cx, hipF, p.lU[1], p.lS[1], C.pants, C.shoe, edge, xL, T, false, only);
 
   // 머리
   var hx = headC[0], hy = headC[1];
-  limb(cx, cxp, cyp, hx, hy, 6.4, 6, C.skin, edge);   // 목
-  cx.save();
-  cx.translate(hx, hy);
-  cx.rotate(-(p.torso + p.head - Math.PI));
-  cx.scale(0.88, 0.88);
-  // 얼굴
-  cx.fillStyle = cel(cx, 6, -11, -7, 10, C.skin);
-  cx.beginPath(); cx.ellipse(0, 0, 11, 12.5, 0, 0, 7); cx.fill();
-  cx.strokeStyle = edge; cx.lineWidth = 1.9; cx.stroke();
-  // 턱선 — 옆얼굴의 각을 살짝 세운다
-  cx.strokeStyle = 'rgba(0,0,0,.18)'; cx.lineWidth = 1.3;
-  cx.beginPath(); cx.moveTo(9.4, 2.4); cx.quadraticCurveTo(7.2, 9.6, 1.6, 11.4); cx.stroke();
-  // 귀
-  cx.fillStyle = tint(C.skin, -0.12);
-  cx.beginPath(); cx.ellipse(-4.6, 1.2, 2.1, 3.0, 0, 0, 7); cx.fill();
-  cx.strokeStyle = 'rgba(0,0,0,.22)'; cx.lineWidth = 1; cx.stroke();
-  // 눈 — 앞쪽만 보이게(옆얼굴). 흰자 → 눈동자 → 빛 순서로 겹친다
-  cx.fillStyle = '#f6f1ea';
-  cx.beginPath(); cx.ellipse(5.6, -1.6, 3.0, 2.7, 0, 0, 7); cx.fill();
-  cx.fillStyle = '#20141a';
-  cx.beginPath(); cx.ellipse(6.4, -1.4, 1.9, 2.4, 0, 0, 7); cx.fill();
-  cx.fillStyle = 'rgba(255,255,255,.92)';
-  cx.beginPath(); cx.arc(7.0, -2.4, 0.8, 0, 7); cx.fill();
-  cx.strokeStyle = 'rgba(20,14,18,.8)'; cx.lineWidth = 1.1;   // 위 눈꺼풀
-  cx.beginPath(); cx.moveTo(2.8, -3.4); cx.lineTo(8.6, -3.2); cx.stroke();
-  // 눈썹 — 격투가는 늘 인상을 쓰고 있다
-  cx.strokeStyle = C.hair; cx.lineWidth = 2.4; cx.lineCap = 'round';
-  cx.beginPath(); cx.moveTo(2.8, -6.6); cx.lineTo(8.4, -4.8); cx.stroke();
-  cx.lineCap = 'butt';
-  // 코와 입
-  cx.strokeStyle = 'rgba(0,0,0,.28)'; cx.lineWidth = 1.2;
-  cx.beginPath(); cx.moveTo(9.4, -1.2); cx.lineTo(10.4, 1.6); cx.lineTo(8.4, 2.0); cx.stroke();
-  cx.strokeStyle = 'rgba(60,26,30,.85)'; cx.lineWidth = 1.4;
-  cx.beginPath(); cx.moveTo(6.4, 5.0); cx.lineTo(9.6, 4.4); cx.stroke();
-  hairTail(cx, C, opt.sway || 0);            // 뒷머리 — 늦게 따라온다
-  if (ch.draw && ch.draw.head) ch.draw.head(cx, C);
-  else defaultHair(cx, C);
-  // 머리 위 빛 — 머리 모양을 다 그린 뒤 얹어야 머리카락에도 빛이 든다
-  var hg = cx.createLinearGradient(0, -14, 0, 4);
-  hg.addColorStop(0, 'rgba(255,255,255,.16)');
-  hg.addColorStop(1, 'rgba(255,255,255,0)');
-  cx.fillStyle = hg;
-  cx.beginPath(); cx.ellipse(0, -3, 11, 12, 0, 0, 7); cx.fill();
-  cx.restore();
+  if (want('head')) {
+    // ★머리는 **늘 벡터**로 그린다. 얼굴은 화면에서 작지만 캐릭터의 정체성을 지고 있고,
+    //   덧칠(img2img)이 가장 크게 망가뜨리는 부위이기도 하다(머리가 젖혀지고 머리 모양이 바뀐다).
+    limb(cx, cxp, cyp, hx, hy, 6.4, 6, C.skin, edge);   // 목
+    drawHead(cx, hx, hy, p, ch, C, edge, opt.sway || 0);
+  }
 
-  if (armFront) drawArm(cx, shB, p.aU[0], p.aF[0], tint(C.sleeveDark, -0.04), tint(C.skinDark, -0.04), edge, xA);
-  drawArm(cx, shF, p.aU[1], p.aF[1], C.sleeve, C.skin, edge, xA);
+  if (armFront && want('armB')) drawArm(cx, shB, p.aU[0], p.aF[0], tint(C.sleeveDark, -0.04), tint(C.skinDark, -0.04), edge, xA, T, true);
+  if (want('armF')) drawArm(cx, shF, p.aU[1], p.aF[1], C.sleeve, C.skin, edge, xA, T, false, only);
 
   cx.restore();
+}
+
+/** 이 자세에서 각 뼈의 양 끝(그림을 자를 때 쓰는 좌표) */
+function geomOf(p) {
+  var py = -46 + p.y, px = 0;
+  var chest = seg(px, py, p.torso, 30);
+  var headC = seg(chest[0], chest[1], p.torso + p.head, 16.5);
+  var xA = p.xA === undefined ? 1 : p.xA, xL = p.xL === undefined ? 1 : p.xL;
+  var shF = [chest[0] + 4, chest[1] + 2], hipF = [px + 3, py];
+  var el = seg(shF[0], shF[1], p.aU[1], 18 * (1 + (xA - 1) * 0.45));
+  var hand = seg(el[0], el[1], p.aF[1], 17 * xA);
+  var kn = seg(hipF[0], hipF[1], p.lU[1], 20 * (1 + (xL - 1) * 0.45));
+  var ft = seg(kn[0], kn[1], p.lS[1], 20 * xL);
+  return {
+    torso: [px, py, chest[0], chest[1]],
+    head: [headC[0], headC[1], p.torso + p.head - Math.PI],
+    armU: [shF[0], shF[1], el[0], el[1]],
+    armL: [el[0], el[1], hand[0], hand[1]],
+    legU: [hipF[0], hipF[1], kn[0], kn[1]],
+    legL: [kn[0], kn[1], ft[0], ft[1]],
+  };
 }
 
 /** 몸통 — 캡슐이 아니라 **어깨가 넓고 허리가 좁은 판**이다. 실루엣이 곧 '싸움꾼'이다.
@@ -618,6 +639,52 @@ function drawCloth(cx, px, py, torso, C, edge, sway) {
   cx.restore();
 }
 
+function drawHead(cx, hx, hy, p, ch, C, edge, sway) {
+  cx.save();
+  cx.translate(hx, hy);
+  cx.rotate(-(p.torso + p.head - Math.PI));
+  cx.scale(0.88, 0.88);
+  // 얼굴
+  cx.fillStyle = cel(cx, 6, -11, -7, 10, C.skin);
+  cx.beginPath(); cx.ellipse(0, 0, 11, 12.5, 0, 0, 7); cx.fill();
+  cx.strokeStyle = edge; cx.lineWidth = 1.9; cx.stroke();
+  // 턱선 — 옆얼굴의 각을 살짝 세운다
+  cx.strokeStyle = 'rgba(0,0,0,.18)'; cx.lineWidth = 1.3;
+  cx.beginPath(); cx.moveTo(9.4, 2.4); cx.quadraticCurveTo(7.2, 9.6, 1.6, 11.4); cx.stroke();
+  // 귀
+  cx.fillStyle = tint(C.skin, -0.12);
+  cx.beginPath(); cx.ellipse(-4.6, 1.2, 2.1, 3.0, 0, 0, 7); cx.fill();
+  cx.strokeStyle = 'rgba(0,0,0,.22)'; cx.lineWidth = 1; cx.stroke();
+  // 눈 — 앞쪽만 보이게(옆얼굴). 흰자 → 눈동자 → 빛 순서로 겹친다
+  cx.fillStyle = '#f6f1ea';
+  cx.beginPath(); cx.ellipse(5.6, -1.6, 3.0, 2.7, 0, 0, 7); cx.fill();
+  cx.fillStyle = '#20141a';
+  cx.beginPath(); cx.ellipse(6.4, -1.4, 1.9, 2.4, 0, 0, 7); cx.fill();
+  cx.fillStyle = 'rgba(255,255,255,.92)';
+  cx.beginPath(); cx.arc(7.0, -2.4, 0.8, 0, 7); cx.fill();
+  cx.strokeStyle = 'rgba(20,14,18,.8)'; cx.lineWidth = 1.1;   // 위 눈꺼풀
+  cx.beginPath(); cx.moveTo(2.8, -3.4); cx.lineTo(8.6, -3.2); cx.stroke();
+  // 눈썹 — 격투가는 늘 인상을 쓰고 있다
+  cx.strokeStyle = C.hair; cx.lineWidth = 2.4; cx.lineCap = 'round';
+  cx.beginPath(); cx.moveTo(2.8, -6.6); cx.lineTo(8.4, -4.8); cx.stroke();
+  cx.lineCap = 'butt';
+  // 코와 입
+  cx.strokeStyle = 'rgba(0,0,0,.28)'; cx.lineWidth = 1.2;
+  cx.beginPath(); cx.moveTo(9.4, -1.2); cx.lineTo(10.4, 1.6); cx.lineTo(8.4, 2.0); cx.stroke();
+  cx.strokeStyle = 'rgba(60,26,30,.85)'; cx.lineWidth = 1.4;
+  cx.beginPath(); cx.moveTo(6.4, 5.0); cx.lineTo(9.6, 4.4); cx.stroke();
+  hairTail(cx, C, sway);                     // 뒷머리 — 늦게 따라온다
+  if (ch.draw && ch.draw.head) ch.draw.head(cx, C);
+  else defaultHair(cx, C);
+  // 머리 위 빛 — 머리 모양을 다 그린 뒤 얹어야 머리카락에도 빛이 든다
+  var hg = cx.createLinearGradient(0, -14, 0, 4);
+  hg.addColorStop(0, 'rgba(255,255,255,.16)');
+  hg.addColorStop(1, 'rgba(255,255,255,0)');
+  cx.fillStyle = hg;
+  cx.beginPath(); cx.ellipse(0, -3, 11, 12, 0, 0, 7); cx.fill();
+  cx.restore();
+}
+
 function defaultHair(cx, C) {
   cx.fillStyle = C.hair;
   cx.beginPath();
@@ -653,22 +720,42 @@ function fist(cx, x, y, ang, r, skin, edge) {
 }
 
 /** 앞손은 ext 만큼 더 뻗고, 주먹도 그만큼 커진다(때리는 순간을 크게 보이게 한다) */
-function drawArm(cx, sh, aU, aF, sleeve, skin, edge, ext) {
+function drawArm(cx, sh, aU, aF, sleeve, skin, edge, ext, T, back, only) {
   ext = ext || 1;
+  var wU = !only || only === 'armU', wL = !only || only === 'armL';
   var eu = 1 + (ext - 1) * 0.45;
   var el = seg(sh[0], sh[1], aU, 18 * eu);
   var hand = seg(el[0], el[1], aF, 17 * ext);
-  limb(cx, sh[0], sh[1], el[0], el[1], 8.0, 5.0, sleeve, edge);   // 어깨(삼각근)에서 팔꿈치로 좁아진다
-  limb(cx, el[0], el[1], hand[0], hand[1], 4.9, 4.0, skin, edge);
-  fist(cx, hand[0], hand[1], aF, 5.4 + (ext - 1) * 9, skin, edge);
+  if (T) {                                       // 그림 텍스처를 뼈에 맞춰 붙인다
+    cx.save();
+    texLimb(cx, T.parts[back ? 'armUDark' : 'armU'], T.geom.armU, sh[0], sh[1], el[0], el[1]);
+    texLimb(cx, T.parts[back ? 'armLDark' : 'armL'], T.geom.armL, el[0], el[1], hand[0], hand[1]);
+    cx.restore();
+    return;
+  }
+  if (wU) limb(cx, sh[0], sh[1], el[0], el[1], 8.0, 5.0, sleeve, edge);   // 어깨(삼각근)에서 팔꿈치로 좁아진다
+  if (wL) {
+    limb(cx, el[0], el[1], hand[0], hand[1], 4.9, 4.0, skin, edge);
+    fist(cx, hand[0], hand[1], aF, 5.4 + (ext - 1) * 9, skin, edge);
+  }
 }
 
-function drawLeg(cx, hip, lU, lS, pants, shoe, edge, ext) {
+function drawLeg(cx, hip, lU, lS, pants, shoe, edge, ext, T, back, only) {
   ext = ext || 1;
+  var wU = !only || only === 'legU', wL = !only || only === 'legL';
+  if (T) {
+    var eu0 = 1 + (ext - 1) * 0.45;
+    var kn0 = seg(hip[0], hip[1], lU, 20 * eu0);
+    var ft0 = seg(kn0[0], kn0[1], lS, 20 * ext);
+    texLimb(cx, T.parts[back ? 'legUDark' : 'legU'], T.geom.legU, hip[0], hip[1], kn0[0], kn0[1]);
+    texLimb(cx, T.parts[back ? 'legLDark' : 'legL'], T.geom.legL, kn0[0], kn0[1], ft0[0], ft0[1]);
+    return;
+  }
   var eu = 1 + (ext - 1) * 0.45;
   var kn = seg(hip[0], hip[1], lU, 20 * eu);
   var ft = seg(kn[0], kn[1], lS, 20 * ext);
-  limb(cx, hip[0], hip[1], kn[0], kn[1], 9.2, 6.0, pants, edge);   // 허벅지는 굵고 무릎은 가늘게
+  if (wU) limb(cx, hip[0], hip[1], kn[0], kn[1], 9.2, 6.0, pants, edge);   // 허벅지는 굵고 무릎은 가늘게
+  if (!wL) { return; }
   limb(cx, kn[0], kn[1], ft[0], ft[1], 5.6, 4.4, pants, edge);
   // 신발 — 발끝이 앞을 향한다. 차는 발은 신발도 커 보인다.
   var sc = 1 + (ext - 1) * 1.5;
@@ -709,6 +796,7 @@ function footPos(p, face, s) {
 
 window.FIGHTANIM = {
   ANIM: ANIM, pose: pose, STAND: STAND, CROUCH: CROUCH, tint: tint,
+  setTextures: setTextures, texOf: texOf, geomOf: geomOf,
   poseAt: poseAt, animLength: animLength, drawFighter: drawFighter,
   handPos: handPos, footPos: footPos, blend: blend,
 };

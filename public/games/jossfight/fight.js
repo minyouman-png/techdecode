@@ -1090,7 +1090,8 @@ function drawFighterFull(f, camX) {
   var pose = FA.poseAt(f.anim, f.af, f.loop);
   var x = f.x - camX, y = f.y + GY;
   drawSmear(f, x, y, pose);
-  FA.drawFighter(cx, x, y, f.face, f.ch, pose, { zoom: ZOOM, sway: f.sway || 0 });
+  // window.__noTex = true 로 두면 컷아웃 그림을 끄고 벡터로 그린다(그림과 벡터를 나란히 비교할 때)
+  FA.drawFighter(cx, x, y, f.face, f.ch, pose, { zoom: ZOOM, sway: f.sway || 0, noTex: window.__noTex });
   // ★맞은 순간의 하얗게 뜨는 표시 — 통째로 날려 버리면(lighter 로 한 번만 그리면) 몸이
   //   하얀 덩어리가 되어 **타격 이펙트가 그 위에 안 보인다**. 원래 그림 위에 한 겹만 얹는다.
   if (f.flash > 0 && f.flash % 2) {
