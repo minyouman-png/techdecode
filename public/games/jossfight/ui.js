@@ -706,7 +706,12 @@ function runSim() {
           var gF = setup(ci, (ci + 1) % 10, 90);
           gF.p1.meter = 100;
           J.startMove(gF.p1, mv);
-          for (var k = 0; k < 90; k++) J.step();
+          // ⚠️히트스톱이 걸리면 그만큼 늦게 끝난다 — 멈춘 프레임은 세지 않는다.
+          for (var k = 0, guard = 0; k < 90 && guard < 400; guard++) {
+            var fz = gF.freezeT;
+            J.step();
+            if (!fz) k++;
+          }
           if (gF.p1.mv) bad.push(ch.name + '/' + mv.name + ': 기술이 안 끝난다');
         } catch (e) { bad.push(ch.name + '/' + mv.name + ': ' + e.message); }
       });
@@ -763,6 +768,31 @@ function runSim() {
     var pf = $('pf').getBoundingClientRect();
     ck(pf.top >= -1, '캐릭터 설명이 위로 잘렸다');
     toTitle();
+  }
+
+  /* 16-b) 히트스톱 — 맞는 순간 실제로 멈추는가, 연타 기술이 게임을 얼려 버리지 않는가 */
+  {
+    var gH = setup(0, 1, 80);
+    J.applyHit(gH, gH.p1, gH.p2, CHARS[0].normals.hp, false);
+    ck(gH.freezeT > 0, '맞았는데 히트스톱이 안 걸린다');
+    var af0 = gH.p2.af, hp0 = gH.p2.hp;
+    J.step();
+    ck(gH.p2.af === af0, '멈춘 동안에도 동작이 흘러간다');
+    var t0 = gH.timeF;
+    J.step();
+    ck(gH.timeF === t0, '멈춘 동안 시계가 흘러간다');
+    var guard17 = 0;
+    while (gH.freezeT > 0 && guard17++ < 30) J.step();
+    ck(guard17 < 30, '히트스톱이 안 풀린다');
+    ck(gH.p2.hp === hp0, '멈춘 동안 체력이 더 깎인다');
+
+    var multi = null;
+    CHARS.forEach(function (c) { if (c.super.multi && !multi) multi = c.super; });
+    if (multi) {
+      var gM = setup(0, 1, 80);
+      J.applyHit(gM, gM.p1, gM.p2, multi, false);
+      ck(gM.freezeT <= 3, '연타 기술이 오래 멈춘다(' + gM.freezeT + 'F) — 게임이 얼어 보인다');
+    }
   }
 
   /* 17) 배경음악 — 무대마다 곡이 있는가, 가락이 마디를 넘거나 모자라지 않는가 */

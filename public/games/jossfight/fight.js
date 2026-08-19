@@ -382,9 +382,21 @@ function tryHuman(f, inp, prev) {
 /* ---------- 한 프레임 ---------- */
 var G = null;   // 대전 상태
 
+/* ★히트스톱 — 맞는 순간 몇 프레임 **모두 멈춘다**. 격투게임 타격감의 절반이 여기서 나온다.
+     그림도 물리도 시간도 멈추고, 화면만 흔들린다. 강한 기술일수록 길게 멈춘다.
+   ⚠️멈춘 만큼 기술이 늦게 끝난다 — 프레임 수를 세는 검사(그리고 CPU 의 반응)는 그것을
+     감안해야 한다. 그래서 **최대 12프레임**을 넘기지 않는다(0.2초). */
+function hitStop(g, frames) { g.freezeT = Math.max(g.freezeT || 0, Math.min(12, frames)); }
+
 function step() {
   var g = G;
   if (!g || g.paused) return;
+  if (g.freezeT > 0) {                      // 멈춤 — 흔들림만 살아 있다
+    g.freezeT--;
+    if (g.shake > 0.5) g.shake *= 0.86;
+    if (g.zoom > 0.001) g.zoom *= 0.97;
+    return;
+  }
   g.frame++;
 
   if (g.phase === 'intro') {
@@ -419,14 +431,27 @@ function step() {
   stepProjectiles(g);
   separate(g);
   if (g.msgT > 0) g.msgT--;
+  stepFx(g);
   if (g.shake > 0) g.shake *= 0.88;
+  if (g.zoom > 0.0005) g.zoom *= 0.90; else g.zoom = 0;
   [g.p1, g.p2].forEach(function (f) {
     if (f.comboT > 0 && --f.comboT <= 0) f.combo = 0;
     if (f.flash > 0) f.flash--;
   });
 }
 
+/** 옷·머리가 몸을 **늦게** 따라오게 만드는 값 하나. 용수철이라 지나쳤다가 되돌아온다.
+    ⚠️포즈가 아니라 파이터의 상태다 — 같은 포즈라도 뛰어오는 중이냐 멈췄냐에 따라 달라야 한다. */
+function stepSway(f) {
+  var target = -f.vx * 0.045 - f.vy * 0.020;
+  target = Math.max(-0.9, Math.min(0.9, target));
+  f.swayV = (f.swayV || 0) + (target - (f.sway || 0)) * 0.34;
+  f.swayV *= 0.74;
+  f.sway = (f.sway || 0) + f.swayV;
+}
+
 function stepFighter(f, inp, opp, frozen) {
+  stepSway(f);
   // 방향 기록(커맨드용)
   f.buf.push(dirNum(inp, f.face));
   if (f.buf.length > 60) f.buf.shift();
@@ -472,6 +497,7 @@ function stepFighter(f, inp, opp, frozen) {
     if (f.air && f.vy > 0) {                     // 착지
       f.air = false; f.vy = 0; f.y = 0; f.vx = 0;
       if (!f.mv && f.downT <= 0 && f.hitstun <= 0) { setAnim(f, 'land', false); f.state = 'land'; f.landT = 5; }
+      dust(G, f, 6, 1.0);                                  // 착지 먼지
     }
     f.y = 0; f.vy = 0;
   }
@@ -590,6 +616,41 @@ function stepProjectiles(g) {
   }
 }
 
+/** 이펙트 한 걸음 — 날아가고, 늙고, 죽는다(그리기에서 하지 않는다) */
+function stepFx(g) {
+  for (var i = g.fx.length - 1; i >= 0; i--) {
+    var e = g.fx[i];
+    e.x += e.vx || 0; e.y += e.vy || 0;
+    if (e.vy !== undefined && !e.ring) e.vy += 0.25;
+    if (--e.life <= 0) g.fx.splice(i, 1);
+  }
+}
+
+/** 발밑에서 흙이 튄다 — 착지·돌진·다운에 쓴다. 무게가 있어 보이게 하는 가장 싼 방법. */
+function dust(g, f, n, pw) {
+  for (var i = 0; i < n; i++) {
+    var s2 = (Math.random() < 0.5 ? -1 : 1);
+    g.fx.push({ x: f.x + s2 * (4 + Math.random() * 16), y: GY - 2 - Math.random() * 6,
+                vx: s2 * (0.6 + Math.random() * 2.2) * pw, vy: -(0.6 + Math.random() * 1.8) * pw,
+                life: 14 + Math.random() * 8, col: 'rgba(226,214,190,.55)', r: 2 + Math.random() * 4 });
+  }
+}
+
+/** 타격 섬광 — 뾰족한 별 하나가 동그라미 열 개보다 세게 보인다.
+    ⚠️캐릭터가 200px 인데 섬광이 20px 이면 안 보인다. **몸통만 하게** 그린다. */
+function impactFx(g, x, y, dir, heavy) {
+  var R = (heavy ? 62 : 40) * (ZOOM / 1.8);
+  g.fx.push({ star: 1, x: x, y: y, r: R, life: heavy ? 11 : 8, max: heavy ? 11 : 8,
+              col: heavy ? '#fff3c8' : '#ffffff', rot: Math.random() * 3 });
+  g.fx.push({ ring: 1, x: x, y: y, r: R * 0.4, life: heavy ? 13 : 9, max: heavy ? 13 : 9,
+              col: heavy ? '#ffd27a' : '#cfe6ff' });
+  var n = heavy ? 5 : 3;
+  for (var i = 0; i < n; i++) {                  // 속도선 — 힘이 지나간 방향을 남긴다
+    g.fx.push({ line: 1, x: x, y: y - 18 + i * 10, len: (40 + Math.random() * 60) * (ZOOM / 1.8),
+                dir: dir, life: 8, max: 8, col: 'rgba(255,255,255,.7)' });
+  }
+}
+
 function boom(g, x, y, col) {
   for (var i = 0; i < 10; i++) {
     g.fx.push({ x: x, y: y, vx: (Math.random() - .5) * 7, vy: (Math.random() - .5) * 7,
@@ -635,6 +696,8 @@ function applyHit(g, att, def, mv, isProj) {
     att.meter = Math.min(100, att.meter + 2);
     def.meter = Math.min(100, def.meter + 3);
     setAnim(def, def.crouch ? 'blockLow' : 'block', false);
+    hitStop(g, 3);
+    g.shake = Math.max(g.shake, 2);
     Snd.block();
     g.fx.push({ x: def.x + (att.x < def.x ? -20 : 20), y: def.y + GY - 70, vx: 0, vy: 0, life: 10, col: '#bcd7ff', r: 12, ring: true });
     if (def.hp <= 0) koCheck(g);
@@ -645,6 +708,7 @@ function applyHit(g, att, def, mv, isProj) {
   if (def.armorLeft > 0 && !mv.grab) {
     def.armorLeft--;
     def.hp -= Math.round(MD * 0.5);
+    hitStop(g, 4);
     Snd.hit(false);
     g.fx.push({ x: def.x, y: def.y + GY - 80, vx: 0, vy: 0, life: 12, col: '#ffd27a', r: 16, ring: true });
     if (def.hp <= 0) koCheck(g);
@@ -673,7 +737,22 @@ function applyHit(g, att, def, mv, isProj) {
     def.state = 'hit';
   }
   if (mv.shake) g.shake = mv.shake;
+  // 세기에 따라 멈춤·흔들림·확대가 함께 커진다
+  var big = dmg > 60, huge = dmg > 95;
+  // ⚠️연타 기술(multi)은 **짧게** 멈춘다. 여덟 번 때리는 초필살기에 큰 멈춤을 걸면
+  //   1.5초를 통째로 얼어붙는다 — 멋있는 게 아니라 게임이 멈춘 것처럼 보인다.
+  hitStop(g, mv.multi ? 2 : huge ? 11 : big ? 7 : 4);
+  g.shake = Math.max(g.shake, huge ? 9 : big ? 6 : 3);
+  g.zoom = Math.max(g.zoom, mv.multi ? 0.012 : huge ? 0.055 : big ? 0.03 : 0.012);
   Snd.hit(dmg > 60);
+  // 부딪힌 자리 — 실제 판정 상자의 한가운데에 띄운다(몸통 가운데에 대충 띄우면 어긋나 보인다)
+  var cpx = def.x - dir * 26, cpy = def.y + GY - 78;
+  if (!isProj && mv.box) {
+    var hb2 = hitBox(att, mv);
+    cpx = (hb2.x + hb2.w / 2 + def.x) / 2;
+    cpy = hb2.y + hb2.h / 2;
+  }
+  impactFx(g, cpx, cpy, dir, big);
   for (var i = 0; i < (dmg > 60 ? 9 : 5); i++) {
     g.fx.push({ x: def.x + dir * -10, y: def.y + GY - 74 - Math.random() * 24,
                 vx: dir * (1 + Math.random() * 4), vy: -2 + Math.random() * -3,
@@ -760,6 +839,7 @@ function newMatch(charA, charB, stage, humanP2, demo) {
     stage: stage, round: 1, projs: [], fx: [], frame: 0, shake: 0,
     phase: 'intro', phaseT: 90, msg: '', msgT: 0, timeF: ROUND_TIME * FPS,
     roundWinner: 0, matchWinner: 0, paused: false, demo: !!demo, camX: 0,
+    freezeT: 0, zoom: 0,
   };
   newRound(G);
   return G;
@@ -902,6 +982,12 @@ function draw() {
 
   cx.save();
   cx.translate(sh, sh * 0.4);
+  // 타격 확대 — 두 사람 사이를 축으로 살짝 밀고 들어간다(HUD 는 이 밖에서 그린다)
+  if (g.zoom > 0.0005) {
+    var zx = Math.max(0, Math.min(VW, (g.p1.x + g.p2.x) / 2 - g.camX));
+    var z = 1 + g.zoom;
+    cx.translate(zx, GY - 90); cx.scale(z, z); cx.translate(-zx, -(GY - 90));
+  }
   // ⚠️캐릭터만 키우면 건물이 장난감처럼 보인다 — 배경도 바닥선을 축으로 함께 키운다.
   //   캐릭터보다 조금 덜 키워서(1.5 vs 1.8) 멀리 있는 느낌을 남긴다.
   var bz = 1.25;   // ⚠️1.5 로 하면 간판·첨탑이 체력바 뒤로 올라가 잘린다
@@ -923,15 +1009,30 @@ function draw() {
 
   // 장풍
   g.projs.forEach(function (p) { drawProj(cx, p, g.camX); });
-  // 효과
+  // 효과 — ★수명을 깎는 일은 step() 이 한다. 여기서 깎으면 **멈춰 놓고 봐도 이펙트가
+  //   혼자 사라지고**, 화면 주사율이 높은 기기에서는 더 빨리 사라진다(같은 게임이 아니게 된다).
   for (var i = g.fx.length - 1; i >= 0; i--) {
     var e = g.fx[i];
-    e.x += e.vx || 0; e.y += e.vy || 0;
-    if (e.vy !== undefined && !e.ring) e.vy += 0.25;
-    e.life--;
-    if (e.life <= 0) { g.fx.splice(i, 1); continue; }
-    cx.globalAlpha = Math.max(0, e.life / 18);
-    if (e.ring) {
+    cx.globalAlpha = Math.max(0, e.life / (e.max || 18));
+    if (e.star) {
+      var k = 1 - e.life / (e.max || 10), rr = e.r * (0.40 + k * 1.15);
+      cx.fillStyle = e.col;
+      cx.globalCompositeOperation = 'lighter';
+      cx.save(); cx.translate(e.x - g.camX, e.y); cx.rotate(e.rot);
+      cx.beginPath();
+      for (var sI = 0; sI < 8; sI++) {
+        var aS = sI / 8 * Math.PI * 2, rS = (sI % 2 ? rr * 0.34 : rr);
+        cx[sI ? 'lineTo' : 'moveTo'](Math.cos(aS) * rS, Math.sin(aS) * rS * 0.8);
+      }
+      cx.closePath(); cx.fill(); cx.restore();
+      cx.globalCompositeOperation = 'source-over';
+    } else if (e.line) {
+      cx.strokeStyle = e.col; cx.lineWidth = 2.4; cx.lineCap = 'round';
+      cx.beginPath();
+      cx.moveTo(e.x - g.camX, e.y);
+      cx.lineTo(e.x - g.camX + e.dir * e.len * (1 + (8 - e.life) * 0.15), e.y);
+      cx.stroke(); cx.lineCap = 'butt';
+    } else if (e.ring) {
       cx.strokeStyle = e.col; cx.lineWidth = 3;
       cx.beginPath(); cx.arc(e.x - g.camX, e.y, e.r + (12 - e.life) * 2, 0, 7); cx.stroke();
     } else {
@@ -971,11 +1072,16 @@ function drawFighterFull(f, camX) {
   var pose = FA.poseAt(f.anim, f.af, f.loop);
   var x = f.x - camX, y = f.y + GY;
   drawSmear(f, x, y, pose);
+  FA.drawFighter(cx, x, y, f.face, f.ch, pose, { zoom: ZOOM, sway: f.sway || 0 });
+  // ★맞은 순간의 하얗게 뜨는 표시 — 통째로 날려 버리면(lighter 로 한 번만 그리면) 몸이
+  //   하얀 덩어리가 되어 **타격 이펙트가 그 위에 안 보인다**. 원래 그림 위에 한 겹만 얹는다.
   if (f.flash > 0 && f.flash % 2) {
-    cx.save(); cx.globalCompositeOperation = 'lighter';
+    cx.save();
+    cx.globalCompositeOperation = 'lighter';
+    cx.globalAlpha = 0.40;
+    FA.drawFighter(cx, x, y, f.face, f.ch, pose, { zoom: ZOOM, sway: f.sway || 0 });
+    cx.restore();
   }
-  FA.drawFighter(cx, x, y, f.face, f.ch, pose, { zoom: ZOOM });
-  if (f.flash > 0 && f.flash % 2) cx.restore();
 
   // 손에 든 소품
   if (f.ch.propDraw) {

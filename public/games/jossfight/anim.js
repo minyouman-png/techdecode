@@ -57,8 +57,12 @@ var CROUCH = {
 var ANIM = {
   /* 대기 — 숨 쉬는 정도만 움직인다. 격투게임의 대기 자세는 '준비된 몸'이어야 한다. */
   idle: [
-    { t: 14, p: pose(STAND) },
-    { t: 14, p: pose(STAND, { y: 1, torso: P - 0.16, aU: [0.48, 0.86], aF: [1.28, 1.72] }) },
+    { t: 8, e: 'inout', p: pose(STAND) },
+    { t: 8, e: 'inout', p: pose(STAND, { y: -1, torso: P - 0.17, aU: [0.47, 0.85], aF: [1.28, 1.74],
+                                         lU: [-0.46, 0.38], lS: [0.26, -0.10] }) },
+    { t: 8, e: 'inout', p: pose(STAND, { y: 4, torso: P - 0.11, aU: [0.55, 0.94], aF: [1.35, 1.80],
+                                         lU: [-0.54, 0.46], lS: [0.34, -0.14] }) },
+    { t: 8, e: 'inout', p: pose(STAND, { y: 1, torso: P - 0.14, aU: [0.50, 0.88], aF: [1.30, 1.76] }) },
   ],
   walk: [
     { t: 7, p: pose(STAND, { lU: [-0.62, 0.60], lS: [0.34, -0.30], aU: [0.58, 0.82], aF: [1.36, 1.70] }) },
@@ -95,119 +99,242 @@ var ANIM = {
   ],
 
   /* ---------- 공격 ----------
-     각 동작의 칸 수는 캐릭터 자료의 startup/active/recovery 와 **맞물려야** 한다.
-     맞물리지 않으면 "때리는 그림"과 "판정이 나오는 순간"이 어긋나 보인다. */
-  lp: [   // 약손 — 짧게 찌른다
-    { t: 3, p: pose(STAND, { aU: [0.30, 1.20], aF: [0.95, 1.30] }) },
-    { t: 3, p: pose(STAND, { torso: P - 0.20, xA: 1.14, aU: [0.30, 1.58], aF: [1.05, 1.62] }) },
-    { t: 5, p: pose(STAND, { xA: 1.03, aU: [0.35, 1.00], aF: [1.00, 1.30] }) },
+     ★기술 하나는 다섯 박자다: **준비(감기) → 발사 → 타격(가장 크게 뻗고 잠깐 머문다) →
+       되돌림(빠르게) → 안착(살짝 지나쳤다 제자리)**. 예전에는 세 칸뿐이라 때린 뒤 10프레임을
+       가만히 굳어 있었다 — 그림표로 보면 '죽은 프레임'이 절반이었다.
+     ★**타격 칸은 startup 프레임에 정확히 떨어져야** 한다(판정이 살아나는 순간).
+       그래서 칸의 t 합을 startup 에 맞춰 나눈다. 아래 주석의 f숫자가 그 자리다.
+     ★칸 수의 총합은 startup+active+recovery 와 같게 둔다(자가검증이 확인한다). */
+  lp: [   // 약손 11F · 타격 f3
+    { t: 2, e: 'in',   p: pose(STAND, { xA: 0.94, aU: [0.52, 0.78], aF: [1.30, 1.66] }) },
+    { t: 1, e: 'out3', p: pose(STAND, { xA: 1.00, aU: [0.52, 0.95], aF: [1.30, 1.72] }) },
+    { t: 2, e: 'in',   p: pose(STAND, { y: 2, torso: P - 0.22, xA: 1.16,          // ← 타격
+                                        aU: [0.46, 1.42], aF: [1.24, 1.60] }) },
+    { t: 2, e: 'out',  p: pose(STAND, { y: 2, torso: P - 0.17, xA: 1.02, aU: [0.50, 1.10], aF: [1.28, 1.70] }) },
+    { t: 4, e: 'back', p: pose(STAND) },
   ],
-  hp: [   // 강손 — 허리를 크게 돌려 지른다(감았다가 몸째 실어 보낸다)
-    { t: 6, p: pose(STAND, { y: 3, torso: P + 0.26, xA: 0.90, aU: [-0.55, 0.30], aF: [-0.80, 0.75], lU: [-0.35, 0.40], lS: [0.30, -0.20] }) },
-    { t: 4, p: pose(STAND, { y: -4, torso: P - 0.32, xA: 1.26, aU: [0.70, 1.60], aF: [1.45, 1.64], lU: [-0.55, 0.60], lS: [0.45, 0.05] }) },
-    { t: 9, p: pose(STAND, { y: -1, torso: P - 0.14, xA: 1.06, aU: [0.45, 1.10], aF: [1.15, 1.40] }) },
+  hp: [   // 강손 19F · 타격 f6 — 허리를 크게 감았다가 몸째 실어 보낸다
+    { t: 3, e: 'out',  p: pose(STAND, { y: 4, torso: P + 0.14, xA: 0.92,
+                                        aU: [0.30, 0.52], aF: [1.05, 1.30], lU: [-0.56, 0.36], lS: [0.36, -0.06] }) },
+    { t: 3, e: 'out3', p: pose(STAND, { y: 5, torso: P + 0.30, xA: 0.84,          // 최대로 감음
+                                        aU: [-0.20, 0.18], aF: [0.55, 0.70], lU: [-0.62, 0.30], lS: [0.42, 0.00] }) },
+    { t: 2, e: 'in',   p: pose(STAND, { y: -3, torso: P - 0.34, xA: 1.26,         // ← 타격
+                                        aU: [0.78, 1.56], aF: [1.50, 1.62], lU: [-0.44, 0.62], lS: [0.30, -0.20] }) },
+    { t: 3, e: 'out',  p: pose(STAND, { y: -2, torso: P - 0.26, xA: 1.16,
+                                        aU: [0.70, 1.40], aF: [1.44, 1.66], lU: [-0.42, 0.60], lS: [0.28, -0.18] }) },
+    { t: 4, e: 'out',  p: pose(STAND, { y: 4, torso: P - 0.10, xA: 0.88,          // 주먹을 턱 앞까지 당긴다
+                                        aU: [0.58, 0.72], aF: [1.38, 2.02], lU: [-0.54, 0.38], lS: [0.32, -0.10] }) },
+    { t: 4, e: 'back', p: pose(STAND) },
   ],
-  lk: [   // 약발 — 앞발로 툭, 그래도 다리는 시원하게 편다
-    { t: 3, p: pose(STAND, { lU: [-0.12, 0.85], lS: [0.10, 0.60] }) },
-    { t: 3, p: pose(STAND, { torso: P + 0.08, xL: 1.16, lU: [-0.18, 1.42], lS: [0.14, 1.50] }) },
-    { t: 6, p: pose(STAND, { xL: 1.04, lU: [-0.10, 0.55], lS: [0.10, 0.30] }) },
+  lk: [   // 약발 12F · 타격 f3
+    { t: 2, e: 'out',  p: pose(STAND, { y: 5, lU: [-0.52, 0.72], lS: [0.32, 0.32] }) },
+    { t: 1, e: 'out3', p: pose(STAND, { y: 4, lU: [-0.52, 0.92], lS: [0.32, 0.72] }) },
+    { t: 2, e: 'in',   p: pose(STAND, { y: 2, torso: P + 0.06, xL: 1.18,          // ← 타격
+                                        lU: [-0.58, 1.42], lS: [0.34, 1.50], aU: [0.44, 0.96], aF: [1.20, 1.82] }) },
+    { t: 3, e: 'out',  p: pose(STAND, { y: 3, xL: 1.04, lU: [-0.54, 0.86], lS: [0.32, 0.46] }) },
+    { t: 4, e: 'back', p: pose(STAND) },
   ],
-  hk: [   // 강발 — 몸을 크게 젖히며 머리 높이까지 돌려찬다
-    { t: 7, p: pose(STAND, { y: -3, torso: P + 0.26, xL: 0.94, lU: [-0.35, 0.30], lS: [0.35, 0.80], aU: [-0.30, 0.95], aF: [-0.10, 1.50] }) },
-    { t: 5, p: pose(STAND, { y: -9, torso: P + 0.40, xL: 1.28, lU: [-0.55, 1.78], lS: [0.40, 1.82], aU: [-0.55, 1.35], aF: [-0.35, 1.95] }) },
-    { t: 12, p: pose(STAND, { y: -1, torso: P - 0.05, xL: 1.06, lU: [-0.20, 0.70], lS: [0.20, 0.45] }) },
+  hk: [   // 강발 24F · 타격 f7 — 무릎을 접었다가 머리 높이까지 편다
+    { t: 4, e: 'out',  p: pose(STAND, { y: 4, torso: P + 0.16, xL: 0.96,
+                                        lU: [-0.58, 0.62], lS: [0.36, 0.86], aU: [0.20, 0.90], aF: [0.75, 1.70] }) },
+    { t: 3, e: 'out3', p: pose(STAND, { y: 1, torso: P + 0.30, xL: 1.02,          // 무릎을 가슴까지
+                                        lU: [-0.62, 1.24], lS: [0.40, 1.62], aU: [-0.10, 1.10], aF: [0.30, 1.86] }) },
+    { t: 3, e: 'in',   p: pose(STAND, { y: -8, torso: P + 0.42, xL: 1.30,         // ← 타격
+                                        lU: [-0.66, 1.78], lS: [0.44, 1.82], aU: [-0.45, 1.30], aF: [-0.25, 1.95] }) },
+    { t: 4, e: 'out',  p: pose(STAND, { y: -5, torso: P + 0.34, xL: 1.16,
+                                        lU: [-0.62, 1.48], lS: [0.42, 1.60], aU: [-0.30, 1.20], aF: [-0.05, 1.90] }) },
+    { t: 5, e: 'out',  p: pose(STAND, { y: 9, torso: P - 0.02, xL: 0.96,          // 발을 내리며 무릎으로 받는다
+                                        lU: [-0.62, 0.56], lS: [0.44, 0.06], aU: [0.40, 0.94], aF: [1.15, 1.80] }) },
+    { t: 5, e: 'back', p: pose(STAND) },
   ],
-  clp: [  // 앉아 약손
-    { t: 3, p: pose(CROUCH, { aU: [0.5, 1.35], aF: [1.3, 1.45] }) },
-    { t: 3, p: pose(CROUCH, { xA: 1.16, aU: [0.5, 1.58], aF: [1.3, 1.64] }) },
-    { t: 5, p: pose(CROUCH) },
+  clp: [  // 앉아 약손 11F · 타격 f3
+    { t: 2, e: 'in',   p: pose(CROUCH, { xA: 0.94, aU: [0.55, 0.74], aF: [1.28, 1.48] }) },
+    { t: 1, e: 'out3', p: pose(CROUCH, { xA: 1.02, aU: [0.55, 0.96], aF: [1.28, 1.54] }) },
+    { t: 2, e: 'in',   p: pose(CROUCH, { torso: P - 0.36, xA: 1.18,               // ← 타격
+                                         aU: [0.50, 1.40], aF: [1.26, 1.56] }) },
+    { t: 2, e: 'out',  p: pose(CROUCH, { torso: P - 0.32, xA: 1.04, aU: [0.52, 1.10], aF: [1.28, 1.58] }) },
+    { t: 4, e: 'back', p: pose(CROUCH) },
   ],
-  clk: [  // 앉아 약발(하단) — 발목을 쓸어 찬다
-    { t: 4, p: pose(CROUCH, { lU: [-0.9, 1.25], lS: [1.0, 1.35] }) },
-    { t: 4, p: pose(CROUCH, { y: 26, xL: 1.20, lU: [-0.95, 1.66], lS: [1.05, 1.72] }) },
-    { t: 7, p: pose(CROUCH) },
+  clk: [  // 앉아 하단차기 15F · 타격 f4 — 발목을 쓸어 찬다
+    { t: 3, e: 'out',  p: pose(CROUCH, { lU: [-0.88, 1.05], lS: [1.05, 1.10] }) },
+    { t: 1, e: 'out3', p: pose(CROUCH, { y: 24, xL: 1.08, lU: [-0.92, 1.35], lS: [1.05, 1.42] }) },
+    { t: 2, e: 'in',   p: pose(CROUCH, { y: 27, xL: 1.24, lU: [-0.96, 1.66], lS: [1.06, 1.72] }) },  // ← 타격
+    { t: 4, e: 'out',  p: pose(CROUCH, { y: 25, xL: 1.08, lU: [-0.92, 1.30], lS: [1.05, 1.30] }) },
+    { t: 5, e: 'back', p: pose(CROUCH) },
   ],
-  chk: [  // 앉아 강발(다리 후리기) — 넘어뜨린다
-    { t: 6, p: pose(CROUCH, { y: 28, torso: P - 0.55, lU: [-1.05, 1.05], lS: [1.15, 1.25] }) },
-    { t: 5, p: pose(CROUCH, { y: 32, torso: P - 0.80, xL: 1.26, lU: [-1.15, 1.72], lS: [1.25, 1.76] }) },
-    { t: 13, p: pose(CROUCH, { y: 26 }) },
+  chk: [  // 다리 후리기 24F · 타격 f6 — 바닥을 쓸어 넘어뜨린다
+    { t: 4, e: 'out',  p: pose(CROUCH, { y: 26, torso: P - 0.48, lU: [-1.00, 0.95], lS: [1.10, 1.05] }) },
+    { t: 2, e: 'out3', p: pose(CROUCH, { y: 30, torso: P - 0.66, xL: 1.12, lU: [-1.10, 1.42], lS: [1.20, 1.50] }) },
+    { t: 3, e: 'in',   p: pose(CROUCH, { y: 33, torso: P - 0.82, xL: 1.28,        // ← 타격
+                                         lU: [-1.18, 1.74], lS: [1.26, 1.78] }) },
+    { t: 5, e: 'out',  p: pose(CROUCH, { y: 31, torso: P - 0.70, xL: 1.12, lU: [-1.12, 1.40], lS: [1.22, 1.40] }) },
+    { t: 5, e: 'back', p: pose(CROUCH, { y: 26 }) },
+    { t: 5,            p: pose(CROUCH) },
   ],
-  jp: [   // 점프 손
-    { t: 4, p: pose(STAND, { y: -4, torso: P - 0.20, aU: [0.4, 1.45], aF: [1.1, 1.55], lU: [-0.5, 0.4], lS: [0.7, 0.2] }) },
-    { t: 10, p: pose(STAND, { y: -4, torso: P - 0.28, xA: 1.20, aU: [0.4, 1.60], aF: [1.1, 1.66], lU: [-0.5, 0.4], lS: [0.7, 0.2] }) },
+  jp: [   // 점프 손 14F · 타격 f4 — 공중이라 뻗은 채로 유지된다
+    { t: 3, e: 'out',  p: pose(STAND, { y: -4, torso: P - 0.16, xA: 0.96,
+                                        aU: [0.4, 0.95], aF: [1.1, 1.30], lU: [-0.5, 0.4], lS: [0.7, 0.2] }) },
+    { t: 1, e: 'out3', p: pose(STAND, { y: -4, torso: P - 0.22, xA: 1.10,
+                                        aU: [0.4, 1.35], aF: [1.1, 1.50], lU: [-0.5, 0.4], lS: [0.7, 0.2] }) },
+    { t: 6, e: 'lin',  p: pose(STAND, { y: -4, torso: P - 0.30, xA: 1.20,         // ← 타격(유지)
+                                        aU: [0.4, 1.58], aF: [1.1, 1.64], lU: [-0.5, 0.4], lS: [0.7, 0.2] }) },
+    { t: 4,            p: pose(STAND, { y: -4, torso: P - 0.26, xA: 1.12,
+                                        aU: [0.4, 1.45], aF: [1.1, 1.60], lU: [-0.5, 0.45], lS: [0.7, 0.25] }) },
   ],
-  jk: [   // 점프 발 — 무릎을 접었다 편다
-    { t: 4, p: pose(STAND, { y: -4, torso: P - 0.10, lU: [-0.5, 1.05], lS: [0.7, 1.35], aU: [1.6, 1.9], aF: [1.9, 2.1] }) },
-    { t: 12, p: pose(STAND, { y: -4, torso: P - 0.06, xL: 1.24, lU: [-0.5, 1.58], lS: [0.7, 1.66], aU: [1.6, 1.9], aF: [1.9, 2.1] }) },
+  jk: [   // 점프 발 16F · 타격 f4 — 무릎을 접었다 편다
+    { t: 3, e: 'out',  p: pose(STAND, { y: -4, torso: P - 0.06, xL: 0.98,
+                                        lU: [-0.5, 0.95], lS: [0.7, 1.25], aU: [1.6, 1.9], aF: [1.9, 2.1] }) },
+    { t: 1, e: 'out3', p: pose(STAND, { y: -4, torso: P - 0.04, xL: 1.12,
+                                        lU: [-0.5, 1.30], lS: [0.7, 1.45], aU: [1.6, 1.9], aF: [1.9, 2.1] }) },
+    { t: 8, e: 'lin',  p: pose(STAND, { y: -4, torso: P - 0.02, xL: 1.26,         // ← 타격(유지)
+                                        lU: [-0.5, 1.58], lS: [0.7, 1.66], aU: [1.6, 1.9], aF: [1.9, 2.1] }) },
+    { t: 4,            p: pose(STAND, { y: -4, torso: P - 0.04, xL: 1.14,
+                                        lU: [-0.5, 1.40], lS: [0.7, 1.50], aU: [1.6, 1.9], aF: [1.9, 2.1] }) },
   ],
 
   /* ---------- 필살기 자세 ---------- */
-  fire: [   // 장풍 — 허리를 낮췄다가 두 손을 앞으로 밀어낸다
-    { t: 8, p: pose(STAND, { y: 6, torso: P - 0.34, aU: [-0.30, -0.10], aF: [0.35, 0.55] }) },
-    { t: 6, p: pose(STAND, { y: -2, torso: P - 0.16, xA: 1.18, aU: [1.35, 1.45], aF: [1.55, 1.60] }) },
-    { t: 14, p: pose(STAND, { torso: P - 0.12, aU: [0.9, 1.0], aF: [1.3, 1.35] }) },
+  fire: [   // 장풍 28F · 발사 f8 — 허리를 낮춰 손을 당겼다가 두 손을 밀어낸다
+    { t: 4, e: 'in',   p: pose(STAND, { y: 6, torso: P - 0.20, xA: 0.88,
+                                        aU: [0.10, 0.20], aF: [0.55, 0.70], lU: [-0.56, 0.36], lS: [0.36, -0.04] }) },
+    { t: 4, e: 'out3', p: pose(STAND, { y: 8, torso: P - 0.34, xA: 0.82,          // 두 손을 허리로
+                                        aU: [-0.30, -0.10], aF: [0.35, 0.55], lU: [-0.62, 0.30], lS: [0.42, 0.02] }) },
+    { t: 3, e: 'in',   p: pose(STAND, { y: -2, torso: P - 0.14, xA: 1.22,         // ← 밀어냄
+                                        aU: [1.40, 1.48], aF: [1.58, 1.62], lU: [-0.48, 0.56], lS: [0.30, -0.14] }) },
+    { t: 4, e: 'out',  p: pose(STAND, { y: -1, torso: P - 0.13, xA: 1.12, aU: [1.30, 1.40], aF: [1.52, 1.58] }) },
+    { t: 6, e: 'back', p: pose(STAND, { y: 2, torso: P - 0.13, xA: 0.98, aU: [0.90, 1.00], aF: [1.34, 1.72] }) },
+    { t: 7,            p: pose(STAND) },
   ],
-  upper: [  // 대공기(승룡형) — 몸을 감았다가 솟구친다
-    { t: 5, p: pose(STAND, { y: 12, torso: P - 0.40, aU: [-0.25, 0.15], aF: [0.55, 0.95], lU: [-0.6, 0.65], lS: [0.7, -0.5] }) },
-    { t: 6, p: pose(STAND, { y: -18, torso: P + 0.10, xA: 1.20, aU: [0.2, 2.80], aF: [0.6, 2.90], lU: [-0.35, 0.55], lS: [0.9, 0.35] }) },
-    { t: 16, p: pose(STAND, { y: -4, torso: P + 0.05, aU: [0.4, 2.2], aF: [0.9, 2.3], lU: [-0.3, 0.5], lS: [0.7, 0.3] }) },
+  upper: [  // 대공기 27F · 솟구침 f5 — 감았다가 주먹으로 하늘을 가른다
+    { t: 3, e: 'in',   p: pose(STAND, { y: 12, torso: P - 0.40, xA: 0.90,
+                                        aU: [-0.25, 0.15], aF: [0.55, 0.95], lU: [-0.66, 0.72], lS: [0.76, -0.52] }) },
+    { t: 2, e: 'out3', p: pose(STAND, { y: -6, torso: P + 0.04, xA: 1.16,
+                                        aU: [0.2, 2.30], aF: [0.6, 2.55], lU: [-0.40, 0.60], lS: [0.85, 0.20] }) },
+    { t: 3, e: 'lin',  p: pose(STAND, { y: -20, torso: P + 0.12, xA: 1.22,        // ← 정점
+                                        aU: [0.2, 2.80], aF: [0.6, 2.92], lU: [-0.35, 0.55], lS: [0.90, 0.35] }) },
+    { t: 5, e: 'out',  p: pose(STAND, { y: -10, torso: P + 0.08, xA: 1.10,
+                                        aU: [0.3, 2.50], aF: [0.8, 2.70], lU: [-0.35, 0.55], lS: [0.85, 0.30] }) },
+    { t: 7, e: 'back', p: pose(STAND, { y: 8, torso: P - 0.24, xA: 0.96,          // 착지
+                                        aU: [0.45, 1.30], aF: [1.10, 1.90], lU: [-0.60, 0.60], lS: [0.60, -0.30] }) },
+    { t: 7,            p: pose(STAND) },
   ],
-  spin: [   // 회전 발차기 — 다리를 크게 돌린다
-    { t: 5, p: pose(STAND, { y: -4, torso: P + 0.22, lU: [-0.45, 0.9], lS: [0.35, 1.2] }) },
-    { t: 4, p: pose(STAND, { y: -12, torso: P + 0.05, xL: 1.26, lU: [-0.2, 1.80], lS: [0.5, 1.82] }) },
-    { t: 4, p: pose(STAND, { y: -12, torso: P - 0.38, xL: 1.26, lU: [1.80, -0.2], lS: [1.82, 0.5] }) },
-    { t: 12, p: pose(STAND, { y: -2, torso: P - 0.10, lU: [-0.2, 0.6], lS: [0.3, 0.35] }) },
+  spin: [   // 회전 발차기 25F · 앞발 f6 → 뒷발 f9 — ★예비동작 없이 시작하던 것을 고쳤다
+    { t: 4, e: 'out',  p: pose(STAND, { y: 4, torso: P - 0.34, xL: 0.94,          // 몸을 반대로 감는다
+                                        lU: [-0.30, 0.30], lS: [0.20, 0.20], aU: [0.90, 0.30], aF: [1.70, 0.90] }) },
+    { t: 2, e: 'out3', p: pose(STAND, { y: -4, torso: P + 0.14, xL: 1.16,
+                                        lU: [-0.30, 1.30], lS: [0.35, 1.50], aU: [0.60, 0.60], aF: [1.50, 1.40] }) },
+    { t: 3, e: 'in',   p: pose(STAND, { y: -10, torso: P + 0.06, xL: 1.28,        // ← 앞발
+                                        lU: [-0.20, 1.80], lS: [0.50, 1.82], aU: [0.30, 0.90], aF: [1.20, 1.80] }) },
+    { t: 3, e: 'out3', p: pose(STAND, { y: -10, torso: P - 0.40, xL: 1.28,        // ← 이어서 뒷발
+                                        lU: [1.80, -0.20], lS: [1.82, 0.50], aU: [0.90, 0.30], aF: [1.80, 1.20] }) },
+    { t: 5, e: 'out',  p: pose(STAND, { y: 2, torso: P - 0.16, xL: 1.04,
+                                        lU: [-0.40, 0.60], lS: [0.30, 0.20], aU: [0.60, 0.80], aF: [1.40, 1.70] }) },
+    { t: 8, e: 'back', p: pose(STAND) },
   ],
-  dash: [   // 돌진기 — 어깨부터 들어간다
-    { t: 6, p: pose(STAND, { y: 8, torso: P - 0.55, aU: [-0.2, 1.1], aF: [0.5, 1.5], lU: [-0.7, 0.7], lS: [0.8, -0.4] }) },
-    { t: 10, p: pose(STAND, { y: 4, torso: P - 0.80, xA: 1.18, aU: [-0.3, 1.48], aF: [0.4, 1.64], lU: [-0.95, 0.85], lS: [1.0, 0.3] }) },
-    { t: 14, p: pose(STAND, { y: 2, torso: P - 0.35, aU: [0.2, 1.0], aF: [0.9, 1.3] }) },
+  dash: [   // 돌진기 30F · 어깨 f7 — 낮게 깔았다가 어깨부터 들어간다
+    { t: 4, e: 'in',   p: pose(STAND, { y: 8, torso: P - 0.40, xA: 0.90,
+                                        aU: [-0.10, 0.60], aF: [0.50, 1.10], lU: [-0.66, 0.60], lS: [0.72, -0.34] }) },
+    { t: 3, e: 'out3', p: pose(STAND, { y: 6, torso: P - 0.62, xA: 1.06,
+                                        aU: [-0.20, 1.20], aF: [0.45, 1.45], lU: [-0.85, 0.75], lS: [0.90, 0.10] }) },
+    { t: 4, e: 'lin',  p: pose(STAND, { y: 4, torso: P - 0.78, xA: 1.18,          // ← 어깨로 파고듦
+                                        aU: [-0.30, 1.48], aF: [0.40, 1.62], lU: [-0.98, 0.88], lS: [1.00, 0.32] }) },
+    { t: 5, e: 'out',  p: pose(STAND, { y: 5, torso: P - 0.60, xA: 1.08,
+                                        aU: [-0.20, 1.30], aF: [0.55, 1.50], lU: [-0.80, 0.80], lS: [0.85, 0.10] }) },
+    { t: 6, e: 'back', p: pose(STAND, { y: 3, torso: P - 0.30, xA: 0.98, aU: [0.30, 1.00], aF: [1.00, 1.70] }) },
+    { t: 8,            p: pose(STAND) },
   ],
-  super: [  // 초필살기 — 힘을 모았다가 터뜨린다
-    { t: 14, p: pose(STAND, { y: 10, torso: P - 0.05, aU: [-0.55, -0.5], aF: [-0.15, -0.1], lU: [-0.6, 0.6], lS: [0.7, -0.5] }) },
-    { t: 8, p: pose(STAND, { y: -10, torso: P - 0.24, xA: 1.24, aU: [1.5, 1.55], aF: [1.62, 1.66] }) },
-    { t: 26, p: pose(STAND, { y: -2, torso: P - 0.12, aU: [1.0, 1.1], aF: [1.35, 1.4] }) },
+  super: [  // 초필살기 48F · 폭발 f12 — 오래 모았다가 한 번에 터뜨린다
+    { t: 8, e: 'in',   p: pose(STAND, { y: 10, torso: P - 0.02, xA: 0.86,
+                                        aU: [-0.55, -0.50], aF: [-0.15, -0.10], lU: [-0.66, 0.66], lS: [0.76, -0.54] }) },
+    { t: 4, e: 'out3', p: pose(STAND, { y: 12, torso: P + 0.06, xA: 0.80,         // 끝까지 감음
+                                        aU: [-0.70, -0.66], aF: [-0.35, -0.30], lU: [-0.72, 0.72], lS: [0.82, -0.58] }) },
+    { t: 4, e: 'lin',  p: pose(STAND, { y: -10, torso: P - 0.26, xA: 1.28,        // ← 폭발
+                                        aU: [1.48, 1.56], aF: [1.60, 1.66], lU: [-0.44, 0.62], lS: [0.30, -0.22] }) },
+    { t: 6, e: 'out',  p: pose(STAND, { y: -6, torso: P - 0.20, xA: 1.18, aU: [1.35, 1.45], aF: [1.52, 1.60] }) },
+    { t: 10, e: 'back', p: pose(STAND, { y: 2, torso: P - 0.14, xA: 1.00, aU: [0.95, 1.05], aF: [1.35, 1.72] }) },
+    { t: 16,           p: pose(STAND) },
   ],
 
-  /* ---------- 맞고 막고 넘어지고 ---------- */
+  /* ---------- 맞고 막고 넘어지고 ----------
+     ★맞는 쪽 동작이 때리는 쪽만큼 중요하다. 맞고 **꺾였다가 돌아오는** 두 박자가 있어야
+       때린 쪽이 세 보인다. 예전에는 두 칸뿐이라 그냥 뒤로 기울었다 폈다. */
   block: [
-    { t: 2, p: pose(STAND, { y: 2, torso: P - 0.02, aU: [0.9, 1.15], aF: [2.1, 2.25], lU: [-0.35, 0.45], lS: [0.35, -0.2] }) },
+    { t: 2, e: 'out3', p: pose(STAND, { y: 4, torso: P + 0.06, xA: 0.92,
+                                        aU: [0.95, 1.15], aF: [2.10, 2.28], lU: [-0.42, 0.40], lS: [0.34, -0.16] }) },
+    { t: 4, e: 'out',  p: pose(STAND, { y: 2, torso: P - 0.02, xA: 0.96,
+                                        aU: [0.90, 1.12], aF: [2.05, 2.22], lU: [-0.46, 0.42], lS: [0.32, -0.14] }) },
   ],
   blockLow: [
-    { t: 2, p: pose(CROUCH, { aU: [1.0, 1.2], aF: [2.2, 2.35] }) },
+    { t: 2, e: 'out3', p: pose(CROUCH, { aU: [1.05, 1.25], aF: [2.25, 2.40] }) },
+    { t: 4, e: 'out',  p: pose(CROUCH, { aU: [1.00, 1.20], aF: [2.20, 2.35] }) },
   ],
-  hit: [
-    { t: 4, p: pose(STAND, { y: -2, torso: P + 0.30, head: -0.45, aU: [-0.5, -0.2], aF: [-0.9, -0.4], lU: [0.25, -0.30], lS: [-0.15, 0.2] }) },
-    { t: 8, p: pose(STAND, { torso: P + 0.14, head: -0.2, aU: [-0.2, 0.1], aF: [-0.3, 0.3] }) },
+  hit: [    // 꺾임 → 되돌아옴
+    { t: 2, e: 'out3', p: pose(STAND, { y: -3, torso: P + 0.40, head: -0.55, xA: 0.88,
+                                        aU: [-0.55, -0.25], aF: [-1.00, -0.45],
+                                        lU: [0.30, -0.34], lS: [-0.18, 0.24] }) },
+    { t: 4, e: 'out',  p: pose(STAND, { y: 2, torso: P + 0.22, head: -0.30, xA: 0.92,
+                                        aU: [-0.30, 0.00], aF: [-0.50, 0.10], lU: [0.10, -0.10], lS: [0.00, 0.10] }) },
+    { t: 6, e: 'back', p: pose(STAND, { y: 3, torso: P + 0.05, head: -0.10, aU: [0.30, 0.60], aF: [0.90, 1.30] }) },
   ],
   hitLow: [
-    { t: 4, p: pose(CROUCH, { torso: P + 0.35, head: -0.4, aU: [-0.4, -0.1], aF: [-0.7, -0.2] }) },
-    { t: 8, p: pose(CROUCH, { torso: P + 0.10 }) },
+    { t: 2, e: 'out3', p: pose(CROUCH, { torso: P + 0.45, head: -0.50, aU: [-0.45, -0.15], aF: [-0.80, -0.25] }) },
+    { t: 4, e: 'out',  p: pose(CROUCH, { torso: P + 0.20, head: -0.25, aU: [-0.20, 0.15], aF: [-0.30, 0.35] }) },
+    { t: 6, e: 'back', p: pose(CROUCH, { torso: P + 0.02 }) },
   ],
-  down: [   // 넘어짐 — 뒤로 날아가 등으로 떨어진다
-    { t: 6, p: pose(STAND, { y: 6, torso: P + 0.75, head: -0.6, aU: [-0.9, -0.7], aF: [-1.3, -1.0], lU: [0.9, 0.5], lS: [0.2, 0.6] }) },
-    { t: 10, p: pose(STAND, { y: 34, torso: P + 1.45, head: -0.9, aU: [-1.4, -1.2], aF: [-1.8, -1.5], lU: [1.5, 1.2], lS: [1.0, 1.3] }) },
-    { t: 18, p: pose(STAND, { y: 40, torso: P + 1.55, head: -1.0, aU: [-1.5, -1.3], aF: [-1.9, -1.6], lU: [1.6, 1.35], lS: [1.2, 1.4] }) },
+  down: [   // 넘어짐 — 날아가 등으로 떨어지고 **한 번 튄다**
+    { t: 4, e: 'out3', p: pose(STAND, { y: 0, torso: P + 0.85, head: -0.65, xA: 0.9,
+                                        aU: [-0.95, -0.75], aF: [-1.35, -1.05], lU: [0.95, 0.55], lS: [0.15, 0.60] }) },
+    { t: 6, e: 'in',   p: pose(STAND, { y: 30, torso: P + 1.40, head: -0.90,
+                                        aU: [-1.40, -1.20], aF: [-1.80, -1.50], lU: [1.50, 1.20], lS: [1.00, 1.30] }) },
+    { t: 3, e: 'out',  p: pose(STAND, { y: 24, torso: P + 1.48, head: -0.95,   // 튀어오름
+                                        aU: [-1.45, -1.25], aF: [-1.85, -1.55], lU: [1.35, 1.10], lS: [0.85, 1.15] }) },
+    { t: 4, e: 'in',   p: pose(STAND, { y: 40, torso: P + 1.55, head: -1.00,
+                                        aU: [-1.50, -1.30], aF: [-1.90, -1.60], lU: [1.60, 1.35], lS: [1.20, 1.40] }) },
+    { t: 17,           p: pose(STAND, { y: 41, torso: P + 1.56, head: -1.02,
+                                        aU: [-1.50, -1.30], aF: [-1.90, -1.60], lU: [1.62, 1.36], lS: [1.22, 1.42] }) },
   ],
-  getup: [
-    { t: 8, p: pose(STAND, { y: 30, torso: P + 0.9, aU: [-0.8, -0.5], aF: [-1.0, -0.6], lU: [1.1, 0.8], lS: [0.6, 0.9] }) },
-    { t: 8, p: pose(STAND, { y: 12, torso: P - 0.45, aU: [0.2, 0.5], aF: [0.9, 1.1], lU: [-0.6, 0.6], lS: [0.7, -0.4] }) },
-    { t: 4, p: pose(STAND) },
+  getup: [  // 일어나기 — 몸을 접어 세우고 자세를 잡는다
+    { t: 6, e: 'out',  p: pose(STAND, { y: 32, torso: P + 1.00, aU: [-0.85, -0.55], aF: [-1.05, -0.65],
+                                        lU: [1.20, 0.85], lS: [0.65, 0.95] }) },
+    { t: 6, e: 'out3', p: pose(STAND, { y: 16, torso: P - 0.10, aU: [-0.10, 0.30], aF: [0.55, 0.90],
+                                        lU: [-0.70, 0.70], lS: [0.80, -0.45] }) },
+    { t: 4, e: 'back', p: pose(STAND, { y: 6, torso: P - 0.30, aU: [0.35, 0.70], aF: [1.10, 1.55],
+                                        lU: [-0.60, 0.55], lS: [0.55, -0.25] }) },
+    { t: 4,            p: pose(STAND) },
   ],
-  win: [
-    { t: 18, p: pose(STAND, { y: -2, torso: P - 0.05, aU: [0.4, 2.55], aF: [1.0, 2.75], lU: [-0.2, 0.25], lS: [0.1, 0.05] }) },
-    { t: 18, p: pose(STAND, { y: 2, torso: P - 0.12, aU: [0.4, 2.35], aF: [1.0, 2.6] }) },
+  win: [    // 승리 — 주먹을 들고 숨을 고른다
+    { t: 8,  e: 'out3', p: pose(STAND, { y: -4, torso: P - 0.05, xA: 1.06,
+                                         aU: [0.40, 2.60], aF: [1.00, 2.80], lU: [-0.30, 0.30], lS: [0.16, 0.02] }) },
+    { t: 14, e: 'inout', p: pose(STAND, { y: 2, torso: P - 0.14, aU: [0.40, 2.40], aF: [1.00, 2.62] }) },
+    { t: 14, e: 'inout', p: pose(STAND, { y: -1, torso: P - 0.08, aU: [0.42, 2.52], aF: [1.02, 2.72] }) },
   ],
   lose: [
-    { t: 40, p: pose(STAND, { y: 38, torso: P + 1.5, head: -1.0, aU: [-1.4, -1.2], aF: [-1.8, -1.5], lU: [1.5, 1.2], lS: [1.1, 1.35] }) },
+    { t: 40, p: pose(STAND, { y: 40, torso: P + 1.52, head: -1.0, aU: [-1.4, -1.2], aF: [-1.8, -1.5],
+                              lU: [1.5, 1.2], lS: [1.1, 1.35] }) },
   ],
-  intro: [
-    { t: 20, p: pose(STAND, { y: 4, torso: P - 0.25, aU: [1.25, 0.2], aF: [1.75, 0.6], lU: [-0.45, 0.5], lS: [0.5, -0.3] }) },
-    { t: 16, p: pose(STAND) },
+  intro: [  // 등장 — 팔을 크게 휘둘러 자세를 잡는다
+    { t: 8,  e: 'out3', p: pose(STAND, { y: 6, torso: P - 0.30, xA: 1.08,
+                                         aU: [1.35, 0.10], aF: [1.90, 0.45], lU: [-0.50, 0.55], lS: [0.55, -0.32] }) },
+    { t: 8,  e: 'out',  p: pose(STAND, { y: 2, torso: P - 0.18, aU: [0.75, 0.62], aF: [1.55, 1.40],
+                                         lU: [-0.54, 0.48], lS: [0.40, -0.20] }) },
+    { t: 20, e: 'back', p: pose(STAND) },
   ],
 };
 
-/* ---------- 보간 ---------- */
+/* ---------- 보간 ----------
+   ★직선 보간만 쓰면 예비동작도 타격도 회수도 **같은 속도**로 움직인다 — 로봇처럼 보이는
+     가장 큰 이유다. 칸마다 완급 곡선(e)을 붙인다: 다음 칸으로 갈 때 어떻게 갈 것인가.
+       in    천천히 출발(힘을 모은다)      out   빠르게 출발해 멎는다(때린다)
+       out3  더 매섭게 — 앞 절반에서 대부분 간다(타격 프레임에 쓴다)
+       back  살짝 지나쳤다 돌아온다(회수·착지의 반동)
+     기본은 inout(부드럽게). */
+var EASE = {
+  lin: function (t) { return t; },
+  in: function (t) { return t * t; },
+  out: function (t) { return 1 - (1 - t) * (1 - t); },
+  out3: function (t) { return 1 - Math.pow(1 - t, 3); },
+  inout: function (t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; },
+  back: function (t) { var c = 1.9; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); },
+};
 function lerp(a, b, t) { return a + (b - a) * t; }
 
 /** 동작의 frame 번째 포즈. loop 면 되돌아 이어지고, 아니면 마지막 자세로 멈춘다. */
@@ -219,7 +346,7 @@ function poseAt(name, frame, loop) {
   var acc = 0;
   for (i = 0; i < seq.length; i++) {
     if (f < acc + seq[i].t) {
-      var k = (f - acc) / seq[i].t;
+      var k = (EASE[seq[i].e] || EASE.inout)((f - acc) / seq[i].t);
       var a = seq[i].p;
       var b = (loop || i < seq.length - 1) ? seq[(i + 1) % seq.length].p : a;
       return blend(a, b, k);
@@ -289,11 +416,7 @@ function limb(cx, x1, y1, x2, y2, w1, w2, col, edge) {
   cx.closePath();
 
   var mx = (x1 + x2) / 2, my = (y1 + y2) / 2, w = Math.max(w1, w2);
-  var g = cx.createLinearGradient(mx + nx * w, my + ny * w, mx - nx * w, my - ny * w);
-  g.addColorStop(0, tint(col, 0.30));
-  g.addColorStop(0.45, col);
-  g.addColorStop(1, tint(col, -0.40));
-  cx.fillStyle = g;
+  cx.fillStyle = cel(cx, mx + nx * w, my + ny * w, mx - nx * w, my - ny * w, col);
   cx.fill();
   if (edge) { cx.strokeStyle = edge; cx.lineWidth = 2.1; cx.lineJoin = 'round'; cx.stroke(); }
   // 빛 쪽 가장자리의 반사광 — 이 한 줄이 팔다리를 '굵은 막대'가 아니라 '살'로 만든다
@@ -305,6 +428,17 @@ function limb(cx, x1, y1, x2, y2, w1, w2, col, edge) {
   cx.lineCap = 'round';
   cx.stroke();
   cx.lineCap = 'butt';
+}
+
+/** 셀 셰이딩 — 밝은 면 · 바탕 · 그늘 세 톤을 **경계를 세워** 칠한다.
+    ⚠️같은 색을 두 번 이어 찍어 경계를 만든다(0.5 에서 밝은 톤이 끝나고 바탕이 바로 시작). */
+function cel(cx, x1, y1, x2, y2, col) {
+  var g = cx.createLinearGradient(x1, y1, x2, y2);
+  var hi = tint(col, 0.24), dk = tint(col, -0.34);
+  g.addColorStop(0, hi); g.addColorStop(0.36, hi);
+  g.addColorStop(0.36, col); g.addColorStop(0.74, col);
+  g.addColorStop(0.74, dk); g.addColorStop(1, dk);
+  return g;
 }
 
 /** 둥근 덩어리(주먹·어깨) — 빛 쪽에 하이라이트가 몰린다 */
@@ -351,6 +485,7 @@ function drawFighter(cx, x, y, face, ch, p, opt) {
   if (!legFront) drawLeg(cx, hipB, p.lU[0], p.lS[0], tint(C.pantsDark, -0.14), tint(C.shoeDark, -0.14), edge, 1);
   if (!armFront) drawArm(cx, shB, p.aU[0], p.aF[0], tint(C.sleeveDark, -0.14), tint(C.skinDark, -0.12), edge, 1);
 
+  drawCloth(cx, px, py, p.torso, C, edge, opt.sway || 0);   // 허리띠 자락(몸통 뒤에)
   drawTorso(cx, px, py, p.torso, C, edge);
   if (ch.draw && ch.draw.torso) ch.draw.torso(cx, px, py, cxp, cyp, p);
 
@@ -366,11 +501,7 @@ function drawFighter(cx, x, y, face, ch, p, opt) {
   cx.rotate(-(p.torso + p.head - Math.PI));
   cx.scale(0.88, 0.88);
   // 얼굴
-  var fg = cx.createLinearGradient(-8, -10, 9, 11);
-  fg.addColorStop(0, tint(C.skin, 0.20));
-  fg.addColorStop(0.55, C.skin);
-  fg.addColorStop(1, tint(C.skin, -0.30));
-  cx.fillStyle = fg;
+  cx.fillStyle = cel(cx, 6, -11, -7, 10, C.skin);
   cx.beginPath(); cx.ellipse(0, 0, 11, 12.5, 0, 0, 7); cx.fill();
   cx.strokeStyle = edge; cx.lineWidth = 1.9; cx.stroke();
   // 턱선 — 옆얼굴의 각을 살짝 세운다
@@ -398,6 +529,7 @@ function drawFighter(cx, x, y, face, ch, p, opt) {
   cx.beginPath(); cx.moveTo(9.4, -1.2); cx.lineTo(10.4, 1.6); cx.lineTo(8.4, 2.0); cx.stroke();
   cx.strokeStyle = 'rgba(60,26,30,.85)'; cx.lineWidth = 1.4;
   cx.beginPath(); cx.moveTo(6.4, 5.0); cx.lineTo(9.6, 4.4); cx.stroke();
+  hairTail(cx, C, opt.sway || 0);            // 뒷머리 — 늦게 따라온다
   if (ch.draw && ch.draw.head) ch.draw.head(cx, C);
   else defaultHair(cx, C);
   // 머리 위 빛 — 머리 모양을 다 그린 뒤 얹어야 머리카락에도 빛이 든다
@@ -416,6 +548,19 @@ function drawFighter(cx, x, y, face, ch, p, opt) {
 
 /** 몸통 — 캡슐이 아니라 **어깨가 넓고 허리가 좁은 판**이다. 실루엣이 곧 '싸움꾼'이다.
     ⚠️몸통 좌표계는 골반이 원점, 위가 -y, 앞이 +x (허리띠·넥타이 자료가 이 약속을 쓴다). */
+/** 뒷머리 술 — 짧은 머리도 뒤통수에 조금은 흔들린다(움직임이 몸에서 끝나지 않게) */
+function hairTail(cx, C, sway) {
+  var a = 0.5 + sway * 2.2;
+  cx.fillStyle = tint(C.hair, -0.12);
+  cx.beginPath();
+  cx.moveTo(-8, -7);
+  cx.quadraticCurveTo(-13 - Math.sin(a) * 5, -1, -11 - Math.sin(a) * 9, 7);
+  cx.lineTo(-6 - Math.sin(a) * 7, 7);
+  cx.quadraticCurveTo(-8, 0, -4, -6);
+  cx.closePath();
+  cx.fill();
+}
+
 function drawTorso(cx, px, py, torso, C, edge) {
   cx.save();
   cx.translate(px, py);
@@ -428,11 +573,8 @@ function drawTorso(cx, px, py, torso, C, edge) {
   cx.quadraticCurveTo(15.4, -29.5, 14.0, -18);        // 앞 어깨 → 가슴
   cx.quadraticCurveTo(12.4, -8, 10.2, 1.5);           // 가슴 → 허리
   cx.closePath();
-  var g = cx.createLinearGradient(14, -30, -14, 2);
-  g.addColorStop(0, tint(C.top, 0.28));
-  g.addColorStop(0.5, C.top);
-  g.addColorStop(1, tint(C.top, -0.42));
-  cx.fillStyle = g; cx.fill();
+  cx.fillStyle = cel(cx, 14, -30, -14, 2, C.top);
+  cx.fill();
   cx.strokeStyle = edge; cx.lineWidth = 2.1; cx.lineJoin = 'round'; cx.stroke();
   // 가슴 쪽 반사광과 등 쪽 그늘 — 옷에 두께가 생긴다
   cx.beginPath();
@@ -450,6 +592,32 @@ function drawTorso(cx, px, py, torso, C, edge) {
   cx.restore();
 }
 
+/** 옷자락 — 몸이 멈춰도 천은 한 박자 늦게 따라온다. 이 지연이 '살아 있음'을 만든다.
+    sway 는 fight.js 가 계산해 넘겨 주는 늦음(라디안). 초상화에서는 0. */
+function drawCloth(cx, px, py, torso, C, edge, sway) {
+  if (!C.beltCol) return;                    // 띠가 없는 사람에게 자락을 달면 앞치마가 된다
+  var col = C.beltCol;
+  cx.save();
+  cx.translate(px, py);
+  cx.rotate(-(torso - Math.PI));
+  cx.fillStyle = col;
+  cx.globalAlpha = 0.95;
+  [[-7, 1.0], [-11, 0.7]].forEach(function (t) {
+    var x0 = t[0], len = 15 * t[1], a = 0.35 + sway * 1.6 * t[1];
+    cx.beginPath();
+    cx.moveTo(x0, -2);
+    cx.quadraticCurveTo(x0 - Math.sin(a) * len * 0.6, len * 0.5,
+                        x0 - Math.sin(a) * len, len * 0.95);
+    cx.lineTo(x0 - Math.sin(a) * len + 3.6, len * 0.95);
+    cx.quadraticCurveTo(x0 - Math.sin(a) * len * 0.6 + 4, len * 0.5, x0 + 3.6, -2);
+    cx.closePath();
+    cx.fill();
+    cx.strokeStyle = edge; cx.lineWidth = 1.3; cx.stroke();
+  });
+  cx.globalAlpha = 1;
+  cx.restore();
+}
+
 function defaultHair(cx, C) {
   cx.fillStyle = C.hair;
   cx.beginPath();
@@ -460,6 +628,30 @@ function defaultHair(cx, C) {
   cx.closePath(); cx.fill();
 }
 
+/** 주먹 — 공이 아니라 **주먹**으로 그린다. 마디가 보이면 '때리는 손'이 된다.
+    팔뚝 방향으로 눕혀 그려야 손목이 꺾이지 않는다. */
+function fist(cx, x, y, ang, r, skin, edge) {
+  cx.save();
+  cx.translate(x, y);
+  cx.rotate(-(ang - Math.PI / 2));            // 팔뚝 방향으로
+  var g = cx.createLinearGradient(0, -r, 0, r);
+  g.addColorStop(0, tint(skin, 0.28));
+  g.addColorStop(0.55, skin);
+  g.addColorStop(1, tint(skin, -0.32));
+  cx.fillStyle = g;
+  cx.beginPath();
+  if (cx.roundRect) cx.roundRect(-r * 0.95, -r, r * 2.0, r * 2, r * 0.62);
+  else cx.arc(0, 0, r, 0, 7);
+  cx.fill();
+  cx.strokeStyle = edge; cx.lineWidth = 1.8; cx.lineJoin = 'round'; cx.stroke();
+  cx.strokeStyle = 'rgba(0,0,0,.22)'; cx.lineWidth = 1.1;   // 손가락 마디
+  cx.beginPath();
+  cx.moveTo(r * 0.35, -r * 0.72); cx.lineTo(r * 0.35, r * 0.72);
+  cx.moveTo(-r * 0.15, -r * 0.66); cx.lineTo(-r * 0.15, r * 0.66);
+  cx.stroke();
+  cx.restore();
+}
+
 /** 앞손은 ext 만큼 더 뻗고, 주먹도 그만큼 커진다(때리는 순간을 크게 보이게 한다) */
 function drawArm(cx, sh, aU, aF, sleeve, skin, edge, ext) {
   ext = ext || 1;
@@ -468,7 +660,7 @@ function drawArm(cx, sh, aU, aF, sleeve, skin, edge, ext) {
   var hand = seg(el[0], el[1], aF, 17 * ext);
   limb(cx, sh[0], sh[1], el[0], el[1], 8.0, 5.0, sleeve, edge);   // 어깨(삼각근)에서 팔꿈치로 좁아진다
   limb(cx, el[0], el[1], hand[0], hand[1], 4.9, 4.0, skin, edge);
-  ball(cx, hand[0], hand[1], 5.6 + (ext - 1) * 10, skin, edge);
+  fist(cx, hand[0], hand[1], aF, 5.4 + (ext - 1) * 9, skin, edge);
 }
 
 function drawLeg(cx, hip, lU, lS, pants, shoe, edge, ext) {
