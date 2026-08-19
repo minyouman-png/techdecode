@@ -39,9 +39,9 @@ GAMES = [
     ('깨비의 과학동산 여행', None, None, [PUB / 'ujaquest' / 'cover-kkaebi-science.jpg']),
     ('깨비의 도덕동산 여행', None, None, [PUB / 'ujaquest' / 'cover-kkaebi-moral.jpg']),
     # 문주(6학년) 게임 3종은 나레이션 음성이 없다 — 6학년은 글을 읽는다. 커버만 본다.
-    ('문주의 피아노', None, None, [PUB / 'munju-piano' / 'cover.jpg']),
-    ('문주의 수학 방탈출', None, None, [PUB / 'munju-math' / 'cover.jpg']),
-    ('문주의 한국사 탐험', None, None, [PUB / 'munju-history' / 'cover.jpg']),
+    ('문주의 피아노', None, None, [PUB / 'munju' / 'piano' / 'cover.jpg']),
+    ('문주의 수학 방탈출', None, None, [PUB / 'munju' / 'math' / 'cover.jpg']),
+    ('문주의 한국사 탐험', None, None, [PUB / 'munju' / 'history' / 'cover.jpg']),
 ]
 
 # 한국어 나레이션 속도의 대략치(글자/초). edge-tts SunHi, rate -8% 실측 기준.
@@ -167,6 +167,27 @@ def main() -> int:
         f = ROOT / 'public' / m.group(1).lstrip('/')
         if not f.exists():
             bad.append(f'games.ts: cover 파일이 없다 {m.group(1)}')
+
+    # 7) ★게임 파일이 **사이트가 만드는 페이지에 가려지지 않는가**
+    #    `/games/<슬러그>/` 는 그 게임의 소개 페이지 주소다. 게임 폴더를 슬러그와 같은 이름으로
+    #    두면 빌드가 소개 페이지로 덮어써서, 게임 주소를 열면 게임 대신 소개 글이 나온다.
+    #    (2026-08-19 문주 게임 3종이 실제로 이렇게 배포됐다. 로컬은 public/ 을 직접 띄워서 못 잡았다.)
+    for m in re.finditer(r"slug: '([^']+)',\n(?:.*\n)*?    playPath: '([^']+)'", gts):
+        slug, play = m.group(1), m.group(2)
+        if play.rstrip('/') in (f'/games/{slug}/index.html', f'/games/{slug}'):
+            bad.append(f'{slug}: 게임 파일 경로가 소개 페이지 주소와 겹친다 ({play}) '
+                       f'— 폴더 이름을 슬러그와 다르게 두세요')
+    dist = ROOT / 'dist'
+    if dist.exists():
+        for m in re.finditer(r"playPath: '([^']+)'", gts):
+            f = dist / m.group(1).lstrip('/')
+            if not f.exists():
+                bad.append(f'빌드 결과에 게임 파일이 없다 {m.group(1)}')
+                continue
+            head = f.read_text(encoding='utf-8', errors='ignore')[:4000]
+            if 'MeNew Soft' in head or 'astro' in head.lower():
+                bad.append(f'빌드 결과의 {m.group(1)} 가 게임이 아니라 **사이트 페이지**다 '
+                           f'(소개 페이지가 게임을 덮어썼다)')
 
     if bad:
         print(f'\n⛔ {len(bad)}건')

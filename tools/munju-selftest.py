@@ -28,10 +28,12 @@ ROOT = Path(__file__).resolve().parent.parent
 PUB = ROOT / "public"
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
+# ⚠️게임 파일은 `/games/munju/<게임>/` 에 있다 — `/games/munju-piano/` 는 사이트가 만드는
+#   **게임 소개 페이지의 주소**라서, 폴더 이름을 슬러그와 같게 두면 소개 페이지가 게임을 덮어쓴다.
 GAMES = {
-    "piano": ("문주의 피아노", "/games/munju-piano/index.html"),
-    "math": ("문주의 수학 방탈출", "/games/munju-math/index.html"),
-    "history": ("문주의 한국사 탐험", "/games/munju-history/index.html"),
+    "piano": ("문주의 피아노", "/games/munju/piano/index.html"),
+    "math": ("문주의 수학 방탈출", "/games/munju/math/index.html"),
+    "history": ("문주의 한국사 탐험", "/games/munju/history/index.html"),
 }
 
 

@@ -188,8 +188,8 @@ export const games: GameEntry[] = [
     slug: 'munju-piano',
     released: '2026-08',
     tech: 'Canvas 2D · Web Audio 합성음(녹음 파일 없음)',
-    playPath: '/games/munju-piano/index.html',
-    cover: '/games/munju-piano/cover.jpg',
+    playPath: '/games/munju/piano/index.html',
+    cover: '/games/munju/piano/cover.jpg',
     koOnly: true,
     hero: 'munju',
     copy: {
@@ -217,8 +217,8 @@ export const games: GameEntry[] = [
     slug: 'munju-math',
     released: '2026-08',
     tech: 'Canvas 2D · 실행 중 문제 생성',
-    playPath: '/games/munju-math/index.html',
-    cover: '/games/munju-math/cover.jpg',
+    playPath: '/games/munju/math/index.html',
+    cover: '/games/munju/math/cover.jpg',
     koOnly: true,
     hero: 'munju',
     copy: {
@@ -245,8 +245,8 @@ export const games: GameEntry[] = [
     slug: 'munju-history',
     released: '2026-08',
     tech: 'Canvas 2D · 초등 6학년 사회 문제 은행',
-    playPath: '/games/munju-history/index.html',
-    cover: '/games/munju-history/cover.jpg',
+    playPath: '/games/munju/history/index.html',
+    cover: '/games/munju/history/cover.jpg',
     koOnly: true,
     hero: 'munju',
     copy: {
