@@ -33,8 +33,24 @@ var WINS_NEEDED = 2;
 
 var VW = 960, VH = 540, DPR = 1, cv, cx;
 
-/* ---------- 소리 ---------- */
-var AC = null;
+/* ---------- 소리 ----------
+   ★소리는 전부 **한 군데(master)** 로 모아 리미터를 물린다. 그래야 타격·장풍·음악이 한꺼번에
+     터져도 찌그러지지 않고, 그 덕에 **각 소리를 충분히 크게** 낼 수 있다.
+   ⚠️소리를 작게 잡아 두면 노트북 스피커에서는 '안 나온다'와 구별되지 않는다 — 실제로
+     출력 파형을 재 보면 최고 진폭이 20/127 밖에 안 됐다. */
+var AC = null, MASTER = null;
+function master() {
+  if (!AC) return null;
+  if (!MASTER) {
+    var c = AC.createDynamicsCompressor(), t = AC.currentTime;
+    c.threshold.setValueAtTime(-10, t); c.knee.setValueAtTime(22, t);
+    c.ratio.setValueAtTime(6, t); c.attack.setValueAtTime(0.004, t); c.release.setValueAtTime(0.22, t);
+    var g = AC.createGain(); g.gain.value = 1.0;
+    c.connect(g); g.connect(AC.destination);
+    MASTER = c;
+  }
+  return MASTER;
+}
 var Snd = {
   on: true,
   ready: function () {
@@ -49,9 +65,9 @@ var Snd = {
     o.type = type || 'square';
     o.frequency.setValueAtTime(freq, t);
     o.frequency.exponentialRampToValueAtTime(Math.max(40, freq * 0.4), t + dur);
-    g.gain.setValueAtTime(vol || 0.12, t);
+    g.gain.setValueAtTime(vol || 0.24, t);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g); g.connect(AC.destination);
+    o.connect(g); g.connect(master());
     o.start(t); o.stop(t + dur + 0.02);
   },
   noise: function (dur, vol, filt) {
@@ -61,15 +77,15 @@ var Snd = {
     for (var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
     var s = AC.createBufferSource(); s.buffer = buf;
     var f = AC.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = filt || 900;
-    var g = AC.createGain(); g.gain.value = vol || 0.18;
-    s.connect(f); f.connect(g); g.connect(AC.destination);
+    var g = AC.createGain(); g.gain.value = vol || 0.36;
+    s.connect(f); f.connect(g); g.connect(master());
     s.start();
   },
-  hit: function (heavy) { Snd.noise(heavy ? 0.16 : 0.08, heavy ? 0.3 : 0.18, heavy ? 700 : 1400); Snd.blip(heavy ? 120 : 200, 0.08, 'sine', 0.18); },
-  block: function () { Snd.blip(320, 0.05, 'square', 0.09); Snd.noise(0.05, 0.08, 2600); },
-  whoosh: function () { Snd.noise(0.09, 0.05, 500); },
-  fire: function () { Snd.blip(520, 0.22, 'sawtooth', 0.08); },
-  ko: function () { Snd.blip(160, 0.6, 'sawtooth', 0.22); Snd.noise(0.5, 0.25, 500); },
+  hit: function (heavy) { Snd.noise(heavy ? 0.16 : 0.08, heavy ? 0.62 : 0.38, heavy ? 700 : 1400); Snd.blip(heavy ? 120 : 200, 0.09, 'sine', 0.42); },
+  block: function () { Snd.blip(320, 0.05, 'square', 0.22); Snd.noise(0.05, 0.18, 2600); },
+  whoosh: function () { Snd.noise(0.09, 0.12, 500); },
+  fire: function () { Snd.blip(520, 0.22, 'sawtooth', 0.20); },
+  ko: function () { Snd.blip(160, 0.6, 'sawtooth', 0.46); Snd.noise(0.5, 0.5, 500); },
 };
 
 /* ---------- 배경음악 ----------
@@ -101,21 +117,21 @@ var MOTIF = {
 /* 무대마다 곡이 다르다. prog = 마디별 화음 뿌리(음계 칸), root = A 에서 몇 반음 위인가. */
 var THEMES = {
   menu:    { bpm: 100, scale: 'minor',   root: 0, prog: [0, 5, 3, 4], motif: 'calm',  motif2: 'call',
-             kick: '1000000010000000', snare: '0000000000000000', hat: '0010001000100010', bass: '1000100010001000', lead: 0.045 },
+             kick: '1000000010000000', snare: '0000000000000000', hat: '0010001000100010', bass: '1000100010001000', lead: 0.17 },
   sand:    { bpm: 124, scale: 'harm',    root: 2, prog: [0, 0, 3, 4], motif: 'call',  motif2: 'answer',
-             kick: '1000001000100000', snare: '0000100000001000', hat: '0010101000101010', bass: '1001001010010010', lead: 0.052 },
+             kick: '1000001000100000', snare: '0000100000001000', hat: '0010101000101010', bass: '1001001010010010', lead: 0.17 },
   post:    { bpm: 138, scale: 'majpent', root: 5, prog: [0, 3, 4, 3], motif: 'march', motif2: 'swing',
-             kick: '1000000010000100', snare: '0000100000001000', hat: '1010101010101010', bass: '1000100010001010', lead: 0.05 },
+             kick: '1000000010000100', snare: '0000100000001000', hat: '1010101010101010', bass: '1000100010001010', lead: 0.17 },
   corp:    { bpm: 132, scale: 'dorian',  root: 7, prog: [0, 4, 5, 4], motif: 'swing', motif2: 'answer',
-             kick: '1000100000100000', snare: '0000100000001000', hat: '0010001010100010', bass: '1010001010100010', lead: 0.048 },
+             kick: '1000100000100000', snare: '0000100000001000', hat: '0010001010100010', bass: '1010001010100010', lead: 0.17 },
   beer:    { bpm: 148, scale: 'minpent', root: 3, prog: [0, 0, 3, 4], motif: 'run',   motif2: 'chase',
-             kick: '1000001010000010', snare: '0000100000001000', hat: '1010101010101011', bass: '1010101010101010', lead: 0.05 },
+             kick: '1000001010000010', snare: '0000100000001000', hat: '1010101010101011', bass: '1010101010101010', lead: 0.17 },
   jokgu:   { bpm: 134, scale: 'majpent', root: 9, prog: [0, 2, 4, 2], motif: 'swing', motif2: 'march',
-             kick: '1000000010001000', snare: '0000100000001000', hat: '0010101000101010', bass: '1000101010001000', lead: 0.05 },
+             kick: '1000000010001000', snare: '0000100000001000', hat: '0010101000101010', bass: '1000101010001000', lead: 0.17 },
   pangyo:  { bpm: 150, scale: 'dorian',  root: 4, prog: [0, 5, 3, 4], motif: 'chase', motif2: 'run',
-             kick: '1000101000101000', snare: '0000100000001000', hat: '1111111111111111', bass: '1010101010101010', lead: 0.046 },
+             kick: '1000101000101000', snare: '0000100000001000', hat: '1111111111111111', bass: '1010101010101010', lead: 0.17 },
   halla:   { bpm: 128, scale: 'minor',   root: 10, prog: [0, 3, 5, 4], motif: 'call', motif2: 'chase',
-             kick: '1000001000100000', snare: '0000100000001000', hat: '0010001000100010', bass: '1000100010100010', lead: 0.05 },
+             kick: '1000001000100000', snare: '0000100000001000', hat: '0010001000100010', bass: '1000100010100010', lead: 0.17 },
 };
 
 var Mus = (function () {
@@ -144,7 +160,7 @@ var Mus = (function () {
     o1.type = 'sine';
     o1.frequency.setValueAtTime(148, t);
     o1.frequency.exponentialRampToValueAtTime(46, t + 0.10);
-    g.gain.setValueAtTime(0.34, t);
+    g.gain.setValueAtTime(0.44, t);
     g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
     o1.connect(g); g.connect(out);
     o1.start(t); o1.stop(t + 0.2);
@@ -174,12 +190,12 @@ var Mus = (function () {
   function playAt(t, s) {
     var b = Math.floor(s / 16) % 4, k = s % 16;
     if (cur.kick.charAt(k) === '1') kick(t);
-    if (cur.snare.charAt(k) === '1') noiseHit(t, 0.13, 0.13, 1500);
-    if (cur.hat.charAt(k) === '1') noiseHit(t, 0.03, 0.04, 7000);
-    if (cur.bass.charAt(k) === '1') tone(t, degSemi(cur.prog[b]), stepDur * 1.8, 'sawtooth', 0.12, 380);
+    if (cur.snare.charAt(k) === '1') noiseHit(t, 0.13, 0.22, 1500);
+    if (cur.hat.charAt(k) === '1') noiseHit(t, 0.03, 0.07, 7000);
+    if (cur.bass.charAt(k) === '1') tone(t, degSemi(cur.prog[b]), stepDur * 1.8, 'sawtooth', 0.24, 380);
     if (k === 0) {                                   // 화음은 마디 첫 칸에 길게 깔아 둔다
       [0, 2, 4].forEach(function (o) {
-        tone(t, degSemi(cur.prog[b] + o) + 24, stepDur * 15, 'triangle', 0.026, 1700);
+        tone(t, degSemi(cur.prog[b] + o) + 24, stepDur * 15, 'triangle', 0.075, 1700);
       });
     }
     var L = lead[s];
@@ -197,12 +213,12 @@ var Mus = (function () {
   }
   function setVol() {
     if (!out || !AC) return;
-    var v = on ? (ducked ? 0.22 : 1) * 0.5 : 0;
+    var v = on ? (ducked ? 0.34 : 1) * 0.85 : 0;
     out.gain.setTargetAtTime(v, AC.currentTime, 0.08);
   }
   function attach() {
     if (out || !AC) return;
-    out = AC.createGain(); out.gain.value = 0; out.connect(AC.destination);
+    out = AC.createGain(); out.gain.value = 0; out.connect(master());
   }
   return {
     THEMES: THEMES, MOTIF: MOTIF,

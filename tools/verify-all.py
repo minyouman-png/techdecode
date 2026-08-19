@@ -54,6 +54,8 @@ def main() -> int:
                          [PY, 'tools/munju-selftest.py', '--game', _g]))
         jobs.append((f'조스 오브 파이터즈 sim #{i + 1}',
                      [PY, 'tools/munju-selftest.py', '--game', 'joss', '--wait', '16']))
+    # ⚠️소리는 sim 이 못 잡는다 — 실제 출력 파형을 재는 검사가 따로 있어야 한다
+    jobs.append(('조스 오브 파이터즈 소리(파형 측정)', [PY, 'tools/joss-audio-check.py']))
     if args.narrow:
         for _g in ('piano', 'math', 'history'):
             jobs.append((f'문주 {_g} sim (390px)',

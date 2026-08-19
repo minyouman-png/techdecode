@@ -362,8 +362,11 @@ function bindMusic() {
   if ($('bgmBtn')) $('bgmBtn').addEventListener('click', toggle);
   if ($('bgmHud')) $('bgmHud').addEventListener('click', toggle);
 
-  function wake() { J.Snd.ready(); }        // 첫 손짓에 소리 장치를 만든다
+  // 첫 손짓에 소리 장치를 만든다(잠들어 있으면 깨운다)
+  // ⚠️touchstart 도 함께 듣는다 — 옛 iOS 사파리는 pointerdown 을 손짓으로 안 쳐 준다.
+  function wake() { J.Snd.ready(); }
   window.addEventListener('pointerdown', wake);
+  window.addEventListener('touchstart', wake);
   window.addEventListener('keydown', wake);
 }
 
