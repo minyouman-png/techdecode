@@ -51,8 +51,14 @@ export default defineConfig({
   //   ⚠️단, `/category/*` 는 계속 뺀다 — 글 목록을 다시 늘어놓기만 하는 얇은 페이지라
   //     같은 글이 여러 주소로 색인되는 쪽 손해가 더 크다.
   //
-  //   남는 제외 대상: `/category/*`(얇은 목록) · `/apps/*`(랜딩이 대표)
-  //   · `/play/*`(게임 상세가 대표) · `/shops/admin`(가게 전용 작성기).
+  //   ⚠️★2026-08-20(같은 날 보정): **일본어·중국어·스페인어 글은 다시 뺐다.** 글 176편 중
+  //     140편이 기계번역 다국어판이라 그대로 색인시키면 '다국어 대량 자동생성'으로 도메인
+  //     전체 평가가 깎인다. 원문인 한국어·영어 글만 색인한다. 페이지 쪽 `noindex, follow`
+  //     (`src/i18n/ui.ts` 의 `noindexLangs`)와 **세트**다 — 한쪽만 고치면 서치콘솔이
+  //     '제출된 URL 이 noindex 처리됨' 오류로 잡는다.
+  //
+  //   남는 제외 대상: `/category/*`(얇은 목록) · `/{ja,es,zh}/blog/*`(기계번역)
+  //   · `/apps/*`(랜딩이 대표) · `/play/*`(게임 상세가 대표) · `/shops/admin`(가게 전용 작성기).
   //   ⚠️`/shops/` 제외도 함께 풀었다 — 홈이 더는 가게 목록이 아니라서 이제 **`/shops/` 가
   //     가게 디렉토리의 대표 주소**다(src/pages/shops/index.astro 와 세트).
   integrations: [
@@ -60,6 +66,7 @@ export default defineConfig({
       filter: (page) => {
         const p = new URL(page).pathname;
         if (/\/category(\/|$)/.test(p)) return false;
+        if (/^\/(ja|es|zh)\/blog(\/|$)/.test(p)) return false;
         if (p.startsWith('/apps/') || p.startsWith('/play/')) return false;
         if (p.includes('/shops/admin')) return false;
         return true;

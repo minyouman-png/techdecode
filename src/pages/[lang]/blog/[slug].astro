@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import { languages, defaultLang, type Lang } from '../../../i18n/ui';
+import { languages, defaultLang, isNoindexLang, type Lang } from '../../../i18n/ui';
 import { useTranslations, blogUrl } from '../../../i18n/utils';
 import { categoryLabel, categoryUrl } from '../../../i18n/categories';
 import RelatedBlock from '../../../components/RelatedBlock.astro';
@@ -52,7 +52,10 @@ const ld = {
   ...(d.category ? { articleSection: d.category } : {}),
 };
 ---
-<BaseLayout lang={lang} title={d.title} description={d.description} alternates={alternates} image={ogImage}>
+{/* ⚠️기계번역 언어(ja·es·zh)는 색인에서 뺀다 — 읽을 수는 있되 검색에는 원문만 내보낸다.
+    nofollow 가 아니라 follow 다: 이 페이지에서 한국어·영어 원문으로 가는 길은 살려 둔다. */}
+<BaseLayout lang={lang} title={d.title} description={d.description} alternates={alternates} image={ogImage}
+  robots={isNoindexLang(lang) ? 'noindex, follow' : undefined}>
   <article class="article">
     <div class="wrap">
       <div class="article-head">

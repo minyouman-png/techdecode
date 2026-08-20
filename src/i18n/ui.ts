@@ -24,6 +24,16 @@ export const htmlLang: Record<string, string> = {
   zh: 'zh-Hans',
 };
 
+// ★색인에서 빼는 언어(2026-08-20). 글 176편 중 140편이 **기계번역 다국어판**이라
+// 그대로 색인시키면 '다국어 대량 자동생성'으로 도메인 전체 평가가 깎인다.
+// 한국어(원문)와 영어(원문)만 검색에 내보내고, 나머지는 읽을 수는 있되 색인하지 않는다.
+// ⚠️여기만 고치면 되도록 한 곳에 모아 뒀다 — 사이트맵 제외(astro.config)와 **세트**다.
+//   번역을 사람이 손봐서 다시 열 때는 이 배열에서 빼고 astro.config 의 필터도 같이 푼다.
+export const noindexLangs = ['ja', 'es', 'zh'] as const;
+export function isNoindexLang(lang: string): boolean {
+  return (noindexLangs as readonly string[]).includes(lang);
+}
+
 export const ui = {
   en: {
     /* ── 한국어 외 언어의 홈(Landing.astro) ── */

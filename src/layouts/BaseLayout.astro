@@ -15,6 +15,11 @@ interface Props {
   image?: string;
   // 검색엔진 색인 제외(도구·관리 페이지처럼 공개는 되지만 검색에 뜰 필요 없는 것)
   noindex?: boolean;
+  // robots 값을 직접 지정한다. `noindex` 보다 우선한다.
+  // ⚠️`noindex` 는 nofollow 까지 함께 건다(막다른 페이지용). 번역판 글처럼 **색인만 빼고
+  //   링크는 따라가게** 하고 싶을 때는 `robots="noindex, follow"` 를 쓴다 —
+  //   nofollow 를 걸면 그 페이지에서 원문(한국어·영어)으로 가는 길까지 끊긴다.
+  robots?: string;
   // 완성된 <title> 을 그대로 쓴다(사이트명 접미사를 붙이지 않음).
   // 검색어로 승부하는 페이지는 접미사 12자가 잘림을 유발하므로 이쪽을 쓴다.
   titleFull?: string;
@@ -24,7 +29,8 @@ interface Props {
   // (같은 내용이 두 경로에 있을 때 대표 주소를 하나로 몰아주기 위한 것 — 예: `/shops/` → `/`)
   canonicalPath?: string;
 }
-const { lang, title, description, alternates: alts, image, noindex, titleFull, jsonLd, canonicalPath } = Astro.props;
+const { lang, title, description, alternates: alts, image, noindex, robots, titleFull, jsonLd, canonicalPath } = Astro.props;
+const robotsValue = robots ?? (noindex ? 'noindex, nofollow' : null);
 const alternates = alts ?? {};
 const t = useTranslations(lang);
 
@@ -50,7 +56,7 @@ const ADSENSE_PUBLISHER_ID = '';
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)" />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {robotsValue && <meta name="robots" content={robotsValue} />}
 
     {Object.entries(alternates).map(([code, href]) => (
       <link rel="alternate" hreflang={code} href={new URL(href, Astro.site).href} />
