@@ -57,7 +57,18 @@ export default defineConfig({
   //     (`src/i18n/ui.ts` 의 `noindexLangs`)와 **세트**다 — 한쪽만 고치면 서치콘솔이
   //     '제출된 URL 이 noindex 처리됨' 오류로 잡는다.
   //
-  //   남는 제외 대상: `/category/*`(얇은 목록) · `/{ja,es,zh}/blog/*`(기계번역)
+  //   ⚠️★2026-08-20(정리): 색인 대상을 **페이지 종류별로** 정했다. 한 규칙으로 밀지 않는다 —
+  //     종류마다 다국어가 말이 되는 정도가 다르기 때문이다(본문 실측: 용어사전 463자 ·
+  //     도구 615자 · 게임 1,642자 · 가게 2,044자 · 글 3,957자).
+  //       · 게임 · 도구 → **5개 언어 전부 유지.** 게임과 브라우저 도구는 국적이 없다.
+  //         'free xlsx editor', 'ブラウザゲーム 無料' 는 어느 언어에서나 실제로 검색된다.
+  //       · 글 · 가게 · 업체 소식 → **ko + en 만.** 원주의 동네 가게를 일본어로 찾는 사람은 없다.
+  //       · 용어사전 → **언어 불문 전부 제외.** 'LLM 이란' 류 상투적 정의 21개 × 5언어 = 105장,
+  //         본문 463자로는 이길 수 없고 사업 네 축 어디에도 속하지 않는다.
+  //         (페이지 자체는 살아 있다 — 글에서 용어를 걸어 두는 참고용)
+  //
+  //   남는 제외 대상: `/category/*`(얇은 목록) · `/glossary/*`(전 언어)
+  //   · `/{ja,es,zh}/{blog,shops,news}/*`(기계번역)
   //   · `/apps/*`(랜딩이 대표) · `/play/*`(게임 상세가 대표) · `/shops/admin`(가게 전용 작성기).
   //   ⚠️`/shops/` 제외도 함께 풀었다 — 홈이 더는 가게 목록이 아니라서 이제 **`/shops/` 가
   //     가게 디렉토리의 대표 주소**다(src/pages/shops/index.astro 와 세트).
@@ -66,7 +77,8 @@ export default defineConfig({
       filter: (page) => {
         const p = new URL(page).pathname;
         if (/\/category(\/|$)/.test(p)) return false;
-        if (/^\/(ja|es|zh)\/blog(\/|$)/.test(p)) return false;
+        if (/\/glossary(\/|$)/.test(p)) return false;
+        if (/^\/(ja|es|zh)\/(blog|shops|news)(\/|$)/.test(p)) return false;
         if (p.startsWith('/apps/') || p.startsWith('/play/')) return false;
         if (p.includes('/shops/admin')) return false;
         return true;

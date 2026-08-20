@@ -8,7 +8,7 @@
 //      (정적 사이트라 실제로 전달될 곳이 없다 — 그게 제일 나쁜 UX 다).
 //   ③ 페이지 하단에 '독립 소개 · 공식 아님 · 광고 없음 · 출처' 고지를 항상 노출한다.
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { languages, type Lang } from '../i18n/ui';
+import { languages, isNoindexLang, type Lang } from '../i18n/ui';
 import { useTranslations, localizeUrl } from '../i18n/utils';
 import { shopsUi, shopCopy, shopUrl, shopsIndexUrl, telHref, shopLocation, shopCategoryText, type ShopEntry } from '../i18n/shops';
 
@@ -30,7 +30,11 @@ const alternates = Object.fromEntries(
 ) as Partial<Record<Lang, string>>;
 const menu = [...c.menu].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
 ---
-<BaseLayout lang={lang} title={`${c.name} — ${shopLocation(shop, lang)}`} description={c.tagline} alternates={alternates}>
+{/* ⚠️★2026-08-20: 기계번역 언어(ja·es·zh)는 색인에서 뺀다. 원주의 동네 가게를
+    일본어·중국어·스페인어로 찾는 사람은 없고, 번역된 소개문만 자동생성 티가 난다.
+    한국어(고객)와 영어(국내 거주 외국인)만 검색에 내보낸다. `noindexLangs` 참조. */}
+<BaseLayout lang={lang} title={`${c.name} — ${shopLocation(shop, lang)}`} description={c.tagline} alternates={alternates}
+  robots={isNoindexLang(lang) ? 'noindex, follow' : undefined}>
   <article class="shop">
     <section class="shop-hero">
       <img class="shop-hero-img" src={shop.cover} alt={c.name} />

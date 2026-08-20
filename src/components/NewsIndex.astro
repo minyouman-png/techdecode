@@ -7,7 +7,7 @@
 //   우리가 지어낸 소식은 여기에 들어오지 못한다 — 손님이 그걸 믿고 헛걸음하면 가게가 피해를 본다.
 //   두 종류는 배지로 구분해 표시한다. 섞이면 ②가 가게 명의 공지처럼 읽힌다.
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { languages, type Lang } from '../i18n/ui';
+import { languages, isNoindexLang, type Lang } from '../i18n/ui';
 import { useTranslations, localizeUrl } from '../i18n/utils';
 import { shops, shopCopy, shopUrl, allShopNews } from '../i18n/shops';
 
@@ -53,7 +53,11 @@ const pressNews = allShopNews(lang).map((n) => ({
 
 const rows = [...shopNotices, ...pressNews].sort((a, b) => (a.date < b.date ? 1 : -1));
 ---
-<BaseLayout lang={lang} title={t('news_title')} description={t('news_desc')} alternates={alternates}>
+{/* ⚠️★2026-08-20: 기계번역 언어(ja·es·zh)는 색인에서 뺀다. 원주의 동네 가게를
+    일본어·중국어·스페인어로 찾는 사람은 없고, 번역된 소개문만 자동생성 티가 난다.
+    한국어(고객)와 영어(국내 거주 외국인)만 검색에 내보낸다. `noindexLangs` 참조. */}
+<BaseLayout lang={lang} title={t('news_title')} description={t('news_desc')} alternates={alternates}
+  robots={isNoindexLang(lang) ? 'noindex, follow' : undefined}>
   <section class="news-hero">
     <div class="wrap">
       <p class="kicker">{t('dir_title')}</p>

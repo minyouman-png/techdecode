@@ -15,7 +15,7 @@
 // ⚠️스타일은 전부 `global.css` 의 디자인 토큰을 쓴다. 컴포넌트에 #fff 같은 색을 박으면
 //   다크 모드에서 카드가 하얗게 튄다(실제로 한 번 냈던 사고).
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { languages, ui, defaultLang, type Lang } from '../i18n/ui';
+import { languages, ui, defaultLang, isNoindexLang, type Lang } from '../i18n/ui';
 import { useTranslations, localizeUrl } from '../i18n/utils';
 import {
   shops,
@@ -86,7 +86,9 @@ const jsonLd = {
   description={t('metaDescription')}
   alternates={alternates}
   canonicalPath={canonicalPath}
+  // ⚠️기계번역 언어의 가게 목록은 색인에서 뺀다(개별 가게 페이지와 같은 규칙)
   noindex={noindex}
+  robots={isNoindexLang(lang) ? 'noindex, follow' : undefined}
   jsonLd={jsonLd}
 >
   <section class="dir-hero">

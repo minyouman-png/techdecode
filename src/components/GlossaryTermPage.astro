@@ -34,7 +34,12 @@ const ld = {
   inDefinedTermSet: new URL(glossaryIndexUrl(lang), Astro.site).href,
 };
 ---
-<BaseLayout lang={lang} title={c.term} description={c.short} alternates={alternates}>
+{/* ⚠️★2026-08-20: 용어사전은 **언어 불문 색인에서 뺀다.**
+    'LLM 이란' 같은 상투적 정의 20개 × 5개 언어 = 105장인데, 본문이 463자라
+    같은 검색어를 두고 이길 가능성이 없고 사업 네 축(가게·글·아이게임·웹게임)
+    어디에도 속하지 않는다. 페이지는 살려 둔다 — 글에서 용어를 걸어 두는 참고용이다.
+    nofollow 가 아니라 follow: 여기서 글로 가는 길은 남긴다. */}
+<BaseLayout robots="noindex, follow" lang={lang} title={c.term} description={c.short} alternates={alternates}>
   <article class="term-page">
     <div class="wrap">
       <p class="backlink"><a href={glossaryIndexUrl(lang)}>{g.backToList}</a></p>
