@@ -13,10 +13,15 @@ const t = useTranslations(lang);
     <div class="foot-top">
       <span class="foot-brand">{SITE_NAME}</span>
       <div class="links">
-        <!-- ⚠️블로그·용어사전·도구 링크는 격리 대상이라 뺐다(Header.astro 주석 참조). -->
+        <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. -->
         <a href={localizeUrl('/', lang)}>{t('nav_home')}</a>
+        <a href={localizeUrl('/shops/', lang)}>{t('nav_shops')}</a>
         <a href={localizeUrl('/news/', lang)}>{t('nav_news')}</a>
         <a href={localizeUrl('/games/', lang)}>{t('nav_games')}</a>
+        <a href={localizeUrl('/blog/', lang)}>{t('nav_articles')}</a>
+        <a href={localizeUrl('/glossary/', lang)}>{t('nav_glossary')}</a>
+        <a href={localizeUrl('/tools/', lang)}>{t('nav_tools')}</a>
         {lang === 'ko' && <a href="/learn/">{t('nav_learn')}</a>}
         <a href={localizeUrl('/about/', lang)}>{t('nav_about')}</a>
         <a href={localizeUrl('/contact/', lang)}>{t('nav_contact')}</a>

@@ -512,6 +512,55 @@ a.cat:hover { text-decoration: underline; }
 }
 .sell-note { font-size: 13px; color: var(--faint); margin: 18px 0 0; }
 
+/* ---------- 홈: 하는 일 네 가지 (StudioHome) ---------- */
+.pillars { border-top: 1px solid var(--border-soft); padding: 54px 0; }
+.pillars-note { color: var(--muted); margin: 0 0 26px; max-width: 66ch; font-size: 0.98rem; }
+.pillar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.pillar {
+  background: var(--bg-elev); border: 1px solid var(--border); border-radius: 16px;
+  padding: 22px 22px 20px; display: flex; flex-direction: column;
+  transition: border-color .18s ease, transform .18s ease;
+}
+.pillar:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); transform: translateY(-2px); }
+.pillar-top { display: flex; align-items: center; gap: 9px; margin-bottom: 14px; }
+/* 그림 대신 글자 배지 — 파일도 로딩도 없고, 다크·라이트 어느 쪽에서도 안 깨진다 */
+.pillar-mark {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.02em; padding: 4px 9px; border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  white-space: nowrap;
+}
+.pillar-label { font-size: 11px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--faint); font-weight: 600; }
+.pillar h3 { margin: 0 0 9px; font-size: 1.1rem; font-weight: 700; color: var(--fg-strong); line-height: 1.35; }
+.pillar-body { margin: 0 0 16px; font-size: 0.93rem; line-height: 1.62; color: var(--muted); flex: 1; }
+.pillar-proof {
+  margin: 0 0 12px; font-size: 13px; font-weight: 700; color: var(--fg-strong);
+  font-variant-numeric: tabular-nums;
+}
+.pillar-cta { font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.pillar-cta span { transition: transform .16s ease; }
+.pillar-cta:hover span { transform: translateX(3px); }
+
+/* 홈의 가게 미리보기 + 정직 고지 한 줄 */
+.home-shops { border-top: 1px solid var(--border-soft); padding: 54px 0; }
+.home-shops .shop-grid { margin-top: 4px; }
+.promise-row {
+  list-style: none; margin: 26px 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 10px 26px;
+}
+.promise-row li { font-size: 0.9rem; color: var(--muted); padding-left: 22px; position: relative; }
+.promise-row li::before { content: '✓'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+/* 무료 게임 줄은 배경을 한 칸 눌러 '아이 맞춤' 줄과 갈라 놓는다 */
+.home-games.alt { background: var(--bg-elev2); }
+
+@media (max-width: 900px) {
+  .pillar-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+}
+@media (max-width: 560px) {
+  .pillar-grid { grid-template-columns: 1fr; }
+}
+
 /* ---------- 업체 소식 ---------- */
 .news-hero { padding: 62px 0 8px; }
 .news-hero h1 {

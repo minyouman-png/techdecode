@@ -1,8 +1,10 @@
 ---
-// ⚠️**은퇴한 컴포넌트(2026-08-05)** — 어디서도 import 하지 않는다.
-//   사이트 성격이 '업체 홈페이지 제작'으로 바뀌면서 홈·가게목록을 모두
-//   `ShopsDirectory.astro` 가 담당한다. 예전 구조(AI 분석 랜딩/가게 목록)를
-//   되살릴 때 참고용으로만 남겨둔 파일이다.
+// **한국어 외 언어의 홈**(en · ja · es · zh). 2026-08-20 복귀.
+//
+// ⚠️한국어 홈은 `StudioHome.astro`(사업 넷)가 담당하고, 이 파일은 나머지 언어를 맡는다.
+//   가게 페이지 제작과 아이 맞춤 게임은 국내에서만 하는 일이라 영어·일본어권 방문자에게
+//   내걸 것이 못 된다. 그쪽에서 실제로 쓸 수 있는 것은 **게임과 기술 글**뿐이므로 그 둘로 짠다.
+//   그래서 히어로 문구도 한국어 홈과 다른 키(`intl_*`)를 쓴다 — `hero_*` 는 가게 문구다.
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { languages, type Lang } from '../i18n/ui';
@@ -59,9 +61,9 @@ const cats = categoryOrder.map((slug) => ({
   <!-- HERO + GOOGLE SEARCH -->
   <div class="hero hero-compact">
     <div class="wrap hero-inner">
-      <span class="kicker">{t('hero_kicker')}</span>
-      <h1>{t('hero_title')}</h1>
-      <p class="sub">{t('hero_sub')}</p>
+      <span class="kicker">{t('intl_kicker')}</span>
+      <h1>{t('intl_title')}</h1>
+      <p class="sub">{t('intl_sub')}</p>
 
       <form id="gsform" class="searchbar" role="search" autocomplete="off">
         <svg class="gicon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
@@ -179,14 +181,14 @@ const cats = categoryOrder.map((slug) => ({
     </div>
   </section>
 
-  <!-- TOPICS + INTRO -->
+  <!-- TOPICS — 다루는 주제. ⚠️낡은 'Tech Decode가 하는 일' 소개문(intro_body)은 뺐다.
+       사이트가 더는 분석 매체가 아니라서 그 문단만 혼자 옛 정체성을 말하고 있었다. -->
   <section class="topics">
     <div class="wrap">
       <p class="section-label">{t('topics_label')}</p>
       <div class="chips">
         {cats.map((c) => (c.href ? <a class="chip" href={c.href}>{c.label}</a> : <span class="chip">{c.label}</span>))}
       </div>
-      <p class="intro-body slim">{t('intro_body')}</p>
     </div>
   </section>
 </BaseLayout>

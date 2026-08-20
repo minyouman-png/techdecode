@@ -11,7 +11,7 @@ const alternates = Object.fromEntries(
   (Object.keys(languages) as Lang[]).map((l) => [l, toolsIndexUrl(l)])
 ) as Partial<Record<Lang, string>>;
 ---
-<BaseLayout lang={lang} title={g.pageTitle} description={g.metaDescription} alternates={alternates} noindex={true}>
+<BaseLayout lang={lang} title={g.pageTitle} description={g.metaDescription} alternates={alternates}>
   <section class="tools-hero">
     <div class="wrap">
       <p class="kicker">{g.kicker}</p>

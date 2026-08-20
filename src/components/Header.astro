@@ -1,9 +1,11 @@
 ---
-// ⚠️★2026-08-05 격리: 블로그(`/blog/`)·용어사전(`/glossary/`)·도구(`/tools/`) 링크를 **의도적으로
-//   뺐다.** 사이트 성격이 '업체 홈페이지 제작 + 등록 업체 소식'으로 바뀌었고, 그 셋을 남겨두면
-//   방문자에게도 검색엔진에게도 이 사이트가 무엇인지 흐려진다. 경로 자체는 살아 있어서 기존
-//   링크와 blog2video 파이프라인은 그대로 동작한다(사이트맵 제외 + noindex 와 세트).
-//   되살리려면 이 파일과 Footer 에 링크를 넣고 astro.config 의 sitemap filter 를 풀면 된다.
+// ⚠️★2026-08-20: 2026-08-05에 격리했던 **블로그(`/blog/`) 링크를 되살렸다.** 사이트가 다시
+//   'AI로 여러 사업을 하는 곳'으로 넓어졌고, 그중 한 축이 'AI 기술 소개'라 글이 메뉴에 없으면
+//   그 축에 실체가 없다. noindex 해제 · 사이트맵 포함과 **세트**로 움직인 변경이다
+//   (astro.config 의 sitemap filter, BlogIndex/ToolPage 등의 noindex).
+// ⚠️'등록 업체'도 넣었다 — 홈이 더는 가게 목록이 아니라서 `/shops/` 로 가는 길이 메뉴에 필요하다.
+// ⚠️용어사전·도구는 메뉴에 넣지 않는다. 색인은 열었지만 상단 메뉴 7칸을 넘기면 모바일에서
+//   줄이 접힌다 — 그 둘은 글·홈에서 링크로 닿는다.
 import { SITE_NAME, type Lang } from '../i18n/ui';
 import { useTranslations, localizeUrl } from '../i18n/utils';
 import LanguageSwitcher from './LanguageSwitcher.astro';
@@ -21,8 +23,10 @@ const [brandA, brandB] = SITE_NAME.split(' ');
     <a class="brand" href={localizeUrl('/', lang)}>{brandA}<span>{brandB}</span></a>
     <nav class="nav">
       <a href={localizeUrl('/', lang)}>{t('nav_home')}</a>
+      <a href={localizeUrl('/shops/', lang)}>{t('nav_shops')}</a>
       <a href={localizeUrl('/news/', lang)}>{t('nav_news')}</a>
       <a href={localizeUrl('/games/', lang)}>{t('nav_games')}</a>
+      <a href={localizeUrl('/blog/', lang)}>{t('nav_articles')}</a>
       {/* ⚠️학습 코너(`/learn/`)는 대한민국 초등 1학년 교육과정 전용이라 **한국어에서만** 노출한다.
           다른 언어에 노출하면 클릭해도 한국어 페이지가 나와 이탈만 만든다. */}
       {lang === 'ko' && <a href="/learn/">{t('nav_learn')}</a>}

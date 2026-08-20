@@ -27,7 +27,7 @@ const cats = categoryOrder
 
 const fmt = new Intl.DateTimeFormat(lang === 'zh' ? 'zh-CN' : lang, { year: 'numeric', month: 'short', day: 'numeric' });
 ---
-<BaseLayout lang={lang} title={t('archive_title')} description={t('archive_desc')} alternates={alternates} noindex={true}>
+<BaseLayout lang={lang} title={t('archive_title')} description={t('archive_desc')} alternates={alternates}>
   <section class="archive">
     <div class="wrap">
       <p class="kicker">{t('latest_label')}</p>

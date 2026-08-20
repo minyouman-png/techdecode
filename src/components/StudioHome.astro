@@ -1,0 +1,257 @@
+---
+// 홈(`/`) — **AI로 여러 사업을 하는 곳**. 2026-08-20 컨셉 전환.
+//
+// 설계 원칙. 고치기 전에 읽을 것:
+//  1) ★**말한 사업은 바로 아래에 실물이 있어야 한다.** 카드 넷을 늘어놓고 끝내면 그냥
+//     회사소개 슬라이드다. 그래서 카드마다 실측 개수(`{shops}`·`{posts}`·`{kids}`·`{fun}`)를
+//     박아 넣고, 아래 섹션에서 그 실물(가게 카드·게임 커버·글 제목)을 바로 보여준다.
+//  2) ★**개수는 세어서 넣는다.** 손으로 적은 '게임 15종'은 게임을 하나 더 만드는 순간 거짓말이
+//     된다. 전부 레지스트리에서 길이를 센다.
+//  3) **아이 맞춤 게임과 무료 게임을 나눠 보여준다.** 둘은 사업이 다르다 — 앞은 의뢰를 받는
+//     제작이고 뒤는 그냥 열어 둔 것이다. 한 덩어리로 섞으면 무엇을 파는지가 사라진다.
+//  4) ★**정직 고지는 홈에도 남긴다.** 가게 사업의 유일한 차별점이라 디렉토리에만 두면 홈에서
+//     읽히지 않는다(`homeKo.promise`).
+//
+// ⚠️한국어 전용이다(이유는 `src/i18n/home.ts` 머리말). 다른 언어 홈은 `Landing.astro`.
+// ⚠️색은 전부 `global.css` 의 디자인 토큰을 쓴다. #fff 를 박으면 다크 모드에서 하얗게 튄다.
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { languages, SITE_NAME, type Lang } from '../i18n/ui';
+import { useTranslations, localizeUrl, blogUrl } from '../i18n/utils';
+import { homeKo, pillarsKo, kidsGameSlugs } from '../i18n/home';
+import { shops, shopCopy, shopUrl, shopLocation, shopCategoryText } from '../i18n/shops';
+import { gamesFor, copyFor, gameUrl, playerUrl, gamesIndexUrl, gamesUi } from '../i18n/games';
+
+const lang: Lang = 'ko';
+const t = useTranslations(lang);
+const g = gamesUi[lang];
+const h = homeKo;
+
+const alternates = Object.fromEntries(
+  (Object.keys(languages) as Lang[]).map((l) => [l, localizeUrl('/', l)])
+) as Partial<Record<Lang, string>>;
+
+// ── 실물 세기 ────────────────────────────────────────────────
+const posts = (await getCollection('blog'))
+  .filter((p) => p.data.lang === lang)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const all = gamesFor(lang);
+const kidsGames = kidsGameSlugs
+  .map((slug) => all.find((x) => x.slug === slug))
+  .filter(Boolean) as typeof all;
+// ⚠️'무료 게임'은 목록으로 적지 않고 **나머지 전부**로 잡는다. 게임을 하나 추가했을 때
+//   목록 두 곳을 고쳐야 한다면 언젠가 한 곳을 빠뜨린다.
+const funGames = all.filter((x) => !kidsGameSlugs.includes(x.slug));
+
+const counts = {
+  shops: String(shops.length),
+  posts: String(posts.length),
+  kids: String(kidsGames.length),
+  fun: String(funGames.length),
+};
+const fill = (s: string) =>
+  s.replace(/\{(shops|posts|kids|fun)\}/g, (_, k: keyof typeof counts) => counts[k]);
+
+// ── 섹션별로 보여줄 것 ───────────────────────────────────────
+const shopCards = shops.slice(0, 6).map((shop) => {
+  const c = shopCopy(shop, lang);
+  return {
+    slug: shop.slug,
+    url: shopUrl(shop.slug, lang),
+    cover: shop.cover,
+    name: c.name,
+    tagline: c.tagline,
+    location: shopLocation(shop, lang),
+    trade: shopCategoryText(shop, lang),
+  };
+});
+const kidsShown = kidsGames.slice(0, 4);
+const funShown = funGames.slice(0, 4);
+const latest = posts.slice(0, 4);
+
+const contactUrl = localizeUrl('/contact/', lang);
+const shopsUrl = localizeUrl('/shops/', lang);
+const blogIndexUrl = localizeUrl('/blog/', lang);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: SITE_NAME,
+  alternateName: t('site_alias'),
+  url: 'https://menewsoft.com/',
+  description: h.metaDescription,
+  areaServed: 'KR',
+  knowsAbout: ['AI', '웹게임 개발', '소상공인 홈페이지 제작', '아동 학습 게임'],
+};
+---
+<BaseLayout
+  lang={lang}
+  titleFull={`${h.metaTitle} — ${SITE_NAME}`}
+  description={h.metaDescription}
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <!-- HERO -->
+  <section class="dir-hero">
+    <div class="wrap">
+      <p class="kicker">{h.kicker}</p>
+      <h1>{h.title}</h1>
+      <p class="dir-sub">{h.sub}</p>
+      <div class="dir-actions">
+        <a class="btn" href={contactUrl}>{h.ctaPrimary}</a>
+        <a class="dir-ghost" href="#games">{h.ctaSecondary} ↓</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 하는 일 네 가지 -->
+  <section class="pillars">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label">{h.pillarsLabel}</p>
+      </div>
+      <p class="pillars-note">{h.pillarsNote}</p>
+      <div class="pillar-grid">
+        {pillarsKo.map((p) => (
+          <article class="pillar">
+            <div class="pillar-top">
+              <span class="pillar-mark">{p.mark}</span>
+              <span class="pillar-label">{p.label}</span>
+            </div>
+            <h3>{p.title}</h3>
+            <p class="pillar-body">{p.body}</p>
+            <p class="pillar-proof">{fill(p.proof)}</p>
+            <a class="pillar-cta" href={localizeUrl(p.href, lang)}>{p.cta}<span>→</span></a>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 만들어 드린 가게 -->
+  {shopCards.length > 0 && (
+    <section class="home-shops">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="section-label">{h.shopsLabel}</p>
+          <a class="more-link" href={shopsUrl}>{h.shopsMore} →</a>
+        </div>
+        {/* ⚠️등록이 3곳 미만이면 `sparse` 가 첫 카드를 전폭으로 키운다 — 빈 칸이 생기지 않게 */}
+        <div class={`shop-grid${shops.length < 3 ? ' sparse' : ''}`}>
+          {shopCards.map((card) => (
+            <article class="shop-card">
+              <a class="shop-cover" href={card.url}>
+                <img src={card.cover} alt={card.name} loading="lazy" />
+                <span class="shop-place">{card.location}</span>
+              </a>
+              <div class="shop-body">
+                <p class="shop-meta">{card.trade}</p>
+                <h3><a href={card.url}>{card.name}</a></h3>
+                <p class="shop-tagline">{card.tagline}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+        <ul class="promise-row" aria-label={h.promiseLabel}>
+          {h.promise.map((line) => <li>{line}</li>)}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <!-- 아이 맞춤 학습 게임 -->
+  <section class="home-games" id="games">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label">{h.kidsLabel}</p>
+        <a class="more-link" href={gamesIndexUrl(lang)}>{h.kidsMore} →</a>
+      </div>
+      <p class="pillars-note">{h.kidsBody}</p>
+      <div class="hgame-grid">
+        {kidsShown.map((game) => {
+          const c = copyFor(game, lang);
+          return (
+            <div class="hgame-card">
+              <a class="hgame-cover" href={playerUrl(game.slug, lang)} target="_blank" rel="noopener" title={g.newTabNote}>
+                <img src={game.cover} alt={c.title} loading="lazy" />
+                <span class="play-overlay">▶</span>
+              </a>
+              <div class="hgame-body">
+                <h3><a href={playerUrl(game.slug, lang)} target="_blank" rel="noopener">{c.title}</a></h3>
+                <div class="hgame-actions">
+                  <a class="playlink" href={playerUrl(game.slug, lang)} target="_blank" rel="noopener">{t('play_label')}</a>
+                  <a class="infolink" href={gameUrl(game.slug, lang)}>{t('about_game')}</a>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- 무료 웹게임 -->
+  <section class="home-games alt">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label">{h.funLabel}</p>
+        <a class="more-link" href={gamesIndexUrl(lang)}>{h.funMore} →</a>
+      </div>
+      <p class="pillars-note">{h.funBody}</p>
+      <div class="hgame-grid">
+        {funShown.map((game) => {
+          const c = copyFor(game, lang);
+          return (
+            <div class="hgame-card">
+              <a class="hgame-cover" href={playerUrl(game.slug, lang)} target="_blank" rel="noopener" title={g.newTabNote}>
+                <img src={game.cover} alt={c.title} loading="lazy" />
+                <span class="play-overlay">▶</span>
+              </a>
+              <div class="hgame-body">
+                <h3><a href={playerUrl(game.slug, lang)} target="_blank" rel="noopener">{c.title}</a></h3>
+                <div class="hgame-actions">
+                  <a class="playlink" href={playerUrl(game.slug, lang)} target="_blank" rel="noopener">{t('play_label')}</a>
+                  <a class="infolink" href={gameUrl(game.slug, lang)}>{t('about_game')}</a>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- 기술 글 -->
+  {latest.length > 0 && (
+    <section class="home-posts">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="section-label">{h.postsLabel}</p>
+          <a class="more-link" href={blogIndexUrl}>{h.postsMore} →</a>
+        </div>
+        <p class="pillars-note">{h.postsBody}</p>
+        <ul class="post-list compact">
+          {latest.map((post) => (
+            <li>
+              <a class="post-row" href={blogUrl(post.data.key, lang)}>
+                <h3>{post.data.title}</h3>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <!-- 문의 -->
+  <section class="dir-sell">
+    <div class="wrap">
+      <div class="sell-panel">
+        <h2>{h.contactTitle}</h2>
+        <p>{h.contactBody}</p>
+        <a class="btn" href={contactUrl}>{h.contactBtn}</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

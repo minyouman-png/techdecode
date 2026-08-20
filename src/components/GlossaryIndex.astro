@@ -24,7 +24,7 @@ const groups = glossaryCategoryOrder.map((cat) => ({
   terms: glossaryTerms.filter((t) => t.category === cat),
 }));
 ---
-<BaseLayout lang={lang} title={g.pageTitle} description={g.metaDescription} alternates={alternates} noindex={true}>
+<BaseLayout lang={lang} title={g.pageTitle} description={g.metaDescription} alternates={alternates}>
   <section class="glossary-hero">
     <div class="wrap">
       <p class="kicker">{g.kicker}</p>

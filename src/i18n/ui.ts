@@ -26,6 +26,11 @@ export const htmlLang: Record<string, string> = {
 
 export const ui = {
   en: {
+    /* ── 한국어 외 언어의 홈(Landing.astro) ── */
+    intl_kicker: 'WEB GAMES · AI, BUILT AND TESTED',
+    intl_title: 'Games we built with AI — free to play, nothing to install.',
+    intl_sub:
+      'MeNew Soft is a one-person studio in Wonju, South Korea. We build browser games with AI and write up what actually worked and what did not. Everything here runs in the browser — no install, no account, no ads to sit through.',
     tagline: 'Web pages for neighbourhood shops — built, and kept up to date.',
     metaDescription:
       'MeNew Soft (menewsoft.com) builds web pages for small neighbourhood businesses in Korea. Browse listed shops by area and trade, and follow news from the shops we list.',
@@ -125,9 +130,14 @@ export const ui = {
     play_desc: 'Web games we built ourselves. No install — they run in the browser.',
   },
   ko: {
-    tagline: '동네 가게의 홈페이지를 만들어 드립니다 — 만들고, 소식까지 이어서.',
+    /* ── 한국어 외 언어의 홈에서만 쓰는 키(ko 는 StudioHome 을 쓴다) ── */
+    intl_kicker: '웹게임 · AI로 만들고 확인한 것',
+    intl_title: 'AI로 만든 게임 — 설치 없이 무료로.',
+    intl_sub:
+      '미뉴소프트는 강원 원주의 1인 스튜디오입니다. AI로 브라우저 게임을 만들고, 만들면서 되는 것과 안 되는 것을 글로 남깁니다.',
+    tagline: 'AI로 만듭니다 — 가게 홈페이지, 기술 글, 아이 맞춤 학습 게임, 무료 웹게임.',
     metaDescription:
-      '미뉴소프트(menewsoft.com) — 동네 가게·소상공인 홈페이지 제작. 지역과 업종으로 등록 업체를 찾아보고, 등록된 가게의 소식을 확인할 수 있습니다. 원주에서 시작해 강원·경기·서울로.',
+      '미뉴소프트(menewsoft.com)는 AI로 만듭니다 — 동네 가게 홈페이지 제작, AI 기술 글, 아이 맞춤 학습 게임 개발, 그리고 누구나 무료로 하는 웹게임. 강원 원주에서 시작했습니다.',
     nav_home: '홈',
     nav_about: '소개',
     nav_contact: '문의',
@@ -160,7 +170,7 @@ export const ui = {
     topic_reg: '규제·반독점',
     search_label: '웹 검색',
     lang_label: '언어',
-    footer_note: '동네 가게의 홈페이지를 만듭니다. 등록 내용이 틀렸다면 알려주세요.',
+    footer_note: 'AI로 만듭니다 — 가게 홈페이지·학습 게임·웹게임. 등록 내용이 틀렸다면 알려주세요.',
     visitors_today: '오늘', visitors_total: '전체',
     site_alias: '미뉴소프트',
     empty: '새로운 분석을 준비 중입니다.',
@@ -179,7 +189,7 @@ export const ui = {
     play_label: '▶ 플레이',
     about_game: '소개',
     archive_title: '전체 글',
-    archive_desc: 'Tech Decode의 모든 글 — AI 트렌드, 기업 리서치, 시장 분석.',
+    archive_desc: '미뉴소프트의 모든 글 — AI로 실제로 만들어 보며 확인한 것들.',
     related_label: '이어서 읽기',
     break_label: '잠깐 쉬어가기 — AI가 만든 게임 한 판',
     weekly_label: '이번 주 도전과제',
@@ -224,6 +234,11 @@ export const ui = {
     play_desc: '미뉴소프트가 직접 만든 웹 게임입니다. 설치 없이 브라우저에서 바로 즐기세요.',
   },
   ja: {
+    /* ── 日本語ホーム(Landing.astro) ── */
+    intl_kicker: 'ウェブゲーム · AIで作って確かめる',
+    intl_title: 'AIで作ったゲーム — インストール不要、無料で。',
+    intl_sub:
+      'MeNew Soft は韓国・原州の一人スタジオです。AI でブラウザゲームを作り、実際にできたこと・できなかったことを記事にしています。インストールも登録も広告視聴も要りません。',
     tagline: '街のお店のホームページを作ります — 作って、その後のお知らせまで。',
     metaDescription: 'MeNew Soft(menewsoft.com)は韓国の街の小さなお店のホームページを制作します。地域と業種で登録店舗を探し、登録店舗のお知らせを確認できます。',
     nav_home: 'ホーム',
@@ -310,6 +325,11 @@ export const ui = {
     play_desc: '自分たちで作ったウェブゲームです。インストール不要、ブラウザですぐ遊べます。',
   },
   es: {
+    /* ── Inicio en español (Landing.astro) ── */
+    intl_kicker: 'JUEGOS WEB · IA, PROBADA AL CONSTRUIR',
+    intl_title: 'Juegos hechos con IA — gratis y sin instalar nada.',
+    intl_sub:
+      'MeNew Soft es un estudio de una persona en Wonju, Corea del Sur. Creamos juegos de navegador con IA y escribimos qué funcionó de verdad y qué no. Todo corre en el navegador: sin instalación, sin cuenta y sin anuncios que aguantar.',
     tagline: 'Páginas web para locales de barrio — las hacemos y las mantenemos vivas.',
     metaDescription: 'MeNew Soft (menewsoft.com) crea páginas web para pequeños locales de barrio en Corea. Explora los locales registrados por zona y sector, y sigue sus novedades.',
     nav_home: 'Inicio',
@@ -396,6 +416,11 @@ export const ui = {
     play_desc: 'Juegos web hechos por nosotros. Sin instalar nada: se juegan en el navegador.',
   },
   zh: {
+    /* ── 中文首页 (Landing.astro) ── */
+    intl_kicker: '网页游戏 · 用 AI 做出来并验证',
+    intl_title: '用 AI 做的游戏 — 免费，无需安装。',
+    intl_sub:
+      'MeNew Soft 是韩国原州的一人工作室。我们用 AI 制作浏览器游戏，并把真正可行与不可行的部分写成文章。全部在浏览器中运行，无需安装、无需注册、没有必看广告。',
     tagline: '为街边小店制作网页 — 做好之后，动态也一并打理。',
     metaDescription: 'MeNew Soft（menewsoft.com）为韩国街边小店制作网页。可按地区和行业浏览已登记商家，并查看他们的动态。',
     nav_home: '首页',

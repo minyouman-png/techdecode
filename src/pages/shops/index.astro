@@ -1,6 +1,8 @@
 ---
-// ⚠️`/shops/` 는 홈(`/`)과 같은 디렉토리다. 예전에 배포된 링크(`/ko/shops/` 등)가 404 나지
-// 않도록 남겨두되, 색인은 홈이 대표가 되도록 canonical 을 홈으로 보내고 noindex 를 건다.
+// 등록 업체 디렉토리 — **이 페이지가 대표 주소다**(2026-08-20).
+// ⚠️예전엔 홈(`/`)이 곧 디렉토리라 여기에 canonical=홈 + noindex 를 걸었다. 홈이 회사 소개로
+//   바뀌면서 그 관계가 뒤집혔다: 가게를 찾는 검색어는 이제 이 페이지가 받아야 한다.
+//   (astro.config 의 사이트맵 필터에서도 `/shops/` 제외를 함께 풀었다 — 둘은 세트다.)
 import ShopsDirectory from '../../components/ShopsDirectory.astro';
 ---
-<ShopsDirectory lang="ko" canonicalPath="/" noindex={true} />
+<ShopsDirectory lang="ko" />

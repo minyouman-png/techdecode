@@ -23,7 +23,7 @@ export default defineConfig({
   // ⚠️GitHub Pages 는 서버 리다이렉트가 없어서 Astro 가 meta refresh + canonical HTML 을 생성한다.
   redirects: {
     '/ko/': '/',
-    '/ko/shops/': '/',
+    '/ko/shops/': '/shops/',   // ⚠️2026-08-20: 홈이 아니라 가게 목록으로. 홈은 회사 소개가 됐다.
     '/ko/about/': '/about/',
     '/ko/contact/': '/contact/',
     '/ko/privacy/': '/privacy/',
@@ -40,24 +40,28 @@ export default defineConfig({
     '/ko/category/[slug]': '/category/[slug]',
   },
 
-  // ★격리 대상은 사이트맵에서도 뺀다.
-  // 블로그(AI·시장 분석)·용어사전·도구는 이제 이 사이트의 성격(업체 홈페이지 제작)과 무관하다.
-  // 링크만 지우고 사이트맵에 남겨두면 구글이 계속 그쪽으로 사이트를 이해하고, 다국어 대량
-  // 자동생성 페이지가 도메인 평가를 끌어내린다. noindex 와 세트로 간다.
   // ⚠️**noindex 인 페이지는 사이트맵에도 넣지 않는다.** 둘이 어긋나면 서치콘솔이
   //   '제출된 URL 이 noindex 처리됨' 오류로 잡는다(예전에 `/apps/*` 로 한 번 겪은 실수).
-  //   그래서 아래 목록은 noindex 를 건 곳과 정확히 같아야 한다:
-  //   블로그·카테고리·용어사전·도구(격리) · `/apps/*`(랜딩이 대표) · `/play/*`(상세가 대표)
-  //   · `/shops/`(홈이 대표) · `/shops/admin`(가게 전용 작성기).
-  //   `/shops/<slug>/` 는 색인 대상이므로 index 페이지만 정확히 제외한다.
+  //   그래서 아래 목록은 noindex 를 건 곳과 **정확히 같아야 한다.**
+  //
+  // ★2026-08-20: 블로그·용어사전·도구를 **다시 넣었다**(2026-08-05에 격리했던 것).
+  //   사이트가 'AI로 여러 사업을 하는 곳'으로 넓어지면서 'AI 기술 소개'가 사업 한 축이 됐고,
+  //   글이 색인되지 않으면 그 축은 검색에 존재하지 않는다. Header·Footer 링크 복귀,
+  //   각 컴포넌트의 noindex 해제와 **세트**로 움직인 변경이다.
+  //   ⚠️단, `/category/*` 는 계속 뺀다 — 글 목록을 다시 늘어놓기만 하는 얇은 페이지라
+  //     같은 글이 여러 주소로 색인되는 쪽 손해가 더 크다.
+  //
+  //   남는 제외 대상: `/category/*`(얇은 목록) · `/apps/*`(랜딩이 대표)
+  //   · `/play/*`(게임 상세가 대표) · `/shops/admin`(가게 전용 작성기).
+  //   ⚠️`/shops/` 제외도 함께 풀었다 — 홈이 더는 가게 목록이 아니라서 이제 **`/shops/` 가
+  //     가게 디렉토리의 대표 주소**다(src/pages/shops/index.astro 와 세트).
   integrations: [
     sitemap({
       filter: (page) => {
         const p = new URL(page).pathname;
-        if (/\/(blog|glossary|tools|category)(\/|$)/.test(p)) return false;
+        if (/\/category(\/|$)/.test(p)) return false;
         if (p.startsWith('/apps/') || p.startsWith('/play/')) return false;
         if (p.includes('/shops/admin')) return false;
-        if (/^\/([a-z]{2}\/)?shops\/$/.test(p)) return false; // 목록만 제외, 개별 가게는 유지
         return true;
       },
     }),

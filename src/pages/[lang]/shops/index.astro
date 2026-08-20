@@ -1,7 +1,7 @@
 ---
+// 등록 업체 디렉토리(한국어 외 언어). 2026-08-20부터 이 페이지가 각 언어의 대표 주소다.
 import ShopsDirectory from '../../../components/ShopsDirectory.astro';
 import { languages, defaultLang, type Lang } from '../../../i18n/ui';
-import { localizeUrl } from '../../../i18n/utils';
 
 export function getStaticPaths() {
   return (Object.keys(languages) as Lang[])
@@ -10,4 +10,4 @@ export function getStaticPaths() {
 }
 const { lang } = Astro.props;
 ---
-<ShopsDirectory lang={lang} canonicalPath={localizeUrl('/', lang)} noindex={true} />
+<ShopsDirectory lang={lang} />
