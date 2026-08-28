@@ -1,6 +1,7 @@
 // AI 용어사전: 용어 레지스트리 + 언어별 정의.
 // 새 용어 추가 시 terms 배열에 항목을 추가하면 인덱스/상세 페이지가 자동 생성된다.
 import type { Lang } from './ui';
+import { localizeUrl } from './utils';
 
 /* ===== 섹션 공통 문자열 ===== */
 export const glossaryUi: Record<Lang, Record<string, string>> = {
@@ -1039,9 +1040,14 @@ export const glossaryTerms: GlossaryEntry[] = [
 export function glossaryTerm(slug: string): GlossaryEntry | undefined {
   return glossaryTerms.find((g) => g.slug === slug);
 }
+// ⚠️★2026-08-28: `games.ts` 와 **같은 버그**였다. 기본 언어가 en → **ko** 로 바뀐 게 2026-08-05 인데
+//   이 두 함수만 옛 규칙(`en` 이 접두사 없음)이 하드코딩된 채 남아 있었다. 두 가지가 동시에 깨진다:
+//     · ko → `/ko/glossary/...` = 지금은 **meta refresh 리다이렉트** 페이지다(느리고 크롤 낭비)
+//     · en → `/glossary/...`   = **한국어 페이지**다. 영어 방문자가 한글 화면에 떨어졌다
+//   `blogUrl`·`shopUrl`·`gameUrl` 이 쓰는 `localizeUrl` 과 같은 규칙으로 통일한다.
 export function glossaryUrl(slug: string, lang: Lang): string {
-  return lang === 'en' ? `/glossary/${slug}/` : `/${lang}/glossary/${slug}/`;
+  return localizeUrl(`/glossary/${slug}/`, lang);
 }
 export function glossaryIndexUrl(lang: Lang): string {
-  return lang === 'en' ? '/glossary/' : `/${lang}/glossary/`;
+  return localizeUrl('/glossary/', lang);
 }

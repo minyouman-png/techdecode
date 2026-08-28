@@ -197,3 +197,66 @@ h2.ttl span { display: block; font-size: 12px; color: #8ea0c8; font-weight: 700;
   #introBody .top { grid-template-columns: 116px 1fr; }
   #introBody .top img { width: 116px; height: 166px; }
 }
+
+/* ============================================================
+   대사 · 막 · 이야기 화면 (2026-08-21)
+   ★대사 화면은 **말하는 사람이 누구인지**가 한눈에 보여야 한다. 말하는 쪽만 밝고 크게,
+     듣는 쪽은 어둡게 뒤로 물린다(이게 없으면 두 얼굴이 나란히 서 있기만 하다).
+   ============================================================ */
+#dlgWrap { position: relative; width: min(940px, 96vw); display: flex; align-items: flex-end;
+  justify-content: space-between; gap: 8px; padding-bottom: 148px; min-height: 46vh; }
+.dlgSide { position: relative; text-align: center; opacity: .45; filter: grayscale(.55) brightness(.7);
+  transform: translateY(10px) scale(.94); transition: all .22s ease; }
+.dlgSide.on { opacity: 1; filter: none; transform: translateY(0) scale(1); }
+.dlgSide img { width: clamp(132px, 30vw, 268px); height: auto; aspect-ratio: 832 / 1216;
+  object-fit: cover; object-position: top center; border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.18); box-shadow: 0 10px 30px rgba(0,0,0,.5);
+  background: rgba(255,255,255,.05); }
+.dlgSide.r img { transform: scaleX(-1); }              /* 오른쪽 사람은 마주 본다 */
+.dlgSide b { display: block; margin-top: 6px; font-size: 14px; color: #cfd8ee; }
+.dlgSide.on b { color: #ffd88a; }
+#dlgBox { position: absolute; left: 0; right: 0; bottom: 0; text-align: left;
+  background: rgba(9,12,22,.92); border: 1px solid rgba(255,255,255,.16); border-radius: 16px;
+  padding: 16px 20px 34px; min-height: 136px; box-shadow: 0 10px 34px rgba(0,0,0,.5); }
+#dlgWho { font-size: 15px; font-weight: 900; color: #ffd06a; margin-bottom: 6px; }
+#dlgText { font-size: clamp(16px, 2.4vw, 21px); line-height: 1.75; color: #eef1f8; min-height: 2.4em; }
+#dlgBox.narration #dlgText { color: #9fb0d4; font-style: italic; }
+#dlgHint { position: absolute; right: 14px; bottom: 10px; font-size: 11px; color: #6d7d9f; }
+
+#chTag { font-size: 12px; letter-spacing: .28em; color: #8ea0c8; font-weight: 800; margin-bottom: 6px; }
+#chBody { width: min(720px, 94vw); text-align: left; background: rgba(12,16,28,.72);
+  border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 16px 20px;
+  max-height: 58vh; overflow-y: auto; }
+#chBody p { margin: 0 0 10px; font-size: 14.5px; line-height: 1.9; color: #c6d2e8; }
+#chBody p:last-child { margin-bottom: 0; }
+#chBody b { color: #ffd88a; }
+
+#storyWrap { display: grid; grid-template-columns: 190px 1fr; gap: 12px;
+  width: min(900px, 96vw); max-height: 70vh; }
+#storyList { overflow-y: auto; display: grid; gap: 6px; align-content: start; padding-right: 4px; }
+#storyBody { overflow-y: auto; text-align: left; background: rgba(12,16,28,.72);
+  border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 14px 16px; }
+#storyBody h3 { margin: 0 0 6px; font-size: 21px; color: #fff; font-weight: 900; }
+#storyBody h4 { margin: 14px 0 4px; color: #9fd8ff; font-size: 13px; }
+#storyBody .top { display: grid; grid-template-columns: 132px 1fr; gap: 14px; }
+#storyBody .top img { width: 132px; height: 190px; object-fit: cover; object-position: top center;
+  border-radius: 12px; border: 1px solid rgba(255,255,255,.18); }
+#storyBody .job { color: #ffd88a; font-size: 13px; font-weight: 700; }
+#storyBody .cry { color: #9fd8ff; font-size: 13px; margin-top: 6px; }
+#storyBody .story p { margin: 0 0 8px; color: #c6d2e8; font-size: 13.5px; line-height: 1.85; }
+#storyBody .story b { color: #ffd88a; }
+#storyBody .story.ending p { color: #d9c9a6; }
+#storyBody .locked { color: #6d7d9f; font-size: 13px; }
+@media (max-width: 700px) {
+  #storyWrap { grid-template-columns: 1fr; max-height: 74vh; }
+  #storyList { grid-auto-flow: column; grid-auto-columns: 132px; overflow-x: auto; overflow-y: hidden; }
+  #storyBody .top { grid-template-columns: 104px 1fr; }
+  #storyBody .top img { width: 104px; height: 150px; }
+  #dlgWrap { padding-bottom: 158px; }
+}
+
+/* 필살기 버튼 — 다른 버튼과 색이 달라야 '이건 특별한 버튼'으로 읽힌다 */
+#tSP { right: 22px; bottom: 166px; width: 74px; height: 56px; font-size: 15px;
+  background: rgba(180,110,20,.55); border-color: rgba(255,208,106,.75); color: #ffe9b8; }
+#tSP.on { background: rgba(255,208,106,.6); color: #2a1c05; }
+.keys b.hot { color: #ffb347; }

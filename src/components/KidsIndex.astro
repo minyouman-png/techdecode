@@ -1,0 +1,224 @@
+---
+// 아이 맞춤 학습 게임 모음 (`/kids/`) — 한국어 전용.
+//
+// 이 페이지의 목적은 하나다: **커뮤니티·카페에 링크 한 줄로 건넬 자리.**
+// 그래서 순서가 `/games/` 와 다르다 — 신뢰 조건(가입·광고·설치 없음)을 맨 위에 두고,
+// 그 다음이 '틀려도 잃는 것이 없다'는 설계 원칙이며, 게임 목록은 그 뒤다.
+// 부모가 확인하려는 것이 그 순서이기 때문이다.
+//
+// ⚠️게임 목록의 원본은 `src/i18n/kids.ts` 의 `kidsGroups` 하나뿐이다. 여기에 슬러그를
+//   직접 적지 않는다(홈의 아이 게임 목록도 같은 원본을 쓴다).
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { gamesFor, copyFor, gameUrl, playerUrl } from '../i18n/games';
+import { kidsGroups, kidsGameSlugs, kidsCopy as k } from '../i18n/kids';
+
+const lang = 'ko' as const;
+const all = gamesFor(lang);
+const byslug = new Map(all.map((g) => [g.slug, g]));
+
+// ⚠️레지스트리에 없는 슬러그는 조용히 버린다 — 게임을 지웠을 때 빌드가 죽는 대신
+//   그 자리만 빠지게 한다. 개수도 '실제로 보여 준 것'으로 센다(적어 둔 숫자는 언젠가 거짓말이 된다).
+const groups = kidsGroups
+  .map((g) => ({
+    ...g,
+    games: g.slugs.map((s) => byslug.get(s)).filter(Boolean) as typeof all,
+  }))
+  .filter((g) => g.games.length > 0);
+const shownCount = groups.reduce((a, g) => a + g.games.length, 0);
+const missing = kidsGameSlugs.filter((s) => !byslug.has(s));
+if (missing.length) console.warn('[kids] 레지스트리에 없는 슬러그:', missing.join(', '));
+
+const lead = k.lead.replace('{count}', String(shownCount));
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: k.title,
+  description: k.metaDesc,
+  numberOfItems: shownCount,
+  itemListElement: groups.flatMap((g) => g.games).map((game, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: copyFor(game, lang).title,
+    url: new URL(gameUrl(game.slug, lang), Astro.site).href,
+  })),
+};
+---
+<BaseLayout
+  lang={lang}
+  titleFull={k.metaTitle}
+  description={k.metaDesc}
+  jsonLd={jsonLd}
+>
+  <section class="kids-hero">
+    <div class="wrap">
+      <p class="kicker">{k.kicker}</p>
+      <h1>{k.title}</h1>
+      <p class="lead">{lead}</p>
+      <ul class="badges">
+        {k.badges.map((b) => (
+          <li><span class="bmark">{b.mark}</span>{b.text}</li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="kids-rules">
+    <div class="wrap">
+      <h2>{k.rulesTitle}</h2>
+      <div class="rule-grid">
+        {k.rules.map(([head, body]) => (
+          <div class="rule">
+            <h3>{head}</h3>
+            <p>{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="kids-list">
+    <div class="wrap">
+      <h2>{k.groupsTitle}</h2>
+      {groups.map((g) => (
+        <div class="group">
+          <div class="group-head">
+            <h3>{g.label}<span class="gcount">{g.games.length}</span></h3>
+            <p>{g.note}</p>
+          </div>
+          <div class="kgrid">
+            {g.games.map((game) => {
+              const c = copyFor(game, lang);
+              return (
+                <div class="kcard">
+                  <a class="kcover" href={playerUrl(game.slug, lang)} target="_blank" rel="noopener">
+                    <img src={game.cover} alt={c.title} loading="lazy" />
+                    <span class="play-overlay">▶</span>
+                  </a>
+                  <div class="kbody">
+                    <h4><a href={playerUrl(game.slug, lang)} target="_blank" rel="noopener">{c.title}</a></h4>
+                    <p class="ktag">{c.tagline}</p>
+                    <div class="kactions">
+                      <a class="playlink" href={playerUrl(game.slug, lang)} target="_blank" rel="noopener">{k.play}</a>
+                      <a class="infolink" href={gameUrl(game.slug, lang)}>{k.about}</a>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="kids-learn">
+    <div class="wrap">
+      <div class="learn-box">
+        <div>
+          <h2>{k.learnTitle}</h2>
+          <p>{k.learnBody}</p>
+        </div>
+        <a class="learn-cta" href="/learn/">{k.learnCta}</a>
+      </div>
+      <p class="footnote">{k.footnote}</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .kids-hero { padding: 72px 0 10px; }
+  .kicker {
+    font-size: 11px; letter-spacing: 0.14em; font-weight: 700;
+    color: var(--accent); margin: 0 0 12px; text-transform: uppercase;
+  }
+  .kids-hero h1 {
+    font-family: var(--serif); font-weight: 600; font-size: clamp(2rem, 4.5vw, 3rem);
+    color: var(--fg-strong); margin: 0 0 18px; letter-spacing: -0.01em;
+  }
+  .lead { max-width: var(--readw); color: var(--muted); font-size: 1.08rem; margin: 0 0 22px; }
+
+  .badges { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .badges li {
+    display: inline-flex; align-items: center; gap: 7px;
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    color: var(--fg-strong); font-size: 0.92rem; font-weight: 600;
+    border-radius: 20px; padding: 7px 15px;
+  }
+  .bmark { color: var(--accent); font-weight: 700; }
+
+  .kids-rules { padding: 48px 0 8px; }
+  .kids-rules h2, .kids-list h2 {
+    font-family: var(--serif); font-size: 1.5rem; font-weight: 600;
+    color: var(--fg-strong); margin: 0 0 20px;
+  }
+  .rule-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+  .rule {
+    border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px;
+    background: color-mix(in srgb, var(--fg-strong) 3%, transparent);
+  }
+  .rule h3 { font-size: 1rem; font-weight: 600; color: var(--fg-strong); margin: 0 0 8px; }
+  .rule p { margin: 0; color: var(--muted); font-size: 0.94rem; line-height: 1.65; }
+
+  .kids-list { padding: 48px 0 20px; }
+  .group { margin-bottom: 46px; }
+  .group-head { margin-bottom: 18px; }
+  .group-head h3 {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 1.18rem; font-weight: 700; color: var(--fg-strong); margin: 0 0 6px;
+  }
+  .gcount {
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+    border-radius: 20px; padding: 1px 9px; font-variant-numeric: tabular-nums;
+  }
+  .group-head p { margin: 0; color: var(--muted); font-size: 0.95rem; max-width: var(--readw); }
+
+  .kgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
+  .kcard {
+    display: flex; flex-direction: column;
+    border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+    background: color-mix(in srgb, var(--fg-strong) 3%, transparent);
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .kcard:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+  .kcover { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; background: #1a2433; }
+  .kcover img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .25s ease; }
+  .kcard:hover .kcover img { transform: scale(1.04); }
+  .play-overlay {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 42px; color: #fff; background: rgba(8,10,18,0.35);
+    opacity: 0; transition: opacity .2s ease; text-shadow: 0 2px 14px rgba(0,0,0,0.6);
+  }
+  .kcover:hover .play-overlay { opacity: 1; }
+  .kbody { padding: 16px 18px 18px; display: flex; flex-direction: column; flex: 1; }
+  .kbody h4 { font-family: var(--serif); font-size: 1.18rem; font-weight: 600; color: var(--fg-strong); margin: 0 0 8px; }
+  .kbody h4 a { color: inherit; }
+  .kbody h4 a:hover { color: var(--accent); }
+  .ktag { color: var(--muted); font-size: 0.92rem; margin: 0 0 14px; flex: 1; line-height: 1.6; }
+  .kactions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .playlink { color: var(--accent); font-weight: 600; font-size: 15px; }
+  .infolink { color: var(--muted); font-size: 13.5px; }
+  .infolink:hover { color: var(--fg-strong); }
+
+  .kids-learn { padding: 12px 0 90px; }
+  .learn-box {
+    display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+    border: 1px solid var(--border); border-radius: 14px; padding: 24px 26px;
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+  }
+  .learn-box h2 { margin: 0 0 8px; font-size: 1.25rem; }
+  .learn-box p { margin: 0; color: var(--muted); font-size: 0.96rem; max-width: 52ch; }
+  .learn-cta {
+    white-space: nowrap; font-weight: 600; color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--border));
+    border-radius: 10px; padding: 11px 18px;
+  }
+  .learn-cta:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .footnote { margin: 22px 0 0; color: var(--muted); font-size: 0.9rem; max-width: var(--readw); line-height: 1.7; }
+</style>

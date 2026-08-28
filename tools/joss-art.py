@@ -57,7 +57,8 @@ CHARS = [
     # ⚠️'안경'은 준원 것이다 — 여기서 안경이 붙으면 두 사람이 헷갈린다
     ("inwoo",    "tired Korean man in his thirties, no glasses, short messy black hair, wrinkled grey work shirt, dark circles under his eyes, holding a baby bottle, faint warm smile, young father"),
     ("nodeok",   "athletic Korean man in a yellow sports jersey with a headband, sepak takraw player, ready stance"),
-    ("gilsu",    "middle aged Korean man in an amateur sunday league soccer kit, weathered face, short hair, strong legs, slightly out of shape, veteran confidence, dawn football pitch behind"),
+    ("gilsu",    "middle aged Korean man upside down in mid air performing a bicycle kick, plain crimson red football shirt with a completely blank chest, "
+                 "white shorts, boot striking a football, mud and grass exploding below, misty dawn pitch, low dramatic angle, extreme motion"),
     ("dongsik",  "one middle aged Korean man standing, waist up, arms visible, thinning hair, big round belly, light blue dress shirt with loosened tie, rosy cheeks, cheerful drunk uncle, no glasses"),
     ("junwon",   "middle aged Korean man with glasses in a worn beige work shirt with oil stains, holding a strange handmade electronic device, cluttered garage workshop behind him, quiet genius inventor"),
     ("joss",     "wealthy Korean man in an expensive dark suit with red tie, slicked back hair, glasses, confident smirk"),
@@ -65,11 +66,42 @@ CHARS = [
     ("yujeong",  "Korean teenage girl in a navy school uniform with white collar, short bob hair, heavy school backpack, sullen annoyed expression, arms crossed, modest full school uniform"),
 ]
 
+# ── 초필살기 컷인 일러스트 (2026-08-21) ─────────────────────────────────────
+# ★컷인은 초상과 다르다. 초상은 '누구인가', 컷인은 **'지금 무슨 짓을 하는가'**다.
+#   그래서 정면 상반신이 아니라 **기술을 쓰는 한순간**을 그린다(팔이 뻗어 있고 빛이 터진다).
+# ⚠️게임 화면 위에 비스듬한 판으로 얹히므로 가장자리는 잘린다 — 인물을 가운데에 크게.
+SUPER_SUFFIX = (", solo, single character, dynamic action pose, extreme dramatic angle, "
+                "fighting game super move cut-in, glowing rim light, speed lines, "
+                "dark background, painterly anime illustration, highly detailed, cinematic")
+SUPER_NEG = CHAR_NEG + (", full body, wide shot, small figure, static pose, calm, standing still, portrait, logo, brand mark, sponsor logo, swoosh, jersey number")
+
+SUPERS = [
+    ("minyu",    "young Korean man in a blue hoodie, short black hair, shouting, both palms thrust forward, "
+                 "torrent of glowing blue code and red error text erupting from his hands, laptop light behind him"),
+    ("jongbeom", "Korean postal worker in navy uniform and cap charging forward shoulder first, "
+                 "huge tower of brown parcels flying behind him, motion blur, fierce shout"),
+    ("inwoo",    "tired Korean man in a wrinkled grey work shirt, no glasses, lunging forward low with one arm swung wide, "
+                 "network cables whipping like whips around him, crackling blue electricity and sparks, diagonal composition, motion blur"),
+    ("nodeok",   "athletic Korean man in a yellow jersey and headband leaping high, twisting to smash a ball downward, "
+                 "several rattan balls trailing fire, dust exploding below"),
+    ("gilsu",    "middle aged Korean man upside down in mid air performing a bicycle kick, plain crimson red football shirt with a completely blank chest, "
+                 "white shorts, boot striking a football, mud and grass exploding below, misty dawn pitch, low dramatic angle, extreme motion"),
+    ("dongsik",  "heavy middle aged Korean man with thinning hair and a big round belly, light blue dress shirt with loosened tie, "
+                 "roaring, swinging a green glass soju bottle down onto the floor, wooden floor cracking, shockwave ring of dust, low angle"),
+    ("junwon",   "middle aged Korean man with glasses in a beige work shirt pointing sternly forward, "
+                 "a wall of glowing blue documents and stamped papers surging away from his hand"),
+    ("joss",     "wealthy Korean man in a dark suit and red tie, slicked hair, glasses, smirking, "
+                 "hurling a briefcase open as a column of green banknotes erupts upward like a geyser"),
+    ("yujin",    "young Korean woman with long brown hair in a pink jacket, mid spin kick, "
+                 "trails of pink and gold stars swirling around her leg, casual modest outfit"),
+    ("yujeong",  "Korean teenage girl in a navy school uniform, short bob hair, swinging a heavy school backpack overhead, "
+                 "textbooks and worksheets flying everywhere, annoyed shout, modest full uniform"),
+]
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--what", choices=["stages", "chars"], required=True)
+    ap.add_argument("--what", choices=["stages", "chars", "supers"], required=True)
     ap.add_argument("--only", default="", help="쉼표로 고른 것만")
     ap.add_argument("--seed", type=int, default=7100)
     args = ap.parse_args()
@@ -94,6 +126,15 @@ def main() -> int:
               "guidance": 6.5, "negative": STAGE_NEG}
         names = keys
         prefix = "stage_"
+    elif args.what == "supers":
+        picks = [(k, p) for k, p in SUPERS if not only or k in only]
+        keys = [k for k, _ in picks]
+        items = [{"index": i, "prompt": p + SUPER_SUFFIX, "seed": args.seed + 900 + i * 31}
+                 for i, (k, p) in enumerate(picks)]
+        ic = {"model": MODEL, "width": 832, "height": 1216, "steps": 30,
+              "guidance": 6.5, "negative": SUPER_NEG}
+        names = keys
+        prefix = "super_"
     else:
         picks = [(k, p) for k, p in CHARS if not only or k in only]
         keys = [k for k, _ in picks]
@@ -121,7 +162,9 @@ def main() -> int:
             continue
         out = ART / f"{prefix}{name}.jpg"
         im = Image.open(src).convert("RGB")
-        im.save(out, "JPEG", quality=86, optimize=True)
+        if prefix == "super_":                      # 컷인은 화면에서 작게 쓴다 — 줄여서 담는다
+            im = im.resize((704, 1028), Image.LANCZOS)
+        im.save(out, "JPEG", quality=85, optimize=True)
         made.append(f"{out.name} {im.size[0]}x{im.size[1]} {out.stat().st_size // 1024}KB")
         src.unlink()
     print("✅ 저장:", *made, sep="\n  ")

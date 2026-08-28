@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>조스 오브 파이터즈</title>
-<link rel="stylesheet" href="fight.css?v=9">
+<link rel="stylesheet" href="fight.css?v=10">
 </head>
 <body>
   <canvas id="game"></canvas>
@@ -26,6 +26,7 @@
     <div class="tbtn" id="tHP">강손</div>
     <div class="tbtn" id="tLK">약발</div>
     <div class="tbtn" id="tHK">강발</div>
+    <div class="tbtn sp" id="tSP">필살</div>
   </div>
 
   <!-- 타이틀 -->
@@ -35,23 +36,28 @@
       열 명의 싸움꾼, 일곱 곳의 무대. 모든 대전은 <b>1:1</b>이고, 내가 고른 한 명 말고는
       전부 <b>CPU</b>가 잡습니다. 커맨드는 옛 오락실 그대로 — <b>↓↘→ + 손</b>으로 장풍,
       <b>→↓↘ + 손</b>으로 대공기, 게이지가 가득 차면 <b>초필살기</b>가 나갑니다.
+      커맨드가 어려우면 <b>필살기 버튼 L</b> 하나로도 다 나갑니다. 아케이드는 붙기 전마다
+      대사가 오가는 <b>이야기</b>로 이어집니다.
     </p>
     <div class="btnrow">
-      <button class="bigbtn" id="arcadeBtn">아케이드 — 아홉 명 연속</button>
+      <button class="bigbtn" id="arcadeBtn">아케이드 — 이야기 (아홉 명 연속)</button>
       <button class="graybtn" id="versusBtn">한 판 대전</button>
     </div>
     <div class="btnrow">
       <button class="graybtn" id="trainBtn">연습</button>
       <button class="graybtn" id="twoBtn">둘이서(한 키보드)</button>
       <button class="graybtn" id="introBtn">인물 소개</button>
+      <button class="graybtn" id="storyBtn">이야기</button>
       <button class="graybtn" id="howBtn">조작법</button>
       <button class="graybtn" id="mlBtn">기술표</button>
       <button class="graybtn" id="lvBtn">난이도 · 어려움</button>
       <button class="graybtn" id="bgmBtn">🎵 음악 · 켬</button>
     </div>
     <div class="keys">
-      <b>1P</b> 이동 <b>A D</b> · 앉기 <b>S</b> · 점프 <b>W</b> · 약손 <b>J</b> 강손 <b>K</b> 약발 <b>U</b> 강발 <b>I</b><br>
-      <b>2P</b> 방향키 · 약손 <b>1</b> 강손 <b>2</b> 약발 <b>4</b> 강발 <b>5</b>(숫자판) · 멈춤 <b>ESC</b><br>
+      <b>1P</b> 이동 <b>A D</b> · 앉기 <b>S</b> · 점프 <b>W</b> · 약손 <b>J</b> 강손 <b>K</b> 약발 <b>U</b> 강발 <b>I</b> · <b class="hot">필살기 L</b><br>
+      <b>2P</b> 방향키 · 약손 <b>1</b> 강손 <b>2</b> 약발 <b>4</b> 강발 <b>5</b> · <b class="hot">필살기 3</b>(숫자판) · 멈춤 <b>ESC</b><br>
+      <b class="hot">필살기 버튼</b> 커맨드를 못 넣어도 <b>L</b> 하나로 나갑니다 — 방향을 같이 누르면 기술이 바뀌고,
+      게이지가 가득 찼을 때 방향 없이 누르면 <b>초필살기</b>가 나갑니다<br>
       <b>막기</b> 버튼이 없습니다 — 상대 <b>반대쪽</b>을 누르고 있으면 막습니다<br>
       📱 폰·태블릿은 오른쪽 아래 🎮 를 누르면 화면 조작 버튼이 나옵니다 · 자세한 건 <b>조작법</b>
     </div>
@@ -99,6 +105,38 @@
     <div class="btnrow"><button class="graybtn" id="mlClose">닫기</button></div>
   </div>
 
+  <!-- 대사 (아케이드) -->
+  <div class="screen" id="dialog">
+    <div id="dlgWrap">
+      <div class="dlgSide" id="dlgSideL"><img id="dlgL" alt=""><b id="dlgNameL"></b></div>
+      <div class="dlgSide r" id="dlgSideR"><img id="dlgR" alt=""><b id="dlgNameR"></b></div>
+      <div id="dlgBox">
+        <div id="dlgWho"></div>
+        <div id="dlgText"></div>
+        <div id="dlgHint">클릭 · Enter — 계속</div>
+      </div>
+    </div>
+    <div class="btnrow"><button class="graybtn" id="dlgSkip">건너뛰기 →</button></div>
+  </div>
+
+  <!-- 막 — 프롤로그 · 마지막 상대 · 엔딩 -->
+  <div class="screen" id="chapter">
+    <div id="chTag"></div>
+    <h2 class="ttl" id="chTitle"></h2>
+    <div id="chBody"></div>
+    <div class="btnrow"><button class="bigbtn" id="chNext">계속</button></div>
+  </div>
+
+  <!-- 이야기 -->
+  <div class="screen" id="story">
+    <h2 class="ttl">이야기 <span>조스클럽과 그 대회</span></h2>
+    <div id="storyWrap">
+      <div id="storyList"></div>
+      <div id="storyBody"></div>
+    </div>
+    <div class="btnrow"><button class="graybtn" id="storyClose">닫기</button></div>
+  </div>
+
   <!-- 결과 -->
   <div class="screen" id="result">
     <canvas id="rArt" width="520" height="300"></canvas>
@@ -126,10 +164,11 @@
   <script>window.__errs = []; window.addEventListener('error', function (e) {
     window.__errs.push(e.message + ' @' + (e.filename || '').split('/').pop() + ':' + e.lineno);
   });</script>
-  <script src="anim.js?v=9"></script>
-  <script src="chars.js?v=9"></script>
-  <script src="stages.js?v=9"></script>
-  <script src="fight.js?v=9"></script>
-  <script src="ui.js?v=9"></script>
+  <script src="anim.js?v=10"></script>
+  <script src="chars.js?v=10"></script>
+  <script src="stages.js?v=10"></script>
+  <script src="story.js?v=10"></script>
+  <script src="fight.js?v=10"></script>
+  <script src="ui.js?v=10"></script>
 </body>
 </html>

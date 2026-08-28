@@ -9,19 +9,10 @@
 //   스페인어 홈은 `Landing.astro`(게임 + 기술 글)가 담당한다. 나중에 다른 언어로 넓힐 때는
 //   이 파일에 언어를 추가하고 `src/pages/<lang>/index.astro` 를 StudioHome 으로 바꾸면 된다.
 
-/** 아이 맞춤 게임 — 아이 이름·학년에 맞춰 만든 학습 게임. 나머지는 자동으로 '무료 게임'이 된다. */
-export const kidsGameSlugs = [
-  'yujin-math',
-  'suho-math',
-  'kkaebi-math',
-  'uja-science',
-  'uja-moral',
-  'kkaebi-science',
-  'kkaebi-moral',
-  'munju-piano',
-  'munju-math',
-  'munju-history',
-];
+/** 아이 맞춤 게임 — 아이 이름·학년에 맞춰 만든 학습 게임. 나머지는 자동으로 '무료 게임'이 된다.
+ *  ⚠️★원본은 `kids.ts` 의 `kidsGroups` 다(학년·과목 묶음을 그대로 편 것). 여기서 다시 적으면
+ *    목록이 둘이 되고, 게임을 하나 더 만들었을 때 언젠가 한 곳을 빠뜨린다. 재수출만 한다. */
+export { kidsGameSlugs } from './kids';
 
 export interface Pillar {
   /** 카드 왼쪽 기호 — 그림 파일 없이 글자로 낸다(로딩도 없고 다크모드도 안 깨진다) */

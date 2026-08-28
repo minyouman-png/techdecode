@@ -11,6 +11,7 @@
 'use strict';
 
 var FA = window.FIGHTANIM, CHARS = window.CHARS, STAGES = window.STAGES, J = window.JOSS;
+var ST = window.JOSSTORY;
 var SAVE_KEY = 'joss_fighters_v1';
 var SAVE = { cleared: {}, best: {}, level: 'normal' };
 
@@ -41,7 +42,7 @@ function storeSave() {
 }
 
 /* ---------- 화면 전환 ---------- */
-var SCREENS = ['title', 'select', 'result', 'pause', 'movelist', 'howto', 'intro'];
+var SCREENS = ['title', 'select', 'result', 'pause', 'movelist', 'howto', 'intro', 'dialog', 'chapter', 'story'];
 function show(id) {
   SCREENS.forEach(function (s) { if ($(s)) $(s).style.display = 'none'; });
   if (id && $(id)) $(id).style.display = 'flex';
@@ -142,6 +143,7 @@ function buildControls() {
     ['강손 <i>느리다 · 세다</i>', 'K', '숫자판 2', '강손'],
     ['약발 <i>빠르다 · 약하다</i>', 'U', '숫자판 4', '약발'],
     ['강발 <i>느리다 · 세다</i>', 'I', '숫자판 5', '강발'],
+    ['<b>필살기</b> <i>커맨드 없이</i>', 'L', '숫자판 3', '필살'],
     ['잠깐 멈춤', 'ESC', 'ESC', '⏸'],
   ];
   var html = '<h3>조작법</h3>' +
@@ -155,6 +157,18 @@ function buildControls() {
   html += '</table>' +
     '<p class="hint">📱 폰·태블릿은 오른쪽 아래 <b>🎮</b> 를 누르면 화면 버튼(왼쪽 방향 · 오른쪽 공격)이 나옵니다. ' +
     '옆의 <b>🎵</b> 는 배경음악을 켜고 끕니다.</p>' +
+
+    '<h4>필살기 버튼 — 커맨드를 못 넣어도 됩니다</h4>' +
+    '<p class="hint"><b>L</b>(2P는 숫자판 <b>3</b>) 하나로 필살기가 나갑니다. ' +
+    '같이 누른 <b>방향</b>에 따라 네 가지 중 하나가 나가고, 게이지가 가득 찼을 때 ' +
+    '방향 없이 누르면 <b>초필살기</b>가 나갑니다.</p>' +
+    '<table><tr><th>누르는 것</th><th>나가는 기술</th></tr>' +
+    '<tr><td><code>L</code> <i>(방향 없이)</i></td><td>1번 필살기 — 게이지가 <b>가득</b>이면 <b>초필살기</b></td></tr>' +
+    '<tr><td><code>↓</code> + <code>L</code></td><td>2번 필살기 <i>(대개 대공기)</i></td></tr>' +
+    '<tr><td><code>←</code>(뒤) + <code>L</code></td><td>3번 필살기</td></tr>' +
+    '<tr><td><code>→</code>(앞) + <code>L</code></td><td>4번 필살기</td></tr></table>' +
+    '<p class="hint">옛날 방식이 편한 사람은 <b>커맨드도 그대로</b> 씁니다 — 둘은 서로를 막지 않습니다. ' +
+    '커맨드 쪽이 조금 더 빠르게 나갑니다. 공중에서는 필살기 버튼이 안 먹습니다.</p>' +
 
     '<h4>막기와 잡기</h4><ul class="tips">' +
     '<li><b>막기는 뒤로 미는 것</b>입니다 — 상대의 <b>반대쪽</b> 방향을 누르고 있으면 막습니다.</li>' +
@@ -179,6 +193,10 @@ function buildControls() {
   return html;
 }
 
+/* 필살기 버튼 + 방향 → 몇 번째 기술인가. ⚠️여기 순서는 fight.js 의 spByDir 과 같아야 한다
+   (자가검증이 실제로 눌러 보고 대조한다 — 설명이 틀리면 없느니만 못하다). */
+var SPBTN = ['L', '↓ + L', '← + L', '→ + L'];
+
 /* ---------- 기술표 ---------- */
 function buildMoveList(ch) {
   var N = ch.normals;
@@ -192,12 +210,13 @@ function buildMoveList(ch) {
     html += '<tr><td>' + r[0] + '</td><td><code>' + r[1] + '</code></td><td>' + r[2].startup +
       'F</td><td>' + r[2].dmg + '</td></tr>';
   });
-  html += '</table><h4>필살기</h4><table><tr><th>기술</th><th>커맨드</th><th>설명</th></tr>';
-  ch.specials.forEach(function (sp) {
-    html += '<tr><td>' + sp.name + '</td><td><code>' + cmdText(sp.cmd) + '</code></td><td class="nt">' + sp.note + '</td></tr>';
+  html += '</table><h4>필살기</h4><table><tr><th>기술</th><th>커맨드</th><th>필살기 버튼</th><th>설명</th></tr>';
+  ch.specials.forEach(function (sp, i) {
+    html += '<tr><td>' + sp.name + '</td><td><code>' + cmdText(sp.cmd) + '</code></td><td><code>' +
+      SPBTN[i] + '</code></td><td class="nt">' + sp.note + '</td></tr>';
   });
   html += '<tr class="sup"><td>' + ch.super.name + '</td><td><code>' + cmdText(ch.super.cmd) +
-    '</code></td><td class="nt">' + ch.super.note + ' · 게이지 100%</td></tr></table>';
+    '</code></td><td><code>L</code> <i>게이지 가득</i></td><td class="nt">' + ch.super.note + ' · 게이지 100%</td></tr></table>';
   return html;
 }
 
@@ -319,6 +338,129 @@ function drawCutIn(canvas, ch, won) {
   }
 }
 
+
+/* ============================================================
+   이야기 모드 (아케이드) — 2026-08-21
+   ★아홉 판을 순서대로 붙는 것과 **이야기를 지나가는 것**은 다르다. 다른 건 셋뿐이다:
+     (1) 시작할 때 내가 왜 나왔는지 (2) 붙기 전에 두 마디 (3) 다 이겼을 때 어떻게 됐는지.
+   ★상대 순서는 판마다 섞이지만 **마지막은 늘 조스**다(조스로 할 때는 준원). 이야기에는 끝이
+     있어야 한다 — 마지막 상대가 매번 다르면 아홉 번째 판은 그냥 아홉 번째 판이다.
+   ★무대는 그 사람의 자리(ch.home)로 간다. 우체국에서 집배원과, 코트에서 족구 선수와 붙는다.
+   ============================================================ */
+function idxOf(key) {
+  for (var i = 0; i < CHARS.length; i++) if (CHARS[i].key === key) return i;
+  return 0;
+}
+function stageIdxOf(key) {
+  for (var i = 0; i < STAGES.length; i++) if (STAGES[i].key === key) return i;
+  return 0;
+}
+
+/* ---------- 막 화면(프롤로그 · 마지막 상대 · 엔딩) ---------- */
+function showChapter(tag, title, body, btn, next) {
+  show('chapter');
+  $('chTag').textContent = tag;
+  $('chTitle').textContent = title;
+  $('chBody').innerHTML = body.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').split('\n')
+    .map(function (l) { return l ? '<p>' + l + '</p>' : ''; }).join('');
+  $('chNext').textContent = btn;
+  chapterNext = next;
+}
+var chapterNext = null;
+
+/* ---------- 대사 화면 ----------
+   ★한 글자씩 찍는다. 다 뜬 글을 그냥 보여 주면 사람은 읽기 전에 넘겨 버린다.
+   ⚠️찍는 도중에 누르면 **먼저 다 보여 주고**, 그다음 눌러야 넘어간다(성급한 손을 봐준다). */
+var DLG = { steps: [], i: 0, timer: null, full: '', shown: 0, done: null };
+function playDialog(meKey, oppKey, isBoss, done) {
+  var steps = [];
+  var L = ST.lines(meKey, oppKey);
+  if (isBoss) steps.push({ side: 'none', text: meKey === 'joss' ? ST.bossLeadJoss : ST.bossLead });
+  if (L) { steps.push({ side: 'me', text: L[0] }); steps.push({ side: 'opp', text: L[1] }); }
+  if (isBoss && ST.bossIntro[meKey]) steps.push({ side: 'me', text: ST.bossIntro[meKey] });
+  if (!steps.length) { done(); return; }
+
+  var me = CHARS[idxOf(meKey)], opp = CHARS[idxOf(oppKey)];
+  show('dialog');
+  $('dlgL').src = 'art/char_' + me.key + '.jpg';
+  $('dlgR').src = 'art/char_' + opp.key + '.jpg';
+  $('dlgNameL').textContent = me.name;
+  $('dlgNameR').textContent = opp.name;
+  DLG.steps = steps; DLG.i = -1; DLG.done = done; DLG.me = me; DLG.opp = opp;
+  dlgNext();
+}
+function dlgNext() {
+  if (DLG.timer) { clearInterval(DLG.timer); DLG.timer = null; }
+  if (DLG.shown < DLG.full.length) {          // 아직 찍는 중이면 먼저 다 보여 준다
+    DLG.shown = DLG.full.length;
+    $('dlgText').textContent = DLG.full;
+    return;
+  }
+  DLG.i++;
+  if (DLG.i >= DLG.steps.length) { var d = DLG.done; DLG.done = null; if (d) d(); return; }
+  var st = DLG.steps[DLG.i];
+  var who = st.side === 'me' ? DLG.me : st.side === 'opp' ? DLG.opp : null;
+  $('dlgWho').textContent = who ? who.name : '';
+  $('dlgWho').style.display = who ? '' : 'none';
+  $('dlgSideL').classList.toggle('on', st.side === 'me');
+  $('dlgSideR').classList.toggle('on', st.side === 'opp');
+  $('dlgBox').classList.toggle('narration', st.side === 'none');
+  DLG.full = st.text; DLG.shown = 0;
+  $('dlgText').textContent = '';
+  DLG.timer = setInterval(function () {
+    DLG.shown++;
+    $('dlgText').textContent = DLG.full.slice(0, DLG.shown);
+    if (DLG.shown >= DLG.full.length) { clearInterval(DLG.timer); DLG.timer = null; }
+  }, 24);
+}
+function dlgSkip() {
+  if (DLG.timer) { clearInterval(DLG.timer); DLG.timer = null; }
+  DLG.i = DLG.steps.length; DLG.shown = 0; DLG.full = '';
+  var d = DLG.done; DLG.done = null; if (d) d();
+}
+
+/* ---------- 이야기 화면(타이틀 → 이야기) ----------
+   ⚠️엔딩은 **그 캐릭터로 아케이드를 깬 사람에게만** 보여 준다. 안 깬 사람에게 결말을
+     먼저 보여 주면 이길 이유가 하나 사라진다. */
+function buildStory(sel) {
+  var list = $('storyList'), body = $('storyBody');
+  if (!list || !body) return;
+  list.innerHTML = '';
+  var mk = function (label, i, on) {
+    var b = document.createElement('button');
+    b.className = 'introItem' + (sel === i ? ' on' : '');
+    b.innerHTML = label;
+    b.addEventListener('click', function () { buildStory(i); });
+    list.appendChild(b);
+  };
+  mk('<span><b>대회</b><i>왜 열렸는가</i></span>', -1);
+  CHARS.forEach(function (ch, i) {
+    mk('<img src="art/char_' + ch.key + '.jpg" alt=""><span><b>' + ch.name + '</b><i>' +
+       (SAVE.cleared[ch.key] ? '결말까지' : '시작만') + '</i></span>', i);
+  });
+  if (sel === -1 || sel === undefined) {
+    body.innerHTML = '<h3>조스 오브 파이터즈</h3><div class="story">' +
+      ST.world.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').split('\n\n')
+        .map(function (t) { return '<p>' + t + '</p>'; }).join('') + '</div>';
+    return;
+  }
+  var c = CHARS[sel];
+  var html = '<div class="top"><img src="art/char_' + c.key + '.jpg" alt="' + c.name + '"><div>' +
+    '<h3>' + c.name + '</h3><div class="job">' + c.job + ' · ' + c.tag + '</div>' +
+    '<div class="cry">"' + c.cry + '"</div></div></div>' +
+    '<h4>시작</h4><div class="story">' + para(ST.prologue[c.key]) + '</div>';
+  if (SAVE.cleared[c.key]) {
+    html += '<h4>결말</h4><div class="story ending">' + para(ST.ending[c.key]) + '</div>';
+  } else {
+    html += '<h4>결말</h4><p class="locked">🔒 ' + c.name + '(으)로 아케이드를 끝내면 열립니다.</p>';
+  }
+  body.innerHTML = html;
+}
+function para(t) {
+  return (t || '').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').split('\n')
+    .map(function (l) { return '<p>' + l + '</p>'; }).join('');
+}
+
 /* ---------- 대전 시작 ---------- */
 function beginMatch(myIdx, oppIdx, stageIdx, twoPlayers, training) {
   J.Snd.ready();
@@ -344,35 +486,66 @@ function matchEnd(winner) {
   var last = UI.mode === 'arcade' && UI.arcade && UI.arcade.step >= UI.arcade.order.length;
   drawCutIn($('rArt'), iWon ? CHARS[UI.myIdx] : g.p2.ch, iWon);
   $('rTitle').textContent = iWon ? (last ? '🏆 아케이드 제패!' : 'YOU WIN') : 'YOU LOSE';
+  // ★이긴 뒤 한 마디는 **그 상대에게 하는 말**이다 — 관계가 있는 짝은 따로 적어 두었다
+  var meKey = CHARS[UI.myIdx].key, oppKey = g.p2.ch.key;
+  var wl = iWon ? ST.winLine(meKey, oppKey, (UI.arcade ? UI.arcade.step : 0)) : '';
   $('rSub').textContent = iWon
-    ? (last ? CHARS[UI.myIdx].name + '(으)로 아홉 명을 모두 이겼습니다.' : '"' + CHARS[UI.myIdx].cry + '"')
-    : '"' + g.p2.ch.cry + '" — ' + g.p2.ch.name + '에게 졌습니다.';
+    ? (last ? CHARS[UI.myIdx].name + '(으)로 아홉 명을 모두 이겼습니다.' : '"' + (wl || CHARS[UI.myIdx].cry) + '"')
+    : '"' + ST.winLine(oppKey, meKey, 0) + '" — ' + g.p2.ch.name + '에게 졌습니다.';
+  UI.endingReady = false;
+  $('rNext').textContent = '다음 상대';
   $('rNext').style.display = (UI.mode === 'arcade' && iWon && !last) ? '' : 'none';
   $('rRetry').style.display = iWon ? 'none' : '';
   if (last && iWon) {
     SAVE.cleared[CHARS[UI.myIdx].key] = true;
     storeSave();
+    // 마지막 판을 이겼으면 '다음 상대' 자리에 **결말**을 놓는다
+    UI.endingReady = true;
+    $('rNext').style.display = '';
+    $('rNext').textContent = '결말 보기 →';
   }
 }
 
 function nextArcade() {
   var a = UI.arcade;
   var oppIdx = a.order[a.step];
-  var st = (a.step + UI.myIdx) % STAGES.length;
+  var opp = CHARS[oppIdx];
+  var st = stageIdxOf(opp.home || STAGES[a.step % STAGES.length].key);   // 상대의 자리로 간다
   UI.oppIdx = oppIdx; UI.stageIdx = st;
-  beginMatch(UI.myIdx, oppIdx, st, false, false);
+  var isBoss = a.step === a.order.length - 1;
+  var go = function () { beginMatch(UI.myIdx, oppIdx, st, false, false); };
+  var meKey = CHARS[UI.myIdx].key;
+  if (isBoss) {
+    showChapter(ST.bossTitle, opp.name + ' · ' + opp.job,
+      (meKey === 'joss' ? ST.bossLeadJoss : ST.bossLead), '맞선다',
+      function () { playDialog(meKey, opp.key, true, go); });
+    return;
+  }
+  playDialog(meKey, opp.key, false, go);
+}
+
+/** 검사용 — 화면을 띄우지 않고 상대 순서만 만든다 */
+function startArcadeOrderOnly(myIdx) {
+  var real = showChapter, out;
+  showChapter = function () {};
+  try { startArcade(myIdx); } finally { showChapter = real; }
+  return UI.arcade;
 }
 
 function startArcade(myIdx) {
   UI.myIdx = myIdx;
+  var me = CHARS[myIdx];
+  var bossKey = ST.bossOf(me.key);
   var order = [];
-  CHARS.forEach(function (c, i) { if (i !== myIdx) order.push(i); });
-  for (var i = order.length - 1; i > 0; i--) {          // 상대 순서는 판마다 다르다
+  CHARS.forEach(function (c, i) { if (i !== myIdx && c.key !== bossKey) order.push(i); });
+  for (var i = order.length - 1; i > 0; i--) {          // 앞의 여덟은 판마다 순서가 다르다
     var j = Math.floor(Math.random() * (i + 1));
     var t = order[i]; order[i] = order[j]; order[j] = t;
   }
+  order.push(idxOf(bossKey));                            // ★마지막은 늘 정해져 있다
   UI.arcade = { order: order, step: 0 };
-  nextArcade();
+  showChapter('1막 — 왜 나왔는가', me.name + ' · ' + me.job, ST.prologue[me.key] || me.story,
+              '대회장으로', nextArcade);
 }
 
 /* ---------- 화면 만들기 ---------- */
@@ -450,7 +623,7 @@ function buildStages() {
    ⚠️격투게임을 화면 단추로 하는 건 쉽지 않지만, **없으면 폰에서는 아예 못 논다**.
      그래서 방향 네 개와 공격 네 개를 크게 깔아 준다. */
 function bindTouch() {
-  var map = { tL: 'left', tR: 'right', tU: 'up', tD: 'down', tLP: 'lp', tHP: 'hp', tLK: 'lk', tHK: 'hk' };
+  var map = { tL: 'left', tR: 'right', tU: 'up', tD: 'down', tLP: 'lp', tHP: 'hp', tLK: 'lk', tHK: 'hk', tSP: 'sp' };
   Object.keys(map).forEach(function (id) {
     var el = $(id);
     if (!el) return;
@@ -536,8 +709,31 @@ function boot() {
   $('howClose').addEventListener('click', toTitle);
   $('introBtn').addEventListener('click', function () { buildIntro(0); show('intro'); });
   $('introClose').addEventListener('click', toTitle);
+  $('storyBtn').addEventListener('click', function () { buildStory(-1); show('story'); });
+  $('storyClose').addEventListener('click', toTitle);
+  $('chNext').addEventListener('click', function () { var f = chapterNext; chapterNext = null; if (f) f(); });
+  $('dlgSkip').addEventListener('click', dlgSkip);
+  // 대사는 화면 아무 데나 눌러도 넘어간다(버튼을 찾게 만들면 안 읽는다)
+  $('dialog').addEventListener('click', function (e) {
+    if (e.target.id === 'dlgSkip') return;
+    dlgNext();
+  });
+  window.addEventListener('keydown', function (e) {
+    if ($('dialog').style.display === 'flex' && (e.code === 'Enter' || e.code === 'Space')) { e.preventDefault(); dlgNext(); }
+    else if ($('chapter').style.display === 'flex' && (e.code === 'Enter' || e.code === 'Space')) {
+      e.preventDefault(); var f = chapterNext; chapterNext = null; if (f) f();
+    }
+  });
   bindMusic();
-  $('rNext').addEventListener('click', nextArcade);
+  $('rNext').addEventListener('click', function () {
+    if (UI.endingReady) {
+      var meC = CHARS[UI.myIdx];
+      UI.endingReady = false;
+      showChapter('마지막 막 — 그 뒤', meC.name + '의 결말', ST.ending[meC.key] || '', '처음으로', toTitle);
+      return;
+    }
+    nextArcade();
+  });
   $('rRetry').addEventListener('click', function () {
     beginMatch(UI.myIdx, UI.oppIdx, UI.stageIdx, UI.mode === '2p', UI.mode === 'training');
   });
@@ -583,7 +779,9 @@ function runSim() {
   CHARS.forEach(function (ch) {
     ck(!seen[ch.key], 'key 중복: ' + ch.key); seen[ch.key] = 1;
     ck(!!ch.name && !!ch.job && !!ch.desc && !!ch.cry, ch.key + ': 이름·직업·설명·대사 중 빠진 것이 있다');
-    ck(ch.specials.length === 3, ch.name + ': 필살기가 ' + ch.specials.length + '개');
+    ck(ch.specials.length === 4, ch.name + ': 필살기가 ' + ch.specials.length + '개');
+    ck(!!ch.home && STAGES.some(function (st) { return st.key === ch.home; }), ch.name + ': 자기 무대(home)가 없다 ' + ch.home);
+    ck(!!ch.cutin && ch.cutin.length > 4, ch.name + ': 초필살기 외침이 없다');
     ck(!!ch.super, ch.name + ': 초필살기가 없다');
     ck(ch.hp >= 850 && ch.hp <= 1250, ch.name + ': 체력이 범위 밖 ' + ch.hp);
     ck(ch.walk > 1.5 && ch.walk < 3.6, ch.name + ': 걷기 속도가 이상하다');
@@ -614,6 +812,17 @@ function runSim() {
       var t2 = mv.startup + mv.active + mv.recovery, a2 = FA.animLength(mv.anim);
       ck(Math.abs(t2 - a2) <= 4, ch.name + '/' + k + ': 기술 ' + t2 + 'F vs 동작 ' + a2 + 'F');
       ck(mv.dmg > 10 && mv.dmg < 120, ch.name + '/' + k + ': 위력 ' + mv.dmg);
+    });
+    // ★같은 캐릭터 안에서 커맨드가 겹치면 뒤엣것은 **영영 안 나간다**
+    var cmds = {};
+    moves.forEach(function (mv) {
+      ck(!cmds[mv.cmd], ch.name + ': 커맨드 ' + mv.cmd + ' 가 두 기술에 걸려 있다');
+      cmds[mv.cmd] = 1;
+    });
+    // 이펙트·소리 이름이 실제로 있는가(없으면 조용히 아무 일도 안 난다 — 가장 찾기 어려운 고장)
+    moves.forEach(function (mv) {
+      if (mv.fx) ck(!!J.MOVEFX[mv.fx], ch.name + '/' + mv.name + ': 없는 이펙트 ' + mv.fx);
+      if (mv.sound) ck(!!J.SFX[mv.sound], ch.name + '/' + mv.name + ': 없는 효과음 ' + mv.sound);
     });
     // 대공기가 하나씩은 있어야 한다(뛰어드는 상대를 막을 방법)
     ck(ch.specials.some(function (s) { return s.invuln && s.launch; }),
@@ -846,12 +1055,9 @@ function runSim() {
           var gF = setup(ci, (ci + 1) % 10, 90);
           gF.p1.meter = 100;
           J.startMove(gF.p1, mv);
-          // ⚠️히트스톱이 걸리면 그만큼 늦게 끝난다 — 멈춘 프레임은 세지 않는다.
-          for (var k = 0, guard = 0; k < 90 && guard < 400; guard++) {
-            var fz = gF.freezeT;
-            J.step();
-            if (!fz) k++;
-          }
+          // ⚠️이제 기술 하나에 **컷인(72F 정지) + 슬로모션(3배 느림)** 이 붙을 수 있다.
+          //   '몇 프레임 돌렸나'로 세면 초필살기가 전부 실패한다 — 끝날 때까지 돌려 본다.
+          for (var guard = 0; gF.p1.mv && guard < 900; guard++) J.step();
           if (gF.p1.mv) bad.push(ch.name + '/' + mv.name + ': 기술이 안 끝난다');
         } catch (e) { bad.push(ch.name + '/' + mv.name + ': ' + e.message); }
       });
@@ -1023,6 +1229,203 @@ function runSim() {
     }
   }
 
+
+  /* 20) ★필살기 버튼 — 진짜 키(L)를 눌러 방향별로 다른 기술이 나가는가
+     ⚠️커맨드 검사와 따로 해야 한다. 커맨드가 멀쩡해도 버튼 배선이 끊어져 있을 수 있다. */
+  {
+    var K2 = J.KEYMAP[0];
+    function clearKeys() { Object.keys(J.held).forEach(function (k) { J.held[k] = 0; }); }
+    function pressSP(dir, meter) {
+      var g = setup(0, 1, 300);
+      g.p1.human = true; g.p1.meter = meter || 0;
+      clearKeys();
+      if (dir) J.held[dir] = 1;
+      for (var i = 0; i < 2; i++) J.step();      // 방향을 먼저 잡고
+      J.held[K2.sp] = 1;
+      J.step();
+      var mv = g.p1.mv;
+      clearKeys();
+      return mv;
+    }
+    var ch0 = CHARS[0];
+    var m0 = pressSP(null, 0), m1 = pressSP(K2.down, 0), m2 = pressSP(K2.left, 0), m3 = pressSP(K2.right, 0);
+    ck(!!m0 && m0.key === ch0.specials[0].key, '필살기 버튼(중립)이 1번 기술을 안 낸다');
+    ck(!!m1 && m1.key === ch0.specials[1].key, '↓ + 필살기가 2번 기술을 안 낸다');
+    ck(!!m2 && m2.key === ch0.specials[2].key, '뒤 + 필살기가 3번 기술을 안 낸다');
+    ck(!!m3 && m3.key === ch0.specials[3].key, '앞 + 필살기가 4번 기술을 안 낸다');
+    var ms = pressSP(null, 100);
+    ck(!!ms && ms.key === 'super', '게이지가 가득인데 필살기 버튼이 초필살기를 안 낸다');
+    var mNot = pressSP(K2.down, 100);
+    ck(!!mNot && mNot.key !== 'super', '방향을 넣었는데도 초필살기가 나간다(아껴 쓸 수가 없다)');
+    // 조작법에 적은 설명이 실제 배선과 같은가
+    var htm2 = buildControls();
+    ck(htm2.indexOf('<code>L</code>') >= 0, '조작법에 필살기 키가 없다');
+    ck(K2.sp === 'KeyL' && J.KEYMAP[1].sp === 'Numpad3', '조작법과 실제 필살기 키가 다르다');
+    ck(SPBTN.length === 4, '기술표의 필살기 버튼 표기가 4칸이 아니다');
+    ck(J.spByDir(J.Fighter(CHARS[3], 0, 1, true), J.blank()).key === CHARS[3].specials[0].key,
+       'spByDir 이 중립에서 1번을 안 준다');
+  }
+
+  /* 21) ★초필살기 연출 — 멈추고, 컷인이 뜨고, 그다음 느려지는가
+     ⚠️'연출 중에는 세계가 멈춰야 한다'가 핵심이다. 멈추지 않으면 컷인 뒤에서 맞아 죽는다. */
+  {
+    var gS = setup(0, 1, 120);
+    gS.p1.meter = 100;
+    var hpS = gS.p2.hp, tS = gS.timeF;
+    J.startMove(gS.p1, CHARS[0].super);
+    ck(!!gS.cine, '초필살기를 썼는데 컷인이 없다');
+    var mvf0 = gS.p1.mvf;
+    for (var i20 = 0; i20 < 20; i20++) J.step();
+    ck(gS.p1.mvf === mvf0, '컷인 중인데 기술이 흘러간다');
+    ck(gS.timeF === tS, '컷인 중인데 시계가 흘러간다');
+    ck(gS.p2.hp === hpS, '컷인 중인데 체력이 깎인다');
+    var guard20 = 0;
+    while (gS.cine && guard20++ < 200) J.step();
+    ck(guard20 < 200, '컷인이 안 끝난다');
+    ck(gS.slowT > 0, '컷인이 끝났는데 슬로모션으로 안 이어진다');
+    // 슬로모션 — 세 번 돌려야 한 프레임 나아간다
+    var fr0 = gS.frame;
+    for (var i21 = 0; i21 < 3; i21++) J.step();
+    ck(gS.frame - fr0 === 1, '슬로모션인데 ' + (gS.frame - fr0) + '프레임이 나아갔다(1이어야 한다)');
+    // 그리기가 터지지 않는가(컷인 그림이 아직 안 왔을 때가 제일 위험하다)
+    var drawErr2 = null;
+    try { gS.cine = { t: 4, dur: 72, ch: CHARS[0], name: CHARS[0].super.name, side: 0 }; J.draw();
+          gS.cine = { t: 4, dur: 72, ch: CHARS[9], name: CHARS[9].super.name, side: 1 }; J.draw();
+          gS.cine = null; }
+    catch (e) { drawErr2 = e.message; }
+    ck(!drawErr2, '컷인을 그리다 터졌다: ' + drawErr2);
+    // KO 도 느리게 끝나야 한다
+    var gK = setup(0, 1, 70);
+    gK.p2.hp = 1;
+    J.applyHit(gK, gK.p1, gK.p2, CHARS[0].normals.hp, false);
+    ck(gK.slowT > 0, 'KO 인데 슬로모션이 안 걸린다');
+  }
+
+  /* 22) 새로 생긴 장풍들 — 포물선·머리 위·막는 높낮이 */
+  {
+    // 소포(포물선): 던지면 나가고, 결국 땅에 떨어져 사라진다
+    var gP = setup(1, 0, 420);
+    J.startMove(gP.p1, J.findSpecial(gP.p1, ['express']));
+    for (var i22 = 0; i22 < 12; i22++) J.step();
+    ck(gP.projs.length === 1, '속달 소포가 안 나갔다');
+    var y0 = gP.projs[0] ? gP.projs[0].y : 0;
+    for (var i23 = 0; i23 < 40; i23++) J.step();
+    ck(gP.projs.length === 0 || gP.projs[0].y > y0, '포물선 장풍이 떨어지지 않는다');
+    // 문제집 폭격: 상대 머리 위에서 시작한다
+    var gB2 = setup(9, 0, 360);
+    J.startMove(gB2.p1, J.findSpecial(gB2.p1, ['bomb']));
+    for (var i24 = 0; i24 < 12; i24++) J.step();
+    ck(gB2.projs.length === 1, '문제집 폭격이 안 나갔다');
+    if (gB2.projs.length) {
+      ck(Math.abs(gB2.projs[0].x - gB2.p2.x) < 80,
+         '문제집이 상대 머리 위가 아니라 던진 사람 앞에서 생긴다');
+      ck(gB2.projs[0].type === 'high', '문제집이 서서 막는 판정(high)이 아니다');
+    }
+    // 위에서 오는 것은 앉아 막을 수 없다
+    var gH2 = setup(9, 0, 70);
+    var d5 = gH2.p2, hp5 = d5.hp;
+    d5.blocking = true; d5.crouch = true;
+    J.applyHit(gH2, gH2.p1, d5, { dmg: 60, hit: 16, block: 10, kb: 4, type: 'high' }, true);
+    ck(hp5 - d5.hp > 20, '앉아 막기로 머리 위 공격이 막힌다');
+    // 내리꽂기(오버헤드)도 마찬가지
+    var gO = setup(3, 0, 70);
+    var d6 = gO.p2, hp6 = d6.hp;
+    d6.blocking = true; d6.crouch = true;
+    J.applyHit(gO, gO.p1, d6, J.findSpecial(gO.p1, ['smash']), false);
+    ck(hp6 - d6.hp > 20, '앉아 막기로 내리꽂기가 막힌다');
+  }
+
+  /* 23) 새 기술의 특별한 성질 — 끌어당기기 · 게이지 회복 · 무적 회피 */
+  {
+    // 자석 집게: 밀려나는 게 아니라 끌려온다
+    var gM = setup(6, 0, 110);
+    var before = Math.abs(gM.p2.x - gM.p1.x);
+    J.applyHit(gM, gM.p1, gM.p2, J.findSpecial(gM.p1, ['magnet']), false);
+    ck(gM.p2.vx * (gM.p2.x > gM.p1.x ? 1 : -1) < 0, '자석 집게를 맞았는데 밀려난다');
+    // 배당금: 맞히면 게이지가 크게 찬다
+    var gD2 = setup(7, 0, 70);
+    gD2.p1.meter = 0;
+    J.applyHit(gD2, gD2.p1, gD2.p2, J.findSpecial(gD2.p1, ['dividend']), false);
+    ck(gD2.p1.meter >= 22, '배당금을 맞혔는데 게이지가 안 찬다(' + gD2.p1.meter + ')');
+    // 긴급 롤백: 뒤로 물러나고 그동안 무적이다
+    var gR = setup(0, 1, 120);
+    var x0 = gR.p1.x;
+    J.startMove(gR.p1, J.findSpecial(gR.p1, ['rollback']));
+    ck(gR.p1.invuln > 0, '롤백 중인데 무적이 아니다');
+    ck(gR.p1.x < x0, '롤백인데 뒤로 안 물러난다');
+  }
+
+  /* 24) ★서사와 대사 — 90쌍이 다 있는가, 짧고 겹치지 않는가
+     ⚠️'대사를 넣었다'는 것으로는 아무것도 보장되지 않는다. 하나라도 비면 그 판만 조용해진다. */
+  {
+    var pairs = 0, seenLine = {}, dupe = 0, long = 0, missing = [];
+    CHARS.forEach(function (a) {
+      ck(!!ST.prologue[a.key] && ST.prologue[a.key].length > 60, a.name + ': 프롤로그가 없다');
+      ck(!!ST.ending[a.key] && ST.ending[a.key].length > 60, a.name + ': 엔딩이 없다');
+      ck(!!ST.bossIntro[a.key], a.name + ': 마지막 상대 앞 대사가 없다');
+      ck(!!(ST.winLines[a.key] && ST.winLines[a.key].length >= 3), a.name + ': 승리 대사가 3개가 안 된다');
+      ck(!ST.vs[a.key][a.key], a.name + ': 자기 자신과 붙는 대사가 있다');
+      CHARS.forEach(function (b) {
+        if (a === b) return;
+        var L = ST.lines(a.key, b.key);
+        if (!L || L.length !== 2 || !L[0] || !L[1]) { missing.push(a.name + '→' + b.name); return; }
+        pairs++;
+        L.forEach(function (t) {
+          if (t.length > 40) long++;
+          if (seenLine[t]) dupe++;
+          seenLine[t] = 1;
+        });
+      });
+    });
+    ck(missing.length === 0, '대사가 빠진 짝: ' + missing.slice(0, 5).join(', '));
+    ck(pairs === 90, '대사가 있는 짝이 ' + pairs + '쌍이다(90이어야 한다)');
+    ck(dupe === 0, '똑같은 대사가 ' + dupe + '군데 있다(돌려쓰면 두 번째 판에서 들킨다)');
+    ck(long === 0, '한 줄이 40자를 넘는 대사가 ' + long + '개다(대화창이 세 줄이 된다)');
+    ck(!!ST.world && ST.world.length > 150, '대회 이야기(world)가 없다');
+    ck(ST.bossOf('minyu') === 'joss' && ST.bossOf('joss') === 'junwon', '마지막 상대가 정해져 있지 않다');
+    ck(!!ST.winLine('minyu', 'yujin', 0) && !!ST.winLine('nodeok', 'inwoo', 1), '승리 대사가 안 나온다');
+  }
+
+  /* 25) 아케이드 — 마지막은 늘 조스, 무대는 상대의 자리 */
+  {
+    for (var t25 = 0; t25 < 10; t25++) {
+      startArcadeOrderOnly(t25);
+      var a25 = UI.arcade;
+      ck(a25.order.length === 9, CHARS[t25].name + ': 상대가 9명이 아니다(' + a25.order.length + ')');
+      ck(CHARS[a25.order[8]].key === ST.bossOf(CHARS[t25].key),
+         CHARS[t25].name + ': 마지막 상대가 ' + CHARS[a25.order[8]].name + '이다');
+      var dup25 = {};
+      a25.order.forEach(function (o) { dup25[o] = (dup25[o] || 0) + 1; });
+      ck(Object.keys(dup25).length === 9, CHARS[t25].name + ': 같은 상대가 두 번 나온다');
+      ck(a25.order.indexOf(t25) < 0, CHARS[t25].name + ': 자기 자신과 붙는다');
+    }
+    // 대사 화면이 실제로 뜨고, 넘기면 대전이 시작되는가
+    var started = 0;
+    UI.myIdx = 0;
+    playDialog('minyu', 'joss', true, function () { started++; });
+    ck($('dialog').style.display === 'flex', '대사 화면이 안 뜬다');
+    ck($('dlgText').textContent.length >= 0 && $('dlgWho') !== null, '대사창이 비어 있다');
+    for (var s25 = 0; s25 < 8; s25++) { dlgNext(); dlgNext(); }
+    ck(started === 1, '대사를 다 넘겼는데 대전으로 안 넘어간다');
+    var r25 = $('dlgWrap').getBoundingClientRect();
+    ck(r25.left >= -1 && r25.right <= window.innerWidth + 1, '대사 화면이 옆으로 넘친다');
+    // 막 화면(프롤로그)
+    showChapter('1막', '민유', ST.prologue.minyu, '계속', function () {});
+    ck($('chBody').textContent.length > 60, '프롤로그 화면이 비어 있다');
+    // 이야기 화면 — 안 깬 캐릭터의 결말은 잠겨 있어야 한다
+    var savedCleared = SAVE.cleared;
+    SAVE.cleared = {};
+    buildStory(0);
+    ck($('storyBody').innerHTML.indexOf('🔒') >= 0, '안 깬 캐릭터의 결말이 그냥 보인다');
+    SAVE.cleared = { minyu: true };
+    buildStory(0);
+    ck($('storyBody').innerHTML.indexOf('🔒') < 0, '깬 캐릭터인데 결말이 잠겨 있다');
+    SAVE.cleared = savedCleared;
+    buildStory(-1);
+    ck($('storyBody').textContent.indexOf('조스클럽') >= 0, '이야기 화면에 대회 이야기가 없다');
+    toTitle();
+  }
+
   var out2 = document.createElement('div');
   out2.id = 'simout';
   out2.textContent = fails.length
@@ -1033,7 +1436,9 @@ function runSim() {
   document.title = fails.length ? 'SIM FAIL' : 'SIM PASS';
 }
 
-window.__joss_ui = { UI: UI, beginMatch: beginMatch, openSelect: openSelect, toTitle: toTitle };
+window.__joss_ui = { UI: UI, beginMatch: beginMatch, openSelect: openSelect, toTitle: toTitle,
+  show: show, playDialog: playDialog, dlgNext: dlgNext, showChapter: showChapter,
+  buildStory: buildStory, buildControls: buildControls, buildMoveList: buildMoveList };
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
 else boot();

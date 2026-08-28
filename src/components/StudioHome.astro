@@ -165,7 +165,9 @@ const jsonLd = {
     <div class="wrap">
       <div class="section-head">
         <p class="section-label">{h.kidsLabel}</p>
-        <a class="more-link" href={gamesIndexUrl(lang)}>{h.kidsMore} →</a>
+        <!-- ⚠️아이 게임 '더 보기'는 `/games/`(18종 평평한 목록, 맨 앞이 대전격투)가 아니라
+             `/kids/`(학년·과목별 10종)로 간다. 아이 것을 찾아온 사람을 격투게임에 떨구지 않는다. -->
+        <a class="more-link" href="/kids/">{h.kidsMore} →</a>
       </div>
       <p class="pillars-note">{h.kidsBody}</p>
       <div class="hgame-grid">

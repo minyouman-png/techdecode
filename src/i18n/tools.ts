@@ -1,6 +1,7 @@
 // AI 도구 섹션: 도구 레지스트리 + 언어별 카피.
 // 새 도구 추가 시 tools 배열에 항목을 추가하고, 대응하는 인터랙티브 컴포넌트를 만들어 ToolPage에서 slug로 분기한다.
 import type { Lang } from './ui';
+import { localizeUrl } from './utils';
 
 /* ===== 섹션 공통 문자열 ===== */
 export const toolsUi: Record<Lang, Record<string, string>> = {
@@ -493,9 +494,14 @@ export const tools: ToolEntry[] = [
   },
 ];
 
+// ⚠️★2026-08-28: `games.ts` 와 **같은 버그**였다. 기본 언어가 en → **ko** 로 바뀐 게 2026-08-05 인데
+//   이 두 함수만 옛 규칙(`en` 이 접두사 없음)이 하드코딩된 채 남아 있었다. 두 가지가 동시에 깨진다:
+//     · ko → `/ko/tools/...` = 지금은 **meta refresh 리다이렉트** 페이지다(느리고 크롤 낭비)
+//     · en → `/tools/...`   = **한국어 페이지**다. 영어 방문자가 한글 화면에 떨어졌다
+//   `blogUrl`·`shopUrl`·`gameUrl` 이 쓰는 `localizeUrl` 과 같은 규칙으로 통일한다.
 export function toolUrl(slug: string, lang: Lang): string {
-  return lang === 'en' ? `/tools/${slug}/` : `/${lang}/tools/${slug}/`;
+  return localizeUrl(`/tools/${slug}/`, lang);
 }
 export function toolsIndexUrl(lang: Lang): string {
-  return lang === 'en' ? '/tools/' : `/${lang}/tools/`;
+  return localizeUrl('/tools/', lang);
 }

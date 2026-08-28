@@ -1,5 +1,39 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import fs from 'node:fs';
+
+// ★2026-08-28: 사이트맵에 **글의 발행일(`lastmod`)** 을 붙인다.
+//
+// ⚠️왜 필요한가 — 그전까지 206개 URL 전부에 `lastmod` 가 없었다. 그러면 구글은 **무엇이
+//   새로 올라왔고 무엇이 그대로인지 구분할 수 없어** 전체를 같은 우선순위로 훑는다.
+//   글을 꾸준히 올리는 사이트에서 재크롤이 느려지는 직접적인 원인이다.
+//
+// ⚠️★**글에만 붙인다.** '전 페이지 = 빌드 시각'으로 뭉뚱그리는 흔한 방식은 매 배포마다
+//   206개가 전부 '오늘 바뀜'이 되는 거짓말이라, 구글이 신뢰하지 않거나 아예 무시한다.
+//   실제 날짜를 아는 것은 글뿐이므로 글만 정직하게 채우고 나머지는 비운다.
+//
+// ⚠️**날짜만 쓰고 시각은 버린다**(`YYYY-MM-DD`). frontmatter 의 `date: ...T10:00:00` 은
+//   타임존이 없어서 YAML 파서가 UTC 로 읽는데(글 표시 날짜가 하루 밀렸던 그 버그),
+//   `lastmod` 에까지 그 함정을 끌고 들어갈 이유가 없다. 날짜만으로도 W3C 형식에 맞는다.
+const BLOG_DIR = new URL('./src/content/blog/', import.meta.url);
+
+/** 번역 그룹 키(`key`) → 발행일 `YYYY-MM-DD`. 같은 키의 언어판 중 **가장 최근** 날짜를 쓴다. */
+function blogDatesByKey() {
+  const map = new Map();
+  for (const name of fs.readdirSync(BLOG_DIR)) {
+    if (!name.endsWith('.md')) continue;
+    // frontmatter 만 보면 되므로 앞부분만 읽는다(본문은 수천 자다).
+    const head = fs.readFileSync(new URL(name, BLOG_DIR), 'utf-8').slice(0, 1500);
+    const key = head.match(/^key:\s*["']?([^"'\n]+?)["']?\s*$/m)?.[1];
+    const date = head.match(/^date:\s*["']?(\d{4}-\d{2}-\d{2})/m)?.[1];
+    if (!key || !date) continue;
+    const prev = map.get(key);
+    if (!prev || date > prev) map.set(key, date);
+  }
+  return map;
+}
+const BLOG_DATES = blogDatesByKey();
+const NEWEST_POST = [...BLOG_DATES.values()].sort().pop();
 
 // 커스텀 도메인(menewsoft.com) 루트 서빙 + 5개 언어 i18n.
 //
@@ -74,6 +108,19 @@ export default defineConfig({
   //     가게 디렉토리의 대표 주소**다(src/pages/shops/index.astro 와 세트).
   integrations: [
     sitemap({
+      // 글 상세는 그 글의 발행일, 글 목록은 가장 최근 글의 날짜.
+      // 그 밖의 페이지는 실제 변경일을 알 수 없으므로 **비워 둔다**(위 주석 참고).
+      serialize: (item) => {
+        const p = new URL(item.url).pathname;
+        const m = p.match(/^\/(?:en\/)?blog\/([^/]+)\/$/);
+        if (m) {
+          const d = BLOG_DATES.get(m[1]);
+          if (d) item.lastmod = d;
+        } else if ((p === '/blog/' || p === '/en/blog/') && NEWEST_POST) {
+          item.lastmod = NEWEST_POST;
+        }
+        return item;
+      },
       filter: (page) => {
         const p = new URL(page).pathname;
         if (/\/category(\/|$)/.test(p)) return false;

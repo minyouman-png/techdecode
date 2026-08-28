@@ -43,6 +43,10 @@ function proj(o) {
     speed: o.speed || 7, dmg: o.dmg || 70, hit: 18, block: 10, kb: o.kb || 5,
     w: o.w || 34, h: o.h || 26, y: o.y === undefined ? -74 : o.y,
     color: o.color, shape: o.shape || 'ball', life: o.life || 150, hits: o.hits || 1,
+    // ★2026-08-21 — 곧게 날아가는 것만 장풍이 아니다.
+    //   vy0/grav 는 포물선(소포·감아차기), overhead 는 **상대 머리 위**에서 시작(문제집 폭격),
+    //   type 은 막는 높낮이(high 면 서서 막아야 한다).
+    vy0: o.vy0 || 0, grav: o.grav || 0, overhead: !!o.overhead, type: o.type || 'mid',
   };
 }
 
@@ -53,6 +57,7 @@ var C = [
     desc: '장풍·대공·돌진을 고루 갖춘 주인공형. 처음 잡기에 가장 좋다.',
     hp: 1000, walk: 2.5, dash: 6.2, jump: 13.6, weight: 1, scale: 1,
     cry: '이번엔 진짜 됩니다.',
+    home: 'pangyo', cutin: '끝까지 돌아가게 만든다!',
     story: '분당에서만 20년을 개발했다. 회사는 여섯 번 바뀌었는데 자리는 같은 층이었다. 남들이 배운 건 프레임워크였고 그가 배운 건 **끝까지 돌아가게 만드는 법**이다. 새벽 세 시에 배포를 눌러 본 사람만 아는 손버릇이 기술이 됐다. 두 딸이 있고, 둘 다 아버지 말을 안 듣는다.',
     bond: '유진·유정의 아버지 · 조스클럽 회원',
     col: { skin: '#f0c9a4', skinDark: '#d8ab86', hair: '#20222e', top: '#2f6ad0', sleeve: '#2f6ad0', sleeveDark: '#25529f',
@@ -69,6 +74,11 @@ var C = [
       { key: 'spin', name: '무한 루프', cmd: '214K', anim: 'spin', startup: 5, active: 8, recovery: 12,
         meter: 6, dmg: 78, hit: 18, kb: 7, move: 5.2, box: [26, -92, 52, 62],
         note: '돌면서 앞으로 파고든다. 장풍을 넘어 들어갈 때 쓴다.' },
+      /* ★4번째 필살기(2026-08-21) — 열 명이 '장풍·대공·돌진' 세 벌만 갖고 있으면 이름만 다르다.
+         네 번째는 **그 사람만 할 수 있는 짓**으로 넣는다(민유는 되돌린다). */
+      { key: 'rollback', name: '긴급 롤백', cmd: '214P', anim: 'roll', startup: 5, active: 4, recovery: 16,
+        meter: 4, teleport: 90, invuln: [0, 16], fx: 'code', sound: 'warp',
+        note: '뒤로 굴러 되돌아간다. 판정이 없는 대신 구르는 내내 무적 — 궁지에서 빠져나오는 기술.' },
     ],
     super: { key: 'super', name: '금요일 밤 배포', cmd: '236236P', anim: 'super', startup: 14, active: 8, recovery: 26,
       proj: proj({ color: '#7cc4ff', dmg: 60, speed: 6.0, w: 70, h: 62, y: -80, hits: 4, kb: 9, shape: 'code' }),
@@ -81,6 +91,7 @@ var C = [
     desc: '무거운 소포로 밀어붙이는 힘형. 느리지만 한 번 붙으면 크게 가져간다.',
     hp: 1100, walk: 2.0, dash: 5.2, jump: 12.4, weight: 1.25, scale: 1.1,
     cry: '등기 왔습니다!',
+    home: 'postoffice', cutin: '전국 일괄, 지금 나갑니다!',
     story: '18년째 같은 구역을 돈다. 골목 개 이름과 어느 집 초인종이 고장 났는지까지 안다. 규정을 어긴 적이 한 번도 없고, 그래서 **정시**라는 말을 몸으로 지킨다. 무거운 걸 하루 300개씩 드는 사람과 붙어 본 적 있는가. 정년까지 12년 남았다는 말을 자랑처럼 한다.',
     bond: '조스클럽 회원 · 조스의 소포를 제일 많이 나른다',
     col: { skin: '#e8b58c', skinDark: '#cf9b74', hair: '#2b1d16', top: '#c8262e', sleeve: '#c8262e', sleeveDark: '#9e1c23',
@@ -97,6 +108,10 @@ var C = [
       { key: 'grab', name: '착불 들배지기', cmd: '214P', anim: 'dash', startup: 4, active: 4, recovery: 24,
         meter: 10, dmg: 130, hit: 30, kb: 9, launch: -6, box: [16, -100, 44, 84], grab: true,
         note: '붙어서만 나가는 잡기. 막을 수 없다 — 대신 헛치면 크게 굳는다.' },
+      { key: 'express', name: '속달 소포', cmd: '236P', anim: 'toss', startup: 9, active: 5, recovery: 16,
+        meter: 6, fx: 'parcel', sound: 'toss',
+        proj: proj({ color: '#c9a06a', dmg: 76, speed: 5.0, shape: 'box', w: 34, h: 32, y: -108, vy0: -5.2, grav: 0.30 }),
+        note: '소포를 포물선으로 던진다. 앉아 있는 상대의 머리 위로 떨어진다.' },
     ],
     super: { key: 'super', name: '전국 일괄 배송', cmd: '236236K', anim: 'dash', startup: 12, active: 16, recovery: 26,
       dmg: 210, hit: 30, kb: 11, move: 12.5, box: [16, -104, 66, 86], armor: true, invuln: [0, 10],
@@ -109,6 +124,7 @@ var C = [
     desc: '짧은 기술을 이어 붙여 몰아치는 속도형. 손이 빠른 사람에게 맞는다.',
     hp: 950, walk: 3.0, dash: 7.0, jump: 14.2, weight: 0.9, scale: 0.98,
     cry: '원인은 늘 전원입니다.',
+    home: 'pangyo', cutin: '전원부터 내리겠습니다.',
     story: '서버는 열두 대를 혼자 돌보는데 집에서는 두 살짜리 하나를 못 이긴다. 요즘 그의 하루는 새벽 두 시·네 시·여섯 시로 나뉜다. 잠이 모자란 사람 특유의 **짧고 빠른 손**이 그대로 기술이 됐다 — 길게 갈 체력이 없어서다. 분유 타는 속도가 팀에서 제일 빠르다.',
     bond: '조스클럽 회원 · 민유와 같은 건물에서 일한다',
     col: { skin: '#f2cba6', skinDark: '#d9ac88', hair: '#141821', top: '#3f8f6a', sleeve: '#3f8f6a', sleeveDark: '#317355',
@@ -125,6 +141,10 @@ var C = [
       { key: 'slide', name: '책상 밑 슬라이딩', cmd: '214K', anim: 'chk', startup: 5, active: 9, recovery: 16,
         meter: 5, dmg: 62, hit: 0, kb: 6, move: 10, box: [24, -22, 62, 18], type: 'low', knockdown: true, lowProfile: true,
         note: '낮게 미끄러져 들어간다. 장풍 밑으로 빠져나간다.' },
+      { key: 'static', name: '정전기 방출', cmd: '236P', anim: 'fire', startup: 7, active: 4, recovery: 13,
+        meter: 4, fx: 'spark', sound: 'zap',
+        proj: proj({ color: '#8fe8ff', dmg: 40, speed: 9.4, shape: 'bolt', w: 28, h: 26, y: -78, life: 30 }),
+        note: '가늘고 빠른 전기를 튕겨 낸다. 멀리는 못 가지만 발생이 빨라 파고들기 전에 깔아 둔다.' },
     ],
     super: { key: 'super', name: '블루스크린', cmd: '236236K', anim: 'spin', startup: 10, active: 24, recovery: 24,
       dmg: 26, hit: 10, kb: 2, move: 6.5, box: [20, -96, 56, 76], multi: 9, invuln: [0, 8],
@@ -137,6 +157,7 @@ var C = [
     desc: '공을 띄우고 내리꽂는 발 기술 중심. 자기 이름을 내건 코트에서 특히 강하다.',
     hp: 980, walk: 2.4, dash: 6.0, jump: 14.0, weight: 1, scale: 1.03,
     cry: '내 코트에 온 걸 환영한다.',
+    home: 'palace', cutin: '공이 땅에 닿기 전에 끝낸다!',
     story: '회사 점심시간에 시작한 족구가 인생을 먹었다. 지금은 코트 옆에 컨테이너를 놓고 산다. 휴가는 전부 전국 대회 일정에 맞춰 쓰고, 결혼기념일도 그렇게 잊었다. "공이 땅에 닿기 전에 끝내면 된다"가 그의 유일한 전술이다. 궁전이라 불리는 그 코트는 사실 그가 직접 깔았다.',
     bond: '조스클럽 회원 · 코트 공사비는 조스가 냈다',
     col: { skin: '#efc79f', skinDark: '#d5aa81', hair: '#241a12', top: '#f0c344', sleeve: '#f0c344', sleeveDark: '#c99f2f',
@@ -153,6 +174,10 @@ var C = [
       { key: 'robe', name: '네트 넘기기', cmd: '214K', anim: 'spin', startup: 6, active: 8, recovery: 14,
         meter: 6, dmg: 76, hit: 17, kb: 7.5, move: 4.8, box: [24, -94, 54, 66],
         note: '몸을 돌려 앞을 쓸어 낸다. 파고들 때 쓴다.' },
+      { key: 'smash', name: '내리꽂기', cmd: '236K', anim: 'stomp', startup: 10, active: 5, recovery: 16,
+        meter: 7, dmg: 94, hit: 20, kb: 6, type: 'high', knockdown: true, box: [16, -72, 54, 74],
+        fx: 'dust', sound: 'smash',
+        note: '위에서 아래로 찍는다. **앉아 막으면 그대로 맞는다** — 웅크린 상대를 여는 기술.' },
     ],
     super: { key: 'super', name: '폭풍 스파이크', cmd: '236236P', anim: 'super', startup: 14, active: 8, recovery: 26,
       proj: proj({ color: '#ffd75e', dmg: 55, speed: 5.6, w: 74, h: 66, y: -84, hits: 5, shape: 'ballspin', kb: 9 }),
@@ -165,6 +190,7 @@ var C = [
     desc: '슛과 태클로 거리를 자유롭게 오간다. 균형이 잘 잡힌 중거리형.',
     hp: 1000, walk: 2.7, dash: 6.6, jump: 14.0, weight: 0.98, scale: 1.0,
     cry: '실전은 다르다니까.',
+    home: 'jokgu', cutin: '실전은 다르다니까!',
     story: '일요일 새벽 여섯 시, 이슬 맺힌 잔디에서 스무 해를 뛰었다. 왼발 하나는 진짜다. 그런데 게임기 앞에만 앉으면 조카한테도 5대 0으로 진다 — 손가락이 발을 못 따라간다. "실전은 다르다"는 말을 그날 저녁 내내 한다. 실제로 다르긴 하다. 그라운드에서는 아무도 그를 못 막는다.',
     bond: '조스클럽 회원 · 조기축구회 회비는 조스가 낸다',
     col: { skin: '#eec49c', skinDark: '#d4a67e', hair: '#1b1b22', top: '#e23c3c', sleeve: '#e23c3c', sleeveDark: '#b62e2e',
@@ -181,6 +207,10 @@ var C = [
       { key: 'slide', name: '슬라이딩 태클', cmd: '214K', anim: 'chk', startup: 6, active: 9, recovery: 17,
         meter: 6, dmg: 70, hit: 0, kb: 6.5, move: 9.5, box: [24, -22, 64, 18], type: 'low', knockdown: true, lowProfile: true,
         note: '길게 미끄러져 발밑을 걷어 낸다. 넘어뜨린다 — 다만 헛치면 크게 굳는다.' },
+      { key: 'curve', name: '감아차기', cmd: '236K', anim: 'spin', startup: 8, active: 5, recovery: 15,
+        meter: 6, fx: 'grass', sound: 'kick',
+        proj: proj({ color: '#ffd15e', dmg: 62, speed: 6.4, shape: 'soccer', w: 30, h: 30, y: -46, vy0: -3.0, grav: 0.10 }),
+        note: '떴다가 뚝 떨어지는 바나나킥. 장풍을 뛰어넘으려는 상대의 착지 자리를 노린다.' },
     ],
     super: { key: 'super', name: '페널티킥 난사', cmd: '236236P', anim: 'super', startup: 12, active: 10, recovery: 28,
       proj: proj({ color: '#ffffff', dmg: 48, speed: 7.4, w: 44, h: 44, y: -70, hits: 5, shape: 'soccer', kb: 9 }),
@@ -193,6 +223,7 @@ var C = [
     desc: '가장 단단하고 가장 아프다. 대신 느리고, 어디로 움직일지 본인도 모른다.',
     hp: 1180, walk: 1.9, dash: 5.0, jump: 11.8, weight: 1.4, scale: 1.14,
     cry: '한 잔 하고 가.',
+    home: 'beer', cutin: '자, 2차 가자!',
     story: '2008년에 산 주식을 15년 들고 있었다. 그게 전부다. 지금은 일 년의 절반을 밖에서 보낸다 — 포르투에서 포트와인, 뮌헨에서 맥주, 제주에서 소주. 취한 사람은 예측이 안 된다. 어디서 어떤 팔이 날아올지 **본인도 모른다**. 그래서 이 판에서 제일 상대하기 싫은 사람이다.',
     bond: '조스클럽 회원 · 유일하게 조스 돈을 안 받는 사람',
     col: { skin: '#e8b48a', skinDark: '#cd9769', hair: '#2a2018', top: '#7a8ea0', sleeve: '#7a8ea0', sleeveDark: '#63747f',
@@ -211,6 +242,10 @@ var C = [
       { key: 'lariat', name: '회전 팔 휘두르기', cmd: '214P', anim: 'spin', startup: 6, active: 12, recovery: 16,
         meter: 6, dmg: 34, hit: 12, kb: 3, box: [-30, -96, 110, 60], multi: 3,
         note: '팔을 벌리고 돈다. 앞뒤가 다 판정이라 등 뒤로 돌아 들어와도 맞는다.' },
+      { key: 'spray', name: '술 뿜기', cmd: '214K', anim: 'fire', startup: 8, active: 10, recovery: 18,
+        meter: 6, fx: 'booze', sound: 'spray',
+        proj: proj({ color: '#cfe8a8', dmg: 26, speed: 3.6, shape: 'spray', w: 54, h: 38, y: -82, life: 26, hits: 3 }),
+        note: '입에 문 것을 앞으로 뿜는다. 느리고 짧지만 세 번 맞고, 상대가 다가올 길을 막는다.' },
     ],
     super: { key: 'super', name: '2차 가자', cmd: '236236P', anim: 'super', startup: 16, active: 10, recovery: 30,
       dmg: 205, hit: 0, kb: 10, box: [4, -26, 190, 26], type: 'low', knockdown: true, shake: 26, armor: true,
@@ -223,6 +258,7 @@ var C = [
     desc: '멀리서 잔소리로 상대를 묶어 두는 견제형. 다가오면 도장으로 찍는다.',
     hp: 960, walk: 2.4, dash: 5.8, jump: 12.8, weight: 1.02, scale: 1.02,
     cry: '자네, 그건 아니지.',
+    home: 'halla', cutin: '자네, 오늘은 안 되겠어.',
     story: '동네에서는 그냥 잔소리 많은 안경 아저씨다. 그런데 그 집 차고 문은 20년째 안 열린다. 전기차 배터리 특허가 넉 장, 위성 부품 도면이 몇 개. 회사는 안 만들었다 — 귀찮아서다. 말투는 느린데 계산은 이미 세 수 앞이라, 다가오기 전에 길이 다 막혀 있다. 그가 진짜로 뭘 만들고 있는지는 아무도 모른다.',
     bond: '조스클럽 회원 · 조스가 가장 탐내는 사람',
     col: { skin: '#e8c39c', skinDark: '#cea67f', hair: '#3b3b44', top: '#9fb6cc', sleeve: '#9fb6cc', sleeveDark: '#7f94a8',
@@ -239,6 +275,9 @@ var C = [
       { key: 'chair', name: '회전 의자 돌진', cmd: '214K', anim: 'dash', startup: 6, active: 10, recovery: 15,
         meter: 6, dmg: 74, hit: 17, kb: 7, move: 8.2, box: [20, -92, 54, 66],
         note: '의자째로 굴러 들어온다. 견제만 하다 갑자기 들어갈 때 쓴다.' },
+      { key: 'magnet', name: '자석 집게', cmd: '214P', anim: 'fire', startup: 9, active: 6, recovery: 16,
+        meter: 6, dmg: 46, hit: 26, kb: -7, box: [28, -98, 76, 60], fx: 'magnet', sound: 'magnet',
+        note: '차고에서 만든 물건. 맞으면 **밀려나는 게 아니라 끌려온다** — 도망 다니는 상대를 잡아 온다.' },
     ],
     super: { key: 'super', name: '야근 명령', cmd: '236236P', anim: 'super', startup: 12, active: 10, recovery: 28,
       proj: proj({ color: '#8fa8ff', dmg: 52, speed: 6.4, w: 70, h: 78, y: -88, hits: 5, shape: 'wave', kb: 9 }),
@@ -251,6 +290,7 @@ var C = [
     desc: '리치가 가장 길고 견제가 촘촘하다. 이 게임의 간판 캐릭터.',
     hp: 990, walk: 2.4, dash: 6.0, jump: 13.0, weight: 1.05, scale: 1.03,
     cry: '수익률로 말하지.',
+    home: 'somo', cutin: '수익률로 말하지.',
     story: '조스클럽의 수장. 이 판에 선 남자들은 대부분 그의 돈으로 여기까지 왔다 — 족구 코트도, 조기축구회 회비도, 심지어 우체국 회식비도. 그는 주먹으로 이기지 않는다. **먼저 사람을 사고, 그다음에 링을 산다.** 아직 못 산 사람이 둘 있다. 술 마시는 아저씨와, 차고 문을 안 여는 아저씨.',
     bond: '조스클럽 수장 · 남자 캐릭터 대부분의 후원자',
     col: { skin: '#eec49c', skinDark: '#d4a67e', hair: '#22242e', top: '#2b3350', sleeve: '#2b3350', sleeveDark: '#212841',
@@ -267,6 +307,10 @@ var C = [
       { key: 'papers', name: '서류 폭풍', cmd: '214P', anim: 'spin', startup: 7, active: 10, recovery: 15,
         meter: 6, dmg: 30, hit: 11, kb: 2.5, box: [16, -100, 76, 74], multi: 3,
         note: '가방을 열어 서류를 흩뿌린다. 앞쪽 넓은 범위를 세 번 때린다.' },
+      { key: 'dividend', name: '배당금', cmd: '236K', anim: 'stomp', startup: 9, active: 5, recovery: 15,
+        meter: 6, dmg: 54, hit: 16, kb: 4, type: 'low', box: [8, -32, 72, 36], gain: 22,
+        fx: 'coin', sound: 'coin',
+        note: '발밑에서 동전이 솟는다. 하단이라 서서 막으면 맞고, **맞히면 게이지가 크게 찬다**(돈이 돈을 번다).' },
     ],
     super: { key: 'super', name: '폭등', cmd: '236236P', anim: 'super', startup: 14, active: 10, recovery: 28,
       proj: proj({ color: '#7ee6a8', dmg: 52, speed: 6.2, w: 66, h: 88, y: -92, hits: 5, shape: 'bill', kb: 9 }),
@@ -279,6 +323,7 @@ var C = [
     desc: '가장 빠르고 가장 높이 뛴다. 공중에서 흔들다가 파고드는 캐릭터.',
     hp: 900, walk: 3.2, dash: 7.4, jump: 15.2, weight: 0.82, scale: 0.96,
     cry: '그 말 20년째잖아.',
+    home: 'halla', cutin: '그 말, 오늘로 끝이야.',
     story: '스물넷. 아버지가 20년 다닌 그 동네를 떠나는 게 목표다. "안정적인 게 최고야"라는 말을 들을 때마다 한 발씩 더 멀리 뛴다. 실은 아버지의 손버릇을 제일 많이 물려받았는데, 그 말을 하면 화를 낸다. 발이 이 판에서 제일 빠르다.',
     bond: '민유의 큰딸 · 유정의 언니',
     col: { skin: '#f8d3b2', skinDark: '#deb491', hair: '#4a2a1c', top: '#d94f76', sleeve: '#f8d3b2', sleeveDark: '#deb491',
@@ -295,6 +340,9 @@ var C = [
       { key: 'dive', name: '급강하 차기', cmd: '214K', anim: 'jk', startup: 5, active: 14, recovery: 14,
         meter: 6, dmg: 76, hit: 18, kb: 6, move: 6.5, dive: true, box: [22, -60, 46, 60],
         note: '떴다가 비스듬히 내리꽂는다. 앉아 막는 상대를 넘어 들어간다.' },
+      { key: 'flash', name: '플래시', cmd: '214P', anim: 'toss', startup: 7, active: 4, recovery: 15,
+        meter: 5, dmg: 30, hit: 40, kb: 1.5, box: [14, -112, 58, 62], fx: 'flash', sound: 'flash',
+        note: '눈앞에서 터뜨린다. 위력은 없다시피 하지만 **상대가 오래 굳는다** — 여기서 이어 때린다.' },
     ],
     super: { key: 'super', name: '별빛 난무', cmd: '236236P', anim: 'super', startup: 10, active: 22, recovery: 24,
       dmg: 26, hit: 10, kb: 2, move: 6.8, box: [18, -102, 54, 82], multi: 9, invuln: [0, 8],
@@ -307,6 +355,7 @@ var C = [
     desc: '가방과 필기구로 거리를 재는 원거리형. 다가오지 못하게 하는 데 가장 능하다.',
     hp: 930, walk: 2.6, dash: 6.4, jump: 13.8, weight: 0.88, scale: 0.95,
     cry: '나 학원 가야 되는데.',
+    home: 'jokgu', cutin: '나 학원 가야 된다고!',
     story: '열여섯. 요즘 아버지와 하는 대화는 하루 네 마디를 안 넘는다. 가방에는 문제집 여섯 권이 들어 있고, 그게 이 판에서 가장 무거운 무기다. 아무도 자기 반경 안에 못 들어오게 하는 법을 혼자 터득했다 — 집에서 배운 기술이다. 언니가 집을 나가면 자기도 나갈 거라고 한다.',
     bond: '민유의 작은딸 · 유진의 동생',
     col: { skin: '#f6d2b0', skinDark: '#dcb28f', hair: '#241a20', top: '#f2f4f8', sleeve: '#f2f4f8', sleeveDark: '#d3d6dd',
@@ -323,6 +372,10 @@ var C = [
       { key: 'sweepkick', name: '체육시간 후려차기', cmd: '214K', anim: 'spin', startup: 6, active: 8, recovery: 16,
         meter: 6, dmg: 70, hit: 0, kb: 7, move: 4.0, box: [26, -24, 68, 20], type: 'low', knockdown: true,
         note: '길게 뻗어 발목을 후린다. 하단이라 서서 막으면 맞는다.' },
+      { key: 'bomb', name: '문제집 폭격', cmd: '236K', anim: 'toss', startup: 11, active: 6, recovery: 18,
+        meter: 7, fx: 'book', sound: 'book',
+        proj: proj({ color: '#e8d9a8', dmg: 60, speed: 0, shape: 'book', w: 36, h: 32, y: -300, grav: 0.44, overhead: true, type: 'high', life: 90 }),
+        note: '가방을 열어 하늘로 던진다. 문제집은 **상대 머리 위에서** 떨어진다 — 서서 막아야 한다.' },
     ],
     super: { key: 'super', name: '야자 탈출', cmd: '214214K', anim: 'super', startup: 12, active: 20, recovery: 26,
       dmg: 27, hit: 10, kb: 2, move: 5.4, box: [20, -112, 60, 96], multi: 8, invuln: [0, 8],
@@ -474,6 +527,44 @@ var PROP = {
     cx.fillStyle = '#e8556f'; cx.fillRect(4, -8, 4, 5);
   },
 };
+
+
+/* ---------- 기술마다 다른 이펙트와 소리 ----------
+   ★같은 '장풍'이라도 민유는 코드가, 조스는 지폐가, 유정은 샤프심이 날아가야 한다.
+     기술 자료에 [이펙트, 소리] 한 쌍만 적어 두고, 실제로 뿌리고 울리는 일은 fight.js 가 한다.
+   ⚠️여기 적은 이름이 fight.js 의 MOVEFX·SFX 에 없으면 조용히 아무 일도 안 난다 —
+     그래서 자가검증이 **이름이 실제로 있는지** 대조한다. */
+var FLAVOR = {
+  minyu:    { fireball: ['code', 'code'], upper: ['spark', 'rise'], spin: ['wind', 'swipe'],
+              rollback: ['code', 'warp'], super: ['code', 'boom'] },
+  jongbeom: { tackle: ['dust', 'charge'], upper: ['parcel', 'rise'], grab: ['parcel', 'slam'],
+              express: ['parcel', 'toss'], super: ['parcel', 'charge'] },
+  inwoo:    { knee: ['spark', 'swipe'], upper: ['wind', 'rise'], slide: ['dust', 'slide'],
+              static: ['spark', 'zap'], super: ['spark', 'zap'] },
+  nodeok:   { spike: ['ball', 'kick'], upper: ['wind', 'rise'], robe: ['wind', 'swipe'],
+              smash: ['dust', 'smash'], super: ['ball', 'kick'] },
+  gilsu:    { shot: ['grass', 'kick'], upper: ['grass', 'rise'], slide: ['grass', 'slide'],
+              curve: ['grass', 'kick'], super: ['grass', 'kick'] },
+  dongsik:  { headbutt: ['booze', 'charge'], upper: ['booze', 'glass'], lariat: ['wind', 'swipe'],
+              spray: ['booze', 'spray'], super: ['dust', 'quake'] },
+  junwon:   { nag: ['paper', 'nag'], upper: ['paper', 'stamp'], chair: ['dust', 'charge'],
+              magnet: ['magnet', 'magnet'], super: ['paper', 'nag'] },
+  joss:     { money: ['money', 'coin'], upper: ['money', 'rise'], papers: ['paper', 'paper'],
+              dividend: ['coin', 'coin'], super: ['money', 'coin'] },
+  yujin:    { orb: ['star', 'star'], upper: ['star', 'rise'], dive: ['wind', 'swipe'],
+              flash: ['flash', 'flash'], super: ['star', 'star'] },
+  yujeong:  { needle: ['chalk', 'needle'], upper: ['book', 'slam'], sweepkick: ['chalk', 'swipe'],
+              bomb: ['book', 'book'], super: ['book', 'slam'] },
+};
+C.forEach(function (ch) {
+  var f = FLAVOR[ch.key] || {};
+  ch.specials.concat([ch.super]).forEach(function (mv) {
+    var v = f[mv.key];
+    if (!v) return;
+    if (!mv.fx) mv.fx = v[0];
+    if (!mv.sound) mv.sound = v[1];
+  });
+});
 
 C.forEach(function (ch) {
   var h = HAIR[ch.hairDraw] || HAIR.short;

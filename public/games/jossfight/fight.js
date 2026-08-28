@@ -98,6 +98,77 @@ var Snd = {
   ko: function () { Snd.blip(160, 0.6, 'sawtooth', 0.46); Snd.noise(0.5, 0.5, 500); },
 };
 
+/* ---------- 기술마다 다른 소리 (2026-08-21) ----------
+   ★타격음 하나로 스무 가지 기술을 다 처리하면, 눈으로는 다른 기술인데 **귀로는 같은 기술**이다.
+     소포는 툭 떨어지고, 전기는 찢어지고, 동전은 딸랑거려야 한다. 파일은 여전히 없다 —
+     오실레이터 한둘과 잡음 한 줌으로 그 자리에서 만든다.
+   ★소리는 짧아야 한다(0.1~0.35초). 길면 다음 타격음과 겹쳐 진창이 된다.
+   ⚠️이름은 chars.js 의 FLAVOR 와 맞물린다 — 한쪽만 고치면 조용히 아무 소리도 안 난다. */
+function osc(f0, f1, dur, type, vol, delay) {
+  if (!AC || !Snd.on) return;
+  var t = AC.currentTime + (delay || 0);
+  var o = AC.createOscillator(), g = AC.createGain();
+  o.type = type || 'square';
+  o.frequency.setValueAtTime(Math.max(20, f0), t);
+  o.frequency.exponentialRampToValueAtTime(Math.max(20, f1 || f0), t + dur);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.002, vol), t + Math.min(0.02, dur * 0.3));
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(master());
+  o.start(t); o.stop(t + dur + 0.04);
+}
+function nz(dur, vol, lo, delay, hi) {
+  if (!AC || !Snd.on) return;
+  var t = AC.currentTime + (delay || 0);
+  var n = Math.max(1, Math.floor(AC.sampleRate * dur));
+  var buf = AC.createBuffer(1, n, AC.sampleRate), d = buf.getChannelData(0);
+  for (var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  var src = AC.createBufferSource(); src.buffer = buf;
+  var f = AC.createBiquadFilter(); f.type = 'lowpass'; f.frequency.setValueAtTime(lo || 1200, t);
+  var node = f;
+  if (hi) { var h = AC.createBiquadFilter(); h.type = 'highpass'; h.frequency.setValueAtTime(hi, t); f.connect(h); node = h; }
+  var g = AC.createGain(); g.gain.setValueAtTime(vol || 0.3, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  src.connect(f); node.connect(g); g.connect(master());
+  src.start(t); src.stop(t + dur + 0.02);
+}
+var SFX = {
+  code:   function () { osc(760, 1180, 0.07, 'square', 0.22); osc(1180, 1560, 0.07, 'square', 0.18, 0.05); osc(1560, 900, 0.10, 'square', 0.14, 0.10); },
+  zap:    function () { osc(2400, 260, 0.16, 'sawtooth', 0.24); nz(0.12, 0.26, 6000, 0, 2200); },
+  warp:   function () { osc(220, 940, 0.20, 'sine', 0.24); nz(0.16, 0.14, 2400, 0.02); },
+  toss:   function () { nz(0.09, 0.18, 900); osc(180, 320, 0.16, 'triangle', 0.20, 0.02); },
+  smash:  function () { nz(0.20, 0.55, 700); osc(230, 58, 0.22, 'sine', 0.46); },
+  kick:   function () { nz(0.07, 0.34, 1600); osc(320, 84, 0.11, 'sine', 0.38); },
+  coin:   function () { osc(1050, 1050, 0.07, 'square', 0.20); osc(1560, 1560, 0.14, 'square', 0.17, 0.05); },
+  paper:  function () { nz(0.10, 0.20, 9000, 0, 3200); nz(0.09, 0.16, 9000, 0.07, 3200); },
+  spray:  function () { nz(0.34, 0.24, 5200, 0, 1400); osc(420, 240, 0.30, 'sawtooth', 0.10); },
+  magnet: function () { osc(88, 132, 0.30, 'sine', 0.34); osc(300, 232, 0.26, 'triangle', 0.14, 0.03); },
+  flash:  function () { nz(0.09, 0.30, 12000, 0, 5000); osc(3000, 1300, 0.14, 'sine', 0.22); },
+  book:   function () { nz(0.13, 0.34, 520); osc(170, 92, 0.14, 'sine', 0.28); },
+  glass:  function () { osc(2450, 2450, 0.06, 'square', 0.16); nz(0.16, 0.20, 12000, 0.02, 4200); },
+  star:   function () { osc(1180, 2360, 0.09, 'triangle', 0.20); osc(1560, 3120, 0.09, 'triangle', 0.15, 0.05); },
+  rise:   function () { osc(300, 1250, 0.20, 'sawtooth', 0.22); nz(0.10, 0.16, 1800); },
+  swipe:  function () { nz(0.10, 0.16, 620); },
+  slide:  function () { nz(0.26, 0.22, 2600, 0, 700); },
+  charge: function () { nz(0.24, 0.26, 520); osc(130, 190, 0.24, 'sawtooth', 0.18); },
+  slam:   function () { nz(0.18, 0.46, 560); osc(200, 52, 0.20, 'sine', 0.42); },
+  quake:  function () { osc(76, 30, 0.55, 'sine', 0.50); nz(0.45, 0.36, 380); },
+  nag:    function () { osc(520, 470, 0.10, 'square', 0.16); osc(470, 560, 0.10, 'square', 0.14, 0.09); osc(560, 430, 0.12, 'square', 0.12, 0.18); },
+  stamp:  function () { nz(0.10, 0.40, 700); osc(240, 120, 0.10, 'square', 0.24); },
+  needle: function () { osc(2700, 1900, 0.05, 'square', 0.16); nz(0.05, 0.14, 12000, 0, 5200); },
+  boom:   function () { nz(0.36, 0.52, 620); osc(190, 44, 0.34, 'sine', 0.46); },
+  dust:   function () { nz(0.16, 0.22, 900); },
+  /* 초필살기 시작 — 시간이 멈추는 소리. 화음 + 위로 훑는 소리 + 한 방. */
+  cutin:  function () {
+    [220, 277, 330, 440].forEach(function (f, i) { osc(f, f, 0.55, 'sawtooth', 0.11, i * 0.02); });
+    osc(200, 2600, 0.42, 'sine', 0.20);
+    nz(0.40, 0.34, 900, 0.30);
+    osc(160, 52, 0.40, 'sine', 0.40, 0.30);
+  },
+};
+Snd.sfx = function (name) { var f = SFX[name]; if (f) f(); };
+Snd.SFX = SFX;
+
 /* ---------- 배경음악 ----------
    ★음악도 파일이 없다. 화음 진행과 한 마디짜리 가락만 적어 두고 그 자리에서 합성한다.
    ★박자는 **오디오 시계**로 맞춘다. setInterval 로 소리를 내면 대전 화면에 눌려 박자가
@@ -269,13 +340,16 @@ var Mus = (function () {
    1P: 이동 A D · 앉기 S · 점프 W · 약손 J · 강손 K · 약발 U · 강발 I
    2P: 방향키 · 약손 numpad1 · 강손 numpad2 · 약발 numpad4 · 강발 numpad5
    ⚠️키는 code 로 읽는다. 한글 자판이어도 자리로 잡히기 때문이다. */
+/* ★필살기 버튼(sp, 2026-08-21) — 커맨드를 못 넣는 사람도 필살기를 쓸 수 있어야 한다.
+     ↓↘→ 를 굴릴 줄 아는 사람에게는 지금까지의 커맨드가 그대로 남아 있고(그쪽이 더 빠르다),
+     못 넣는 사람은 **버튼 하나 + 방향**으로 같은 기술을 낸다. 둘은 서로를 막지 않는다. */
 var KEYMAP = [
-  { left: 'KeyA', right: 'KeyD', up: 'KeyW', down: 'KeyS', lp: 'KeyJ', hp: 'KeyK', lk: 'KeyU', hk: 'KeyI' },
+  { left: 'KeyA', right: 'KeyD', up: 'KeyW', down: 'KeyS', lp: 'KeyJ', hp: 'KeyK', lk: 'KeyU', hk: 'KeyI', sp: 'KeyL' },
   { left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', down: 'ArrowDown',
-    lp: 'Numpad1', hp: 'Numpad2', lk: 'Numpad4', hk: 'Numpad5' },
+    lp: 'Numpad1', hp: 'Numpad2', lk: 'Numpad4', hk: 'Numpad5', sp: 'Numpad3' },
 ];
 var held = {};
-function blank() { return { left: 0, right: 0, up: 0, down: 0, lp: 0, hp: 0, lk: 0, hk: 0 }; }
+function blank() { return { left: 0, right: 0, up: 0, down: 0, lp: 0, hp: 0, lk: 0, hk: 0, sp: 0 }; }
 function readPad(i) {
   var m = KEYMAP[i], o = blank();
   for (var k in m) o[k] = held[m[k]] ? 1 : 0;
@@ -363,8 +437,27 @@ function startMove(f, mv) {
     f.x = Math.max(60, Math.min(ARENA - 60, f.x));
   }
   if (mv.meter) f.meter = Math.max(0, f.meter - 0);          // 필살기는 게이지를 쓰지 않는다(모으기만)
-  if (mv.key === 'super') f.meter = 0;
-  Snd.whoosh();
+  if (mv.key === 'super') { f.meter = 0; superCine(f, mv); }
+  // 장풍이 있는 기술은 **손을 떠나는 순간**(spawnProj)에 소리가 난다 — 여기서는 휘두르는 소리만.
+  if (mv.proj) Snd.whoosh();
+  else Snd.sfx(mv.sound || 'swipe');
+}
+
+/* ★초필살기 연출 — 시간이 멈추고, 컷인이 들어오고, 그다음 **느리게 흐른다**.
+   ⚠️연출은 step() 을 통째로 멈춰 세운다(g.cine). 그동안 판정도 시계도 멈춘다 —
+     연출 중에 맞아 죽으면 그건 연출이 아니라 사고다.
+   ⚠️컷인이 끝나면 곧바로 슬로모션으로 넘긴다. '멈췄다 → 원래 속도'로 돌아가면
+     기껏 멈춘 것이 그냥 렉처럼 보인다. */
+var SLOW_DIV = 3;                     // 슬로모션 배속: 실제 3프레임당 게임 1프레임
+function superCine(f, mv) {
+  var g = G;
+  if (!g || g.demo) return;
+  g.cine = { t: 0, dur: 72, ch: f.ch, name: mv.name, side: f === g.p1 ? 0 : 1 };
+  g.flash = 1;
+  g.shake = Math.max(g.shake, 8);
+  Snd.sfx('cutin');
+  Mus.duck(true);
+  preloadCutIn([f.ch.key]);
 }
 
 function canAct(f) {
@@ -372,8 +465,25 @@ function canAct(f) {
          f.state !== 'intro' && f.state !== 'win' && f.state !== 'lose';
 }
 
+/** 필살기 버튼 + 방향 → 어느 기술인가.
+    중립=1번(주력) · 아래=2번(대공) · 뒤=3번 · 앞=4번, 그리고 **게이지가 가득 찼을 때 중립이면
+    초필살기**. 방향을 넣으면 게이지가 차 있어도 그 필살기가 나간다(초필을 아껴 쓸 수 있게).
+    ⚠️공중에서는 안 나간다 — 뛰면서 아무 때나 대공기가 나오면 게임이 무너진다. */
+function spByDir(f, inp) {
+  if (f.air) return null;
+  var sp = f.ch.specials;
+  var fwd = f.face > 0 ? inp.right : inp.left;
+  var back = f.face > 0 ? inp.left : inp.right;
+  if (inp.down) return sp[1] || sp[0];
+  if (back) return sp[2] || sp[0];
+  if (fwd) return sp[3] || sp[0];
+  if (f.meter >= 100) return f.ch.super;
+  return sp[0];
+}
+
 /** 사람 입력에서 필살기를 찾아본다(누른 순간에만). */
 function tryHuman(f, inp, prev) {
+  if (inp.sp && !prev.sp) { var byBtn = spByDir(f, inp); if (byBtn) return byBtn; }
   var pressedP = (inp.lp && !prev.lp) || (inp.hp && !prev.hp);
   var pressedK = (inp.lk && !prev.lk) || (inp.hk && !prev.hk);
   if (!pressedP && !pressedK) return null;
@@ -401,6 +511,23 @@ function hitStop(g, frames) { g.freezeT = Math.max(g.freezeT || 0, Math.min(12, 
 function step() {
   var g = G;
   if (!g || g.paused) return;
+  g.rt = (g.rt || 0) + 1;                                    // 실제로 흐른 프레임(슬로모션과 무관)
+  if (g.flash > 0) g.flash = Math.max(0, g.flash - 0.055);   // 화면 섬광은 늘 식는다
+  // ★컷인 — 세계를 통째로 세워 두고 그림만 흐른다
+  if (g.cine) {
+    g.cine.t++;
+    if (g.shake > 0.5) g.shake *= 0.90;
+    if (g.cine.t >= g.cine.dur) { g.cine = null; g.slowT = 150; }
+    return;
+  }
+  // ★슬로모션 — 세 번에 한 번만 세계를 나아가게 한다(그리기는 60프레임 그대로).
+  //   ⚠️여기서 '건너뛴' 프레임에도 흔들림은 식어야 한다. 안 그러면 화면이 계속 떨린다.
+  if (g.slowT > 0) {
+    g.slowT--;
+    if (g.slowT === 0) Mus.duck(false);
+    g.slowStep = (g.slowStep || 0) + 1;
+    if (g.slowStep % SLOW_DIV) { if (g.shake > 0.5) g.shake *= 0.95; return; }
+  }
   if (g.freezeT > 0) {                      // 멈춤 — 흔들림만 살아 있다
     g.freezeT--;
     if (g.shake > 0.5) g.shake *= 0.86;
@@ -501,6 +628,8 @@ function stepFighter(f, inp, opp, frozen) {
     f.mvf++;
     var total = f.mv.startup + f.mv.active + f.mv.recovery;
     if (f.mv.proj && f.mvf === f.mv.startup) spawnProj(f, f.mv);
+    // 기술마다 다른 이펙트 — 판정이 살아나는 바로 그 프레임에 터진다
+    if (f.mvf === f.mv.startup && MOVEFX[f.mv.fx]) MOVEFX[f.mv.fx](G, f, f.mv);
     if (f.mvf >= total) { f.mv = null; f.state = 'idle'; f.armorLeft = 0; setAnim(f, 'idle', true); }
   } else if (!frozen && f.hitstun <= 0 && f.blockstun <= 0 && f.downT <= 0 && f.getupT <= 0) {
     move(f, inp, opp);
@@ -597,19 +726,30 @@ function pressAtk(f, inp) {
 /* ---------- 장풍 ---------- */
 function spawnProj(f, mv) {
   var p = mv.proj, s = SC(f);
+  var opp = (G.p1 === f) ? G.p2 : G.p1;
+  // ★머리 위에서 떨어지는 것(문제집 폭격)은 **상대 자리**에서 시작한다 — 앞으로 날아가지 않는다
+  var x = (p.overhead && opp) ? opp.x + f.face * 8 * s : f.x + f.face * 46 * s;
   G.projs.push({
-    x: f.x + f.face * 46 * s, y: f.y + GY + p.y * s, vx: p.speed * f.face * ZOOM,
+    x: x, y: f.y + GY + p.y * s, vx: p.speed * f.face * ZOOM,
+    vy: (p.vy0 || 0) * ZOOM, grav: (p.grav || 0) * ZOOM, type: p.type || 'mid',
     w: p.w * s, h: p.h * s, dmg: p.dmg, hit: p.hit, block: p.block, kb: p.kb,
     color: p.color, shape: p.shape, life: p.life, owner: f, hits: p.hits, done: 0, t: 0,
   });
-  Snd.fire();
+  Snd.sfx(mv.sound || 'code');
 }
 
 function stepProjectiles(g) {
   for (var i = g.projs.length - 1; i >= 0; i--) {
     var p = g.projs[i];
     p.x += p.vx; p.t++;
+    if (p.grav) { p.vy += p.grav; p.y += p.vy; }        // 포물선으로 나는 것(소포·감아차기·문제집)
     if (--p.life <= 0 || p.x < -80 || p.x > ARENA + 80) { g.projs.splice(i, 1); continue; }
+    if (p.grav && p.y > GY - 4) {                        // 땅에 떨어지면 터지고 사라진다
+      boom(g, p.x, GY - 8, p.color);
+      dust(g, { x: p.x }, 5, 1.0);
+      Snd.sfx('dust');
+      g.projs.splice(i, 1); continue;
+    }
     var def = p.owner === g.p1 ? g.p2 : g.p1;
     var box = { x: p.x - p.w / 2, y: p.y - p.h / 2, w: p.w, h: p.h };
     // 장풍끼리 부딪히면 함께 사라진다
@@ -627,7 +767,7 @@ function stepProjectiles(g) {
     if (!p) continue;
     if (def.invuln > 0 || def.downT > 0) continue;
     if (overlap(box, hurtBox(def))) {
-      applyHit(g, p.owner, def, { dmg: p.dmg, hit: p.hit, block: p.block, kb: p.kb, type: 'mid' }, true);
+      applyHit(g, p.owner, def, { dmg: p.dmg, hit: p.hit, block: p.block, kb: p.kb, type: p.type || 'mid' }, true);
       if (--p.hits <= 0) { boom(g, p.x, p.y, p.color); g.projs.splice(i, 1); }
     }
   }
@@ -638,7 +778,8 @@ function stepFx(g) {
   for (var i = g.fx.length - 1; i >= 0; i--) {
     var e = g.fx[i];
     e.x += e.vx || 0; e.y += e.vy || 0;
-    if (e.vy !== undefined && !e.ring) e.vy += 0.25;
+    if (e.vy !== undefined && !e.ring) e.vy += (e.g === undefined ? 0.25 : e.g);
+    if (e.spin) e.rot = (e.rot || 0) + e.spin;
     if (--e.life <= 0) g.fx.splice(i, 1);
   }
 }
@@ -667,6 +808,127 @@ function impactFx(g, x, y, dir, heavy) {
                 dir: dir, life: 8, max: 8, col: 'rgba(255,255,255,.7)' });
   }
 }
+
+
+/* ---------- 기술마다 다른 이펙트 (2026-08-21) ----------
+   ★'무엇이 날아가는가'가 그 사람이 누구인지를 말한다. 민유는 코드가, 조스는 지폐가,
+     유정은 문제집이 흩날려야 한다. 판정과는 아무 상관이 없다 — 순전히 눈요기이고,
+     **눈요기가 격투게임의 절반**이다.
+   ⚠️수명은 step() 이 깎는다(stepFx). 여기서는 뿌리기만 한다.
+   ⚠️좌표는 월드 기준 — 그리기에서 camX 를 뺀다. */
+function fxOrigin(f) {
+  var s = SC(f);
+  return { x: f.x + f.face * 34 * s, y: f.y + GY - 76 * s, s: s, d: f.face };
+}
+function pushFx(g, o) { g.fx.push(o); }
+var MOVEFX = {
+  code: function (g, f) {                         // 민유 — 코드와 에러 로그
+    var o = fxOrigin(f), t = ['{ }', 'err', 'null', '0x1F', 'NaN', ';'];
+    for (var i = 0; i < 7; i++) pushFx(g, { txt: t[i % t.length], x: o.x, y: o.y - 20 + Math.random() * 44,
+      vx: o.d * (2 + Math.random() * 5), vy: -1 + Math.random() * 2, g: 0.02, life: 22, max: 22,
+      col: i % 3 ? '#7cc4ff' : '#ff8a6a', sz: (10 + Math.random() * 8) * o.s, rot: (Math.random() - .5) * 0.6 });
+  },
+  spark: function (g, f) {                        // 인우 — 전기
+    var o = fxOrigin(f);
+    for (var i = 0; i < 3; i++) pushFx(g, { bolt: 1, x: o.x, y: o.y - 12 + i * 12,
+      dx: o.d * (50 + Math.random() * 60) * o.s, dy: (Math.random() - .5) * 40 * o.s,
+      life: 7, max: 7, col: '#bff2ff' });
+    for (var j = 0; j < 8; j++) pushFx(g, { x: o.x, y: o.y, vx: o.d * (1 + Math.random() * 6), vy: (Math.random() - .5) * 6,
+      g: 0.05, life: 12, max: 12, col: '#8fe8ff', r: 1.6 + Math.random() * 2.6 });
+  },
+  wind: function (g, f) {                         // 회전·바람 — 지나간 자리를 고리로 남긴다
+    var o = fxOrigin(f);
+    for (var i = 0; i < 2; i++) pushFx(g, { ring: 1, x: o.x, y: o.y + i * 14, r: 14 * o.s, grow: 3.2,
+      life: 12, max: 12, col: 'rgba(226,236,255,.55)' });
+    for (var j = 0; j < 4; j++) pushFx(g, { line: 1, x: o.x - o.d * 20, y: o.y - 24 + j * 14,
+      len: (40 + Math.random() * 40) * o.s, dir: o.d, life: 9, max: 9, col: 'rgba(255,255,255,.5)' });
+  },
+  dust: function (g, f) {                         // 내려찍기·돌진 — 발밑에서 흙이 터진다
+    dust(g, f, 10, 1.5);
+    pushFx(g, { ring: 1, x: f.x, y: GY - 6, r: 16 * SC(f), grow: 6, life: 12, max: 12, col: 'rgba(240,228,200,.55)' });
+  },
+  parcel: function (g, f) {                       // 종범 — 소포
+    var o = fxOrigin(f);
+    for (var i = 0; i < 5; i++) pushFx(g, { rect: 1, x: o.x, y: o.y + (Math.random() - .5) * 30,
+      w: (10 + Math.random() * 9) * o.s, h: (9 + Math.random() * 8) * o.s,
+      vx: o.d * (1.5 + Math.random() * 3.5), vy: -2 - Math.random() * 3, g: 0.28,
+      life: 26, max: 26, col: '#c9a06a', spin: (Math.random() - .5) * 0.3, rot: Math.random() * 3 });
+  },
+  ball: function (g, f) {                         // 노덕 — 공
+    var o = fxOrigin(f);
+    for (var i = 0; i < 3; i++) pushFx(g, { ring: 1, x: o.x, y: o.y, r: (10 + i * 6) * o.s, grow: 4,
+      life: 11, max: 11, col: 'rgba(240,195,68,.6)' });
+    for (var j = 0; j < 6; j++) pushFx(g, { x: o.x, y: o.y, vx: o.d * (2 + Math.random() * 4), vy: (Math.random() - .5) * 5,
+      life: 14, max: 14, col: '#f0c344', r: 2 + Math.random() * 3 });
+  },
+  grass: function (g, f) {                        // 길수 — 잔디와 흙
+    var s2 = SC(f);
+    for (var i = 0; i < 9; i++) pushFx(g, { x: f.x + f.face * (10 + Math.random() * 30), y: GY - 4 - Math.random() * 8,
+      vx: f.face * (1 + Math.random() * 4), vy: -(1 + Math.random() * 4), g: 0.3,
+      life: 18, max: 18, col: i % 3 ? '#4f9a52' : '#7a5a34', r: (1.6 + Math.random() * 2.4) * s2 });
+  },
+  booze: function (g, f) {                        // 동식 — 뿜은 것
+    var o = fxOrigin(f);
+    for (var i = 0; i < 12; i++) pushFx(g, { x: o.x, y: o.y - 8 + Math.random() * 10,
+      vx: o.d * (2 + Math.random() * 6), vy: -1.5 + Math.random() * 3, g: 0.16,
+      life: 20, max: 20, col: i % 4 ? 'rgba(207,232,168,.85)' : 'rgba(255,255,255,.7)', r: 1.8 + Math.random() * 3.4 });
+  },
+  paper: function (g, f) {                        // 준원·조스 — 서류
+    var o = fxOrigin(f);
+    for (var i = 0; i < 9; i++) pushFx(g, { rect: 1, x: o.x, y: o.y + (Math.random() - .5) * 50,
+      w: (7 + Math.random() * 6) * o.s, h: (9 + Math.random() * 7) * o.s,
+      vx: o.d * (1 + Math.random() * 5), vy: -1 + Math.random() * 2, g: 0.06,
+      life: 30, max: 30, col: '#f2f4f8', spin: (Math.random() - .5) * 0.5, rot: Math.random() * 3 });
+  },
+  money: function (g, f) {                        // 조스 — 지폐가 솟는다
+    var o = fxOrigin(f);
+    for (var i = 0; i < 10; i++) pushFx(g, { rect: 1, x: o.x + (Math.random() - .5) * 40, y: o.y + 20,
+      w: (12 + Math.random() * 8) * o.s, h: (6 + Math.random() * 4) * o.s,
+      vx: o.d * (0.4 + Math.random() * 2.4), vy: -(2 + Math.random() * 4), g: 0.10,
+      life: 34, max: 34, col: '#8fd6a0', spin: (Math.random() - .5) * 0.4, rot: Math.random() * 3 });
+  },
+  coin: function (g, f) {                         // 조스 — 발밑에서 동전
+    var s2 = SC(f);
+    for (var i = 0; i < 8; i++) pushFx(g, { txt: '₩', x: f.x + f.face * (10 + Math.random() * 46), y: GY - 6,
+      vx: f.face * (0.3 + Math.random() * 1.6), vy: -(3 + Math.random() * 4), g: 0.20,
+      life: 28, max: 28, col: '#ffd15e', sz: (12 + Math.random() * 8) * s2, rot: (Math.random() - .5) * 0.5 });
+    pushFx(g, { ring: 1, x: f.x, y: GY - 6, r: 14 * s2, grow: 5, life: 12, max: 12, col: 'rgba(255,209,94,.6)' });
+  },
+  star: function (g, f) {                         // 유진 — 별
+    var o = fxOrigin(f);
+    for (var i = 0; i < 6; i++) pushFx(g, { star: 1, x: o.x + (Math.random() - .5) * 46, y: o.y + (Math.random() - .5) * 46,
+      r: (9 + Math.random() * 10) * o.s, life: 14, max: 14, col: i % 2 ? '#ff9ecb' : '#fff3c8', rot: Math.random() * 3 });
+  },
+  chalk: function (g, f) {                        // 유정 — 분필·샤프심 가루
+    var o = fxOrigin(f);
+    for (var i = 0; i < 9; i++) pushFx(g, { x: o.x, y: o.y + (Math.random() - .5) * 34,
+      vx: o.d * (2 + Math.random() * 7), vy: (Math.random() - .5) * 2, g: 0.04,
+      life: 16, max: 16, col: '#e0d8ff', r: 1.2 + Math.random() * 2 });
+  },
+  magnet: function (g, f) {                       // 준원 — 안으로 빨려 들어오는 고리
+    var o = fxOrigin(f);
+    for (var i = 0; i < 3; i++) pushFx(g, { ring: 1, x: o.x + o.d * 40, y: o.y, r: (46 - i * 8) * o.s,
+      grow: -3.4, life: 14, max: 14, col: 'rgba(180,160,255,.7)' });
+    for (var j = 0; j < 7; j++) {
+      var a = Math.random() * 6.28, rr = (40 + Math.random() * 40) * o.s;
+      pushFx(g, { x: o.x + o.d * 40 + Math.cos(a) * rr, y: o.y + Math.sin(a) * rr,
+        vx: -Math.cos(a) * 3.4, vy: -Math.sin(a) * 3.4, g: 0, life: 13, max: 13, col: '#c9b6ff', r: 2 + Math.random() * 2.4 });
+    }
+  },
+  flash: function (g, f) {                        // 유진 — 눈앞에서 터진다
+    var o = fxOrigin(f);
+    g.flash = Math.max(g.flash || 0, 0.75);
+    pushFx(g, { star: 1, x: o.x + o.d * 26, y: o.y, r: 54 * o.s, life: 12, max: 12, col: '#ffffff', rot: 0.4 });
+    pushFx(g, { ring: 1, x: o.x + o.d * 26, y: o.y, r: 12 * o.s, grow: 7, life: 12, max: 12, col: 'rgba(255,255,255,.8)' });
+  },
+  book: function (g, f) {                         // 유정 — 하늘에서 떨어지는 문제집
+    var o = fxOrigin(f);
+    for (var i = 0; i < 6; i++) pushFx(g, { rect: 1, x: o.x + (Math.random() - .5) * 70, y: o.y - 60 - Math.random() * 40,
+      w: (12 + Math.random() * 7) * o.s, h: (14 + Math.random() * 8) * o.s,
+      vx: (Math.random() - .5) * 2, vy: 1 + Math.random() * 2, g: 0.24,
+      life: 30, max: 30, col: i % 2 ? '#e8d9a8' : '#f2f4f8', spin: (Math.random() - .5) * 0.35, rot: Math.random() * 3 });
+  },
+};
 
 function boom(g, x, y, col) {
   for (var i = 0; i < 10; i++) {
@@ -740,6 +1002,7 @@ function applyHit(g, att, def, mv, isProj) {
   def.combo = 0;
   att.combo++; att.comboT = 90;
   att.meter = Math.min(100, att.meter + (isProj ? 4 : 6));
+  if (mv.gain) att.meter = Math.min(100, att.meter + mv.gain);   // 배당금 — 맞히면 게이지가 크게 찬다
   def.meter = Math.min(100, def.meter + 4);
   def.flash = 6;
   def.ghostWait = 26;
@@ -811,6 +1074,10 @@ function koCheck(g, byTime) {
     else return;
     g.msg = 'K.O.';
     Snd.ko();
+    // ★마지막 한 대는 느리게 — 이겼다는 걸 눈으로 확인할 시간을 준다
+    g.slowT = Math.max(g.slowT || 0, 72);
+    g.shake = Math.max(g.shake, 10);
+    g.flash = Math.max(g.flash || 0, 0.5);
   }
   p1.hp = Math.max(0, p1.hp); p2.hp = Math.max(0, p2.hp);
   g.msgT = 120;
@@ -860,6 +1127,7 @@ function newMatch(charA, charB, stage, humanP2, demo) {
     freezeT: 0, zoom: 0,
   };
   newRound(G);
+  preloadCutIn([charA.key, charB.key]);   // 컷인이 처음 나갈 때 그림이 비어 있으면 안 된다
   return G;
 }
 
@@ -920,6 +1188,12 @@ function aiInput(f, opp, g) {
     if (opp.mv.type === 'low' || (opp.mv.box && opp.mv.box[1] > -40)) inp.down = 1;
     return inp;
   }
+  // 3-b) ★상대가 계속 앉아 막고 있으면 **위에서 찍는 기술**로 연다
+  //     (이게 없으면 사람이 앉아 막기만 해도 CPU 가 아무것도 못 하는 구간이 생긴다)
+  if (opp.crouch && opp.blocking && dist < 150 && Math.random() < D.aggr * 0.5) {
+    var over = findSpecial(f, ['smash', 'bomb', 'express', 'dive']);
+    if (over) { startMove(f, over); return inp; }
+  }
   // 4) 헛친 기술을 벌준다
   if (opp.mv && opp.mvf > opp.mv.startup + opp.mv.active && dist < 130 && Math.random() < D.punish) {
     var big = f.meter >= 100 && Math.random() < D.meter ? f.ch.super : findSpecial(f, ['upper', 'fireball', 'money']);
@@ -944,7 +1218,8 @@ function aiInput(f, opp, g) {
   var r = Math.random();
   if (dist > 300) {
     // 멀다 — 장풍을 쏘거나 다가온다
-    var fb = findSpecial(f, ['fireball', 'money', 'orb', 'needle', 'shot', 'spike', 'nag', 'shuriken']);
+    var fb = findSpecial(f, ['fireball', 'money', 'orb', 'needle', 'shot', 'spike', 'nag',
+                             'express', 'static', 'curve', 'bomb']);
     if (fb && r < 0.45) { startMove(f, fb); return inp; }
     f.aiPlan = function (o, dd, tw) { o[tw] = 1; return o; };
     f.dashT = 20;
@@ -953,7 +1228,7 @@ function aiInput(f, opp, g) {
   if (dist > 150) {
     // 중거리 — 파고들거나 견제한다
     if (r < 0.30 * D.aggr) {
-      var rush = findSpecial(f, ['spin', 'tackle', 'knee', 'headbutt', 'chair', 'slide', 'robe', 'dive']);
+      var rush = findSpecial(f, ['spin', 'tackle', 'knee', 'headbutt', 'chair', 'slide', 'robe', 'dive', 'magnet']);
       if (rush) { startMove(f, rush); return inp; }
     }
     if (r < 0.55) { f.aiPlan = function (o, dd, tw) { o[tw] = 1; return o; }; f.dashT = 14; }
@@ -972,7 +1247,7 @@ function aiInput(f, opp, g) {
   else if (r < 0.68) { f.aiPlan = function (o) { o.hp = 1; return o; }; }
   else if (r < 0.80) { f.aiPlan = function (o) { o.down = 1; o.hk = 1; return o; }; }
   else if (r < 0.90) {
-    var sp2 = findSpecial(f, ['upper', 'spin', 'lariat', 'papers', 'sweepkick']);
+    var sp2 = findSpecial(f, ['upper', 'spin', 'lariat', 'papers', 'sweepkick', 'dividend', 'flash', 'spray']);
     if (sp2) { startMove(f, sp2); return inp; }
     f.aiPlan = function (o) { o.hk = 1; return o; };
   } else { f.aiPlan = function (o, dd, tw, aw) { o[aw] = 1; return o; }; }
@@ -1051,8 +1326,42 @@ function draw() {
       cx.lineTo(e.x - g.camX + e.dir * e.len * (1 + (8 - e.life) * 0.15), e.y);
       cx.stroke(); cx.lineCap = 'butt';
     } else if (e.ring) {
+      // grow 가 음수면 **안으로 조여든다**(자석). 기본은 퍼진다.
+      var gw = (e.grow === undefined ? 2 : e.grow);
+      var rr2 = Math.max(1, e.r + ((e.max || 12) - e.life) * gw);
       cx.strokeStyle = e.col; cx.lineWidth = 3;
-      cx.beginPath(); cx.arc(e.x - g.camX, e.y, e.r + (12 - e.life) * 2, 0, 7); cx.stroke();
+      cx.beginPath(); cx.arc(e.x - g.camX, e.y, rr2, 0, 7); cx.stroke();
+    } else if (e.txt) {                      // 코드·동전 같은 '글자가 날아가는' 이펙트
+      cx.save();
+      cx.translate(e.x - g.camX, e.y); cx.rotate(e.rot || 0);
+      cx.font = '900 ' + Math.round(e.sz || 14) + 'px ui-monospace, monospace';
+      cx.textAlign = 'center';
+      cx.lineWidth = 3; cx.strokeStyle = 'rgba(10,12,20,.8)';
+      cx.strokeText(e.txt, 0, 0);
+      cx.fillStyle = e.col; cx.fillText(e.txt, 0, 0);
+      cx.restore();
+      cx.textAlign = 'left';
+    } else if (e.rect) {                     // 서류·지폐·소포·문제집
+      cx.save();
+      cx.translate(e.x - g.camX, e.y); cx.rotate(e.rot || 0);
+      cx.fillStyle = e.col;
+      cx.fillRect(-e.w / 2, -e.h / 2, e.w, e.h);
+      cx.strokeStyle = 'rgba(12,14,22,.55)'; cx.lineWidth = 1.4;
+      cx.strokeRect(-e.w / 2, -e.h / 2, e.w, e.h);
+      cx.restore();
+    } else if (e.bolt) {                     // 번개 — 한 번 그은 선이 아니라 꺾인 선이어야 전기로 보인다
+      cx.save();
+      cx.globalCompositeOperation = 'lighter';
+      cx.strokeStyle = e.col; cx.lineWidth = 2.6; cx.lineJoin = 'round';
+      cx.beginPath();
+      var bx = e.x - g.camX, by = e.y;
+      cx.moveTo(bx, by);
+      for (var bi = 1; bi <= 4; bi++) {
+        cx.lineTo(bx + e.dx * bi / 4 + (Math.random() - .5) * 12, by + e.dy * bi / 4 + (Math.random() - .5) * 16);
+      }
+      cx.stroke();
+      cx.restore();
+      cx.globalCompositeOperation = 'source-over';
     } else {
       cx.fillStyle = e.col;
       cx.beginPath(); cx.arc(e.x - g.camX, e.y, e.r, 0, 7); cx.fill();
@@ -1060,7 +1369,10 @@ function draw() {
     cx.globalAlpha = 1;
   }
   cx.restore();
+  drawSlowVignette(g);
   drawHud(g);
+  drawCine(g);
+  drawFlash(g);
 }
 
 /* 발차기·주먹이 지나간 자리 — 큰 기술이 '커 보이는' 것의 절반은 이 자국이다.
@@ -1152,6 +1464,42 @@ function drawProj(cx2, p, camX) {
     cx2.globalAlpha = 0.5; cx2.fillText('err', -p.w * 0.3, -10); cx2.globalAlpha = 1;
     cx2.strokeStyle = p.color; cx2.lineWidth = 2;
     cx2.strokeRect(-p.w * 0.5, -p.h * 0.5, p.w, p.h);
+  } else if (p.shape === 'box') {                 // 종범 — 던진 소포
+    cx2.rotate(t * 0.14);
+    cx2.fillStyle = '#c9a06a';
+    cx2.fillRect(-p.w * 0.45, -p.h * 0.45, p.w * 0.9, p.h * 0.9);
+    cx2.strokeStyle = '#8d1f2d'; cx2.lineWidth = 3;
+    cx2.beginPath();
+    cx2.moveTo(0, -p.h * 0.45); cx2.lineTo(0, p.h * 0.45);
+    cx2.moveTo(-p.w * 0.45, 0); cx2.lineTo(p.w * 0.45, 0);
+    cx2.stroke();
+  } else if (p.shape === 'book') {                // 유정 — 떨어지는 문제집
+    cx2.rotate(Math.sin(t * 0.18) * 0.5);
+    cx2.fillStyle = '#e8d9a8';
+    cx2.fillRect(-p.w * 0.4, -p.h * 0.5, p.w * 0.8, p.h);
+    cx2.fillStyle = '#8d2b3a';
+    cx2.fillRect(-p.w * 0.4, -p.h * 0.5, p.w * 0.18, p.h);
+    cx2.strokeStyle = 'rgba(30,26,20,.6)'; cx2.lineWidth = 1.6;
+    cx2.strokeRect(-p.w * 0.4, -p.h * 0.5, p.w * 0.8, p.h);
+  } else if (p.shape === 'bolt') {                // 인우 — 전기
+    cx2.strokeStyle = p.color; cx2.lineWidth = 3; cx2.lineJoin = 'round';
+    cx2.beginPath();
+    cx2.moveTo(-p.w * 0.5, 0);
+    for (var bi = 1; bi <= 4; bi++) {
+      cx2.lineTo(-p.w * 0.5 + p.w * bi / 4, (bi % 2 ? -1 : 1) * p.h * 0.32 * Math.random());
+    }
+    cx2.stroke();
+    cx2.fillStyle = '#ffffff';
+    cx2.beginPath(); cx2.arc(0, 0, p.h * 0.16, 0, 7); cx2.fill();
+  } else if (p.shape === 'spray') {               // 동식 — 뿜은 것
+    for (var si = 0; si < 7; si++) {
+      var sa = (si / 7) * 6.28 + t * 0.3;
+      cx2.globalAlpha = 0.5 + 0.5 * Math.random();
+      cx2.beginPath();
+      cx2.arc(Math.cos(sa) * p.w * 0.3, Math.sin(sa) * p.h * 0.3, p.h * (0.16 + Math.random() * 0.14), 0, 7);
+      cx2.fill();
+    }
+    cx2.globalAlpha = 1;
   } else if (p.shape === 'wave') {
     cx2.strokeStyle = p.color; cx2.lineWidth = 3;
     for (var w = 0; w < 3; w++) {
@@ -1334,6 +1682,156 @@ function drawHud(g) {
   cx.textAlign = 'left';
 }
 
+
+/* ============================================================
+   초필살기 컷인 · 슬로모션 화면 (2026-08-21)
+   ★초필살기가 '조금 센 필살기'로 보이면 게이지를 모을 이유가 없다. 세 가지가 함께 와야 한다:
+     (1) 시간이 **멈추고** (2) 그 사람의 **그림**이 화면을 가르고 (3) 풀린 뒤에 **느리게 흐른다**.
+   ★그림은 art/super_*.jpg — 없으면 초상(char_*.jpg)으로, 그것도 없으면 그 자리에서 그린 캐릭터로
+     내려간다. 그림 파일 하나가 빠져도 연출은 돌아간다.
+   ============================================================ */
+var CUTART = {};
+function preloadCutIn(keys) {
+  keys.forEach(function (k) {
+    if (CUTART[k]) return;
+    var e = { a: new Image(), b: new Image() };
+    e.a.src = 'art/super_' + k + '.jpg';
+    e.b.src = 'art/char_' + k + '.jpg';
+    CUTART[k] = e;
+  });
+}
+function cutArt(key) {
+  var e = CUTART[key];
+  if (!e) { preloadCutIn([key]); e = CUTART[key]; }
+  if (e.a.complete && e.a.naturalWidth) return e.a;
+  if (e.b.complete && e.b.naturalWidth) return e.b;
+  return null;
+}
+
+/** 화면 전체가 하얗게 뜨는 순간 — 컷인 시작·초필 명중·KO 에 쓴다. */
+function drawFlash(g) {
+  if (!g.flash || g.flash <= 0.01) return;
+  cx.save();
+  cx.globalAlpha = Math.min(0.85, g.flash * 0.8);
+  cx.fillStyle = '#ffffff';
+  cx.fillRect(0, 0, VW, VH);
+  cx.restore();
+}
+
+/** 느리게 흐르는 동안 — 가장자리를 어둡게 조이고 옆으로 흐르는 선을 깐다. */
+function drawSlowVignette(g) {
+  if (!g.slowT || g.cine) return;
+  var k = Math.min(1, g.slowT / 40);
+  cx.save();
+  var gr = cx.createRadialGradient(VW / 2, VH * 0.55, VH * 0.30, VW / 2, VH * 0.55, VH * 0.95);
+  gr.addColorStop(0, 'rgba(10,14,30,0)');
+  gr.addColorStop(1, 'rgba(10,14,30,' + (0.68 * k).toFixed(3) + ')');
+  cx.fillStyle = gr;
+  cx.fillRect(0, 0, VW, VH);
+  cx.globalAlpha = 0.22 * k;
+  cx.fillStyle = '#bcd7ff';
+  for (var i = 0; i < 9; i++) {
+    var y = (((g.rt || 0) * 7 + i * 121) % (VH + 120)) - 60;
+    cx.fillRect(0, y, VW, 2.5);
+  }
+  cx.restore();
+}
+
+function drawCine(g) {
+  var c = g.cine;
+  if (!c) return;
+  var t = c.t, dur = c.dur;
+  var inK = Math.min(1, t / 9);
+  inK = 1 - Math.pow(1 - inK, 3);
+  var outK = Math.max(0, Math.min(1, (t - (dur - 11)) / 11));
+  var k = inK * (1 - outK);
+  var right = c.side === 1;
+
+  cx.save();
+  // 1) 배경을 어둡게 — 컷인은 '무대가 꺼지고 조명이 하나 켜지는' 일이다
+  cx.fillStyle = 'rgba(6,8,16,' + (0.62 * k).toFixed(3) + ')';
+  cx.fillRect(0, 0, VW, VH);
+
+  // 2) 위아래 검은 띠(시네마스코프)
+  var bar = 46 * k;
+  cx.fillStyle = '#05070d';
+  cx.fillRect(0, 0, VW, bar);
+  cx.fillRect(0, VH - bar, VW, bar);
+
+  // 3) 뒤에서 뻗어 나오는 빛살
+  cx.save();
+  cx.globalAlpha = 0.5 * k;
+  cx.translate(right ? VW * 0.78 : VW * 0.22, VH * 0.52);
+  for (var i = 0; i < 16; i++) {
+    cx.rotate(Math.PI * 2 / 16);
+    cx.fillStyle = i % 2 ? 'rgba(255,209,94,.16)' : 'rgba(255,255,255,.05)';
+    cx.beginPath(); cx.moveTo(0, 0); cx.lineTo(VW, -22); cx.lineTo(VW, 22); cx.closePath(); cx.fill();
+  }
+  cx.restore();
+
+  // 4) 그림판 — 비스듬한 판이 옆에서 밀고 들어온다
+  // ⚠️판을 화면 높이에 그대로 맞추면 **좁은 화면에서 국수 가락처럼 길어진다**(그림이 다 잘린다).
+  //   가로에 견주어 1.5배까지만 세우고, 남는 자리는 위아래로 나눈다.
+  var pw = Math.min(430, VW * 0.58);
+  var ph = Math.min(VH - bar * 2 - 8, pw * 1.5);
+  var slide = (1 - inK) * VW * 0.75 + outK * VW * 0.55;
+  var px = (right ? VW - pw - VW * 0.03 + slide : VW * 0.03 - slide);
+  var py = bar + (VH - bar * 2 - ph) / 2;
+  var sk = 26;
+  cx.save();
+  cx.beginPath();
+  cx.moveTo(px + sk, py); cx.lineTo(px + pw, py);
+  cx.lineTo(px + pw - sk, py + ph); cx.lineTo(px, py + ph);
+  cx.closePath();
+  cx.save(); cx.clip();
+  cx.fillStyle = '#0b0f18'; cx.fillRect(px, py, pw, ph);
+  var im = cutArt(c.ch.key);
+  if (im) {
+    var sc2 = Math.max(pw / im.naturalWidth, ph / im.naturalHeight) * 1.06;
+    var iw = im.naturalWidth * sc2, ih = im.naturalHeight * sc2;
+    // 들어오면서 살짝 밀려온다(정지 화면이 아니라 '치고 들어온 그림'으로 보이게)
+    var drift = (1 - inK) * 26 * (right ? 1 : -1);
+    cx.drawImage(im, px + (pw - iw) / 2 + drift, py + (ph - ih) * 0.42, iw, ih);
+  } else {
+    cx.save();                                  // 그림이 없으면 그 자리에서 캐릭터를 그린다
+    cx.translate(px + pw / 2, py + ph * 0.92);
+    FA.drawFighter(cx, 0, 0, right ? -1 : 1, c.ch, FA.poseAt('win', 10, false), { zoom: ph / 150 });
+    cx.restore();
+  }
+  var fade = cx.createLinearGradient(px, py, px, py + ph);
+  fade.addColorStop(0, 'rgba(11,15,26,.55)');
+  fade.addColorStop(0.35, 'rgba(11,15,26,0)');
+  fade.addColorStop(1, 'rgba(11,15,26,.85)');
+  cx.fillStyle = fade; cx.fillRect(px, py, pw, ph);
+  cx.restore();
+  cx.strokeStyle = 'rgba(255,224,150,' + (0.9 * k).toFixed(2) + ')'; cx.lineWidth = 3; cx.stroke();
+  cx.restore();
+
+  // 5) 글자 — 기술 이름은 크게 비스듬히, 그 아래 외침
+  var tx = right ? VW * 0.04 : VW * 0.96;
+  var align = right ? 'left' : 'right';
+  cx.save();
+  cx.globalAlpha = Math.max(0, Math.min(1, (t - 6) / 8)) * (1 - outK);
+  cx.translate(tx, VH * 0.46);
+  cx.rotate(-0.06);
+  cx.textAlign = align;
+  cx.font = '900 ' + Math.round(Math.min(58, VW * 0.062)) + 'px sans-serif';
+  cx.lineWidth = 9; cx.strokeStyle = 'rgba(8,10,18,.9)';
+  cx.strokeText(c.name, 0, 0);
+  var gr2 = cx.createLinearGradient(0, -44, 0, 18);
+  gr2.addColorStop(0, '#fff6d6'); gr2.addColorStop(0.55, '#ffd15e'); gr2.addColorStop(1, '#d98a22');
+  cx.fillStyle = gr2;
+  cx.fillText(c.name, 0, 0);
+  cx.font = '800 ' + Math.round(Math.min(20, VW * 0.023)) + 'px sans-serif';
+  cx.lineWidth = 6; cx.strokeStyle = 'rgba(8,10,18,.9)';
+  cx.strokeText(c.ch.name + ' · ' + (c.ch.cutin || c.ch.cry), 0, 34);
+  cx.fillStyle = '#ffffff';
+  cx.fillText(c.ch.name + ' · ' + (c.ch.cutin || c.ch.cry), 0, 34);
+  cx.restore();
+  cx.textAlign = 'left';
+  cx.restore();
+}
+
 /* ---------- 화면 크기 ---------- */
 function fit() {
   cv = document.getElementById('game');
@@ -1367,6 +1865,7 @@ window.JOSS = {
   setLevel: function (l) { AI_LEVEL = l; }, getLevel: function () { return AI_LEVEL; },
   DIFF: DIFF, ARENA: ARENA, get ZOOM() { return ZOOM; }, get GY() { return GY; }, get VW() { return VW; }, Snd: Snd, Mus: Mus, held: held,
   KEYMAP: KEYMAP, FPS: FPS, aiInput: aiInput, applyHit: applyHit, blank: blank,
+  SFX: SFX, MOVEFX: MOVEFX, spByDir: spByDir, SLOW_DIV: SLOW_DIV, cutArt: cutArt, preloadCutIn: preloadCutIn,
   loop: function () { requestAnimationFrame(frame); },
 };
 
