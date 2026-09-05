@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>문주의 피아노</title>
+<link rel="stylesheet" href="piano.css?v=1">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="hud">
+    <span class="chip" id="hSong"></span>
+    <span class="chip" id="hScore"></span>
+    <span class="chip" id="hCombo"></span>
+    <span class="chip" id="hAcc"></span>
+  </div>
+  <div id="hudBtns">
+    <button class="iconbtn" id="muteBtn" title="소리 끄기">🔈</button>
+    <button class="iconbtn" id="quitBtn" title="곡 목록으로">✕</button>
+  </div>
+
+  <!-- 메인 메뉴 -->
+  <div class="screen" id="menu" style="display:flex">
+    <h1>🎹 문주의 피아노<span>MUNJU PIANO</span></h1>
+    <p class="lead">
+      떨어지는 음을 자판 건반으로 칩니다. 계이름과 악보를 함께 보여 주니,
+      치면서 <b>악보 읽는 법</b>이 같이 익습니다. 틀려도 잃는 것은 없고,
+      연습 모드에서는 칠 때까지 곡이 기다려 줍니다.
+    </p>
+
+    <div class="songlist" id="songList"></div>
+
+    <div class="btnrow">
+      <button class="graybtn" id="optMode">🐢 연습 모드</button>
+      <button class="graybtn" id="optSpeed">속도 ×1.0</button>
+      <button class="graybtn" id="optKor">계이름 보기</button>
+      <button class="graybtn" id="optKeys">자판 글자 보기</button>
+      <button class="graybtn" id="optStaff">악보 보기</button>
+    </div>
+    <div class="btnrow">
+      <button class="bigbtn" id="freeBtn">🎼 자유 연주 — 그냥 쳐 보기</button>
+    </div>
+
+    <div class="help">
+      <b>한 옥타브 곡</b> — 흰건반 <b>A S D F G H J K</b> (도레미파솔라시도), 검은건반 <b>W E T Y U</b><br>
+      <b>두 옥타브 곡</b> — 아래 옥타브 <b>Z X C V B N M</b>, 위 옥타브 <b>Q W E R T Y U I</b> (검은건반은 그 사이 글자)<br>
+      곡을 고르면 그 곡에 맞는 배치로 저절로 바뀌고, 화면 건반에 글자가 적혀 있습니다<br>
+      📱 태블릿·폰에서는 <b>화면 건반을 손가락으로</b> 누르세요 · <b>ESC</b> 곡 목록으로
+    </div>
+    <div class="credit">100% AI 제작 · 소리도 브라우저가 그 자리에서 만들어 냅니다(녹음 파일 없음)<br>
+      실린 곡은 모두 저작권이 소멸한 곡이며, 주제 선율만 한 손으로 옮겼습니다</div>
+  </div>
+
+  <!-- 결과 -->
+  <div class="screen" id="result">
+    <h2 id="resT"></h2>
+    <div id="resStars"></div>
+    <div id="resStats"></div>
+    <div class="btnrow">
+      <button class="bigbtn" id="againBtn">다시 치기</button>
+      <button class="graybtn" id="menuBtn">곡 목록으로</button>
+    </div>
+  </div>
+
+  <!-- 오류를 삼키지 않는다: 자가검증 도구가 이걸 읽어서 원인을 알려 준다 -->
+  <script>window.__errs = []; window.addEventListener('error', function (e) {
+    window.__errs.push(e.message + ' @' + (e.filename || '').split('/').pop() + ':' + e.lineno);
+  });</script>
+  <script src="songs.js?v=1"></script>
+  <script src="piano.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>What It Actually Means to Run a Local LLM on a Mac mini — The M6 and M5 Pro Math — MeNew Soft</title><meta name="description" content="In August 2026 the Mac mini moved to M6 and M5 Pro, and Apple spent the announcement talking about on-device AI. Here is where the Mac mini is structurally strong for local LLM work, and where the spec sheet hides the traps. The short version: the first number to look at is not GPU cores, it is memory."><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/en/blog/mac-mini-local-llm-2026/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)"><link rel="alternate" hreflang="ko" href="https://menewsoft.com/blog/mac-mini-local-llm-2026/"><link rel="alternate" hreflang="en" href="https://menewsoft.com/en/blog/mac-mini-local-llm-2026/"><link rel="alternate" hreflang="x-default" href="https://menewsoft.com/blog/mac-mini-local-llm-2026/"><meta property="og:type" content="website"><meta property="og:title" content="What It Actually Means to Run a Local LLM on a Mac mini — The M6 and M5 Pro Math — MeNew Soft"><meta property="og:description" content="In August 2026 the Mac mini moved to M6 and M5 Pro, and Apple spent the announcement talking about on-device AI. Here is where the Mac mini is structurally strong for local LLM work, and where the spec sheet hides the traps. The short version: the first number to look at is not GPU cores, it is memory."><meta property="og:url" content="https://menewsoft.com/en/blog/mac-mini-local-llm-2026/"><meta property="og:site_name" content="MeNew Soft"><meta property="og:image" content="https://menewsoft.com/og/blog/mac-mini-local-llm-2026.en.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="What It Actually Means to Run a Local LLM on a Mac mini — The M6 and M5 Pro Math"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://menewsoft.com/og/blog/mac-mini-local-llm-2026.en.png"><link rel="sitemap" href="/sitemap-index.xml"><!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. --><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MeNew Soft","alternateName":["menewsoft","menewsoft.com","미뉴소프트","메뉴소프트","Tech Decode"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/index.DiusLBaZ.css">
+<style>.related[data-astro-cid-y2nmntto]{max-width:var(--readw);margin:48px auto 0;padding-top:8px}.game-break[data-astro-cid-y2nmntto]{max-width:var(--readw);margin:34px auto 0;display:flex;align-items:center;gap:20px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--bg-elev)}.gb-cover[data-astro-cid-y2nmntto]{flex:none;width:190px;aspect-ratio:16 / 10;display:block;background:#1a2433}.gb-cover[data-astro-cid-y2nmntto] img[data-astro-cid-y2nmntto]{width:100%;height:100%;object-fit:cover;display:block}.gb-body[data-astro-cid-y2nmntto]{padding:14px 18px 14px 0;min-width:0}.gb-label[data-astro-cid-y2nmntto]{margin:0 0 4px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600}.gb-body[data-astro-cid-y2nmntto] h3[data-astro-cid-y2nmntto]{margin:0 0 8px;font-family:var(--serif);font-size:1.15rem;color:var(--fg-strong)}.gb-play[data-astro-cid-y2nmntto]{color:var(--accent);font-weight:600;font-size:14.5px}@media(max-width:560px){.game-break[data-astro-cid-y2nmntto]{flex-direction:column;align-items:stretch;gap:0}.gb-cover[data-astro-cid-y2nmntto]{width:100%}.gb-body[data-astro-cid-y2nmntto]{padding:14px 18px 16px}}
+</style></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/en/">MeNew<span>Soft</span></a> <nav class="nav"> <a href="/en/">Home</a> <a href="/en/shops/">Listed shops</a> <a href="/en/news/">Shop news</a> <a href="/en/games/">Arcade</a> <a href="/en/blog/">Articles</a>     <a href="/en/about/">About</a> <a href="/en/contact/">Contact</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul> <li> <a href="/blog/mac-mini-local-llm-2026/" class hreflang="ko">한국어</a> </li><li> <a href="/en/blog/mac-mini-local-llm-2026/" class="active" hreflang="en">English</a> </li> </ul> </div> </nav> </div> </header> <main> <article class="article"><div class="wrap"><div class="article-head"><a class="cat" href="/en/category/ai/">AI</a><h1>What It Actually Means to Run a Local LLM on a Mac mini — The M6 and M5 Pro Math</h1><p class="post-meta">menew · August 28, 2026</p></div><div class="ad-slot" data-ad-slot="article-top"></div><div class="post-body"><p>When an individual or a small team decides to run an LLM locally today, the options narrow to roughly three: a Windows PC with a gaming GPU, rented cloud GPUs, or a Mac. The Mac mini comes up disproportionately often in that conversation — and not simply because it is an Apple product. There is a structural reason.</p>
+<p>On August 25, 2026, <a href="https://www.apple.com/newsroom/2026/08/apple-unveils-a-more-powerful-mac-mini-featuring-the-all-new-m6-and-m5-pro/">the Mac mini moved to M6 and M5 Pro</a>, and Apple leaned on on-device AI throughout the announcement. This is a good moment to lay out what the Mac mini is good at as a local LLM machine, and what it is not.</p>
+<h2 id="unified-memory-is-almost-an-unfair-advantage">Unified memory is almost an unfair advantage</h2>
+<p>The first wall you hit with local LLMs is not speed. It is whether the model fits in memory at all. If it does not fit, it is not slow — it simply does not run.</p>
+<p>On a normal PC that wall is the graphics card’s VRAM. VRAM is expensive, and more importantly it does not scale easily. Even a top-end consumer GPU tops out around 32GB, and going beyond that means moving to data center cards, where the price changes by an order of magnitude.</p>
+<p>On a Mac, the CPU and GPU share a single pool of unified memory. Configure the system memory generously and that same memory becomes the space your model lives in.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Product</th><th>Chip</th><th>Max unified memory</th></tr></thead><tbody><tr><td>Mac mini</td><td>M6</td><td>32GB</td></tr><tr><td>Mac mini</td><td>M5 Pro</td><td>64GB</td></tr><tr><td>Mac Studio</td><td>M5 Max</td><td>128GB</td></tr><tr><td>Mac Studio</td><td>M5 Ultra</td><td><strong>512GB</strong></td></tr></tbody></table>
+<p>Putting a 512GB “GPU” on a desk is not realistically achievable through any other route. That configuration starts at $5,499 for the base M5 Ultra, of course — but compared with assembling the equivalent capacity out of discrete GPUs, the comparison reads differently.</p>
+<p>One caveat. <strong>Not all of that unified memory is available to the model.</strong> macOS caps how much the GPU may claim, and the default sits around 75%. You can adjust it with <code>iogpu.wired_limit_mb</code>, but the OS and other apps still have to run, so plan on roughly 70–80% of the advertised capacity being usable in practice.</p>
+<h2 id="you-can-leave-it-running-247">You can leave it running 24/7</h2>
+<p>This does not show up on a spec sheet, but it dominates day-to-day experience.</p>
+<p>A desktop with a high-end GPU draws hundreds of watts under load and the fans are audible. Leaving it running all day next to your desk is a commitment. The Mac mini idles at very low power, stays effectively silent under load, and takes up about as much space as your hand.</p>
+<p>That is why the pattern people converge on is the always-on agent machine: leave the Mac mini running with a local API server, then connect from a laptop or phone whenever you need it. Automated code review, document summarization pipelines, an internal search backend — put any of that on top and it keeps running with no cloud bill attached.</p>
+<p>Apple used the phrase “always-on, deskside agentic computing” in this announcement. It is marketing copy, but it also reflects how people are already using these machines.</p>
+<h2 id="bandwidth-not-core-count-sets-the-speed">Bandwidth, not core count, sets the speed</h2>
+<p>LLM inference splits into two phases, and each has a different bottleneck.</p>
+<p><strong>Prompt processing (prefill).</strong> Reading your input in one pass. Compute is the bottleneck here, so GPU throughput and dedicated accelerators matter. You feel it as “time until the first character appears.”</p>
+<p><strong>Token generation (decode).</strong> Emitting the answer one token at a time. Every token requires reading the entire set of model weights out of memory, so memory bandwidth effectively sets the ceiling. You feel it as “how fast the text flows.”</p>
+<p>So when you read Mac specs through a local-LLM lens, look at the bandwidth number before the GPU core count.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Chip</th><th>Memory bandwidth</th><th>Max memory</th></tr></thead><tbody><tr><td>M4 (previous Mac mini)</td><td>120GB/s</td><td>32GB</td></tr><tr><td>M6 (16GB config)</td><td><strong>153GB/s</strong></td><td>16GB</td></tr><tr><td>M6 (24/32GB configs)</td><td>170GB/s</td><td>32GB</td></tr><tr><td>M5 Pro</td><td>307GB/s</td><td>64GB</td></tr><tr><td>M5 Max</td><td>614GB/s</td><td>128GB</td></tr><tr><td>M5 Ultra</td><td>1.2TB/s</td><td>512GB</td></tr></tbody></table>
+<p>Run the same model across these and generation speed scales roughly with those ratios. That is not a bad mental model.</p>
+<p>There is one line Apple did not put in bold. <strong>The base 16GB M6 runs at 153GB/s; you have to move up to 24GB or 32GB to get 170GB/s</strong> — a detail 9to5Mac <a href="https://9to5mac.com/2026/08/27/m6-mac-mini-three-things-apple-didnt-highlight-in-the-announcement/">flagged as something Apple did not highlight</a>. Buy the base configuration and you lose on capacity and bandwidth at the same time. The “buy more memory” advice below gets stronger because of it.</p>
+<p>Prefill improved substantially this generation. With Neural Accelerators now in every GPU core, Apple says the M6 delivers <strong>up to 4.8x faster LLM prompt processing than M4</strong> in LM Studio. That is a meaningful difference if your workflow involves dropping long documents or whole codebases into context.</p>
+<h2 id="what-fits-in-how-much-memory">What fits in how much memory</h2>
+<p>A rough feel, assuming 4-bit quantization (Q4). In practice the KV cache consumes additional memory as context grows, so leave headroom.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Unified memory</th><th>What realistically runs</th><th>Character</th></tr></thead><tbody><tr><td>16GB</td><td>7–8B, 14B if you push it</td><td>Summarization, classification, light code assist</td></tr><tr><td>24–32GB</td><td>14B comfortably, 27–32B possible</td><td>The practical floor</td></tr><tr><td>64GB</td><td>70B-class becomes viable</td><td>Serious work</td></tr><tr><td>128GB+</td><td>100B+, room for long context</td><td>Specialist workloads</td></tr></tbody></table>
+<p>There is a common mistake here. <strong>Running a large model slowly is usually more useful than running a small model quickly.</strong> A 32B at 15 tokens/sec beats a 14B at 40 tokens/sec on output quality. You can wait out slow speed; you cannot wait a model into being smarter.</p>
+<p>So if you are weighing a used M4 with 32GB against a new M6 with 16GB, the M4 32GB wins for local LLM purposes. The gap between “a 32B model runs” and “a 32B model will not load at all” is not something a bandwidth difference can close.</p>
+<h2 id="the-software-is-already-mature">The software is already mature</h2>
+<p>A few years ago, running LLMs on a Mac meant fighting the toolchain. That is no longer true.</p>
+<p><strong>Ollama.</strong> One command pulls a model and serves it. A local API server opens automatically, which makes it easy to attach other apps. The easiest place to start.</p>
+<p><strong>LM Studio.</strong> GUI-based. Model discovery, downloads, quantization selection, and chat all in one app. It is also the app Apple cites when quoting performance numbers.</p>
+<p><strong>llama.cpp.</strong> For when you need low-level control over quantization options and memory layout.</p>
+<p><strong>MLX.</strong> Apple’s own machine learning framework for Apple silicon. Designed around the unified memory architecture, so it often extracts better performance from the same hardware. Fine-tuning experiments are possible here too.</p>
+<p>It is still thin compared with the CUDA ecosystem, but for “download a model and run it,” nothing is missing.</p>
+<h2 id="privacy-and-cost">Privacy and cost</h2>
+<p>Not a performance argument, but the practical reason many people choose local in the first place.</p>
+<p><strong>Data does not leave.</strong> Plenty of organizations flatly prohibit external API calls when internal source code, customer records, or unreleased documents are involved. In an air-gapped environment, local is the only option there is.</p>
+<p><strong>Token cost is zero.</strong> Batch-processing large document sets, or iterating on a prompt several hundred times, adds up fast on API pricing. Locally, you pay for electricity. At high usage, the hardware can pay for itself within months.</p>
+<p><strong>It is always available.</strong> No service outages, pricing changes, model deprecations, or rate limits. A model you have downloaded stays downloaded.</p>
+<h2 id="the-honest-downsides">The honest downsides</h2>
+<p>For balance.</p>
+<p><strong>Prompt processing still trails NVIDIA.</strong> Bandwidth carries token generation well, but when you are pushing large volumes of input, discrete GPUs are clearly faster. If your workflow regularly dumps long documents into context, that gap compounds.</p>
+<p><strong>Training and fine-tuning remain unfavorable.</strong> Inference works well; training is a different problem. Both the ecosystem and the tooling are overwhelmingly on the CUDA side. Treat a Mac as an inference machine.</p>
+<p><strong>You cannot add memory later.</strong> Unified memory is attached to the chip, so post-purchase upgrades are impossible. This leads to the single most important practical piece of advice here: storage can be patched with an external drive, memory cannot. <strong>If the budget is tight, cut storage and raise memory.</strong></p>
+<p><strong>Large models are, in the end, slow.</strong> “A 200B model fits in 512GB” and “it runs comfortably” are different statements. It will load, but you may be looking at a few tokens per second.</p>
+<p><strong>Memory prices are rising.</strong> Analysts attribute much of this generation’s price increase to RAM costs. The M6 Mac mini starts at $899, <a href="https://zdnet.co.kr/view/?no=20260826075145">up $100 from the previous generation</a>, with the M5 Pro model at $1,699. This is exactly where the advice to buy more memory collides head-on with the budget.</p>
+<h2 id="so-which-configuration-should-you-buy">So which configuration should you buy</h2>
+<p>By use case:</p>
+<p><strong>If you are just getting started with LLMs,</strong> the base M6 Mac mini will get you going — as long as you know that 16GB stops at 7–8B models. If you plan to do a bit more, <strong>an M6 with 32GB is the realistic minimum recommendation</strong>, and as noted above, that is also where bandwidth steps up to 170GB/s.</p>
+<p><strong>If this is a serious development assistant,</strong> M5 Pro with 64GB. 70B-class models fit and 307GB/s makes the difference obvious. Thunderbolt 5 starts here as well (M6 is Thunderbolt 4).</p>
+<p><strong>If you are thinking about clustering multiple machines,</strong> M5 Pro or above, for Thunderbolt 5.</p>
+<p><strong>If you need the largest models,</strong> leave the Mac mini for the Mac Studio: M5 Max from $2,499, M5 Ultra from $5,499. Apple says the M5 Ultra reaches up to 4.3x the peak AI compute of M3 Ultra and can “run enormous LLMs entirely on device.” The <strong>512GB configuration arrives in late October</strong>.</p>
+<p>Both the new Mac mini and Mac Studio <strong>go on sale September 22</strong>.</p>
+<h2 id="closing">Closing</h2>
+<p>Compressed to one line, the reason the Mac mini works as a local LLM machine: <strong>you can put a large amount of memory, at a relatively reasonable price, into a small box that is quiet and sips power.</strong></p>
+<p>This is not a claim that it beats a top-end GPU on absolute performance. It is that the cost of clearing the first gate — “can it run at all?” — is lower than by other routes, and that leaving it on 24/7 is a much smaller commitment. As a personal workstation or a small team’s always-on inference server, that combination is fairly persuasive.</p>
+<p>If you are weighing a purchase, the order is clear. <strong>Decide what size model you need to run, calculate the memory that requires, and only then choose the chip.</strong> Going in the opposite order usually ends in regret.</p>
+<h3 id="sources">Sources</h3>
+<ul>
+<li><a href="https://www.apple.com/newsroom/2026/08/apple-unveils-a-more-powerful-mac-mini-featuring-the-all-new-m6-and-m5-pro/">Apple Newsroom — Apple unveils a more powerful Mac mini featuring the all-new M6 and M5 Pro</a></li>
+<li><a href="https://www.apple.com/newsroom/2026/08/apple-introduces-new-mac-studio-with-m5-max-and-m5-ultra/">Apple Newsroom — Apple introduces new Mac Studio with M5 Max and M5 Ultra</a></li>
+<li><a href="https://www.macrumors.com/2026/08/25/apple-announces-2026-mac-mini/">MacRumors — Apple Announces New Mac Mini With M6 and M5 Pro Chips</a></li>
+<li><a href="https://www.macrumors.com/2026/08/25/mac-studio-m5-ultra-512gb-ram-october/">MacRumors — Mac Studio With M5 Ultra Chip and 512GB of RAM Launching in October</a></li>
+<li><a href="https://9to5mac.com/2026/08/27/m6-mac-mini-three-things-apple-didnt-highlight-in-the-announcement/">9to5Mac — M6 Mac mini: Three things Apple didn’t highlight in the announcement</a></li>
+<li><a href="https://zdnet.co.kr/view/?no=20260826075145">ZDNet Korea — Apple unveils the 2nm M6 Mac mini with a $100 price increase</a></li>
+</ul></div><p class="disclosure">This article may contain affiliate links. Nothing here is financial or investment advice.</p><aside class="related" data-astro-cid-y2nmntto><p class="section-label" data-astro-cid-y2nmntto>Keep reading</p><ul class="post-list compact" data-astro-cid-y2nmntto><li data-astro-cid-y2nmntto><a class="post-row" href="/en/blog/galaxy-z-fold8-ai/" data-astro-cid-y2nmntto><span class="cat" data-astro-cid-y2nmntto>AI</span><h3 data-astro-cid-y2nmntto>Galaxy Z Fold 8 — When the Foldable Becomes AI&#39;s Workbench, and the Traps Fold Users Already Know</h3></a></li><li data-astro-cid-y2nmntto><a class="post-row" href="/en/blog/browser-office-editors-guide/" data-astro-cid-y2nmntto><span class="cat" data-astro-cid-y2nmntto>AI</span><h3 data-astro-cid-y2nmntto>How to Open Excel, Word and PowerPoint Files with No Install and No Sign-up — A Guide to Our 3 Free Browser Office Editors</h3></a></li><li data-astro-cid-y2nmntto><a class="post-row" href="/en/blog/kimi-k3-gpu-crunch-2026/" data-astro-cid-y2nmntto><span class="cat" data-astro-cid-y2nmntto>AI</span><h3 data-astro-cid-y2nmntto>Kimi K3 Ran Out of GPUs in 48 Hours — and That Tells You More Than the Benchmarks Did</h3></a></li></ul></aside><aside class="game-break" data-astro-cid-y2nmntto> <a class="gb-cover" href="/play/menew-empires/?lang=en" target="_blank" rel="noopener" title="Opens in a new tab" data-astro-cid-y2nmntto> <img src="/games/empires/cover.jpg" alt="MENEW EMPIRES" loading="lazy" data-astro-cid-y2nmntto> </a> <div class="gb-body" data-astro-cid-y2nmntto> <p class="gb-label" data-astro-cid-y2nmntto>Take a break — play an AI-built game</p> <h3 data-astro-cid-y2nmntto>MENEW EMPIRES</h3> <a class="gb-play" href="/play/menew-empires/?lang=en" target="_blank" rel="noopener" data-astro-cid-y2nmntto>▶ Play now</a> </div> </aside> </div></article><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"What It Actually Means to Run a Local LLM on a Mac mini — The M6 and M5 Pro Math","description":"In August 2026 the Mac mini moved to M6 and M5 Pro, and Apple spent the announcement talking about on-device AI. Here is where the Mac mini is structurally strong for local LLM work, and where the spec sheet hides the traps. The short version: the first number to look at is not GPU cores, it is memory.","inLanguage":"en","datePublished":"2026-08-28T10:00:00.000Z","author":{"@type":"Person","name":"menew"},"publisher":{"@type":"Organization","name":"Tech Decode"},"image":"https://menewsoft.com/og/blog/mac-mini-local-llm-2026.en.png","mainEntityOfPage":"https://menewsoft.com/en/blog/mac-mini-local-llm-2026/","articleSection":"ai"}</script> </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>MeNew Soft</span> <div class="links" data-astro-cid-sz7xmlte> <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. --> <a href="/en/" data-astro-cid-sz7xmlte>Home</a> <a href="/en/shops/" data-astro-cid-sz7xmlte>Listed shops</a> <a href="/en/news/" data-astro-cid-sz7xmlte>Shop news</a> <a href="/en/games/" data-astro-cid-sz7xmlte>Arcade</a> <a href="/en/blog/" data-astro-cid-sz7xmlte>Articles</a> <a href="/en/glossary/" data-astro-cid-sz7xmlte>Glossary</a> <a href="/en/tools/" data-astro-cid-sz7xmlte>Tools</a>  <a href="/en/about/" data-astro-cid-sz7xmlte>About</a> <a href="/en/contact/" data-astro-cid-sz7xmlte>Contact</a> <a href="/en/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 MeNew Soft · menewsoft.com — We build web pages for neighbourhood shops. Tell us if a listing is wrong.</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 Today <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · Total <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html>
