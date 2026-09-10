@@ -1,0 +1,913 @@
+// 삼한통일전 — 규칙 엔진. 화면을 모르는 순수 상태 기계다.
+// 1단계에서는 전투가 자동 판정이다(전술 SRPG 는 3단계).
+//
+// ★IIFE 로 감싸는 이유: 클래식 스크립트의 최상위 function 선언은 전역이 된다.
+//   ui.js 에도 doAttack 이 있어 나중에 읽히는 쪽이 엔진 함수를 덮어썼고, AI 가 화면
+//   함수를 호출하는 사고가 났다(2026-09-10 실측). 밖으로 내보내는 것은 SamhanEngine 뿐이다.
+'use strict';
+(function () {
+
+const SIM = {
+  START_YEAR: 246,
+  MAX_MONTH: 300,          // 25년
+  UNITS: {
+    // cost·up 은 1,000명 기준(금). 대규모 거점 수입 ~1,450 에 맞춰 실측 조정했다.
+    보병: { atk: 10, def: 12, mv: 5, rng: 1, cost: 300, up: 40, beats: '기병' },
+    기병: { atk: 16, def: 8, mv: 8, rng: 1, cost: 600, up: 75, beats: '궁병' },
+    궁병: { atk: 12, def: 6, mv: 5, rng: 2, cost: 450, up: 50, beats: '보병' },
+  },
+  COUNTER: 1.3,
+  HARVEST_MONTH: 9,
+  RECRUIT: { 모병: { train: 50, morale: 70, popMul: 1.0, secDrop: 2, priceMul: 1 },
+             징병: { train: 10, morale: 30, popMul: 1.6, secDrop: 10, priceMul: 0.25 } },
+};
+
+// ──────────────────────────────────────────── 난수 (시드 고정 = 재현 가능)
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// ──────────────────────────────────────────── 초기 상태
+function newGame(playerFaction, seed) {
+  const rnd = mulberry32(seed >>> 0);
+  const g = {
+    seed: seed >>> 0, turn: 0, year: SIM.START_YEAR, month: 1,
+    player: playerFaction, over: null, log: [], rndState: seed >>> 0,
+    castles: {}, factions: {}, officers: {},
+  };
+  for (const c of CASTLES) {
+    g.castles[c.n] = {
+      n: c.n, fac: c.fac, pop: c.pop, ag: c.ag, cm: c.cm, sec: c.sec,
+      gold: c.sz === '대' ? 1200 : c.sz === '중' ? 600 : 260,
+      food: Math.round(c.pop * 0.25 * (c.ag / 50)),
+      troops: { 보병: 0, 기병: 0, 궁병: 0 },
+      train: 50, morale: 70, wall: c.wall, hosp: 0,
+    };
+    // 초기 주둔군: 규모의 35~50%
+    const base = Math.round(c.garr * (0.35 + rnd() * 0.15));
+    const cav = c.fac === '선비' || c.fac === '부여' || c.fac === '읍루' ? 0.45 : 0.22;
+    g.castles[c.n].troops.기병 = Math.round(base * cav);
+    g.castles[c.n].troops.궁병 = Math.round(base * 0.26);
+    g.castles[c.n].troops.보병 = base - g.castles[c.n].troops.기병 - g.castles[c.n].troops.궁병;
+  }
+  for (const [id, f] of Object.entries(FACTIONS)) {
+    g.factions[id] = {
+      id, alive: true, cap: f.cap, aggr: f.aggr,
+      // 외교 — 상대별 태도(0~100)와 관계 상태
+      att: {},            // {상대: 호감도}
+      rel: {},            // {상대: 'war' | 'peace' | 'ally' | 'truce'}
+      truce: {},          // {상대: 남은 개월}
+      tribute: {},        // {상대: 남은 개월}  조공을 바치는 중
+    };
+  }
+  for (const o of OFFICERS) {
+    g.officers[o.id] = {
+      id: o.id, fac: o.fac, loc: o.loc, lv: o.lv, exp: 0,
+      mu: o.mu, ji: o.ji, jg: o.jg, loy: o.loy, done: false, hurt: 0,
+      // 부대 — 무장이 직접 거느리는 병력. 3단계 SRPG 에서 이 덩어리가 한 칸을 차지한다.
+      corps: null,          // {unit, n} 또는 null
+      found: o.fac !== null, // 재야는 탐색해야 드러난다
+    };
+  }
+  // 초기 외교 — 국경을 맞댄 세력끼리는 서먹하다
+  for (const f of Object.values(g.factions)) {
+    for (const o of Object.keys(g.factions)) {
+      if (o === f.id) continue;
+      f.att[o] = 45 + Math.round(rnd() * 20);
+      f.rel[o] = 'peace';
+    }
+  }
+  // 246년의 실제 전선 — 시작부터 전쟁인 곳
+  const WARS = [['고구려', '위'], ['마한', '위'], ['백제', '위'], ['야마토', '구노국']];
+  for (const [a, d] of WARS) {
+    if (!g.factions[a] || !g.factions[d]) continue;
+    setRel(g, a, d, 'war');
+    g.factions[a].att[d] = 10; g.factions[d].att[a] = 10;
+  }
+  g.rndState = (seed >>> 0) + 1;
+  return g;
+}
+
+function rndOf(g) {
+  g.rndState = (g.rndState + 0x6D2B79F5) | 0;
+  let t = Math.imul(g.rndState ^ (g.rndState >>> 15), 1 | g.rndState);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
+// ──────────────────────────────────────────── 조회
+const CASTLE_BY_N = Object.fromEntries(CASTLES.map(c => [c.n, c]));
+const OFFICER_BY_ID = Object.fromEntries(OFFICERS.map(o => [o.id, o]));
+
+function castleDef(n) { return CASTLE_BY_N[n]; }
+function officerDef(id) { return OFFICER_BY_ID[id]; }
+function factionCastles(g, fid) {
+  return Object.values(g.castles).filter(c => c.fac === fid).map(c => c.n);
+}
+function officersAt(g, n) {
+  return Object.values(g.officers).filter(o => o.loc === n);
+}
+function factionOfficers(g, fid) {
+  return Object.values(g.officers).filter(o => o.fac === fid);
+}
+function troopTotal(c) { return c.troops.보병 + c.troops.기병 + c.troops.궁병; }
+
+// 그 거점에 실제로 있는 병력 = 주둔군 + 그곳 무장들의 부대
+function corpsAt(g, n, fid) {
+  return Object.values(g.officers)
+    .filter(o => o.loc === n && o.corps && o.corps.n > 0 && (fid == null || o.fac === fid));
+}
+function garrisonTotal(g, n) {
+  const c = g.castles[n];
+  return troopTotal(c) + corpsAt(g, n, c.fac).reduce((s, o) => s + o.corps.n, 0);
+}
+function wildAt(g, n) {
+  return Object.values(g.officers).filter(o => o.loc === n && o.fac === null && o.found);
+}
+
+// ──────────────────────────────────────────── 산출 공식 (설계서와 1:1)
+function income(c) {
+  return Math.round(c.pop * 0.01 * (c.cm / 50) * (0.5 + c.sec / 200));
+}
+function harvest(c) {
+  return Math.round(c.pop * 0.25 * (c.ag / 50));
+}
+function draftCap(c) {
+  return Math.round(c.pop * 0.10 * (c.sec / 100));
+}
+function upkeep(c) {
+  let s = 0;
+  for (const [u, n] of Object.entries(c.troops)) s += (n / 1000) * SIM.UNITS[u].up;
+  return Math.round(s);
+}
+function foodUse(c) { return Math.round(troopTotal(c) * 0.06); }
+
+// 부대 실효 전투력
+function power(c, unit, n, off) {
+  const U = SIM.UNITS[unit];
+  const mu = off ? off.mu : 50;
+  return n * (U.atk / 10) * (0.4 + c.train / 167) * (0.6 + c.morale / 250) * (1 + mu / 200);
+}
+function castlePower(g, c) {
+  const off = bestOfficer(g, c.n, 'mu');
+  let p = 0;
+  for (const [u, n] of Object.entries(c.troops)) p += power(c, u, n, off);
+  // 그 거점에 있는 아군 부대도 함께 지킨다
+  for (const o of corpsAt(g, c.n, c.fac)) p += power(c, o.corps.unit, o.corps.n, o);
+  return p;
+}
+function bestOfficer(g, n, key) {
+  const list = officersAt(g, n).filter(o => o.fac === g.castles[n].fac);
+  if (!list.length) return null;
+  return list.reduce((a, b) => (b[key] > a[key] ? b : a));
+}
+
+// ──────────────────────────────────────────── 명령
+const ORDERS = {
+  농업: { key: 'ag', cost: c => costOf(c), stat: 'jg' },
+  상업: { key: 'cm', cost: c => costOf(c), stat: 'jg' },
+  치안: { key: 'sec', cost: c => costOf(c), stat: 'jg' },
+};
+function costOf(c) {
+  const sz = castleDef(c.n).sz;
+  return sz === '대' ? 100 : sz === '중' ? 70 : 50;
+}
+
+function doDevelop(g, n, offId, kind) {
+  const c = g.castles[n], o = g.officers[offId], O = ORDERS[kind];
+  if (!O) return { ok: false, why: '없는 명령' };
+  if (!o || o.loc !== n || o.fac !== c.fac) return { ok: false, why: '그 거점의 무장이 아닙니다' };
+  if (o.done) return { ok: false, why: '이미 이번 달 명령을 받았습니다' };
+  const cost = O.cost(c);
+  if (c.gold < cost) return { ok: false, why: `자금이 모자랍니다 (${cost} 필요)` };
+  const cap = castleDef(n).cap;
+  if (c[O.key] >= cap) return { ok: false, why: `이미 상한 ${cap} 입니다` };
+  c.gold -= cost;
+  const gain = Math.max(1, Math.floor(o[O.stat] / 10 + 1 + rndOf(g) * 3));
+  const before = c[O.key];
+  c[O.key] = Math.min(cap, c[O.key] + gain);
+  o.done = true;
+  o.exp += 12;
+  return { ok: true, gain: c[O.key] - before, kind };
+}
+
+function doRecruit(g, n, offId, unit, count, mode) {
+  const c = g.castles[n], o = g.officers[offId];
+  const R = SIM.RECRUIT[mode], U = SIM.UNITS[unit];
+  if (!R || !U) return { ok: false, why: '없는 병종/방식' };
+  if (!o || o.loc !== n || o.fac !== c.fac) return { ok: false, why: '그 거점의 무장이 아닙니다' };
+  if (o.done) return { ok: false, why: '이미 이번 달 명령을 받았습니다' };
+  count = Math.max(0, Math.floor(count));
+  const cap = castleDef(n).garr - troopTotal(c);
+  if (count > cap) return { ok: false, why: `주둔 상한을 넘습니다 (여유 ${cap})` };
+  if (count > draftCap(c)) return { ok: false, why: `징집 가능 인원을 넘습니다 (${draftCap(c)})` };
+  const gold = Math.round((count / 1000) * U.cost * R.priceMul);
+  if (c.gold < gold) return { ok: false, why: `자금이 모자랍니다 (${gold} 필요)` };
+
+  c.gold -= gold;
+  c.pop = Math.max(1000, c.pop - Math.round(count * R.popMul));
+  c.sec = Math.max(0, c.sec - R.secDrop);
+  // 새 병력이 섞이며 훈련도·사기가 가중 평균으로 희석된다
+  const had = troopTotal(c);
+  c.train = Math.round((c.train * had + R.train * count) / (had + count || 1));
+  c.morale = Math.round((c.morale * had + R.morale * count) / (had + count || 1));
+  c.troops[unit] += count;
+  o.done = true; o.exp += 10;
+  return { ok: true, gold, count, mode, unit };
+}
+
+function doTrain(g, n, offId) {
+  const c = g.castles[n], o = g.officers[offId];
+  if (!o || o.loc !== n || o.fac !== c.fac) return { ok: false, why: '그 거점의 무장이 아닙니다' };
+  if (o.done) return { ok: false, why: '이미 이번 달 명령을 받았습니다' };
+  if (troopTotal(c) === 0) return { ok: false, why: '훈련할 병력이 없습니다' };
+  const before = c.train;
+  c.train = Math.min(100, c.train + Math.round(5 + o.mu / 8));
+  c.morale = Math.min(100, c.morale + 2);
+  o.done = true; o.exp += 14;
+  return { ok: true, gain: c.train - before };
+}
+
+// ──────────────────────────────────────────── 외교
+function setRel(g, a, b, r) {
+  if (!g.factions[a] || !g.factions[b]) return;
+  g.factions[a].rel[b] = r;
+  g.factions[b].rel[a] = r;
+}
+function relOf(g, a, b) {
+  return (g.factions[a] && g.factions[a].rel[b]) || 'peace';
+}
+function atWar(g, a, b) { return relOf(g, a, b) === 'war'; }
+function attOf(g, a, b) {
+  const f = g.factions[a];
+  return f && f.att[b] != null ? f.att[b] : 50;
+}
+function addAtt(g, a, b, d) {
+  const f = g.factions[a];
+  if (!f) return;
+  f.att[b] = Math.max(0, Math.min(100, (f.att[b] == null ? 50 : f.att[b]) + d));
+}
+// 국경을 맞댄 세력만 서로를 신경 쓴다
+function neighbors(g, fid) {
+  const out = new Set();
+  for (const n of factionCastles(g, fid)) {
+    for (const t of castleDef(n).adj) {
+      const o = g.castles[t].fac;
+      if (o && o !== fid) out.add(o);
+    }
+  }
+  return [...out];
+}
+
+function doDeclareWar(g, a, b) {
+  if (a === b || !g.factions[b] || !g.factions[b].alive) return { ok: false, why: '없는 세력' };
+  if (atWar(g, a, b)) return { ok: false, why: '이미 전쟁 중입니다' };
+  if ((g.factions[a].truce[b] || 0) > 0)
+    return { ok: false, why: `화친 기간이 ${g.factions[a].truce[b]}개월 남았습니다` };
+  setRel(g, a, b, 'war');
+  addAtt(g, b, a, -35);
+  // 지켜보는 이웃들도 마음을 접는다
+  for (const o of neighbors(g, a)) if (o !== b) addAtt(g, o, a, -6);
+  g.log.push({ t: g.turn, k: 'war', a, b });
+  return { ok: true };
+}
+
+// 강화 — 자금을 얹어 청한다. 상대가 이기고 있으면 잘 받지 않는다.
+function doPeace(g, a, b, gold) {
+  if (!atWar(g, a, b)) return { ok: false, why: '전쟁 중이 아닙니다' };
+  const cap = g.castles[g.factions[a].cap];
+  gold = Math.max(0, Math.floor(gold || 0));
+  if (cap.gold < gold) return { ok: false, why: `자금이 모자랍니다 (${gold} 필요)` };
+  const mine = factionCastles(g, a).length, his = factionCastles(g, b).length;
+  const edge = his / Math.max(1, mine);          // 상대가 우세하면 콧대가 높다
+  const p = Math.max(0.05, Math.min(0.95,
+    (attOf(g, b, a) / 100) * 0.6 + gold / 4000 + (1 - Math.min(2, edge)) * 0.25));
+  cap.gold -= gold;
+  if (rndOf(g) < p) {
+    setRel(g, a, b, 'peace');
+    g.factions[a].truce[b] = 12; g.factions[b].truce[a] = 12;   // 1년간 재선전포고 금지
+    addAtt(g, b, a, 12 + Math.round(gold / 200));
+    g.log.push({ t: g.turn, k: 'peace', a, b, gold });
+    return { ok: true, accepted: true };
+  }
+  addAtt(g, b, a, 3);
+  return { ok: true, accepted: false, chance: p };
+}
+
+// 동맹 — 호감이 높아야 받는다
+function doAlly(g, a, b) {
+  if (atWar(g, a, b)) return { ok: false, why: '전쟁 중에는 맺지 못합니다' };
+  if (relOf(g, a, b) === 'ally') return { ok: false, why: '이미 동맹입니다' };
+  const p = Math.max(0.02, Math.min(0.9, (attOf(g, b, a) - 55) / 45));
+  if (rndOf(g) < p) {
+    setRel(g, a, b, 'ally');
+    addAtt(g, b, a, 10);
+    g.log.push({ t: g.turn, k: 'ally', a, b });
+    return { ok: true, accepted: true };
+  }
+  return { ok: true, accepted: false, chance: p };
+}
+function doBreakAlly(g, a, b) {
+  if (relOf(g, a, b) !== 'ally') return { ok: false, why: '동맹이 아닙니다' };
+  setRel(g, a, b, 'peace');
+  addAtt(g, b, a, -30);
+  for (const o of Object.keys(g.factions)) if (o !== a) addAtt(g, o, a, -8);  // 소문은 퍼진다
+  g.log.push({ t: g.turn, k: 'unally', a, b });
+  return { ok: true };
+}
+
+// 예물 — 호감을 산다
+function doGift(g, a, b, gold) {
+  const cap = g.castles[g.factions[a].cap];
+  gold = Math.max(100, Math.floor(gold));
+  if (cap.gold < gold) return { ok: false, why: `자금이 모자랍니다 (${gold} 필요)` };
+  cap.gold -= gold;
+  const gain = Math.round(gold / 120);
+  addAtt(g, b, a, gain);
+  return { ok: true, gain };
+}
+
+// 부대 편성 — 거점 주둔군에서 무장에게 병력을 떼어 준다
+function doAssign(g, n, offId, unit, count) {
+  const c = g.castles[n], o = g.officers[offId];
+  if (!o || o.loc !== n || o.fac !== c.fac) return { ok: false, why: '그 거점의 무장이 아닙니다' };
+  if (!SIM.UNITS[unit]) return { ok: false, why: '없는 병종' };
+  count = Math.max(0, Math.floor(count));
+  const cap = troopCap(o);
+  const already = o.corps && o.corps.unit === unit ? o.corps.n : 0;
+  if (o.corps && o.corps.unit !== unit && o.corps.n > 0)
+    return { ok: false, why: `이미 ${o.corps.unit} 부대를 거느립니다. 먼저 해산하십시오` };
+  if (already + count > cap)
+    return { ok: false, why: `통솔 상한을 넘습니다 (Lv${o.lv} → ${cap}명, 현재 ${already})` };
+  if (count > c.troops[unit]) return { ok: false, why: `주둔 ${unit}이 모자랍니다 (${c.troops[unit]})` };
+  c.troops[unit] -= count;
+  o.corps = { unit, n: already + count };
+  return { ok: true, unit, count, total: o.corps.n };
+}
+
+function doDisband(g, offId) {
+  const o = g.officers[offId];
+  if (!o || !o.corps || o.corps.n <= 0) return { ok: false, why: '거느린 부대가 없습니다' };
+  const c = g.castles[o.loc];
+  if (!c || c.fac !== o.fac) return { ok: false, why: '아군 거점이 아닙니다' };
+  const room = castleDef(o.loc).garr - troopTotal(c);
+  const back = Math.min(o.corps.n, Math.max(0, room));
+  c.troops[o.corps.unit] += back;
+  const lost = o.corps.n - back;
+  o.corps = null;
+  return { ok: true, back, lost };
+}
+
+// 하사 — 자금을 내려 충성을 얻는다
+function doReward(g, n, offId, gold) {
+  const c = g.castles[n], o = g.officers[offId];
+  if (!o || o.loc !== n || o.fac !== c.fac) return { ok: false, why: '그 거점의 무장이 아닙니다' };
+  // ★충성이 이미 꼭대기면 자금만 없앤다 — 받아 주지 않는 편이 정직하다
+  if (o.loy >= 99) return { ok: false, why: '이미 충성이 지극합니다' };
+  gold = Math.max(50, Math.floor(gold));
+  if (c.gold < gold) return { ok: false, why: `자금이 모자랍니다 (${gold} 필요)` };
+  c.gold -= gold;
+  const before = o.loy;
+  // 이미 충성스러운 이에게는 덜 오른다
+  o.loy = Math.min(100, o.loy + (gold / 60) * (1 - o.loy / 130));
+  return { ok: true, gain: Math.round(o.loy - before), gold };
+}
+
+// 탐색 — 숨은 재야를 찾는다
+function doSearch(g, n, offId) {
+  const c = g.castles[n], o = g.officers[offId];
+  if (!o || o.loc !== n || o.fac !== c.fac) return { ok: false, why: '그 거점의 무장이 아닙니다' };
+  if (o.done) return { ok: false, why: '이미 이번 달 명령을 받았습니다' };
+  o.done = true; o.exp += 10;
+  const hidden = Object.values(g.officers).filter(x => x.loc === n && x.fac === null && !x.found);
+  if (!hidden.length) return { ok: true, found: null, why: '더 찾을 사람이 없습니다' };
+  // 정치가 높을수록 사람을 잘 찾는다
+  if (rndOf(g) < Math.min(0.85, 0.18 + o.jg / 180)) {
+    const t = hidden[Math.floor(rndOf(g) * hidden.length)];
+    t.found = true;
+    return { ok: true, found: officerDef(t.id).nm };
+  }
+  return { ok: true, found: null };
+}
+
+// 재야 등용
+function doRecruitOfficer(g, n, offId, targetId) {
+  const c = g.castles[n], o = g.officers[offId], t = g.officers[targetId];
+  if (!o || o.loc !== n || o.fac !== c.fac) return { ok: false, why: '그 거점의 무장이 아닙니다' };
+  if (o.done) return { ok: false, why: '이미 이번 달 명령을 받았습니다' };
+  if (!t || t.loc !== n || t.fac !== null) return { ok: false, why: '이 거점의 재야 인물이 아닙니다' };
+  if (!t.found) return { ok: false, why: '아직 찾지 못한 사람입니다' };
+  o.done = true; o.exp += 8;
+  const td = officerDef(targetId);
+  // 재야일수록 눈이 높다 — 능력 합이 높으면 어렵다
+  const worth = (td.mu + td.ji + td.jg) / 3;
+  const chance = Math.max(0.05, Math.min(0.92, (o.jg + 30 - worth) / 100));
+  if (rndOf(g) < chance) {
+    t.fac = c.fac; t.loy = 55 + Math.round(rndOf(g) * 20);
+    return { ok: true, joined: true, name: td.nm };
+  }
+  return { ok: true, joined: false, name: td.nm, chance };
+}
+
+// 이동
+function doMove(g, offId, to) {
+  const o = g.officers[offId];
+  if (!o) return { ok: false, why: '없는 무장' };
+  if (o.done) return { ok: false, why: '이미 이번 달 명령을 받았습니다' };
+  if (!castleDef(o.loc).adj.includes(to)) return { ok: false, why: '인접한 거점이 아닙니다' };
+  if (g.castles[to].fac !== o.fac) return { ok: false, why: '아군 거점이 아닙니다' };
+  o.loc = to; o.done = true;
+  return { ok: true, to };
+}
+
+// 출병 — 무장의 부대로 나간다. 2단계에서 부대 단위가 됐고, 3단계에서 SRPG 로 교체된다.
+//   offIds 를 주면 그 무장들의 부대만 나가고, 비우면 주둔군에서 send 비율만큼 임시 편성한다.
+function doAttack(g, from, to, send, offIds) {
+  const a = g.castles[from], d = g.castles[to];
+  if (a.fac === d.fac) return { ok: false, why: '아군 거점입니다' };
+  if (!castleDef(from).adj.includes(to)) return { ok: false, why: '인접한 거점이 아닙니다' };
+  if (relOf(g, a.fac, d.fac) === 'ally') return { ok: false, why: '동맹입니다. 먼저 파기하십시오' };
+  if ((g.factions[a.fac].truce[d.fac] || 0) > 0)
+    return { ok: false, why: `화친 중입니다 (${g.factions[a.fac].truce[d.fac]}개월 남음)` };
+  if (!atWar(g, a.fac, d.fac)) doDeclareWar(g, a.fac, d.fac);
+
+  // 출전 부대를 모은다
+  const force = [];      // {off, unit, n}  off 는 null 이면 주둔군 분견대
+  if (offIds && offIds.length) {
+    for (const id of offIds) {
+      const o = g.officers[id];
+      if (!o || o.loc !== from || o.fac !== a.fac) return { ok: false, why: '그 거점의 무장이 아닙니다' };
+      if (!o.corps || o.corps.n <= 0) return { ok: false, why: `${officerDef(id).nm}은(는) 부대가 없습니다` };
+      force.push({ off: o, unit: o.corps.unit, n: o.corps.n });
+    }
+  } else {
+    const ratio = Math.max(0.1, Math.min(1, send == null ? 0.8 : send));
+    const lead = bestOfficer(g, from, 'mu');
+    for (const u of Object.keys(a.troops)) {
+      const n = Math.round(a.troops[u] * ratio);
+      if (n > 0) force.push({ off: lead, unit: u, n, fromGarrison: true });
+    }
+  }
+  const sentTotal = force.reduce((x, f) => x + f.n, 0);
+  if (sentTotal <= 0) return { ok: false, why: '내보낼 병력이 없습니다' };
+
+  const lead = force.reduce((x, f) => (f.off && (!x || f.off.mu > x.mu) ? f.off : x), null);
+  let ap = force.reduce((x, f) => x + power(a, f.unit, f.n, f.off), 0);
+  const dp = castlePower(g, d) * 1.28 + d.wall * 0.15;
+
+  ap *= 0.85 + rndOf(g) * 0.3;
+  const win = ap > dp;
+  const lossA = win ? Math.min(0.55, dp / (ap + 1) * 0.5) : 0.62;
+  const lossD = win ? 0.7 : Math.min(0.5, ap / (dp + 1) * 0.45);
+
+  // 공격측 손실 — 부대별로
+  let deadA = 0;
+  for (const f of force) {
+    const cas = Math.round(f.n * lossA);
+    deadA += cas;
+    f.alive = f.n - cas;
+    if (f.fromGarrison) a.troops[f.unit] -= cas;
+    else f.off.corps.n = f.alive;
+  }
+  // 수비측 손실 — 주둔군과 부대에 고르게
+  let deadD = 0;
+  for (const u of Object.keys(d.troops)) {
+    const cas = Math.round(d.troops[u] * lossD);
+    d.troops[u] -= cas; deadD += cas;
+  }
+  for (const o of corpsAt(g, to, d.fac)) {
+    const cas = Math.round(o.corps.n * lossD);
+    o.corps.n -= cas; deadD += cas;
+    if (o.corps.n <= 0) o.corps = null;
+  }
+  a.hosp += Math.round(deadA * 0.45);
+  d.hosp += Math.round(deadD * 0.45);
+
+  let captured = false;
+  if (win) {
+    d.wall = Math.max(0, d.wall - Math.round(sentTotal * 0.12 + 400));
+    if (garrisonTotal(g, to) <= 0 || d.wall <= 0) {
+      captured = true;
+      const old = d.fac;
+      d.fac = a.fac;
+      d.sec = Math.max(10, d.sec - 25);
+      d.gold = Math.round(d.gold * 0.7);
+      for (const u of Object.keys(d.troops)) d.troops[u] = 0;
+      // 부대를 거느린 무장은 부대째 성으로 들어간다
+      let room = castleDef(to).garr;
+      for (const f of force) {
+        if (f.fromGarrison) {
+          const moveIn = Math.max(0, Math.min(f.alive, room));
+          d.troops[f.unit] += moveIn; a.troops[f.unit] -= moveIn; room -= moveIn;
+        } else {
+          f.off.loc = to; room -= f.off.corps ? f.off.corps.n : 0;
+        }
+      }
+      d.train = a.train; d.morale = Math.min(100, a.morale + 8);
+      d.wall = Math.round(castleDef(to).wall * 0.4);
+      // 함락된 쪽 무장은 포로가 되어 흩어진다. 부대는 사라진다.
+      for (const o of officersAt(g, to)) {
+        if (o.fac === old) { o.fac = null; o.loy = 0; o.corps = null; o.found = true; }
+      }
+      checkDead(g, old);
+    }
+  } else {
+    a.morale = Math.max(10, a.morale - 12);
+  }
+  // 무장 경험과 충성
+  for (const f of force) {
+    if (!f.off) continue;
+    f.off.exp += win ? 60 : 25;
+    f.off.loy = Math.max(0, Math.min(100, f.off.loy + (win ? 2 : -3)));
+  }
+  g.log.push({ t: g.turn, k: 'battle', from, to, win, captured, deadA, deadD,
+               lead: lead ? lead.id : null });
+  return { ok: true, win, captured, deadA, deadD, lead: lead ? lead.id : null };
+}
+
+function checkDead(g, fid) {
+  if (!g.factions[fid]) return;
+  if (factionCastles(g, fid).length === 0) {
+    g.factions[fid].alive = false;
+    g.log.push({ t: g.turn, k: 'fall', fac: fid });
+  }
+}
+
+// ──────────────────────────────────────────── 사료 기반 사건
+// 246년 전후에 실제로 있었던 일들. 조건이 맞으면 그 달에 일어난다.
+// 한 번 일어난 사건은 다시 오지 않는다(g.done).
+const EVENTS = [
+  {
+    id: 'girinyeong', y: 246, m: 8, need: g => g.castles[10] && g.castles[22],
+    nm: '기리영 싸움',
+    txt: '낙랑의 부종사 오림이 진한 여덟 나라를 떼어 낙랑에 붙이려 했다. 통역이 말을 잘못 옮겨 ' +
+         '한(韓)의 신지가 격분했고, 마한이 대방군의 기리영을 쳤다. 대방태수 궁준이 전사했다.',
+    src: '삼국지 위서 동이전',
+    run: (g) => {
+      setRel(g, '마한', '위', 'war');
+      addAtt(g, '위', '마한', -30); addAtt(g, '마한', '위', -30);
+      const d = g.castles[10];
+      if (d) { d.wall = Math.round(d.wall * 0.7); d.morale = Math.max(10, d.morale - 15); }
+      const o = g.officers['gungjun'];
+      if (o && o.fac === '위' && rndOf(g) < 0.5) { o.hurt = 3; }
+      return '마한과 위가 등을 돌렸습니다. 대방의 성벽이 상했습니다.';
+    },
+  },
+  {
+    id: 'gwangugeom', y: 246, m: 10, need: g => g.castles[1],
+    nm: '관구검의 침공',
+    txt: '위의 유주자사 관구검이 현도태수 왕기를 앞세워 고구려를 쳤다. 환도성이 함락되고 ' +
+         '동천왕은 동쪽으로 달아났다. 밀우가 뒤를 막고, 유유가 거짓 항복으로 적장을 찔러 죽였다.',
+    src: '삼국지 위서 관구검전 · 삼국사기 열전',
+    run: (g) => {
+      setRel(g, '고구려', '위', 'war');
+      const c = g.castles[1];
+      if (c) { c.wall = Math.round(c.wall * 0.5); c.morale = Math.max(10, c.morale - 20); }
+      for (const id of ['miru', 'yuyu']) {
+        const o = g.officers[id];
+        if (o) o.exp += 120;
+      }
+      return '국내성의 성벽이 크게 상했습니다. 밀우와 유유가 공을 세웠습니다.';
+    },
+  },
+  {
+    id: 'baekje_nakrang', y: 246, m: 8, need: g => g.castles[8] && g.castles[19],
+    nm: '백제, 낙랑 변경을 치다',
+    txt: '위가 고구려를 치는 틈을 타 백제 고이왕이 좌장 진충을 보내 낙랑 변경을 습격하고 ' +
+         '주민을 잡아왔다. 낙랑태수 유무가 노하자 왕이 침공을 두려워하여 그 사람들을 돌려보냈다.',
+    src: '삼국사기 백제본기 고이왕 13년',
+    run: (g) => {
+      const c = g.castles[19];
+      if (c) c.pop += 3000;
+      addAtt(g, '위', '백제', -25);
+      const o = g.officers['jinchung'];
+      if (o) o.exp += 90;
+      return '위례성의 인구가 늘었으나, 낙랑이 백제를 벼르게 되었습니다.';
+    },
+  },
+  {
+    id: 'himiko', y: 248, m: 3, need: g => !!g.officers['himiko'],
+    nm: '히미코의 죽음',
+    txt: '왜의 여왕 히미코가 죽었다. 무덤을 크게 만들고 따라 죽은 종이 백여 명이었다. ' +
+         '남자를 왕으로 세웠으나 나라가 따르지 않아 서로 죽이기를 천여 명, ' +
+         '다시 히미코의 종녀 이여를 세우고서야 잦아들었다.',
+    src: '삼국지 위서 왜인전',
+    run: (g) => {
+      const h = g.officers['himiko'];
+      if (h) { h.fac = null; h.loy = 0; h.corps = null; h.found = true; }
+      const y = g.officers['wa_iyeo'];
+      if (y) { y.fac = '야마토'; y.loy = 100; y.lv += 3; }
+      for (const n of factionCastles(g, '야마토')) {
+        const c = g.castles[n];
+        c.sec = Math.max(5, c.sec - 20); c.morale = Math.max(10, c.morale - 15);
+      }
+      return '야마토가 크게 흔들렸습니다. 이여가 뒤를 이었습니다.';
+    },
+  },
+  {
+    id: 'buyeo_gone', y: 249, m: 5, need: g => factionCastles(g, '부여').length > 0,
+    nm: '부여의 흉년',
+    txt: '부여에 서리가 일찍 내려 곡식이 상했다. 옛 풍속에 흉년이 들면 왕에게 허물을 돌려 ' +
+         '바꾸거나 죽이자 하였다.',
+    src: '삼국지 위서 동이전',
+    run: (g) => {
+      for (const n of factionCastles(g, '부여')) {
+        const c = g.castles[n];
+        c.food = Math.round(c.food * 0.5);
+        c.sec = Math.max(5, c.sec - 12);
+      }
+      return '부여의 곳간이 절반으로 줄었습니다.';
+    },
+  },
+  {
+    id: 'okjeo_tribute', y: 247, m: 7, need: g => g.castles[17],
+    nm: '옥저의 공물',
+    txt: '동옥저는 고구려에 소금과 물고기, 해초를 져 날랐다. 천 리 길을 지고 갔다 한다.',
+    src: '삼국지 위서 동이전',
+    run: (g) => {
+      const owner = g.castles[17].fac;
+      for (const n of factionCastles(g, owner)) g.castles[n].food += 2000;
+      return `${FACTIONS[owner] ? FACTIONS[owner].nm : owner}의 군량이 늘었습니다.`;
+    },
+  },
+  {
+    id: 'mucheon', y: 0, m: 10, repeat: true, need: g => g.castles[18],
+    nm: '무천(舞天)',
+    txt: '예 사람은 시월이면 하늘에 제사하고 밤낮으로 술 마시며 노래하고 춤춘다. 이를 무천이라 한다.',
+    src: '삼국지 위서 동이전',
+    run: (g) => {
+      const owner = g.castles[18].fac;
+      for (const n of factionCastles(g, owner)) {
+        const c = g.castles[n];
+        c.morale = Math.min(100, c.morale + 8);
+        c.sec = Math.min(castleDef(n).cap, c.sec + 4);
+      }
+      return `${FACTIONS[owner] ? FACTIONS[owner].nm : owner}의 사기가 올랐습니다.`;
+    },
+  },
+];
+
+function runEvents(g) {
+  g.done = g.done || {};
+  const fired = [];
+  for (const e of EVENTS) {
+    if (!e.repeat && g.done[e.id]) continue;
+    if (e.y && g.year !== e.y) continue;
+    if (e.m && g.month !== e.m) continue;
+    if (e.need && !e.need(g)) continue;
+    if (e.repeat && g.done[e.id] === g.year) continue;
+    const result = e.run(g);
+    g.done[e.id] = e.repeat ? g.year : true;
+    // ★일어난 달을 기록해 둔다 — 사건은 월말 정산에서 터지고 그 뒤에 달이 넘어가므로,
+    //   화면에서 g.month 를 읽으면 한 달 뒤로 표시된다(실측: 8월 사건이 9월로).
+    const rec = { t: g.turn, k: 'event', id: e.id, nm: e.nm, txt: e.txt, src: e.src, result,
+                  y: g.year, m: g.month };
+    g.log.push(rec);
+    fired.push(rec);
+  }
+  return fired;
+}
+
+// ──────────────────────────────────────────── 월말 정산
+function endMonth(g) {
+  for (const c of Object.values(g.castles)) {
+    c.gold += income(c) - upkeep(c);
+    if (c.gold < 0) { c.morale = Math.max(5, c.morale - 6); c.gold = 0; }
+    c.food -= foodUse(c);
+    if (g.month === SIM.HARVEST_MONTH) c.food += harvest(c);
+    if (c.food < 0) {
+      c.food = 0;
+      c.morale = Math.max(5, c.morale - 10);
+      const starve = Math.round(troopTotal(c) * 0.04);
+      let left = starve;
+      for (const u of ['보병', '궁병', '기병']) {
+        const cut = Math.min(c.troops[u], left);
+        c.troops[u] -= cut; left -= cut;
+      }
+    }
+    // 야전병원 복귀
+    if (c.hosp > 0) {
+      const back = Math.round(c.hosp * 0.3);
+      c.hosp -= back;
+      const room = castleDef(c.n).garr - troopTotal(c);
+      c.troops.보병 += Math.min(back, Math.max(0, room));
+    }
+    // 인구
+    let growth = 0.002 + (c.ag - 50) / 20000 - Math.max(0, 40 - c.sec) / 4000;
+    if (c.sec < 30) growth -= 0.01;
+    c.pop = Math.max(800, Math.round(c.pop * (1 + growth)));
+    // 치안이 바닥이면 반란
+    if (c.sec < 20 && rndOf(g) < 0.12) {
+      c.sec = Math.min(100, c.sec + 15);
+      c.pop = Math.round(c.pop * 0.96);
+      g.log.push({ t: g.turn, k: 'revolt', n: c.n });
+    }
+    c.sec = Math.max(0, Math.min(castleDef(c.n).cap, c.sec - 0.4));
+  }
+  // 무장 정리 + 레벨업
+  for (const o of Object.values(g.officers)) {
+    o.done = false;
+    if (o.hurt > 0) o.hurt--;
+    while (o.exp >= expNeed(o.lv) && o.lv < 50) { o.exp -= expNeed(o.lv); levelUp(g, o); }
+    if (o.fac) {
+      const c = g.castles[o.loc];
+      if (!c || c.fac !== o.fac) {
+        // 있던 거점이 넘어갔다 — 갈 곳을 잃으면 마음도 식는다
+        o.loy = Math.max(0, o.loy - 4);
+      } else if (c.gold <= 0) {
+        o.loy = Math.max(0, o.loy - 3);     // 봉록이 끊겼다
+      } else if (c.food <= 0) {
+        o.loy = Math.max(0, o.loy - 2);
+      } else {
+        o.loy = Math.min(100, o.loy + 0.4);
+      }
+      // ★충성이 바닥이면 떠난다. 거느린 부대는 거점에 남는다.
+      if (o.loy < 20 && rndOf(g) < (20 - o.loy) / 160) {
+        if (o.corps && o.corps.n > 0 && c && c.fac === o.fac) {
+          const room = castleDef(o.loc).garr - troopTotal(c);
+          c.troops[o.corps.unit] += Math.min(o.corps.n, Math.max(0, room));
+        }
+        g.log.push({ t: g.turn, k: 'leave', off: o.id, fac: o.fac, n: o.loc });
+        o.fac = null; o.corps = null; o.loy = 0; o.found = true;
+      }
+    }
+  }
+  // 외교 시효와 표류
+  for (const f of Object.values(g.factions)) {
+    for (const o of Object.keys(f.truce)) if (f.truce[o] > 0) f.truce[o]--;
+    for (const o of Object.keys(f.att)) {
+      if (!g.factions[o] || !g.factions[o].alive) continue;
+      const r = f.rel[o];
+      // 전쟁은 마음을 갉고, 동맹은 쌓는다. 평화는 천천히 중립으로 돌아간다.
+      if (r === 'war') f.att[o] = Math.max(0, f.att[o] - 1);
+      else if (r === 'ally') f.att[o] = Math.min(100, f.att[o] + 0.8);
+      else f.att[o] += f.att[o] < 50 ? 0.3 : -0.2;
+    }
+  }
+  for (const fid of Object.keys(g.factions)) checkDead(g, fid);
+  runEvents(g);
+}
+
+function expNeed(lv) { return 60 + lv * 26; }
+function levelUp(g, o) {
+  o.lv++;
+  const d = officerDef(o.id);
+  const axes = d.growth.length ? d.growth : ['mu', 'ji', 'jg'];
+  const pick = axes[Math.floor(rndOf(g) * axes.length)];
+  o[pick] = Math.min(100, o[pick] + 1 + (rndOf(g) < 0.35 ? 1 : 0));
+  if (rndOf(g) < 0.4) {
+    const other = ['mu', 'ji', 'jg'][Math.floor(rndOf(g) * 3)];
+    o[other] = Math.min(100, o[other] + 1);
+  }
+}
+// ★한 무장이 데려가는 병력. 1,000+레벨×200 은 대규모 성(주둔 30,000)을 치기엔 너무 적어
+//   전술 전투가 3,600 대 14,000 으로 성립하지 않았다(2026-09-10 실측) → 1,200+레벨×300.
+function troopCap(o) { return 1200 + o.lv * 300; }
+
+function nextTurn(g) {
+  endMonth(g);
+  g.turn++;
+  g.month++;
+  if (g.month > 12) { g.month = 1; g.year++; }
+  if (g.turn >= SIM.MAX_MONTH) g.over = winnerByCastles(g);
+  else {
+    const alive = Object.values(g.factions).filter(f => f.alive);
+    if (alive.length === 1) g.over = alive[0].id;
+  }
+  return g;
+}
+function winnerByCastles(g) {
+  let best = null, n = -1;
+  for (const f of Object.values(g.factions)) {
+    if (!f.alive) continue;
+    const k = factionCastles(g, f.id).length;
+    if (k > n) { n = k; best = f.id; }
+  }
+  return best;
+}
+
+// ──────────────────────────────────────────── AI (1단계: 최소한만)
+function aiTurn(g, fid) {
+  const mine = factionCastles(g, fid);
+  if (!mine.length) return;
+  const offs = factionOfficers(g, fid).filter(o => !o.done);
+  const aggr = g.factions[fid].aggr;
+
+  for (const o of offs) {
+    const c = g.castles[o.loc];
+    if (!c || c.fac !== fid) continue;
+    const r = rndOf(g);
+    // 병력이 얇으면 채우고, 곳간이 얇으면 상업, 아니면 농업/치안
+    // ★채우는 선(0.75)이 나가는 선(0.5)보다 위여야 한다. 반대로 두면 둘 사이에서 굳는다.
+    if (troopTotal(c) < castleDef(c.n).garr * 0.75 && c.gold > 600) {
+      const room = castleDef(c.n).garr - troopTotal(c);
+      const mode = c.gold > 3000 ? '모병' : '징병';
+      const afford = Math.floor(c.gold * 0.55 / (SIM.UNITS.보병.cost * SIM.RECRUIT[mode].priceMul) * 1000);
+      const cap = Math.min(draftCap(c), room, afford, 3000);
+      if (cap >= 200) { doRecruit(g, c.n, o.id, '보병', Math.floor(cap / 100) * 100, mode); continue; }
+    }
+    if (c.sec < 45) { doDevelop(g, c.n, o.id, '치안'); continue; }
+    if (c.gold < 350) { doDevelop(g, c.n, o.id, '상업'); continue; }
+    if (c.train < 70 && r < 0.4) { doTrain(g, c.n, o.id); continue; }
+    if (o.loy < 45 && c.gold > 500 && r < 0.5) { doReward(g, c.n, o.id, 200); }
+    const wild = wildAt(g, c.n);
+    if (wild.length && r < 0.3) { doRecruitOfficer(g, c.n, o.id, wild[0].id); continue; }
+    const hidden = officersAt(g, c.n).some(x => x.fac === null && !x.found);
+    if (hidden && r < 0.22) { doSearch(g, c.n, o.id); continue; }
+    // 부대를 안 거느린 무장에게 병력을 준다
+    if ((!o.corps || o.corps.n === 0) && troopTotal(c) > 1500 && r < 0.55) {
+      const unit = ['보병', '보병', '기병', '궁병'][Math.floor(rndOf(g) * 4)];
+      const want = Math.min(troopCap(o), c.troops[unit]);
+      if (want >= 500) { doAssign(g, c.n, o.id, unit, Math.floor(want / 100) * 100); }
+    }
+    doDevelop(g, c.n, o.id, r < 0.5 ? '농업' : '상업');
+  }
+  // 출병 판단
+  for (const n of mine) {
+    const c = g.castles[n];
+    if (garrisonTotal(g, n) < castleDef(n).garr * 0.5) continue;
+    const targets = castleDef(n).adj.filter(t => {
+      const o = g.castles[t].fac;
+      if (o === fid) return false;
+      if (relOf(g, fid, o) === 'ally') return false;
+      if ((g.factions[fid].truce[o] || 0) > 0) return false;
+      return true;
+    });
+    if (!targets.length) continue;
+    const t = targets[Math.floor(rndOf(g) * targets.length)];
+    // 실제로 내보낼 8할로 견준다. 전군 기준으로 재면 늘 이길 것 같아 보인다.
+    const mine_p = castlePower(g, c) * 0.8;
+    const his_p = castlePower(g, g.castles[t]) * 1.28 + g.castles[t].wall * 0.15;
+    if (mine_p > his_p * (1.15 + (1 - aggr) * 0.45) && rndOf(g) < 0.35 + aggr * 0.45) {
+      doAttack(g, n, t, 0.8);
+    }
+  }
+}
+
+// AI 외교 — 이웃만 상대한다
+function aiDiplomacy(g, fid) {
+  const me = g.factions[fid];
+  const mine = factionCastles(g, fid).length;
+  for (const o of neighbors(g, fid)) {
+    if (o === g.player && rndOf(g) < 0.5) continue;      // 사람에게는 덜 들이댄다
+    const his = factionCastles(g, o).length;
+    const r = relOf(g, fid, o);
+    if (r === 'war') {
+      // 밀리고 있으면 강화를 청한다
+      if (his > mine * 1.5 && rndOf(g) < 0.25) {
+        doPeace(g, fid, o, Math.min(g.castles[me.cap].gold, 400));
+      }
+    } else if (r === 'peace') {
+      if (attOf(g, o, fid) > 70 && rndOf(g) < 0.10) doAlly(g, fid, o);
+      else if (attOf(g, fid, o) < 30 && mine > his * 1.4 &&
+               (me.truce[o] || 0) === 0 && rndOf(g) < me.aggr * 0.12) {
+        doDeclareWar(g, fid, o);
+      } else if (attOf(g, fid, o) < 45 && g.castles[me.cap].gold > 1500 && rndOf(g) < 0.08) {
+        doGift(g, fid, o, 300);
+      }
+    } else if (r === 'ally') {
+      // 동맹이 약해지면 저버리는 세력도 있다
+      if (his < mine * 0.4 && me.aggr > 0.7 && rndOf(g) < 0.05) doBreakAlly(g, fid, o);
+    }
+  }
+}
+
+function runAllAI(g) {
+  for (const f of Object.values(g.factions)) {
+    if (!f.alive || f.id === g.player) continue;
+    aiDiplomacy(g, f.id);
+    aiTurn(g, f.id);
+  }
+}
+
+// ──────────────────────────────────────────── 저장
+function saveState(g) {
+  return JSON.stringify({
+    v: 1, seed: g.seed, turn: g.turn, year: g.year, month: g.month,
+    player: g.player, over: g.over, rndState: g.rndState,
+    castles: g.castles, factions: g.factions, officers: g.officers,
+    done: g.done || {}, log: g.log.slice(-120),
+  });
+}
+function loadState(s) {
+  const d = typeof s === 'string' ? JSON.parse(s) : s;
+  if (!d || d.v !== 1) return null;
+  return d;
+}
+
+  window.SamhanEngine = {
+    SIM, newGame, nextTurn, endMonth, aiTurn, runAllAI,
+    doDevelop, doRecruit, doTrain, doMove, doAttack, doRecruitOfficer,
+    doAssign, doDisband, doReward, doSearch, corpsAt, garrisonTotal, wildAt,
+    doDeclareWar, doPeace, doAlly, doBreakAlly, doGift, runEvents, EVENTS,
+    relOf, atWar, attOf, addAtt, neighbors,
+    income, harvest, draftCap, upkeep, foodUse, power, castlePower, troopTotal,
+    castleDef, officerDef, officersAt, factionCastles, factionOfficers,
+    bestOfficer, troopCap, expNeed, saveState, loadState, rndOf, costOf, ORDERS,
+  };
+})();

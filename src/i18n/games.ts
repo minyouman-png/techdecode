@@ -186,6 +186,61 @@ export function copyFor(game: GameEntry, lang: Lang): GameCopy {
 
 export const games: GameEntry[] = [
   {
+    slug: 'samhan',
+    released: '2026-09',
+    tech: 'Canvas 2D · Web Audio 5음계 합성음 · 로컬 SDXL 초상 201장 · 한국어/영어',
+    playPath: '/games/samhanwar/index.html',
+    cover: '/games/samhanwar/cover.jpg',
+    copy: {
+      ko: {
+        title: '삼한통일전',
+        tagline: '서기 246년, 부여에서 규슈까지 — 거점 서른일곱과 세력 열일곱으로 시작하는 고대 동아시아 군주 시뮬레이션. 한 달이 한 턴으로 흐릅니다.',
+        about: [
+          '삼국지 4·5 같은 <b>군주 시뮬레이션</b>에 영걸전·조조전식 <b>전술 전투</b>를 얹었습니다. 세력 하나를 골라 농사를 짓고 저자를 열고 사람을 얻어, 흩어진 삼한을 하나로 묶는 게 목표입니다.',
+          '때는 <b>서기 246년</b>입니다. 이 해를 고른 데는 이유가 있습니다 — 부여·고구려·동예·옥저와 마한·진한·변한, 그리고 백제·신라·가야가 <b>동시에 존재하는 시기가 3세기 중반뿐</b>이기 때문입니다. 백제는 마한 오십사국 중 하나에서, 신라는 진한 사로국에서, 가야는 변한 구야국에서 자라났으니까요. 게다가 246년에는 <b>관구검이 환도성을 함락시키고 마한이 기리영을 치는</b> 전쟁이 같은 해에 벌어집니다.',
+          '거점 서른일곱 곳은 <b>실제 위경도</b>에 찍혀 있습니다. 국내성은 중국 지안에, 평양성은 평양에 — 다만 246년의 평양은 고구려 수도가 아니라 <b>낙랑군의 치소</b>입니다(고구려의 평양 천도는 427년입니다). 그래서 고구려로 시작하면 첫 목표가 자연스럽게 낙랑 축출이 됩니다.',
+          '무장은 <b>201명</b>이고 전원 <b>열전</b>과 <b>초상</b>이 있습니다. 관구검·동천왕·밀우·유유·고이왕·석우로·히미코처럼 사서에 이름이 남은 서른다섯 명은 <b>근거 사료를 함께</b> 답니다. 나머지는 창작이고, 창작이라고 화면에 밝힙니다. 능력치 수치는 기록된 행적에 근거한 창작입니다.',
+          '전투는 <b>20×14 타일</b>에서 벌어집니다. 장수 한 명이 한 칸을 차지하고, 이동한 뒤 공격·계략·일기토·대기 중 하나를 합니다. 기병은 산에 못 들어가고 숲에서 느려지며, 궁병만 성벽에 오릅니다. 화계는 <b>건조기(3~5월·9~11월)</b>에만 붙고, 계략 횟수는 그 무장의 지력을 20으로 나눈 값입니다.',
+          '중요한 건 <b>부대의 병력이 곧 체력</b>이라는 점입니다. 전투에서 깎인 만큼이 그대로 전략 화면에 남습니다 — 전술과 전략 사이에 환산하는 층이 없습니다.',
+          '외교는 선전포고·강화·동맹·예물로 합니다. 강화가 성립하면 <b>1년간 다시 칠 수 없고</b>, 동맹을 파기하면 그 상대뿐 아니라 <b>지켜보던 다른 세력들도 등을 돌립니다</b>. 그리고 사서에 적힌 일곱 가지 사건이 조건이 맞는 달에 일어나는데, 전부 <b>출전을 함께 보여 줍니다</b>.',
+          '소리는 파일을 하나도 싣지 않고 브라우저가 그 자리에서 만듭니다. 음계는 <b>궁상각치우 다섯 음</b>만 씁니다 — 서양 7음계를 쓰면 같은 악기로도 시대가 어긋나 들리기 때문입니다.',
+          '2026년 9월, AI가 전부 만들었습니다 — 엔진, 지도, 무장 데이터와 열전, 초상 201장, 그리고 소리까지.',
+        ],
+        how: [
+          '거점을 눌러 고르고, 드래그로 지도를 옮기고, 휠로 확대합니다',
+          '무장을 고른 뒤 내정(농업·상업·치안)·훈련·징집·부대 편성 중 하나를 명령합니다 — 한 무장은 한 달에 한 번',
+          '재야 인재는 숨어 있습니다. <b>인재 탐색</b>으로 찾아야 등용할 수 있습니다',
+          '출병하려면 먼저 무장에게 <b>부대를 편성</b>해야 합니다. 출진하면 전술 전투로, 자동 판정을 누르면 한 번에 끝납니다',
+          '전투에서는 부대를 누르고 이동 → 공격. 스페이스로 다음 달, ESC로 창 닫기',
+          '처음이면 <b>기리영 싸움</b>부터 — 한 판으로 끝나는 전투라 3분이면 붙습니다',
+        ],
+      },
+      en: {
+        title: 'War for the Three Han',
+        tagline: 'AD 246, from Buyeo to Kyushu — an ancient East Asian strategy game of thirty-seven strongholds and seventeen powers. One month is one turn.',
+        about: [
+          'A lord-and-realm strategy game in the vein of Romance of the Three Kingdoms IV and V, with tactical battles in the manner of the Koei Gaiden games. Choose a power, work the fields, open the markets, win people over, and bind the scattered Han into one.',
+          'The year is <b>AD 246</b>, and that year was chosen for a reason: the middle of the third century is the only window in which Buyeo, Goguryeo, Ye and Okjeo coexist with Mahan, Jinhan and Byeonhan — and with Baekje, Silla and Gaya, which grew out of them. In that same year Wei stormed Hwando and Mahan struck the Wei fort at Girinyeong.',
+          'All thirty-seven strongholds sit at their <b>real coordinates</b>. Note that in 246 Pyongyang is not a Goguryeo capital but the seat of the Lelang commandery — Goguryeo moved there only in 427. Play Goguryeo and your first task is driving Lelang out.',
+          'There are <b>201 officers</b>, each with a written life and a painted portrait. The thirty-five who are attested in the histories — Guanqiu Jian, King Dongcheon, Miru, Yuyu, King Goi, Seok Uro, Himiko and others — carry <b>the source they come from</b>. The rest are invented, and the game says so plainly. The numbers on all of them are invention grounded in recorded deeds.',
+          'Battles are fought on a <b>20 × 14 grid</b>. One officer holds one square, moves, then does one thing: attack, a stratagem, a duel, or hold. Horse cannot enter hills and slows in woods; only bow may climb a wall. Fire attacks work only in the dry months, and a commander gets as many stratagems as his wit divided by twenty.',
+          'The thing that matters most: <b>a corps\u2019s strength is its hit points</b>. What you lose in a battle is exactly what is missing on the strategic map afterwards. There is no conversion layer between the two.',
+          'Diplomacy runs on declarations, peace offers, alliances and gifts. A peace holds for a year; breaking an alliance turns not only that power but every onlooker against you. Seven events drawn from the histories fire in the months they belong to, each shown with its source.',
+          'No audio files are loaded — the browser builds every sound as it plays, using only the five tones of the old East Asian scale.',
+          'Built entirely with AI in September 2026 — engine, map, officer data and biographies, 201 portraits, and the sound.',
+        ],
+        how: [
+          'Click a stronghold to select it, drag to pan the map, wheel to zoom',
+          'Pick an officer, then order one of: develop (farming / trade / order), drill, levy, or form a corps — one order per officer per month',
+          'Unattached talent is hidden. Use <b>Search for talent</b> before you can recruit them',
+          'To march you must first <b>form a corps</b> under an officer. March out for a tactical battle, or auto-resolve it at once',
+          'In battle: click a corps, move, then attack. Space advances the month, ESC closes a window',
+          'New here? Start with the <b>Battle of Girinyeong</b> — a single fight, and you are in it within three minutes',
+        ],
+      },
+    },
+  },
+  {
     slug: 'joss-fighters',
     released: '2026-08',
     tech: 'Canvas 2D · Web Audio 합성음 · 뼈대 기반 캐릭터 · AI 컷인 일러스트',
