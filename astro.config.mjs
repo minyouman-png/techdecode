@@ -128,6 +128,15 @@ export default defineConfig({
         if (/^\/(ja|es|zh)\/(blog|shops|news)(\/|$)/.test(p)) return false;
         if (p.startsWith('/apps/') || p.startsWith('/play/')) return false;
         if (p.includes('/shops/admin')) return false;
+        // 게시판 글 상세는 `?id=` 로만 열리는 빈 껍데기(내용은 Firestore 에서 온다) →
+        // noindex 이고 사이트맵에서도 뺀다. 목록 `/board/` 는 남긴다.
+        if (p.startsWith('/board/post')) return false;
+        // 글쓰기 창도 마찬가지 — 팝업으로만 열리는 도구 페이지다.
+        if (p.startsWith('/board/write')) return false;
+        // 조스프로젝트1(비공개 도구) — 문의 페이지 맨 아래 링크로만 들어간다.
+        // 개인 배송정보를 다루는 도구라 검색으로 흘러들어올 이유가 없다.
+        // ⚠️페이지 쪽 noindex 와 **세트**다(한쪽만 고치면 서치콘솔이 오류로 잡는다).
+        if (p.startsWith('/joss/')) return false;
         return true;
       },
     }),

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""배포 전 전체 검증 — 학습 코너 + 게임 11종을 한 번에 돌린다.
+"""배포 전 전체 검증 — 게시판 + 학습 코너 + 게임 11종을 한 번에 돌린다.
 
   python3 tools/verify-all.py           # 전부 (학습 코너는 dist 가 필요해 빌드부터)
   python3 tools/verify-all.py --games   # 게임만 (빌드 불필요, 빠름)
@@ -79,6 +79,14 @@ def main() -> int:
         jobs.append(('학습 코너 /learn/ 자가검증', [PY, 'tools/learn-selftest.py']))
         # dist 가 필요하다 — 게임만 돌릴 때(--games)는 빌드를 건너뛰므로 같이 뺀다
         jobs.append(('놀이공간 놀이방 목록(좌측 분류)', [PY, 'tools/games-index-selftest.py']))
+        # ★게시판이 여기 빠져 있었다 — 그래서 2026-09-05 로그인 문의 때 통합 검증은
+        #   게시판을 **한 번도 열어 보지 않은 채** 통과하고 있었다. 로그인 경로와
+        #   장애 주입(SDK·Firestore 차단)까지 보므로 다른 검사보다 시간이 좀 걸린다.
+        jobs.append(('게시판 /board/ 자가검증', [PY, 'tools/board-selftest.py']))
+        # ★로그인한 뒤에 사람이 하는 일(닉네임·글쓰기·댓글·수정·삭제)은 구글 로그인을
+        #   자동화할 수 없어 통째로 검증 밖에 있었다 → 에뮬레이터로 끝까지 해 본다.
+        #   ⚠️firebase CLI 와 JDK 21+ 가 있어야 한다(npm 스크립트가 openjdk@25 를 박아 준다).
+        jobs.append(('게시판 로그인 뒤 사람 경로 e2e', ['npm', 'run', '--silent', 'board:e2e']))
 
     results = []
     for title, cmd in jobs:

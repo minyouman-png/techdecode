@@ -1,0 +1,194 @@
+---
+// 글 상세 + 댓글. 주소는 `/board/post/?id=<문서ID>`.
+//
+// ⚠️★정적 사이트라 `/board/[id]/` 같은 동적 경로를 만들 수 없다(빌드 시점에 글이 없다).
+//   그래서 문서 ID 를 쿼리스트링으로 받는다. 이 페이지는 내용이 통째로 비어 있는
+//   껍데기이므로 **noindex** 이고, astro.config 의 사이트맵 필터에서도 뺐다(둘은 세트).
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BoardWatchdog from '../../components/BoardWatchdog.astro';
+---
+<BaseLayout lang="ko" title="게시판" description="MeNew Soft 게시판 글" noindex={true}>
+  <section class="wrap bd bd-detail">
+    <div class="bd-back"><a href="/board/">← 목록</a></div>
+
+    <article id="post" class="bd-post"><p class="bd-empty">불러오는 중…</p></article>
+
+    <section class="bd-comments" id="commentsWrap" hidden>
+      <h2 id="commentsTitle">댓글</h2>
+      <ol class="bd-clist" id="clist"></ol>
+
+      <form class="bd-cform" id="cform">
+        <textarea id="cbody" rows="3" maxlength="1000" placeholder="댓글을 입력하세요"></textarea>
+        <div class="bd-form-actions">
+          <button type="submit" class="bd-btn bd-btn-primary" id="cbtn">댓글 등록</button>
+          <span class="bd-hint" id="cmsg"></span>
+        </div>
+      </form>
+    </section>
+  </section>
+  <BoardWatchdog />
+</BaseLayout>
+
+<script>
+  import {
+    onUser, login, logout, getPost, deletePost, updatePost, openNickModal,
+    listComments, addComment, deleteComment,
+    CATS, DEFAULT_CAT, isCat, catLabel, isAdmin, esc, when, avatar,
+  } from '../../scripts/board.js';
+
+  const $ = (id) => document.getElementById(id);
+  const id = new URLSearchParams(location.search).get('id');
+  let user = null;
+  let nick = '';
+  let post = null;
+  let comments = [];
+
+  if (!id) {
+    $('post').innerHTML = '<p class="bd-empty">잘못된 주소입니다. <a href="/board/">목록으로</a></p>';
+  } else {
+    onUser((u, profile) => { user = u; nick = profile?.nick || ''; render(); });
+    boot();
+  }
+
+  async function boot() {
+    try {
+      post = await getPost(id);
+      if (!post) {
+        $('post').innerHTML = '<p class="bd-empty">삭제되었거나 없는 글입니다. <a href="/board/">목록으로</a></p>';
+        return;
+      }
+      comments = await listComments(id);
+      $('commentsWrap').hidden = false;
+      render();
+    } catch (err) {
+      $('post').innerHTML = `<p class="bd-empty">글을 불러오지 못했습니다. (${esc(err.code || err.message)})</p>`;
+    }
+  }
+
+  const canEdit = () => !!user && post && user.uid === post.authorUid;
+  const canDeletePost = () => canEdit() || isAdmin(user);
+  const canDeleteComment = (c) => !!user && (user.uid === c.authorUid || isAdmin(user) || canEdit());
+
+  function render() {
+    if (!post) return;
+
+    $('post').innerHTML = `
+      <div class="bd-post-cat">
+        <a class="bd-tag bd-tag-${post.cat || 'free'}" href="/board/?cat=${esc(post.cat || 'free')}">${esc(catLabel(post.cat))}</a>
+      </div>
+      <h1 class="bd-post-title">${esc(post.title)}</h1>
+      <div class="bd-post-meta">
+        ${avatar(post.authorPhoto, post.authorName)}
+        <span>${esc(post.authorName)}</span><i>·</i><span>${when(post.createdAt)}</span>
+        ${post.updatedAt ? '<i>·</i><span>수정됨</span>' : ''}
+      </div>
+      <div class="bd-post-body">${esc(post.body)}</div>
+      <div class="bd-post-actions">
+        ${canEdit() ? '<button type="button" class="bd-btn bd-btn-sm" id="editBtn">수정</button>' : ''}
+        ${canDeletePost() ? '<button type="button" class="bd-btn bd-btn-sm bd-btn-danger" id="delBtn">삭제</button>' : ''}
+      </div>`;
+
+    $('editBtn')?.addEventListener('click', showEditor);
+    $('delBtn')?.addEventListener('click', onDelete);
+
+    $('commentsTitle').textContent = `댓글 ${comments.length}`;
+    $('clist').innerHTML = comments.length
+      ? comments.map((c) => `<li class="bd-citem">
+          <div class="bd-cmeta">${avatar(c.authorPhoto, c.authorName)}<b>${esc(c.authorName)}</b><i>·</i><span>${when(c.createdAt)}</span>
+            ${canDeleteComment(c) ? `<button type="button" class="bd-clink" data-del="${esc(c.id)}">삭제</button>` : ''}
+          </div>
+          <div class="bd-cbody">${esc(c.body)}</div>
+        </li>`).join('')
+      : '<li class="bd-empty">첫 댓글을 남겨 보세요.</li>';
+
+    $('clist').querySelectorAll('[data-del]').forEach((b) =>
+      b.addEventListener('click', () => onDeleteComment(b.dataset.del)));
+
+    $('cbody').placeholder = !user ? '댓글을 쓰려면 로그인이 필요합니다'
+      : !nick ? '닉네임을 먼저 정해 주세요' : '댓글을 입력하세요';
+    $('cbtn').textContent = !user ? '구글 계정으로 로그인'
+      : !nick ? '닉네임 정하기' : '댓글 등록';
+  }
+
+  /* ── 수정 ── */
+  function showEditor() {
+    $('post').innerHTML = `
+      <form class="bd-form" id="editForm">
+        <div class="bd-form-row">
+          <label class="bd-form-cat">분류<select id="ecat"></select></label>
+          <label class="bd-form-title">제목<input id="etitle" maxlength="120" required /></label>
+        </div>
+        <label>내용<textarea id="ebody" rows="12" maxlength="10000" required></textarea></label>
+        <div class="bd-form-actions">
+          <button type="submit" class="bd-btn bd-btn-primary" id="esave">저장</button>
+          <button type="button" class="bd-btn" id="ecancel">취소</button>
+          <span class="bd-hint" id="emsg"></span>
+        </div>
+      </form>`;
+    // '공지'는 운영자에게만 보인다(차단 자체는 firestore.rules 의 catOk() 가 한다).
+    const opts = CATS.filter((c) => !c.admin || isAdmin(user));
+    $('ecat').innerHTML = opts.map((c) => `<option value="${c.key}">${c.label}</option>`).join('');
+    $('ecat').value = opts.some((o) => o.key === post.cat) ? post.cat : DEFAULT_CAT;
+    $('etitle').value = post.title;
+    $('ebody').value = post.body;
+    $('ecancel').addEventListener('click', render);
+    $('editForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const t = $('etitle').value.trim(), b = $('ebody').value.trim(), c = $('ecat').value;
+      if (!t || !b) { $('emsg').textContent = '제목과 내용을 모두 입력해 주세요.'; return; }
+      $('esave').disabled = true; $('emsg').textContent = '저장 중…';
+      try {
+        await updatePost(id, t, b, c);
+        post = { ...post, title: t, body: b, cat: c, updatedAt: true };
+        render();
+      } catch (err) {
+        $('emsg').textContent = '저장에 실패했습니다: ' + (err.message || err.code);
+        $('esave').disabled = false;
+      }
+    });
+  }
+
+  async function onDelete() {
+    if (!confirm('이 글을 삭제할까요? 댓글도 함께 지워집니다.')) return;
+    $('delBtn').disabled = true;
+    try {
+      await deletePost(id);
+      location.href = '/board/';
+    } catch (err) {
+      alert('삭제에 실패했습니다: ' + (err.message || err.code));
+      $('delBtn').disabled = false;
+    }
+  }
+
+  /* ── 댓글 ── */
+  $('cform').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!user) { login(); return; }
+    if (!nick) { openNickModal(user); return; }
+    const body = $('cbody').value.trim();
+    if (!body) return;
+    $('cbtn').disabled = true; $('cmsg').textContent = '등록 중…';
+    try {
+      await addComment(id, user, body);
+      $('cbody').value = '';
+      comments = await listComments(id);
+      $('cmsg').textContent = '';
+      render();
+    } catch (err) {
+      $('cmsg').textContent = '등록에 실패했습니다: ' + (err.message || err.code);
+    } finally {
+      $('cbtn').disabled = false;
+    }
+  });
+
+  async function onDeleteComment(cid) {
+    if (!confirm('이 댓글을 삭제할까요?')) return;
+    try {
+      await deleteComment(id, cid);
+      comments = comments.filter((c) => c.id !== cid);
+      render();
+    } catch (err) {
+      alert('삭제에 실패했습니다: ' + (err.message || err.code));
+    }
+  }
+</script>

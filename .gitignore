@@ -11,3 +11,6 @@ node_modules/
 .DS_Store
 # logs
 npm-debug.log*
+# firebase 에뮬레이터 로그
+firestore-debug.log
+firebase-debug.log

@@ -1,0 +1,133 @@
+---
+// 글쓰기 전용 창. `/board/write/` 를 **팝업 창(window.open)** 으로 열어서 쓴다.
+//
+// ⚠️★왜 따로 창인가 — 목록 위에 폼이 펼쳐지면 게시판에 들어온 사람이 제일 먼저 보는 것이
+//   '남들이 쓴 글'이 아니라 '빈 입력칸'이 된다. 목록이 주인공이어야 한다.
+// ⚠️로그인 세션은 같은 출처(origin)의 IndexedDB 에 있으므로 이 창에서도 그대로 살아 있다.
+//   다만 상태 확인이 비동기라, 다 확인될 때까지 폼을 잠가 둔다.
+// ⚠️`?cat=` 으로 분류를 미리 골라 받는다(목록에서 보던 탭을 그대로 잇는다).
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BoardWatchdog from '../../components/BoardWatchdog.astro';
+---
+<BaseLayout lang="ko" title="글쓰기" description="MeNew Soft 게시판 글쓰기" noindex={true}>
+  <section class="wrap bd bd-write">
+    <h1>글쓰기</h1>
+    <p class="bd-write-who" id="who">로그인 상태를 확인하는 중…</p>
+
+    <form class="bd-form" id="writeForm">
+      <div class="bd-form-row">
+        <label class="bd-form-cat">
+          분류
+          <select id="cat" disabled></select>
+        </label>
+        <label class="bd-form-title">
+          제목
+          <input id="title" maxlength="120" placeholder="제목을 입력하세요" disabled required />
+        </label>
+      </div>
+      <label>
+        내용
+        <textarea id="body" rows="14" maxlength="10000" placeholder="내용을 입력하세요" disabled required></textarea>
+      </label>
+      <div class="bd-form-actions">
+        <button type="submit" class="bd-btn bd-btn-primary" id="submitBtn" disabled>등록</button>
+        <button type="button" class="bd-btn" id="closeBtn">닫기</button>
+        <span class="bd-hint" id="formMsg"></span>
+      </div>
+    </form>
+  </section>
+  <BoardWatchdog />
+</BaseLayout>
+
+<script>
+  import {
+    onUser, login, createPost, openNickModal,
+    CATS, DEFAULT_CAT, isCat, isAdmin, esc, avatar,
+  } from '../../scripts/board.js';
+
+  const $ = (id) => document.getElementById(id);
+  const FIELDS = ['cat', 'title', 'body', 'submitBtn'];
+  let user = null;
+  let nick = '';
+
+  const wantCat = new URLSearchParams(location.search).get('cat');
+
+  function lock(on) {
+    FIELDS.forEach((id) => { $(id).disabled = on; });
+  }
+
+  onUser((u, profile) => {
+    user = u;
+    nick = profile?.nick || '';
+
+    if (!u) {
+      $('who').innerHTML = '글을 쓰려면 로그인이 필요합니다. '
+        + '<button type="button" class="bd-btn bd-btn-sm" id="loginBtn">구글 계정으로 로그인</button>';
+      $('loginBtn').addEventListener('click', login);
+      lock(true);
+      return;
+    }
+    if (!nick) {
+      $('who').textContent = '닉네임을 먼저 정해 주세요.';
+      lock(true);
+      openNickModal(u);
+      return;
+    }
+
+    $('who').innerHTML = `${avatar(u.photoURL, nick)}<b>${esc(nick)}</b> 님으로 작성합니다.`;
+    fillCats();
+    lock(false);
+    $('title').focus();
+  });
+
+  function fillCats() {
+    const opts = CATS.filter((c) => !c.admin || isAdmin(user));
+    $('cat').innerHTML = opts.map((c) => `<option value="${c.key}">${c.label}</option>`).join('');
+    const want = isCat(wantCat) && opts.some((o) => o.key === wantCat) ? wantCat : DEFAULT_CAT;
+    $('cat').value = want;
+  }
+
+  $('closeBtn').addEventListener('click', () => close());
+
+  // 창을 닫는다. 팝업이 아니라 그냥 새 탭으로 열린 경우(모바일 등)에는 닫히지 않으므로
+  // 목록으로 되돌린다.
+  function close(posted) {
+    if (posted && window.opener && !window.opener.closed) {
+      // 부모 창의 목록을 새로 그리게 한다. 출처를 명시해 아무 창에나 가지 않도록 한다.
+      window.opener.postMessage({ type: 'board:posted' }, location.origin);
+    }
+    window.close();
+    setTimeout(() => {
+      if (!window.closed) location.href = '/board/';
+    }, 150);
+  }
+
+  $('writeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!user) { login(); return; }
+    if (!nick) { openNickModal(user); return; }
+
+    const title = $('title').value.trim();
+    const body = $('body').value.trim();
+    if (!title || !body) { $('formMsg').textContent = '제목과 내용을 모두 입력해 주세요.'; return; }
+
+    lock(true);
+    $('formMsg').textContent = '등록 중…';
+    try {
+      await createPost(user, title, body, $('cat').value);
+      $('formMsg').textContent = '등록했습니다.';
+      close(true);
+    } catch (err) {
+      $('formMsg').textContent = '등록에 실패했습니다: ' + (err.message || err.code);
+      lock(false);
+    }
+  });
+
+  // 쓰다가 실수로 창을 닫는 사고를 막는다.
+  addEventListener('beforeunload', (e) => {
+    if (!$('submitBtn').disabled && ($('title').value.trim() || $('body').value.trim())) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+</script>

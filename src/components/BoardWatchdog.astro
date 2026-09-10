@@ -1,0 +1,60 @@
+---
+// 게시판 감시견 — **board.js 가 아예 죽었을 때** 화면에 안내를 띄운다.
+//
+// ★왜 필요한가 (2026-09-05 문의: "로그인이 눌리지 않는다")
+//   게시판의 단추들은 전부 board.js 가 addEventListener 로 붙인다. 그런데 board.js 는
+//   `https://www.gstatic.com/firebasejs/...` 를 import 하는 **모듈**이라, 그 주소가 막히면
+//   (광고·추적 차단 확장, 사내망/학교망 필터, DNS 차단, 잠깐의 네트워크 실패)
+//   파일이 통째로 실행되지 않는다. 그러면 화면에는
+//     · 로그인 단추가 **아예 안 생기고**
+//     · 정적으로 그려 둔 '✎ 글쓰기' 단추는 **보이는데 눌러도 아무 일이 없다**
+//   에러도 안 뜬다. 쓰는 사람 입장에서는 "클릭이 안 된다" 로만 보인다.
+//
+// ⚠️이 스크립트는 `is:inline` 이어야 하고 **import 가 하나도 없어야 한다** —
+//   board.js 를 죽이는 그 원인에 같이 죽으면 감시견의 뜻이 없다.
+---
+<script is:inline>
+  (function () {
+    var LIMIT = 12000;   // 느린 회선을 억울하게 잡지 않도록 넉넉히 준다
+    function box(title, html) {
+      if (document.getElementById('bdDead')) return;
+      var host = document.querySelector('main .bd') || document.querySelector('main') || document.body;
+      if (!host) return;
+      var d = document.createElement('div');
+      d.id = 'bdDead';
+      d.className = 'bd-popup-help';
+      d.setAttribute('role', 'alert');
+      d.innerHTML = '<strong>' + title + '</strong>' + html;
+      host.prepend(d);
+    }
+    function dead() {
+      box('게시판 기능을 불러오지 못했습니다',
+        '<p>글쓰기·로그인에 필요한 파일(<b>www.gstatic.com</b>)을 이 브라우저가 받지 못했습니다.' +
+        ' 그래서 단추를 눌러도 아무 일이 일어나지 않습니다. 아래를 확인해 주세요.</p>' +
+        '<ul>' +
+        '<li><b>광고·추적 차단 확장</b>(uBlock, AdGuard 등)을 이 사이트에서 잠시 꺼 주세요</li>' +
+        '<li>회사·학교 네트워크라면 <b>다른 망(휴대폰 테더링 등)</b>에서 열어 보세요</li>' +
+        '<li>그 밖에는 <b>새로고침</b>으로 대개 해결됩니다</li>' +
+        '</ul>' +
+        '<p class="bd-popup-alt"><button type="button" class="bd-btn bd-btn-sm" ' +
+        'onclick="location.reload()">새로고침</button></p>');
+      // 죽은 단추를 살아 있는 것처럼 두지 않는다.
+      ['writeToggle', 'moreBtn', 'cbtn'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) { el.disabled = true; el.title = '게시판 기능을 불러오지 못했습니다'; }
+      });
+    }
+    // ① 모듈이 아예 안 돌았다 → 확실한 사망.
+    setTimeout(function () { if (!window.__bdReady) dead(); }, LIMIT);
+    // ② 모듈은 돌았는데 목록이 끝내 '불러오는 중' 이면 Firestore 쪽이 막힌 것이다.
+    setTimeout(function () {
+      var list = document.getElementById('list');
+      if (window.__bdReady && list && /불러오는 중/.test(list.textContent || '')) {
+        box('글 목록을 불러오지 못했습니다',
+          '<p>서버에서 글을 받아오지 못했습니다. 잠시 뒤 <b>새로고침</b>해 주세요.</p>' +
+          '<p class="bd-popup-alt"><button type="button" class="bd-btn bd-btn-sm" ' +
+          'onclick="location.reload()">새로고침</button></p>');
+      }
+    }, LIMIT + 6000);
+  })();
+</script>

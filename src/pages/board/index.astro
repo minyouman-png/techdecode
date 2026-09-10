@@ -1,0 +1,244 @@
+---
+// 게시판 목록 + 글쓰기.
+//
+// ⚠️★내용은 전부 브라우저에서 Firestore 를 읽어 그린다(정적 사이트라 서버가 없다).
+//   그래서 검색엔진에는 이 껍데기만 보인다 — 글 자체가 색인되기를 기대하면 안 된다.
+//   목록 페이지는 소개 문구가 실물이라 색인을 열어 두고, 글 상세(`/board/post/`)는
+//   `?id=` 로만 열리는 빈 껍데기라 noindex + 사이트맵 제외로 뺐다(astro.config).
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BoardWatchdog from '../../components/BoardWatchdog.astro';
+---
+<BaseLayout
+  lang="ko"
+  title="게시판"
+  description="MeNew Soft 게시판. 공지·자유·질문 게시판을 누구나 읽을 수 있고, 구글 계정으로 로그인하면 글과 댓글을 쓸 수 있습니다."
+>
+  <section class="wrap bd">
+    <header class="bd-head">
+      <div>
+        <h1>게시판</h1>
+        <p class="bd-lead">
+          읽는 것은 <strong>로그인 없이 누구나</strong> 할 수 있습니다.
+          글쓰기와 댓글은 구글 계정으로 로그인하면 됩니다.
+        </p>
+      </div>
+      <div class="bd-auth" id="auth"></div>
+    </header>
+
+    {/* ⚠️탭은 서버에서 미리 그려 둔다 — JS 가 늦게 붙어도 뼈대는 보이도록.
+        선택 상태(aria-current)와 `?cat=` 은 JS 가 맞춘다. */}
+    <nav class="bd-tabs" id="tabs" aria-label="게시판 분류">
+      <a href="/board/" data-cat="">전체</a>
+      <a href="/board/?cat=notice" data-cat="notice">공지</a>
+      <a href="/board/?cat=free" data-cat="free">자유</a>
+      <a href="/board/?cat=qna" data-cat="qna">질문</a>
+    </nav>
+
+    <ol class="bd-list" id="pinned" hidden></ol>
+    <ol class="bd-list" id="list">
+      <li class="bd-empty">불러오는 중…</li>
+    </ol>
+
+    <div class="bd-more">
+      <button type="button" id="moreBtn" class="bd-btn" hidden>더 보기</button>
+    </div>
+
+    {/* ⚠️글쓰기는 목록 **아래**에 둔다 — 게시판에 들어온 사람이 제일 먼저 볼 것은
+        빈 입력칸이 아니라 남들이 쓴 글이다. */}
+    <div class="bd-foot">
+      <span class="bd-hint" id="writeHint"></span>
+      <button type="button" id="writeToggle" class="bd-btn bd-btn-primary">✎ 글쓰기</button>
+    </div>
+
+    {/* 팝업이 막혔을 때만 보여 주는 안내. 평소에는 숨어 있다. */}
+    <div class="bd-popup-help" id="popupHelp" hidden>
+      <strong>글쓰기 창이 열리지 않았습니다 — 팝업 차단을 해제해 주세요.</strong>
+      <p>
+        주소창 오른쪽 끝에 <b>팝업이 차단되었다는 아이콘</b>이 떠 있습니다.
+        그것을 눌러 <b>“menewsoft.com의 팝업 항상 허용”</b>을 선택한 뒤 다시 글쓰기를 눌러 주세요.
+      </p>
+      <ul>
+        <li><b>크롬 · 엣지</b> — 주소창 오른쪽 차단 아이콘 → 항상 허용 → 완료</li>
+        <li><b>사파리</b> — 상단 메뉴 Safari → 설정 → 웹사이트 → 팝업 창 → menewsoft.com 을 <b>허용</b></li>
+        <li><b>휴대폰</b> — 브라우저 설정에서 팝업 차단을 끄시면 됩니다</li>
+      </ul>
+      <p class="bd-popup-alt">
+        지금 바로 쓰시려면 <a href="/board/write/" id="writeFallback">이 링크로 글쓰기 페이지를 여세요</a>.
+      </p>
+    </div>
+  </section>
+  <BoardWatchdog />
+</BaseLayout>
+
+<script>
+  import {
+    onUser, login, logout, listPosts, listNotices, openNickModal,
+    isCat, catLabel, esc, when, avatar,
+  } from '../../scripts/board.js';
+
+  const $ = (id) => document.getElementById(id);
+  let user = null;
+  let nick = '';   // 아직 닉네임을 안 정했으면 빈 문자열 → 글쓰기 전에 설정 창이 뜬다
+  let cursor = null;
+  let loading = false;
+  let cat = '';   // '' = 전체
+  // 상단에 고정한 공지의 id. 아래 목록에서 **같은 글이 두 번 나오지 않도록** 걸러내는 데 쓴다.
+  // ⚠️'공지 분류'로 거르면 안 된다 — 고정은 최근 3건뿐이라 그보다 오래된 공지는
+  //   목록에 그대로 나와야 한다. 그래서 분류가 아니라 **id** 로 뺀다.
+  let pinnedIds = new Set();
+
+  /* ── 현재 탭 ── */
+  function readCat() {
+    const c = new URLSearchParams(location.search).get('cat') || '';
+    return isCat(c) ? c : '';
+  }
+  function paintTabs() {
+    $('tabs').querySelectorAll('a').forEach((a) => {
+      const on = a.dataset.cat === cat;
+      a.classList.toggle('on', on);
+      if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+  }
+  // 탭 전환은 페이지를 새로 부르지 않고 주소만 바꾼다(뒤로가기도 정상 동작).
+  $('tabs').addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-cat]');
+    if (!a) return;
+    e.preventDefault();
+    history.pushState({}, '', a.getAttribute('href'));
+    cat = readCat();
+    paintTabs();
+    $('writeFallback').href = writeUrl();
+    reload();
+  });
+  addEventListener('popstate', () => { cat = readCat(); paintTabs(); reload(); });
+
+  /* ── 로그인 상태 ── */
+  onUser((u, profile) => {
+    user = u;
+    nick = profile?.nick || '';
+    $('auth').innerHTML = u
+      ? `<span class="bd-me">${avatar(u.photoURL, nick)}<b>${esc(nick || '닉네임 미설정')}</b>
+           <button type="button" class="bd-clink" id="nickEdit">이름 바꾸기</button></span>
+         <button type="button" class="bd-btn bd-btn-sm" id="logoutBtn">로그아웃</button>`
+      : `<button type="button" class="bd-btn bd-btn-sm" id="loginBtn">구글 계정으로 로그인</button>`;
+    $('loginBtn')?.addEventListener('click', login);
+    $('logoutBtn')?.addEventListener('click', logout);
+    $('nickEdit')?.addEventListener('click', () => openNickModal(u, { editing: true }));
+    $('writeHint').textContent = u
+      ? '글쓰기 창이 열리지 않으면 팝업 차단을 해제해 주세요.'
+      : '글을 쓰려면 로그인이 필요합니다.';
+    // 로그인 상태가 바뀌면 목록의 권한 표시도 달라진다 → 다시 그린다.
+    reload();
+  });
+
+  /* ── 글쓰기: 별도 팝업 창 ── */
+  // 지금 보고 있는 탭의 분류를 그대로 이어 준다(질문 탭에서 누르면 질문으로 시작).
+  const writeUrl = () => '/board/write/' + (cat ? `?cat=${cat}` : '');
+  $('writeFallback').href = writeUrl();
+
+  let popup = null;
+  $('writeToggle').addEventListener('click', () => {
+    if (!user) { login(); return; }
+    // ⚠️닉네임이 없으면 규칙이 글쓰기를 거부한다. 창을 열어 주면 다 쓰고 나서 실패한다.
+    if (!nick) { openNickModal(user); return; }
+
+    $('writeFallback').href = writeUrl();
+
+    // 이미 열어 둔 창이 있으면 그 창을 앞으로 가져온다(중복 창 방지).
+    if (popup && !popup.closed) { popup.focus(); return; }
+
+    const w = 680, h = 780;
+    const left = Math.max(0, (screen.width - w) / 2);
+    const top = Math.max(0, (screen.height - h) / 2);
+    popup = window.open(writeUrl(), 'menewsoft-board-write',
+      `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`);
+
+    // ⚠️차단되면 window.open 이 null 을 준다. 조용히 아무 일도 안 일어난 것처럼 보이는 게
+    //   최악이라, 무엇을 눌러야 하는지까지 적어 보여 준다.
+    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+      $('popupHelp').hidden = false;
+      $('popupHelp').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return;
+    }
+    $('popupHelp').hidden = true;
+    popup.focus();
+  });
+
+  // 팝업이 글을 올리면 알려 준다 → 목록을 새로 그린다.
+  addEventListener('message', (e) => {
+    if (e.origin !== location.origin) return;      // 아무 창이나 보낸 메시지를 믿지 않는다
+    if (e.data?.type === 'board:posted') reload();
+  });
+
+  /* ── 목록 ── */
+  function row(p, pin) {
+    const n = p.commentCount || 0;
+    const c = p.cat || 'free';
+    return `<li class="bd-item${pin ? ' bd-item-pin' : ''}">
+      <a class="bd-item-main" href="/board/post/?id=${encodeURIComponent(p.id)}">
+        <span class="bd-title">
+          <em class="bd-tag bd-tag-${c}">${esc(catLabel(c))}</em>
+          ${esc(p.title)}${n ? ` <em class="bd-cnt">[${n}]</em>` : ''}
+        </span>
+        <span class="bd-meta">${avatar(p.authorPhoto, p.authorName)}<span>${esc(p.authorName)}</span><i>·</i><span>${when(p.createdAt)}</span></span>
+      </a>
+    </li>`;
+  }
+
+  const EMPTY = {
+    '': '아직 글이 없습니다. 첫 글을 남겨 보세요.',
+    notice: '아직 공지가 없습니다.',
+    free: '아직 자유게시판 글이 없습니다. 첫 글을 남겨 보세요.',
+    qna: '아직 질문이 없습니다. 궁금한 것을 물어보세요.',
+  };
+
+  async function load(reset) {
+    if (loading) return;
+    loading = true;
+    $('moreBtn').disabled = true;
+    try {
+      // 공지는 '전체' 탭에서만 위에 고정한다(공지 탭에서는 목록 자체가 공지다).
+      // ⚠️목록보다 **먼저** 기다린다 — 나중에 채우면 이미 그려진 목록에서 중복을 뺄 수 없다.
+      if (reset) {
+        $('pinned').hidden = true;
+        $('pinned').innerHTML = '';
+        pinnedIds = new Set();
+        if (cat === '') {
+          try {
+            const ns = await listNotices(3);
+            if (ns.length) {
+              pinnedIds = new Set(ns.map((p) => p.id));
+              $('pinned').innerHTML = ns.map((p) => row(p, true)).join('');
+              $('pinned').hidden = false;
+            }
+          } catch { /* 고정 표시는 부가 기능이라 실패해도 목록은 그린다 */ }
+        }
+      }
+
+      const { posts, cursor: next, done } = await listPosts(cat, reset ? null : cursor);
+      cursor = next;
+      const rest = posts.filter((p) => !pinnedIds.has(p.id));
+      if (reset) $('list').innerHTML = '';
+      if (reset && rest.length === 0) {
+        // 고정된 공지만 있는 상태에서 '글이 없습니다'라고 하면 화면과 어긋난다.
+        $('list').innerHTML = pinnedIds.size
+          ? ''
+          : `<li class="bd-empty">${EMPTY[cat] || EMPTY['']}</li>`;
+      } else {
+        $('list').insertAdjacentHTML('beforeend', rest.map((p) => row(p, false)).join(''));
+      }
+      $('moreBtn').hidden = done;
+    } catch (err) {
+      $('list').innerHTML = `<li class="bd-empty">목록을 불러오지 못했습니다. (${esc(err.code || err.message)})</li>`;
+      $('moreBtn').hidden = true;
+    } finally {
+      loading = false;
+      $('moreBtn').disabled = false;
+    }
+  }
+  const reload = () => load(true);
+  $('moreBtn').addEventListener('click', () => load(false));
+
+  cat = readCat();
+  paintTabs();
+</script>

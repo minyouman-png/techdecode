@@ -6,11 +6,20 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "board:test": "python3 tools/board-selftest.py",
+    "board:rules": "JAVA_HOME=/opt/homebrew/opt/openjdk@25 PATH=\"/opt/homebrew/opt/openjdk@25/bin:$PATH\" firebase emulators:exec --only firestore --project menewsoft-board-test \"node tools/board-rules-test.mjs\"",
+    "board:deploy-rules": "firebase deploy --only firestore:rules --project menewsoft-board",
+    "board:flow": "JAVA_HOME=/opt/homebrew/opt/openjdk@25 PATH=\"/opt/homebrew/opt/openjdk@25/bin:$PATH\" firebase emulators:exec --only auth,firestore --project menewsoft-board \"python3 tools/board-flow-test.py\"",
+    "board:e2e": "JAVA_HOME=/opt/homebrew/opt/openjdk@25 PATH=\"/opt/homebrew/opt/openjdk@25/bin:$PATH\" firebase emulators:exec --only auth,firestore --project menewsoft-board \"python3 tools/board-e2e.py\"",
+    "joss:test": "python3 tools/joss-rollingdice-selftest.py"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.2.0",
     "astro": "^5.0.0"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2"
   }
 }

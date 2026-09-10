@@ -613,3 +613,184 @@ a.cat:hover { text-decoration: underline; }
   .shop-grid { grid-template-columns: 1fr; gap: 16px; }
   .dir-panel { padding: 14px 15px 4px; }
 }
+
+/* ---------- 게시판(/board/) ---------- */
+/* ⚠️★스코프 스타일(<style>)이 아니라 전역이다 — 목록·댓글은 JS 가 innerHTML 로 그리는데,
+   Astro 의 스코프 스타일은 빌드 시점 요소에만 표식을 붙여서 동적 DOM 에는 안 먹는다. */
+.bd { padding-top: 44px; padding-bottom: 72px; max-width: 860px; }
+.bd h1 { font-family: var(--serif); font-weight: 600; font-size: 2.1rem; letter-spacing: -0.02em; color: var(--fg-strong); margin: 0 0 8px; }
+.bd-lead { color: var(--muted); margin: 0; font-size: 15px; }
+.bd-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 26px; }
+.bd-auth { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.bd-me { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+.bd-me b { color: var(--fg-strong); font-weight: 600; }
+
+.bd-ava { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex: none; background: var(--bg-elev2); }
+.bd-ava-none {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; color: var(--accent-ink); background: var(--accent);
+}
+
+.bd-btn {
+  display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+  background: var(--bg-elev); color: var(--fg); border: 1px solid var(--border);
+  font-family: inherit; font-size: 15px; font-weight: 600;
+  padding: 10px 18px; border-radius: 999px;
+  transition: border-color .15s ease, background .15s ease, transform .15s ease;
+}
+.bd-btn:hover { border-color: var(--accent); color: var(--fg-strong); }
+.bd-btn:disabled { opacity: .5; cursor: default; transform: none; }
+.bd-btn-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.bd-btn-primary:hover { background: var(--accent-2); color: var(--accent-ink); transform: translateY(-1px); }
+.bd-btn-sm { font-size: 13px; padding: 7px 14px; }
+.bd-btn-danger:hover { border-color: #d0574e; color: #d0574e; }
+
+.bd-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+.bd-hint { font-size: 13px; color: var(--faint); }
+
+.bd-form { display: grid; gap: 14px; background: var(--bg-elev); border: 1px solid var(--border-soft); border-radius: 14px; padding: 22px; margin-bottom: 26px; }
+.bd-form label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.bd-form input, .bd-form textarea {
+  width: 100%; font-family: inherit; font-size: 16px; line-height: 1.65;
+  color: var(--fg); background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 11px 13px;
+}
+.bd-form input:focus, .bd-form textarea:focus { outline: none; border-color: var(--accent); }
+.bd-form textarea { resize: vertical; }
+.bd-form-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.bd-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border-soft); }
+.bd-item { border-bottom: 1px solid var(--border-soft); }
+.bd-item-main { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 4px; color: var(--fg); }
+.bd-item-main:hover { color: var(--fg-strong); background: var(--bg-elev); }
+.bd-title { font-size: 16.5px; font-weight: 600; color: inherit; }
+.bd-cnt { font-style: normal; color: var(--accent); font-size: 14px; }
+.bd-meta { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--faint); flex: none; }
+.bd-meta i { font-style: normal; opacity: .5; }
+.bd-empty { padding: 40px 4px; color: var(--faint); text-align: center; list-style: none; }
+.bd-more { display: flex; justify-content: center; padding: 26px 0; }
+
+/* 글 상세 */
+.bd-back { margin-bottom: 20px; font-size: 14px; }
+.bd-post-title { font-family: var(--serif); font-weight: 600; font-size: 1.9rem; letter-spacing: -0.02em; color: var(--fg-strong); margin: 0 0 12px; }
+.bd-post-meta { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--faint); padding-bottom: 20px; border-bottom: 1px solid var(--border-soft); }
+.bd-post-meta i { font-style: normal; opacity: .5; }
+/* ⚠️본문은 esc() 를 거친 평문이므로 줄바꿈은 CSS 로 살린다(<br> 로 바꾸면 XSS 구멍이 생긴다). */
+.bd-post-body { white-space: pre-wrap; font-size: 17px; line-height: 1.8; padding: 26px 0; min-height: 120px; }
+.bd-post-actions { display: flex; gap: 8px; padding-bottom: 26px; }
+
+.bd-comments { border-top: 1px solid var(--border); padding-top: 30px; }
+.bd-comments h2 { font-size: 1.15rem; margin-bottom: 18px; }
+.bd-clist { list-style: none; margin: 0 0 24px; padding: 0; }
+.bd-citem { padding: 15px 0; border-bottom: 1px solid var(--border-soft); }
+.bd-cmeta { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--faint); margin-bottom: 7px; }
+.bd-cmeta b { color: var(--fg-strong); font-weight: 600; }
+.bd-cmeta i { font-style: normal; opacity: .5; }
+.bd-clink { margin-left: auto; background: none; border: 0; padding: 0; cursor: pointer; font: inherit; font-size: 12.5px; color: var(--faint); }
+.bd-clink:hover { color: #d0574e; }
+.bd-cbody { white-space: pre-wrap; font-size: 15.5px; line-height: 1.75; }
+.bd-cform { display: grid; gap: 12px; }
+.bd-cform textarea {
+  width: 100%; font-family: inherit; font-size: 15.5px; line-height: 1.7; resize: vertical;
+  color: var(--fg); background: var(--bg-elev); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
+}
+.bd-cform textarea:focus { outline: none; border-color: var(--accent); }
+
+@media (max-width: 640px) {
+  .bd-item-main { flex-direction: column; align-items: flex-start; gap: 7px; }
+  .bd-head { flex-direction: column; }
+}
+
+/* 게시판 — 분류 탭 · 배지 */
+.bd-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 20px; overflow-x: auto; }
+.bd-tabs a {
+  padding: 10px 18px; font-size: 15px; font-weight: 600; color: var(--muted);
+  border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap;
+}
+.bd-tabs a:hover { color: var(--fg-strong); }
+.bd-tabs a.on { color: var(--accent); border-bottom-color: var(--accent); }
+
+.bd-tag {
+  display: inline-block; font-style: normal; font-size: 12px; font-weight: 700;
+  padding: 2px 9px; border-radius: 999px; margin-right: 8px; vertical-align: 1px;
+  border: 1px solid var(--border); color: var(--muted); background: var(--bg-elev2);
+}
+a.bd-tag:hover { border-color: var(--accent); color: var(--accent); }
+/* 공지는 눈에 띄어야 하고, 질문은 '아직 답이 필요한 글'로 구분되면 충분하다. */
+.bd-tag-notice { border-color: var(--accent); color: var(--accent-ink); background: var(--accent); }
+.bd-tag-qna { border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--accent); background: transparent; }
+/* 상단 고정된 공지는 목록과 살짝 구분해 둔다. */
+.bd-item-pin { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.bd-post-cat { margin-bottom: 12px; }
+
+/* 분류 + 제목 한 줄 */
+.bd-form-row { display: flex; gap: 12px; align-items: flex-start; }
+.bd-form-cat { flex: 0 0 120px; }
+.bd-form-title { flex: 1 1 auto; }
+.bd-form select {
+  width: 100%; font-family: inherit; font-size: 16px;
+  color: var(--fg); background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 11px 13px;
+}
+.bd-form select:focus { outline: none; border-color: var(--accent); }
+
+@media (max-width: 640px) {
+  .bd-form-row { flex-direction: column; }
+  .bd-form-cat { flex: 1 1 auto; width: 100%; }
+}
+
+/* 게시판 — 닉네임 설정 창 */
+.bd-modal {
+  position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 20px;
+  background: color-mix(in srgb, #000 62%, transparent); backdrop-filter: blur(3px);
+}
+.bd-modal-box {
+  position: relative; width: 100%; max-width: 420px;
+  background: var(--bg-elev); border: 1px solid var(--border); border-radius: 16px; padding: 30px 28px 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .4);
+}
+.bd-modal-box h2 { font-size: 1.3rem; margin: 0 0 10px; }
+.bd-modal-lead { color: var(--muted); font-size: 14.5px; margin: 0 0 20px; line-height: 1.65; }
+.bd-modal-field input {
+  width: 100%; font-family: inherit; font-size: 18px; text-align: center; font-weight: 600;
+  color: var(--fg-strong); background: var(--bg); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px;
+}
+.bd-modal-field input:focus { outline: none; border-color: var(--accent); }
+.bd-modal-msg { min-height: 20px; margin: 9px 0 0; font-size: 13px; color: #d0574e; text-align: center; }
+.bd-modal-actions { display: flex; gap: 9px; margin-top: 14px; }
+.bd-modal-actions .bd-btn { flex: 1; justify-content: center; }
+.bd-modal-close {
+  position: absolute; top: 12px; right: 14px; background: none; border: 0; cursor: pointer;
+  font: inherit; font-size: 17px; color: var(--faint); padding: 4px 8px;
+}
+.bd-modal-close:hover { color: var(--fg-strong); }
+.bd-me .bd-clink { margin-left: 2px; }
+
+/* 게시판 — 글쓰기(목록 아래) · 팝업 차단 안내 · 글쓰기 창 */
+.bd-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+  border-top: 1px solid var(--border-soft); padding-top: 18px; margin-top: 4px;
+}
+.bd-foot .bd-hint { flex: 1 1 auto; }
+
+.bd-popup-help {
+  margin-top: 18px; padding: 20px 22px; border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 9%, var(--bg-elev));
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  font-size: 14.5px; line-height: 1.7;
+}
+.bd-popup-help strong { display: block; color: var(--fg-strong); margin-bottom: 8px; }
+.bd-popup-help p { margin: 0 0 10px; color: var(--muted); }
+.bd-popup-help ul { margin: 0 0 12px; padding-left: 18px; color: var(--muted); }
+.bd-popup-help li { margin-bottom: 4px; }
+.bd-popup-help b { color: var(--fg-strong); font-weight: 600; }
+.bd-popup-alt { margin: 0 !important; }
+
+/* 글쓰기 창(/board/write/) — 팝업이라 화면이 좁다 */
+.bd-write { padding-top: 28px; max-width: 100%; }
+.bd-write h1 { font-size: 1.5rem; margin-bottom: 6px; }
+.bd-write-who {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 14px; color: var(--muted); margin: 0 0 18px;
+}
+.bd-write-who b { color: var(--fg-strong); }
+.bd-write .bd-form { background: none; border: 0; padding: 0; }

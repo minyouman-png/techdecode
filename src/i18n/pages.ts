@@ -176,6 +176,8 @@ function contact(lang: Lang): PageCopy {
         <p>가격·영업시간·메뉴가 실제와 다르면 알려주세요. 확인해서 고치고, 확인한 날짜를 다시 표기합니다. 등록 자체를 원하지 않으시면 페이지를 내려 드립니다 — 이유를 묻지 않습니다.</p>
         <h2>저희가 하지 않는 것</h2>
         <p>후기를 만들어 드리거나, 검색 상위 노출을 약속하거나, 가게 명의로 글을 대신 쓰지 않습니다. 자세한 내용은 <a href="${p.about}">소개</a> 및 <a href="${p.privacy}">개인정보처리방침</a> 페이지를 참고해 주세요.</p>
+        <hr>
+        <p style="font-size:.9rem;opacity:.7;"><a href="/joss/rollingdice/" rel="nofollow">조스프로젝트1 : 롤링다이스</a> — 관계자 전용(아이디·비밀번호 필요)</p>
       `,
     },
     ja: {

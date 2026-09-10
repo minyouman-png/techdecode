@@ -1,0 +1,157 @@
+---
+// 조스프로젝트1 — 롤링다이스 주문예약 (비공개 도구)
+//
+// ⚠️★색인하지 않는다(noindex, nofollow + 사이트맵 제외 + 헤더/푸터 링크 없음).
+//   문의 페이지 맨 아래 링크로만 들어온다. 개인 배송정보를 다루는 도구라
+//   검색으로 사람이 흘러들어올 이유가 없다.
+//
+// ⚠️이 페이지는 주문을 하지 않는다 — 예약을 Firestore 에 적어 두면 **맥이 백엔드로**
+//   그것을 집어 실제 주문을 실행한다. 자세한 이유는 src/scripts/joss-rollingdice.js 참고.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  lang="ko"
+  title="조스프로젝트1 : 롤링다이스"
+  description="롤링다이스 주문 예약 도구 (비공개)."
+  noindex={true}
+>
+  <section class="wrap jr">
+    <h1>조스프로젝트1 : 롤링다이스</h1>
+
+    <!-- 잠금 화면 -->
+    <div id="gate" class="jr-card">
+      <p class="jr-lead">비공개 도구입니다. 아이디와 비밀번호를 입력하세요.</p>
+      <form id="gateForm" class="jr-gate" autocomplete="off">
+        <label>아이디<input id="g_id" type="text" autocomplete="username" required></label>
+        <label>비밀번호<input id="g_pw" type="password" autocomplete="current-password" required></label>
+        <button type="submit" class="jr-primary">들어가기</button>
+        <p id="g_msg" class="jr-err" role="status"></p>
+      </form>
+    </div>
+
+    <!-- 본 화면 -->
+    <div id="app" hidden>
+      <div id="workerState" class="jr-worker">실행기 상태 확인 중…</div>
+      <div id="shipState" class="jr-worker">배송지 확인 중…</div>
+
+      <div class="jr-card">
+        <h2>어떻게 동작하나요</h2>
+        <p class="jr-lead">
+          이 페이지는 <b>예약만 적어 둡니다.</b> 실제 주문은 집에 있는 <b>맥</b>이 합니다.
+          예약해 두면 브라우저를 꺼도 되지만, <b>맥이 켜져 있어야</b> 합니다.
+          결제수단은 <b>직접결제(무통장입금)</b>라 주문은 그 자리에서 확정되고 입금은
+          다음날 16시까지 하면 됩니다. 주문이 끝나면 그 화면을 캡처해 아래에 띄웁니다.
+          <b>배송지는 맥에 고정</b>돼 있어 이 화면에서는 바꿀 수 없습니다.
+        </p>
+      </div>
+
+      <div class="jr-card">
+        <h2>1. 무엇을 살까요</h2>
+        <label class="jr-f">상품 선택
+          <select id="f_preset"></select>
+        </label>
+        <label class="jr-f">상품 주소
+          <input id="f_url" type="url" placeholder="https://mtgrollingdice.com/index.php?mode=card&set=…">
+        </label>
+        <div class="jr-grid3">
+          <label class="jr-f">상품명 확인 문구<input id="f_title" type="text" placeholder="(선택)"></label>
+          <label class="jr-f">수량<input id="f_qty" type="number" min="1" max="20" value="1"></label>
+          <label class="jr-f">가격 상한(원)<input id="f_max" type="number" min="0" value="130000"></label>
+        </div>
+        <button type="button" id="b_check" class="jr-ghost">지금 이 상품 확인해보기</button>
+        <p class="jr-hint">맥이 상품 페이지를 열어 <b>이름·가격·재고</b>를 확인해 아래에 알려줍니다.
+          가격 상한보다 비싸면 주문하지 않습니다.</p>
+      </div>
+
+      <div class="jr-card">
+        <h2>2. 어디로 보낼까요</h2>
+        <p class="jr-lead">배송지는 <b>이 화면에서 정할 수 없습니다.</b> 맥에 저장된 주소로만 갑니다 —
+          누가 이 페이지에 들어오더라도 물건을 다른 곳으로 빼돌릴 수 없게 하려는 것입니다.
+          주소를 바꾸려면 맥의 대시보드(<code>start.command</code> → 설정 탭)에서 고치세요.</p>
+      </div>
+
+      <div class="jr-card">
+        <h2>3. 언제 주문할까요</h2>
+        <div class="jr-grid2">
+          <label class="jr-f">예약 시각<input id="f_when" type="datetime-local"></label>
+          <div class="jr-f"><span>&nbsp;</span>
+            <button type="button" id="b_midnight" class="jr-ghost">오늘 밤 12시로</button></div>
+        </div>
+        <fieldset class="jr-modes">
+          <legend>실행 방식</legend>
+          <label><input type="radio" name="jr_mode" value="practice" checked>
+            <b>연습</b> — 장바구니·주문서까지 진짜로 가고 <u>마지막 버튼만 누르지 않습니다</u>. 화면은 그대로 캡처합니다.</label>
+          <label><input type="radio" name="jr_mode" value="real">
+            <b>실전</b> — 재고가 있으면 <u>진짜로 주문합니다</u>. 예약 상품은 취소가 어렵습니다.</label>
+        </fieldset>
+        <button type="button" id="b_reserve" class="jr-primary">주문 예약하기</button>
+        <p id="note" class="jr-note" role="status"></p>
+      </div>
+
+      <div class="jr-card">
+        <div class="jr-head"><h2>예약과 결과</h2><button type="button" id="b_out" class="jr-ghost">나가기</button></div>
+        <ol id="list" class="jr-list"><li class="jr-empty">불러오는 중…</li></ol>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script src="../../scripts/joss-rollingdice.js"></script>
+
+<style is:global>
+  /* ⚠️전역 스타일로 쓴다 — Astro 스코프 스타일은 JS 가 innerHTML 로 그린 요소에 안 먹는다
+     (게시판에서 겪은 함정). 클래스는 전부 `jr-` 로 시작해 충돌을 피한다. */
+  .jr { max-width: 820px; }
+  .jr h1 { margin-bottom: 1rem; }
+  .jr-card { border: 1px solid var(--border, #e3e3e3); border-radius: 12px;
+             padding: 1.1rem 1.2rem; margin: 0 0 1rem; background: var(--card, #fff); }
+  .jr-card h2 { margin: 0 0 .7rem; font-size: 1.05rem; }
+  .jr-head { display: flex; justify-content: space-between; align-items: center; }
+  .jr-lead { margin: 0 0 .6rem; line-height: 1.65; }
+  .jr-hint { font-size: .87rem; opacity: .8; margin: .5rem 0 0; line-height: 1.6; }
+  .jr-f { display: flex; flex-direction: column; gap: .25rem; margin: 0 0 .7rem; font-size: .9rem; }
+  .jr-f input, .jr-f select { padding: .5rem .6rem; border: 1px solid var(--border, #ccc);
+                              border-radius: 8px; font: inherit; width: 100%; box-sizing: border-box; }
+  .jr-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 .8rem; }
+  .jr-grid3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0 .8rem; }
+  @media (max-width: 620px) { .jr-grid2, .jr-grid3 { grid-template-columns: 1fr; } }
+  .jr-primary { background: #1a73e8; color: #fff; border: 0; border-radius: 8px;
+                padding: .6rem 1.1rem; font: inherit; font-weight: 600; cursor: pointer; }
+  .jr-primary:disabled { opacity: .5; cursor: default; }
+  .jr-ghost { background: transparent; border: 1px solid var(--border, #ccc); border-radius: 8px;
+              padding: .45rem .9rem; font: inherit; cursor: pointer; }
+  .jr-gate { display: flex; flex-direction: column; gap: .6rem; max-width: 320px; }
+  .jr-gate label { display: flex; flex-direction: column; gap: .25rem; font-size: .9rem; }
+  .jr-gate input { padding: .5rem .6rem; border: 1px solid var(--border, #ccc); border-radius: 8px; font: inherit; }
+  .jr-err { color: #d93025; font-size: .88rem; margin: 0; min-height: 1.2em; }
+  .jr-note { font-size: .9rem; margin: .6rem 0 0; min-height: 1.2em; }
+  .jr-note.bad { color: #d93025; }
+  .jr-worker { border-radius: 10px; padding: .7rem .9rem; margin: 0 0 1rem; font-size: .92rem; line-height: 1.6; }
+  .jr-worker.ok { background: #e6f4ea; border: 1px solid #b7e1c4; }
+  .jr-worker.bad { background: #fce8e6; border: 1px solid #f5c3bd; }
+  .jr-modes { border: 1px solid var(--border, #e3e3e3); border-radius: 10px; padding: .7rem .9rem; margin: 0 0 .9rem; }
+  .jr-modes legend { font-size: .85rem; padding: 0 .3rem; }
+  .jr-modes label { display: block; font-size: .9rem; line-height: 1.6; margin: .3rem 0; }
+  .jr-list { list-style: none; padding: 0; margin: 0; }
+  .jr-item { border-top: 1px solid var(--border, #eee); padding: .8rem 0; }
+  .jr-item:first-child { border-top: 0; }
+  .jr-row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+  .jr-badge { font-size: .78rem; padding: .12rem .5rem; border-radius: 999px; color: #fff; background: #777; }
+  .jr-b-pending { background: #f9ab00; } .jr-b-running { background: #1a73e8; }
+  .jr-b-done { background: #0f9d58; } .jr-b-failed { background: #d93025; }
+  .jr-b-canceled { background: #9aa0a6; }
+  .jr-kind { font-weight: 600; font-size: .9rem; } .jr-when { font-size: .85rem; opacity: .75; }
+  .jr-cancel { margin-left: auto; background: transparent; border: 1px solid var(--border, #ccc);
+               border-radius: 6px; padding: .2rem .6rem; font-size: .82rem; cursor: pointer; }
+  .jr-url { font-size: .78rem; opacity: .6; word-break: break-all; margin: .25rem 0; }
+  .jr-msg { margin: .4rem 0; font-size: .92rem; }
+  .jr-kv { margin: .15rem 0; font-size: .88rem; }
+  .jr-bank { margin: .5rem 0; padding: .55rem .7rem; background: #fff8e1; border-radius: 8px; font-size: .9rem; }
+  .jr-logs { margin: .4rem 0; font-size: .85rem; }
+  .jr-logs pre { white-space: pre-wrap; word-break: break-all; background: #f6f6f6;
+                 padding: .6rem; border-radius: 8px; overflow-x: auto; }
+  .jr-shot { margin: .6rem 0 0; }
+  .jr-shot figcaption { font-size: .82rem; opacity: .7; margin-bottom: .3rem; }
+  .jr-shot img { width: 100%; border: 1px solid var(--border, #ddd); border-radius: 8px; }
+  .jr-empty { opacity: .6; font-size: .9rem; padding: .6rem 0; }
+</style>
