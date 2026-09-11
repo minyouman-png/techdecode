@@ -144,9 +144,16 @@
   window.CG = CG;
   CG.init();
   CG.loadingStart();
-  // ★로딩 종료는 '놀 수 있게 된 시점' — window.load 는 초상화까지 다 받고서야 온다
-  var stopped = false;
-  CG.ready = function () { if (!stopped) { stopped = true; CG.loadingStop(); } };
+  // ★로딩 종료는 '놀 수 있게 된 시점' — window.load 는 초상화까지 다 받고서야 온다.
+  //   단 SDK init 이 끝나기 전에 부르면 신호가 그냥 사라지므로 init 을 기다린다.
+  var stopped = false, waited = 0;
+  CG.ready = function () {
+    if (stopped) return;
+    if (!sdk()) { stopped = true; return; }          // 포털 밖 — 신호할 곳이 없다
+    if (!ready && waited < 15000) { waited += 100; setTimeout(CG.ready, 100); return; }
+    stopped = true;
+    CG.loadingStop();
+  };
   if (document.readyState === 'loading')
     document.addEventListener('DOMContentLoaded', function () { setTimeout(CG.ready, 50); });
   else setTimeout(CG.ready, 50);
