@@ -105,7 +105,11 @@ function startSkirmish() {
   render();
   Sound.init(); Sound.play('field');
   if (window.CG) CG.play();
-  alert(t('skirmishIntro'));
+  // ★alert 는 페이지를 멈춘다 — 포털 iframe 안에서는 게임이 멈춘 것처럼 보이고,
+  //   자동화·녹화도 그 자리에서 막힌다(실측). 게임 안의 안내 모달을 쓴다.
+  evQueue = [{ nm: t('modeSkirmish'), txt: t('skirmishIntro'), src: '삼국지 위서 동이전',
+               result: '', y: G.year, m: G.month }];
+  showEvent();
   const btl = window.SamhanBattle.start(G, from, to, ids, en);
   if (!btl) { toast('출전할 부대가 없습니다'); return; }
   BattleView.open(btl, (bb) => {

@@ -177,9 +177,10 @@ const MapView = (() => {
       const size = c.sz === '대' ? 13 : 11.5;
       ctx.font = `700 ${size}px "Gowun Batang", serif`;
       ctx.lineWidth = 3.2; ctx.strokeStyle = css('--sea');
-      ctx.strokeText(c.nm, x, y - radius(c.sz) - 3);
+      const label = (typeof castleName === 'function') ? castleName(c.n) : c.nm;
+      ctx.strokeText(label, x, y - radius(c.sz) - 3);
       ctx.fillStyle = css('--ink');
-      ctx.fillText(c.nm, x, y - radius(c.sz) - 3);
+      ctx.fillText(label, x, y - radius(c.sz) - 3);
     }
   }
 

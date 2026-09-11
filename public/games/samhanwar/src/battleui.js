@@ -223,7 +223,8 @@ const BattleView = (() => {
       ctx.fillStyle = '#EFEADF';
       ctx.font = `700 ${Math.round(c * 0.42)}px "Gowun Batang", serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(u.unit[0], px + c / 2, py + c / 2 - c * 0.06);
+      // ★타일의 병종 글자도 언어를 따라간다(영어면 F/H/B)
+      ctx.fillText(t(u.unit)[0], px + c / 2, py + c / 2 - c * 0.06);
       // 체력 막대
       const w = (c - 8) * (u.hp / u.maxHp);
       ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(px + 4, py + c - 8, c - 8, 3.5);

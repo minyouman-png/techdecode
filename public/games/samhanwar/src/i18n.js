@@ -2,6 +2,8 @@
 // ★CrazyGames 는 영어권 포털이라 UI 가 영어로 읽혀야 한다.
 'use strict';
 
+const MON_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 const I18N = {
   ko: {
     lang: '한국어',
@@ -101,7 +103,7 @@ const I18N = {
     cont: 'Continue', pickHead: 'Choose your power',
     pickSub: '17 powers — every one of them has work to do in the first month',
     lord: 'Lord', castlesN: 'holds',
-    ym: (y, m) => `${m}/${y} AD`, turn: (n) => `Turn ${n}`,
+    ym: (y, m) => `${MON_EN[m - 1]} ${y} AD`, turn: (n) => `Turn ${n}`,
     tYm: 'Date', tTurn: 'Turn', tFac: 'Power', tCastle: 'Holds',
     tGold: 'Gold', tFood: 'Grain', tTroop: 'Troops',
     next: 'Next month ▸', restart: 'Restart', sound: 'Sound',
