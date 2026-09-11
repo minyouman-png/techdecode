@@ -144,5 +144,11 @@
   window.CG = CG;
   CG.init();
   CG.loadingStart();
-  window.addEventListener('load', function () { setTimeout(CG.loadingStop, 300); });
+  // ★로딩 종료는 '놀 수 있게 된 시점' — window.load 는 초상화까지 다 받고서야 온다
+  var stopped = false;
+  CG.ready = function () { if (!stopped) { stopped = true; CG.loadingStop(); } };
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(CG.ready, 50); });
+  else setTimeout(CG.ready, 50);
+  window.addEventListener('load', CG.ready);
 })();
