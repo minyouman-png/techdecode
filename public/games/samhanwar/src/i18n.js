@@ -182,6 +182,8 @@ function setLang(l) {
   LANG = I18N[l] ? l : 'ko';
   try { localStorage.setItem('samhan_lang', LANG); } catch (e) { /* 시크릿 */ }
   document.documentElement.lang = LANG;
+  // ★탭 제목도 따라간다 — 영문 이용자에게 한글 제목이 보이던 것
+  document.title = LANG === 'en' ? 'War for the Three Han — AD 246' : '삼한통일전 — 서기 246년';
 }
 function initLang() {
   // ★menewsoft.com 은 ?lang=ko 처럼 사이트 언어를 넘겨 준다 — 그게 가장 앞선다.
