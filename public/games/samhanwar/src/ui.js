@@ -1,17 +1,21 @@
 // 삼한통일전 — 화면. 엔진 상태를 읽어 그리고, 사람의 입력을 엔진 호출로 바꾼다.
+// ★2026-09-13 v2 — 코에이 문법으로 뒤집었다: "무장 먼저 → 명령 찾기"에서 "명령 먼저 → 무장 고르기"로.
+//   명령이 거점 수치·무장 목록 아래 맨 밑에 숨어 있었고 무장 카드를 눌러야만 나타나서,
+//   직접 해 본 사람이 "내정·외교·이동·등용 그 어떤 것도 보이지 않는다"고 했다.
 'use strict';
 
 const E = () => window.SamhanEngine;
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const el = (t, c, x) => { const n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; };
+const el = (tag, c, x) => { const n = document.createElement(tag); if (c) n.className = c; if (x != null) n.textContent = x; return n; };
 const nf = n => Math.round(n).toLocaleString(LANG === 'ko' ? 'ko-KR' : 'en-US');
 // 무장 이름 — 영어에서는 한자 로마자 표기가 없으므로 한글 이름을 그대로 두되 병기한다
 const offName = d => (LANG === 'ko' ? d.nm : (d.en || d.nm));
+const costG = n => t('costG', nf(n));
+const UNITS = ['보병', '기병', '궁병'];
 
 let G = null;
 let picked = null;      // 선택 거점
-let pickedOff = null;   // 선택 무장
 
 // ────────────────────────────────────────── 언어·소리
 const STATIC = ['brand', 'eyebrow', 'lede', 'pickhead', 'picksub', 'tYm', 'tTurn', 'tFac', 'tCastle',
@@ -27,6 +31,7 @@ function applyStatic() {
   $('#overback').textContent = t('backMenu');
   $('#evok').textContent = t('evOk');
   $('#btlend').textContent = t('btlEnd');
+  $('#help').title = t('guideTitle');
   $('#langbtn').textContent = LANG === 'ko' ? 'English' : '한국어';
   $('#maphint').textContent = LANG === 'ko'
     ? '거점 클릭 · 드래그로 이동 · 휠로 확대'
@@ -72,7 +77,7 @@ function boot() {
     const d = E().loadState(Store.get('samhan_game'));
     if (!d) { alert(LANG === 'ko' ? '저장을 읽지 못했습니다. 새로 시작해 주세요.'
                                    : 'Could not read the save. Please start a new game.'); return; }
-    G = d; enterGame();
+    G = d; enterGame(false);
   };
 }
 
@@ -116,7 +121,7 @@ function startSkirmish() {
     const out = window.SamhanBattle.applyResult(G, bb, en);
     if (out.captured && window.CG) CG.happy();
     $('#overtxt').textContent = out.captured ? t('skirmishWin') : t('skirmishLose');
-    $('#i-over').textContent = out.captured ? t('modeSkirmish') : t('modeSkirmish');
+    $('#i-over').textContent = t('modeSkirmish');
     $('#over').hidden = false;
     Sound.sfx(out.captured ? 'capture' : 'lose');
     render();
@@ -126,20 +131,22 @@ function startSkirmish() {
 function start(fid) {
   Sound.sfx('ok');
   G = E().newGame(fid, (Date.now() ^ 0x5a17) >>> 0);
-  enterGame();
+  enterGame(true);
 }
 
-function enterGame() {
+function enterGame(fresh) {
   $('#intro').hidden = true;
   Sound.init(); Sound.play('field');
   if (window.CG) CG.play();
   $('#game').hidden = false;
   MapView.init($('#map'), G, pickCastle);
   MapView.setGame(G);
-  const cap = FACTIONS[G.player].cap;
+  const cap = E().factionCastles(G, G.player).includes(FACTIONS[G.player].cap)
+    ? FACTIONS[G.player].cap : (E().factionCastles(G, G.player)[0] || FACTIONS[G.player].cap);
   pickCastle(cap);
   MapView.focus(cap);
   render();
+  if (fresh && !Store.get('samhan_guide')) openGuide();
 }
 
 // ────────────────────────────────────────── 렌더
@@ -159,14 +166,19 @@ function render() {
   $('#facname').textContent = facName(G.player);
   $('#facname').style.color = f.color;
 
+  const idle = en.idleCastles(G, G.player);
+  const k = idle.reduce((s, x) => s + x.k, 0);
+  $('#idle').textContent = t('idleBtn', k);
+  $('#idle').classList.toggle('zero', k === 0);
+
   MapView.setGame(G);
+  MapView.setBadges(Object.fromEntries(idle.map(x => [x.n, x.k])));
   MapView.draw();
   renderPanel();
   renderRoster();
   renderDiplo();
 
   if (G.over) {
-    const w = FACTIONS[G.over];
     $('#overtxt').textContent = G.over === G.player
       ? t('winMe', facName(G.over))
       : t('winOther', facName(G.over), facName(G.player));
@@ -175,9 +187,24 @@ function render() {
 }
 
 function pickCastle(n) {
-  picked = n; pickedOff = null;
+  picked = n;
   MapView.select(n);
   renderPanel();
+  const pane = $('#pane-castle');
+  if (pane) pane.scrollTop = 0;
+}
+function showTab(id) {
+  $$('.tab').forEach(x => x.classList.toggle('on', x.dataset.pane === id));
+  $$('.tabpane').forEach(p => { p.hidden = p.id !== id; });
+}
+function goCastle(n) { showTab('pane-castle'); pickCastle(n); MapView.focus(n); }
+// 상단 「대기 n명」 — 일이 남은 다음 거점으로
+function nextIdle() {
+  const list = E().idleCastles(G, G.player).map(x => x.n).sort((a, b) => a - b);
+  if (!list.length) { toast(t('allOrdered')); return; }
+  const i = list.findIndex(n => n > (picked || 0));
+  goCastle(list[i < 0 ? 0 : i]);
+  Sound.sfx('click');
 }
 
 function renderPanel() {
@@ -195,7 +222,10 @@ function renderPanel() {
     <div class="pfac" style="--c:${f.color}">${facName(c.fac)} <i>${f.hanja}</i></div>`;
   box.appendChild(head);
 
+  box.appendChild(own ? cmdMenu(picked) : foeMenu(picked));
+
   // 수치
+  box.appendChild(el('h4', 'psub', t('detail')));
   const stats = el('div', 'stats');
   const bar = (label, v, cap, extra) => `
     <div class="st"><span class="sl">${label}</span>
@@ -223,7 +253,7 @@ function renderPanel() {
   box.appendChild(kv);
 
   const tr = el('div', 'troops');
-  for (const u of ['보병', '기병', '궁병']) {
+  for (const u of UNITS) {
     tr.innerHTML += `<div class="tu u${u}"><span>${t(u)}</span><b>${nf(c.troops[u])}</b></div>`;
   }
   box.appendChild(tr);
@@ -235,18 +265,7 @@ function renderPanel() {
   const hiddenCount = here.filter(o => o.fac === null && !o.found).length;
   if (ours.length) box.appendChild(offList(t('here'), ours, own));
   if (wild.length) box.appendChild(offList(t('wild'), wild, own, true));
-  if (own && hiddenCount) {
-    box.appendChild(el('p', 'note', t('hidden', hiddenCount)));
-  }
-
-  if (!own) {
-    const rel = en.relOf(G, G.player, c.fac);
-    const truce = G.factions[G.player].truce[c.fac] || 0;
-    const msg = rel === 'ally' ? t('relAlly') : truce ? t('relTruce', truce)
-      : rel === 'war' ? t('relWar') : t('relPeace');
-    box.appendChild(el('p', 'note', msg));
-  }
-  renderOrders();
+  if (own && hiddenCount) box.appendChild(el('p', 'note', t('hidden', hiddenCount)));
 }
 
 function offList(title, list, own, isWild) {
@@ -255,7 +274,7 @@ function offList(title, list, own, isWild) {
   wrap.appendChild(el('h4', null, title));
   for (const o of list) {
     const d = en.officerDef(o.id);
-    const b = el('button', 'ocard' + (pickedOff === o.id ? ' on' : '') + (isWild ? ' wild' : ''));
+    const b = el('button', 'ocard' + (isWild ? ' wild' : ''));
     b.innerHTML = `
       <span class="por" data-p="${o.id}">${portraitTag(o.id, d)}</span>
       <span class="oinfo">
@@ -264,10 +283,11 @@ function offList(title, list, own, isWild) {
         ${o.fac ? `<span class="loy"><i style="width:${Math.round(o.loy)}%"></i></span>` : ''}
       </span>
       <span class="ostat"><i>${t('abMu')}</i>${o.mu}<i>${t('abJi')}</i>${o.ji}<i>${t('abJg')}</i>${o.jg}</span>`;
-    b.onclick = () => { pickedOff = pickedOff === o.id ? null : o.id; renderPanel(); };
+    // 재야 카드를 누르면 곧장 등용 명령으로, 아군 카드는 열전으로
+    b.onclick = () => (isWild && own ? openCmd('등용', picked, { target: o.id }) : openBio(o.id));
     b.oncontextmenu = ev => { ev.preventDefault(); openBio(o.id); };
-    const info = el('span', 'bioBtn', t('bio'));
-    info.onclick = ev => { ev.stopPropagation(); openBio(o.id); };
+    const info = el('span', 'bioBtn', isWild && own ? t('c_등용') : t('bio'));
+    info.onclick = ev => { ev.stopPropagation(); isWild && own ? openCmd('등용', picked, { target: o.id }) : openBio(o.id); };
     b.appendChild(info);
     wrap.appendChild(b);
   }
@@ -283,266 +303,655 @@ function portraitTag(id, d, lazy = true) {
        {className:'noimg',textContent:'${initial}'}))">`;
 }
 
-// ────────────────────────────────────────── 명령
-function renderOrders() {
-  const en = E(), box = $('#orders');
-  box.innerHTML = '';
-  if (picked == null) return;
-  const c = G.castles[picked];
-  if (c.fac !== G.player) { renderAttack(box); return; }
-  if (!pickedOff) {
-    box.appendChild(el('p', 'note', t('pickOfficer')));
-    renderAttack(box);
-    return;
+// ────────────────────────────────────────── 명령 메뉴
+const CATS = ['내정', '군사', '인사', '외교', '정보'];
+const MENU = {
+  내정: ['농업', '상업', '치안', '축성', '수송', '매매', '방침'],
+  군사: ['징집', '훈련', '편성', '해산', '출진'],
+  인사: ['탐색', '등용', '포상', '이동'],
+  외교: ['외교창'],
+  정보: ['거점일람', '세력일람'],
+};
+let cmdCat = '내정';
+function catOf(id) { return CATS.find(k => MENU[k].includes(id)) || '군사'; }
+
+function cmdMenu(n) {
+  const en = E(), c = G.castles[n];
+  const wrap = el('div', 'cmenu');
+  const idle = en.idleAt(G, n).length;
+  const line = el('div', 'cline');
+  line.innerHTML = `<span class="${idle ? 'hot' : ''}">${t('idleHere', idle)}</span>`;
+  const pol = el('button', 'polchip', t('polChip', t('pol_' + en.policyOf(c))));
+  pol.onclick = () => openCmd('방침', n);
+  line.appendChild(pol);
+  wrap.appendChild(line);
+
+  const cats = el('div', 'ccats');
+  for (const k of CATS) {
+    const b = el('button', 'ccat' + (k === cmdCat ? ' on' : ''), t('cat_' + k));
+    b.onclick = () => { cmdCat = k; Sound.sfx('click'); renderPanel(); };
+    cats.appendChild(b);
   }
-  const o = G.officers[pickedOff];
-  const d = en.officerDef(pickedOff);
-  if (o.fac === null) {
-    // 등용
-    const row = el('div', 'orow');
-    const who = en.officersAt(G, picked).filter(x => x.fac === G.player && !x.done);
-    if (!who.length) { box.appendChild(el('p', 'note', t('noOfficer'))); return; }
-    const sel = el('select');
-    for (const w of who) sel.appendChild(new Option(offName(en.officerDef(w.id)), w.id));
-    const b = el('button', 'go', LANG === 'ko' ? `${d.nm} 등용` : `Recruit ${offName(d)}`);
-    b.onclick = () => {
-      const r = en.doRecruitOfficer(G, picked, sel.value, pickedOff);
-      if (!r.ok) return toast(r.why);
-      toast(r.joined ? `${r.name}이(가) 뜻을 함께하기로 했습니다.` : `${r.name}이(가) 응하지 않았습니다.`);
-      pickedOff = null; save(); render();
-    };
-    row.append(el('span', 'olab', t('oEnvoy')), sel, b);
-    box.appendChild(row);
-    return;
+  wrap.appendChild(cats);
+
+  const list = el('div', 'clist');
+  for (const id of MENU[cmdCat]) {
+    const def = CMD[id];
+    const warn = def.block ? def.block(n) : null;
+    const cost = def.cost ? def.cost(c) : '';
+    const b = el('button', 'citem' + (warn ? ' dim' : ''));
+    b.dataset.cmd = id;
+    b.innerHTML = `<b>${t('c_' + id)}</b>${cost ? `<em>${cost}</em>` : ''}<span>${warn || t('cs_' + id)}</span>`;
+    b.onclick = () => { Sound.sfx('click'); def.go ? def.go(n) : openCmd(id, n); };
+    list.appendChild(b);
   }
-  if (o.done) { box.appendChild(el('p', 'note', t('doneThisMonth'))); renderAttack(box); return; }
-
-  // 내정
-  const dev = el('div', 'orow');
-  dev.appendChild(el('span', 'olab', t('oDev')));
-  for (const k of ['농업', '상업', '치안']) {
-    const b = el('button', null, `${t(k)} (${en.costOf(c)}${LANG === 'ko' ? '금' : 'g'})`);
-    b.onclick = () => {
-      const r = en.doDevelop(G, picked, pickedOff, k);
-      if (!r.ok) return toast(r.why);
-      toast(`${t(k)} +${r.gain}`); Sound.sfx('ok'); save(); render();
-    };
-    dev.appendChild(b);
+  if (cmdCat === '외교') {
+    for (const fid of en.neighbors(G, G.player)) {
+      const rel = en.relOf(G, G.player, fid), truce = G.factions[G.player].truce[fid] || 0;
+      const r = el('button', 'citem');
+      r.innerHTML = `<b>${facName(fid)}</b><em class="rel ${truce ? 'truce' : rel}">${truce ? t('truce') : relName(rel)}</em>
+        <span>${t('castlesN')} ${en.factionCastles(G, fid).length} · ${t('dEyes', Math.round(en.attOf(G, fid, G.player)))}</span>`;
+      r.onclick = () => showTab('pane-diplo');
+      list.appendChild(r);
+    }
   }
-  box.appendChild(dev);
-
-  const trainRow = el('div', 'orow');
-  trainRow.appendChild(el('span', 'olab', t('oTrain')));
-  const tb = el('button', null, t('doTrain'));
-  tb.onclick = () => {
-    const r = en.doTrain(G, picked, pickedOff);
-    if (!r.ok) return toast(r.why);
-    toast(`${t('훈련도')} +${r.gain}`); Sound.sfx('ok'); save(); render();
-  };
-  trainRow.appendChild(tb);
-  box.appendChild(trainRow);
-
-  // 징집
-  const rr = el('div', 'orow');
-  rr.appendChild(el('span', 'olab', t('oRecruit')));
-  const unit = el('select'); ['보병', '기병', '궁병'].forEach(u => unit.appendChild(new Option(t(u), u)));
-  const mode = el('select'); ['모병', '징병'].forEach(m => mode.appendChild(new Option(t(m), m)));
-  const cnt = el('input'); cnt.type = 'number'; cnt.min = 100; cnt.step = 100;
-  cnt.value = Math.min(1000, Math.max(100, Math.floor(en.draftCap(c) / 100) * 100));
-  const rb = el('button', 'go', t('oRecruit'));
-  rb.onclick = () => {
-    const r = en.doRecruit(G, picked, pickedOff, unit.value, +cnt.value, mode.value);
-    if (!r.ok) return toast(r.why);
-    toast(`${t(r.mode)} ${nf(r.count)} (${nf(r.gold)}${LANG === 'ko' ? '금' : 'g'})`);
-    Sound.sfx('ok'); save(); render();
-  };
-  rr.append(unit, mode, cnt, rb);
-  box.appendChild(rr);
-
-  // 부대 편성
-  const corpsRow = el('div', 'orow');
-  corpsRow.appendChild(el('span', 'olab', t('oCorps')));
-  const cu = el('select'); ['보병', '기병', '궁병'].forEach(u => cu.appendChild(new Option(`${t(u)} (${nf(c.troops[u])})`, u)));
-  if (o.corps) cu.value = o.corps.unit;
-  const cn = el('input'); cn.type = 'number'; cn.min = 100; cn.step = 100;
-  const room = en.troopCap(o) - (o.corps ? o.corps.n : 0);
-  cn.value = Math.max(0, Math.min(1000, Math.floor(room / 100) * 100));
-  const cb = el('button', 'go', t('doAssign'));
-  cb.onclick = () => {
-    const r = en.doAssign(G, picked, pickedOff, cu.value, +cn.value);
-    if (!r.ok) return toast(r.why);
-    toast(`${d.nm} → ${r.unit} ${nf(r.total)}명`); save(); render();
-  };
-  corpsRow.append(cu, cn, cb);
-  if (o.corps && o.corps.n > 0) {
-    const db = el('button', null, t('doDisband'));
-    db.onclick = () => {
-      const r = en.doDisband(G, pickedOff);
-      if (!r.ok) return toast(r.why);
-      toast(`부대 해산 — ${nf(r.back)}명 복귀${r.lost ? ` (${nf(r.lost)}명 상한 초과로 흩어짐)` : ''}`);
-      save(); render();
-    };
-    corpsRow.appendChild(db);
-  }
-  corpsRow.appendChild(el('span', 'hint', t('capLead', nf(en.troopCap(o)))));
-  box.appendChild(corpsRow);
-
-  // 탐색·하사
-  const misc = el('div', 'orow');
-  misc.appendChild(el('span', 'olab', t('oMisc')));
-  const sb = el('button', null, t('doSearch'));
-  sb.onclick = () => {
-    const r = en.doSearch(G, picked, pickedOff);
-    if (!r.ok) return toast(r.why);
-    toast(r.found ? (LANG === 'ko' ? `${r.found}을(를) 찾았습니다.` : `You found ${r.found}.`)
-                  : (r.why || (LANG === 'ko' ? '아무도 찾지 못했습니다.' : 'No one was found.')),
-      r.found ? 'good' : '');
-    Sound.sfx(r.found ? 'ok' : 'no');
-    save(); render();
-  };
-  misc.appendChild(sb);
-  const rw = el('button', null, t('doReward'));
-  rw.onclick = () => {
-    const r = en.doReward(G, picked, pickedOff, 300);
-    if (!r.ok) return toast(r.why);
-    toast(`${d.nm}의 충성 +${r.gain}`); save(); render();
-  };
-  misc.appendChild(rw);
-  box.appendChild(misc);
-
-  // 이동
-  const adj = en.castleDef(picked).adj.filter(n => G.castles[n].fac === G.player);
-  if (adj.length) {
-    const mv = el('div', 'orow');
-    mv.appendChild(el('span', 'olab', t('oMove')));
-    const s = el('select');
-    for (const n of adj) s.appendChild(new Option(en.castleDef(n).nm, n));
-    const b = el('button', null, t('doMove'));
-    b.onclick = () => {
-      const r = en.doMove(G, pickedOff, +s.value);
-      if (!r.ok) return toast(r.why);
-      toast(`${d.nm} → ${en.castleDef(r.to).nm}`); pickedOff = null; save(); render();
-    };
-    mv.append(s, b);
-    box.appendChild(mv);
-  }
-  renderAttack(box);
-}
-
-function corpsPicker(en, from, to) {
-  // 그 거점에서 부대를 거느린 무장 목록. 아무도 없으면 주둔군 분견대로 나간다.
-  const list = en.corpsAt(G, from, G.player);
-  if (!list.length) return null;
-  const wrap = el('div', 'corpsel');
-  wrap.appendChild(el('span', 'olab', t('oAttack')));
-  wrap.dataset.to = to;
-  for (const o of list) {
-    const lab = el('label', 'cchk');
-    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = o.id; cb.checked = true;
-    lab.append(cb, el('span', null, `${offName(en.officerDef(o.id))} ${t(o.corps.unit)} ${nf(o.corps.n)}`));
-    cb.onchange = () => updateForce(en, wrap);
-    wrap.appendChild(lab);
-  }
-  const bar = el('div', 'fbal');
-  wrap.appendChild(bar);
-  updateForce(en, wrap);
+  wrap.appendChild(list);
   return wrap;
 }
 
-// ★들어가기 전에 양쪽 병력을 보여 준다. 3,600 으로 14,000 을 치러 들어가면 학살당한다.
-function updateForce(en, wrap) {
-  const to = +wrap.dataset.to;
-  const bar = wrap.querySelector('.fbal');
-  if (!bar || !to) return;
-  const mine = [...wrap.querySelectorAll('input:checked')]
-    .reduce((s, x) => s + (G.officers[x.value].corps?.n || 0), 0);
+function foeMenu(n) {
+  const en = E(), c = G.castles[n];
+  const wrap = el('div', 'cmenu');
+  const rel = en.relOf(G, G.player, c.fac);
+  const truce = G.factions[G.player].truce[c.fac] || 0;
+  wrap.appendChild(el('p', 'note', rel === 'ally' ? t('relAlly') : truce ? t('relTruce', truce)
+    : rel === 'war' ? t('relWar') : t('relPeace')));
+  const src = en.castleDef(n).adj.filter(x => G.castles[x].fac === G.player);
+  const list = el('div', 'clist');
+  const b = el('button', 'citem' + (src.length ? '' : ' dim'));
+  b.dataset.cmd = '출진';
+  b.innerHTML = `<b>${t('c_공격', castleName(n))}</b><em>${nf(en.garrisonTotal(G, n))}</em>
+    <span>${src.length ? t('cs_공격', src.map(castleName).join(', ')) : t('srcNone')}</span>`;
+  b.onclick = () => openAttack(null, n);
+  list.appendChild(b);
+  const dp = el('button', 'citem');
+  dp.innerHTML = `<b>${t('c_외교창')}</b><span>${t('cs_외교창')}</span>`;
+  dp.onclick = () => showTab('pane-diplo');
+  list.appendChild(dp);
+  wrap.appendChild(list);
+  return wrap;
+}
+
+// ────────────────────────────────────────── 명령 정의
+// off: 무장이 필요한가 · idle: 이번 달 명령을 안 받은 무장만 · stat: 목록 정렬·강조 능력치
+// block(n): 지금 못 하는 까닭(메뉴에 흐리게) · cost(c) · preview(o, s) · params(s, box) · exec(s)
+function devCmd(k) {
+  return {
+    off: true, idle: true, stat: 'jg',
+    cost: c => costG(E().costOf(c)),
+    block: n => { const cap = E().castleDef(n).cap; return G.castles[n][E().ORDERS[k].key] >= cap ? t('capped', cap) : null; },
+    preview: o => { const [a, b] = E().devRange(o); return t('gainRange', a, b); },
+    exec: s => {
+      const c = G.castles[s.n], key = E().ORDERS[k].key, before = c[key];
+      const r = E().doDevelop(G, s.n, s.off, k);
+      return r.ok ? { ok: true, msg: t('rStat', t(k), nf(before), nf(c[key])) } : r;
+    },
+  };
+}
+
+const CMD = {
+  농업: devCmd('농업'), 상업: devCmd('상업'), 치안: devCmd('치안'),
+
+  축성: {
+    off: true, idle: true, stat: 'jg',
+    cost: c => costG(E().fortifyCost(c)),
+    block: n => (G.castles[n].wall >= E().castleDef(n).wall ? t('wallFull') : null),
+    preview: o => { const [a, b] = E().fortifyRange(o); return t('gainRange', nf(a), nf(b)); },
+    exec: s => {
+      const r = E().doFortify(G, s.n, s.off);
+      return r.ok ? { ok: true, msg: t('rStat', t('성벽'), nf(r.before), nf(r.after)) } : r;
+    },
+  },
+
+  수송: {
+    off: true, idle: true, stat: 'jg',
+    block: n => (E().reachable(G, n).length ? null : t('destNone')),
+    params: (s, box) => {
+      const en = E(), c = G.castles[s.n];
+      const dests = en.reachable(G, s.n).sort((a, b) => a - b);
+      if (!dests.length) { box.appendChild(el('p', 'note', t('destNone'))); return false; }
+      if (!dests.includes(+s.pv.to)) s.pv.to = dests[0];
+      field(box, t('p_dest'), selectEl(dests.map(x => [x,
+        `${castleName(x)} · ${t('gold')} ${nf(G.castles[x].gold)} · ${t('food')} ${nf(G.castles[x].food)}`]),
+        s.pv.to, v => { s.pv.to = +v; drawCmd(); }));
+      numField(box, s, 'gold', t('gold'), c.gold, 100);
+      numField(box, s, 'food', t('food'), c.food, 1000);
+      for (const u of UNITS) numField(box, s, u, t(u), c.troops[u], 100);
+      const room = en.castleDef(s.pv.to).garr - en.troopTotal(G.castles[s.pv.to]);
+      box.appendChild(el('p', 'hint', t('roomAt', castleName(s.pv.to), nf(Math.max(0, room)))));
+      return true;
+    },
+    exec: s => {
+      const load = { gold: s.pv.gold, food: s.pv.food, 보병: s.pv.보병, 기병: s.pv.기병, 궁병: s.pv.궁병 };
+      const r = E().doTransport(G, s.n, +s.pv.to, s.off, load);
+      if (!r.ok) return r;
+      const parts = [['gold', r.gold], ['food', r.food], ['보병', r.보병], ['기병', r.기병], ['궁병', r.궁병]]
+        .filter(x => x[1] > 0).map(x => `${t(x[0])} ${nf(x[1])}`).join(' · ');
+      s.pv.gold = 0; s.pv.food = 0; UNITS.forEach(u => { s.pv[u] = 0; });
+      return { ok: true, msg: t('rTrans', castleName(r.to), parts) };
+    },
+  },
+
+  매매: {
+    off: false,
+    block: n => (G.castles[n].cm < 30 ? t('tradeNo') : null),
+    params: (s, box) => {
+      const en = E(), c = G.castles[s.n];
+      if (c.cm < 30) { box.appendChild(el('p', 'note', t('tradeNo'))); return false; }
+      s.pv.mode = s.pv.mode || 'buy';
+      const buy = en.grainPrice(G, s.n), sell = en.sellPrice(G, s.n), left = en.tradeLeft(c);
+      box.appendChild(el('p', 'hint', t('priceLine', buy, sell, nf(left))));
+      field(box, t('p_trade'), segEl([['buy', t('p_buy')], ['sell', t('p_sell')]], s.pv.mode,
+        v => { s.pv.mode = v; delete s.pv.food; drawCmd(); }));
+      const max = s.pv.mode === 'buy'
+        ? Math.min(left, Math.floor(c.gold / buy) * 100)
+        : Math.min(left, Math.floor(c.food / 100) * 100);
+      if (s.pv.food == null) s.pv.food = Math.min(max, 5000);
+      const tot = el('p', 'hint tot');
+      const upd = () => {
+        const fd = Math.floor((+s.pv.food || 0) / 100) * 100;
+        const gd = s.pv.mode === 'buy' ? Math.ceil(fd / 100 * buy) : Math.floor(fd / 100 * sell);
+        tot.textContent = t('tradeTotal', nf(fd), nf(gd), s.pv.mode === 'buy');
+      };
+      numField(box, s, 'food', t('food'), max, 1000, upd);
+      box.appendChild(tot); upd();
+      return true;
+    },
+    exec: s => {
+      const r = E().doTrade(G, s.n, s.pv.mode, s.pv.food);
+      if (!r.ok) return r;
+      delete s.pv.food;
+      return { ok: true, msg: t('rTrade', nf(r.food), nf(r.gold), r.mode === 'buy') };
+    },
+  },
+
+  방침: {
+    off: false, once: true,
+    params: (s, box) => {
+      s.pv.pol = s.pv.pol || E().policyOf(G.castles[s.n]);
+      const grid = el('div', 'polgrid');
+      for (const p of E().POLICIES) {
+        const b = el('button', 'polopt' + (s.pv.pol === p ? ' on' : ''));
+        b.type = 'button';
+        b.innerHTML = `<b>${t('pol_' + p)}</b><span>${t('pold_' + p)}</span>`;
+        b.onclick = () => { s.pv.pol = p; Sound.sfx('click'); drawCmd(); };
+        grid.appendChild(b);
+      }
+      box.appendChild(grid);
+      return true;
+    },
+    exec: s => {
+      const r = E().setPolicy(G, s.n, s.pv.pol);
+      return r.ok ? { ok: true, msg: t('rPolicy', castleName(s.n), t('pol_' + r.policy)) } : r;
+    },
+  },
+
+  징집: {
+    off: true, idle: true, stat: 'jg',
+    block: n => {
+      const en = E(), c = G.castles[n];
+      return en.castleDef(n).garr - en.troopTotal(c) <= 0 ? t('garrFull') : null;
+    },
+    params: (s, box) => {
+      const en = E(), c = G.castles[s.n], d = en.castleDef(s.n);
+      s.pv.unit = s.pv.unit || '보병'; s.pv.mode = s.pv.mode || '모병';
+      field(box, t('p_unit'), segEl(UNITS.map(u => [u, t(u)]), s.pv.unit, v => { s.pv.unit = v; drawCmd(); }));
+      field(box, t('p_mode'), segEl([['모병', t('모병')], ['징병', t('징병')]], s.pv.mode,
+        v => { s.pv.mode = v; drawCmd(); }));
+      const per = Math.round(en.SIM.UNITS[s.pv.unit].cost * en.SIM.RECRUIT[s.pv.mode].priceMul);
+      const room = Math.max(0, d.garr - en.troopTotal(c));
+      const max = Math.max(0, Math.floor(Math.min(en.draftCap(c), room, c.gold / per * 1000) / 100) * 100);
+      if (s.pv.count == null) s.pv.count = Math.min(max, 1000);
+      const tot = el('p', 'hint tot');
+      const upd = () => { tot.textContent = t('recruitCost', nf(Math.round((+s.pv.count || 0) / 1000 * per))); };
+      numField(box, s, 'count', t('p_count'), max, 100, upd);
+      box.appendChild(tot); upd();
+      box.appendChild(el('p', 'hint', t('recruitHint', nf(en.draftCap(c)), nf(room), nf(per))));
+      box.appendChild(el('p', 'hint', t(s.pv.mode === '모병' ? 'modeHire' : 'modeDraft')));
+      return max > 0;
+    },
+    exec: s => {
+      const r = E().doRecruit(G, s.n, s.off, s.pv.unit, s.pv.count, s.pv.mode);
+      if (!r.ok) return r;
+      delete s.pv.count;
+      return { ok: true, msg: t('rRecruit', t(r.mode), t(r.unit), nf(r.count), nf(r.gold)) };
+    },
+  },
+
+  훈련: {
+    off: true, idle: true, stat: 'mu',
+    block: n => (E().troopTotal(G.castles[n]) ? null : t('noTroops')),
+    preview: o => t('gainOne', E().trainGain(o)),
+    exec: s => {
+      const c = G.castles[s.n], before = c.train;
+      const r = E().doTrain(G, s.n, s.off);
+      return r.ok ? { ok: true, msg: t('rStat', t('훈련도'), before, c.train) } : r;
+    },
+  },
+
+  편성: {
+    off: true, idle: false, stat: 'mu',
+    preview: o => (o.corps && o.corps.n > 0
+      ? `${t(o.corps.unit)} ${nf(o.corps.n)}/${nf(E().troopCap(o))}` : t('capLead', nf(E().troopCap(o)))),
+    params: (s, box) => {
+      const en = E(), c = G.castles[s.n], o = G.officers[s.off];
+      if (!o) return false;
+      const locked = !!(o.corps && o.corps.n > 0);
+      if (locked) s.pv.unit = o.corps.unit;
+      s.pv.unit = s.pv.unit || '보병';
+      field(box, t('p_unit'), segEl(UNITS.map(u => [u, `${t(u)} ${nf(c.troops[u])}`]), s.pv.unit,
+        v => { s.pv.unit = v; delete s.pv.count; drawCmd(); }, locked));
+      const room = Math.max(0, en.troopCap(o) - (locked ? o.corps.n : 0));
+      const max = Math.floor(Math.min(room, c.troops[s.pv.unit]) / 100) * 100;
+      if (s.pv.count == null) s.pv.count = max;
+      numField(box, s, 'count', t('p_count'), max, 100);
+      box.appendChild(el('p', 'hint', locked ? t('corpsLocked', t(o.corps.unit)) : t('capLead', nf(en.troopCap(o)))));
+      return max > 0;
+    },
+    exec: s => {
+      const r = E().doAssign(G, s.n, s.off, s.pv.unit, s.pv.count);
+      if (!r.ok) return r;
+      delete s.pv.count;
+      return { ok: true, msg: t('rAssign', t(r.unit), nf(r.total)) };
+    },
+  },
+
+  해산: {
+    off: true, idle: false, stat: 'mu', filter: o => !!(o.corps && o.corps.n > 0),
+    block: n => (E().corpsAt(G, n, G.player).length ? null : t('noCorpsHere')),
+    preview: o => `${t(o.corps.unit)} ${nf(o.corps.n)}`,
+    exec: s => {
+      const r = E().doDisband(G, s.off);
+      return r.ok ? { ok: true, msg: t('rDisband', nf(r.back), nf(r.lost)) } : r;
+    },
+  },
+
+  출진: {
+    block: n => (E().castleDef(n).adj.some(x => G.castles[x].fac !== G.player) ? null : t('foeNone')),
+    go: n => openAttack(n, null),
+  },
+
+  탐색: {
+    off: true, idle: true, stat: 'jg',
+    preview: o => t('chance', Math.round(E().searchChance(o) * 100)),
+    params: (s, box) => {
+      const k = E().officersAt(G, s.n).filter(o => o.fac === null && !o.found).length;
+      box.appendChild(el('p', 'hint', k ? t('hidden', k) : t('hiddenNone')));
+      return true;
+    },
+    exec: s => {
+      const r = E().doSearch(G, s.n, s.off);
+      if (!r.ok) return r;
+      const nm = r.id ? offName(E().officerDef(r.id)) : '';
+      return { ok: true, good: !!r.found, msg: r.found ? t('rSearchY', nm) : (r.why ? t('hiddenNone') : t('rSearchN')) };
+    },
+  },
+
+  등용: {
+    off: true, idle: true, stat: 'jg', paramsFirst: true,
+    block: n => (E().wildAt(G, n).length ? null : t('wildNone')),
+    preview: (o, s) => (s.pv.target ? t('chance', Math.round(E().hireChance(G, o.id, s.pv.target) * 100)) : ''),
+    params: (s, box) => {
+      const en = E(), wild = en.wildAt(G, s.n);
+      if (!wild.length) { box.appendChild(el('p', 'note', t('wildNone'))); return false; }
+      if (!wild.some(w => w.id === s.pv.target)) s.pv.target = wild[0].id;
+      box.appendChild(el('h4', null, t('p_target')));
+      for (const w of wild) {
+        const d = en.officerDef(w.id);
+        const b = el('button', 'tgt' + (w.id === s.pv.target ? ' on' : ''));
+        b.type = 'button';
+        b.innerHTML = `<span class="por sm">${portraitTag(w.id, d)}</span>
+          <span class="pn"><b>${offName(d)}</b><i>${t(d.unit)}${d.real ? ` · ${t('real')}` : ''}</i></span>
+          <span class="pst"><i>${t('abMu')}</i>${w.mu} <i>${t('abJi')}</i>${w.ji} <i>${t('abJg')}</i>${w.jg}</span>`;
+        b.onclick = () => { s.pv.target = w.id; Sound.sfx('click'); drawCmd(); };
+        box.appendChild(b);
+      }
+      return true;
+    },
+    exec: s => {
+      const r = E().doRecruitOfficer(G, s.n, s.off, s.pv.target);
+      if (!r.ok) return r;
+      const nm = offName(E().officerDef(s.pv.target));
+      return { ok: true, good: r.joined, msg: r.joined ? t('rHireY', nm) : t('rHireN', nm) };
+    },
+  },
+
+  포상: {
+    off: true, idle: false, stat: 'loy', asc: true,
+    preview: o => (o.loy >= 99 ? t('loyFull') : ''),
+    params: (s, box) => {
+      s.pv.amount = s.pv.amount || 300;
+      field(box, t('p_amount'), segEl([[100, costG(100)], [300, costG(300)], [500, costG(500)]], s.pv.amount,
+        v => { s.pv.amount = +v; drawCmd(); }));
+      box.appendChild(el('p', 'hint', t('rewardHint')));
+      return true;
+    },
+    exec: s => {
+      const o = G.officers[s.off], before = Math.round(o.loy);
+      const r = E().doReward(G, s.n, s.off, s.pv.amount);
+      return r.ok ? { ok: true, msg: t('rStat', t('loy'), before, Math.round(o.loy)) } : r;
+    },
+  },
+
+  이동: {
+    off: true, idle: true, stat: 'mu',
+    block: n => (E().reachable(G, n).length ? null : t('destNone')),
+    preview: o => (o.corps && o.corps.n > 0 ? `${t(o.corps.unit)} ${nf(o.corps.n)}` : ''),
+    params: (s, box) => {
+      const dests = E().reachable(G, s.n).sort((a, b) => a - b);
+      if (!dests.length) { box.appendChild(el('p', 'note', t('destNone'))); return false; }
+      if (!dests.includes(+s.pv.to)) s.pv.to = dests[0];
+      field(box, t('p_dest'), selectEl(dests.map(x => [x,
+        `${castleName(x)} · ${t('here')} ${E().officersAt(G, x).filter(o => o.fac === G.player).length}`]),
+        s.pv.to, v => { s.pv.to = +v; }));
+      return true;
+    },
+    exec: s => {
+      const r = E().doMove(G, s.off, +s.pv.to);
+      return r.ok ? { ok: true, msg: t('rMove', castleName(r.to)) } : r;
+    },
+  },
+
+  외교창: { go: () => showTab('pane-diplo') },
+  거점일람: { go: () => openInfo('castles') },
+  세력일람: { go: () => openInfo('factions') },
+};
+
+// ────────────────────────────────────────── 명령 창 — 명령 → 무장 → 조건 → 결과
+let cs = null;   // {id, n, off, pv, res}
+function openCmd(id, n, pv) {
+  cs = { id, n, off: null, pv: Object.assign({}, pv || {}), res: null };
+  $('#cmd').hidden = false;
+  drawCmd();
+}
+function closeCmd() { $('#cmd').hidden = true; cs = null; }
+
+function candidates(def, n) {
+  const c = G.castles[n];
+  let list = E().officersAt(G, n).filter(o => o.fac && o.fac === c.fac);
+  if (def.filter) list = list.filter(def.filter);
+  const val = o => (def.stat === 'loy' ? o.loy : o[def.stat]);
+  return list.sort((a, b) => (def.idle ? (a.done - b.done) : 0) || (def.asc ? val(a) - val(b) : val(b) - val(a)));
+}
+
+function dlgHead(box, cat, id, where, title) {
+  const head = el('div', 'dhead');
+  head.innerHTML = `<span class="dcat">${t('cat_' + cat)} · ${where}</span>
+    <h3>${title || t('c_' + id)}</h3><p>${t('cd_' + id)}</p>`;
+  box.appendChild(head);
+}
+
+function drawCmd() {
+  if (!cs) return;
+  if (cs.id === '출진') return drawAttack();
+  const en = E(), def = CMD[cs.id], box = $('#cmdBody'), c = G.castles[cs.n];
+  box.innerHTML = '';
+  dlgHead(box, catOf(cs.id), cs.id, castleName(cs.n));
+  if (cs.res) return drawResult(box, def);
+
+  let can = true;
+  const pbox = el('div', 'dparams');
+  const params = () => { if (def.params && def.params(cs, pbox) === false) can = false; box.appendChild(pbox); };
+  if (def.paramsFirst) params();
+
+  if (def.off) {
+    const list = candidates(def, cs.n);
+    const usable = o => !(def.idle && o.done);
+    if (!cs.off || !list.some(o => o.id === cs.off && usable(o))) cs.off = (list.find(usable) || {}).id || null;
+    const wrap = el('div', 'dpick');
+    wrap.appendChild(el('h4', null, t('pickWho')));
+    if (!cs.off) wrap.appendChild(el('p', 'note', list.length ? t('noIdleHere') : t('noOfficer')));
+    for (const o of list) {
+      const d = en.officerDef(o.id);
+      const ok = usable(o);
+      const r = el('button', 'prow' + (o.id === cs.off ? ' on' : '') + (ok ? '' : ' done'));
+      const sv = def.stat === 'loy' ? Math.round(o.loy) : o[def.stat];
+      r.innerHTML = `<span class="por sm">${portraitTag(o.id, d)}</span>
+        <span class="pn"><b>${offName(d)}</b><i>${t('lv')}${o.lv}${o.corps && o.corps.n > 0 ? ` · ${t(o.corps.unit)} ${nf(o.corps.n)}` : ''}${o.done ? ` · ${t('doneMark')}` : ''}</i></span>
+        <span class="pst"><i>${t('st_' + def.stat)}</i>${sv}</span>
+        <span class="ppv">${ok && def.preview ? def.preview(o, cs) : ''}</span>`;
+      r.disabled = !ok;
+      r.onclick = () => { cs.off = o.id; delete cs.pv.count; Sound.sfx('click'); drawCmd(); };
+      wrap.appendChild(r);
+    }
+    box.appendChild(wrap);
+    if (!cs.off) can = false;
+  }
+  if (!def.paramsFirst && (!def.off || cs.off)) params();
+
+  const foot = el('div', 'dfoot');
+  const cost = def.cost ? def.cost(c) : '';
+  foot.appendChild(el('span', 'dcost', `${cost ? t('costIs', cost) + ' · ' : ''}${t('purse', nf(c.gold), nf(c.food))}`));
+  const cl = el('button', 'dcl', t('close')); cl.onclick = closeCmd;
+  const go = el('button', 'dgo', cs.id === '방침' ? t('setBtn') : t('exec'));
+  go.disabled = !can;
+  go.onclick = runCmd;
+  foot.append(cl, go);
+  box.appendChild(foot);
+}
+
+function runCmd() {
+  const def = CMD[cs.id];
+  const r = def.exec(cs);
+  if (!r || !r.ok) { toast(r ? r.why : '—', 'bad'); return; }
+  Sound.sfx(r.good === false ? 'no' : 'ok');
+  cs.res = { msg: r.msg, off: def.off ? cs.off : null, good: r.good };
+  save(); render(); drawCmd();
+}
+
+function drawResult(box, def) {
+  const en = E(), r = cs.res;
+  const wrap = el('div', 'dres' + (r.good === false ? ' bad' : ''));
+  if (r.off && G.officers[r.off]) {
+    const d = en.officerDef(r.off);
+    wrap.innerHTML = `<span class="por">${portraitTag(r.off, d, false)}</span><div><b>${offName(d)}</b><p>${r.msg}</p></div>`;
+  } else {
+    wrap.style.gridTemplateColumns = '1fr';
+    wrap.innerHTML = `<div><p>${r.msg}</p></div>`;
+  }
+  box.appendChild(wrap);
+  const foot = el('div', 'dfoot');
+  foot.appendChild(el('span', 'dcost', cs.id === '출진' ? '' : t('purse', nf(G.castles[cs.n].gold), nf(G.castles[cs.n].food))));
+  const cl = el('button', 'dcl', t('close')); cl.onclick = closeCmd;
+  foot.appendChild(cl);
+  const more = def.once ? false
+    : def.off ? candidates(def, cs.n).some(o => !(def.idle && o.done)) : true;
+  if (more) {
+    const a = el('button', 'dgo alt', t('cmdAgain'));
+    a.onclick = () => { cs.res = null; drawCmd(); };
+    foot.appendChild(a);
+  }
+  box.appendChild(foot);
+}
+
+// 입력 부품
+function field(box, label, ctrl) {
+  const f = el('div', 'fld');                       // ★label 로 감싸면 글자를 눌러도 첫 버튼이 눌린다
+  f.appendChild(el('span', null, label));
+  f.appendChild(ctrl);
+  box.appendChild(f);
+  return f;
+}
+function selectEl(opts, val, on) {
+  const s = el('select');
+  for (const [v, l] of opts) s.appendChild(new Option(l, v));
+  s.value = String(val);
+  s.onchange = () => on(s.value);
+  return s;
+}
+function segEl(opts, val, on, locked) {
+  const w = el('div', 'seg');
+  for (const [v, l] of opts) {
+    const cur = String(v) === String(val);
+    const b = el('button', cur ? 'on' : null, l);
+    b.type = 'button';
+    b.disabled = !!locked && !cur;
+    b.onclick = () => { if (!cur) { Sound.sfx('click'); on(v); } };
+    w.appendChild(b);
+  }
+  return w;
+}
+function numField(box, s, key, label, max, step, onInput) {
+  max = Math.max(0, Math.floor(max));
+  s.pv[key] = Math.min(Math.max(0, Math.floor(+s.pv[key] || 0)), max);
+  const w = el('div', 'numw');
+  const inp = el('input');
+  inp.type = 'number'; inp.min = 0; inp.max = max; inp.step = step; inp.value = s.pv[key];
+  inp.inputMode = 'numeric'; inp.dataset.key = key;
+  inp.oninput = () => { s.pv[key] = Math.max(0, Math.min(max, Math.floor(+inp.value || 0))); if (onInput) onInput(); };
+  const all = el('button', null, t('allBtn'));
+  all.type = 'button';
+  all.onclick = () => { s.pv[key] = max; inp.value = max; if (onInput) onInput(); };
+  w.append(inp, all, el('i', null, `/ ${nf(max)}`));
+  field(box, label, w);
+  return inp;
+}
+
+// ────────────────────────────────────────── 출진 창
+function openAttack(from, to) {
+  cs = { id: '출진', n: from != null ? from : to, off: null, res: null,
+         pv: { from, to, fixFrom: from != null } };
+  $('#cmd').hidden = false;
+  drawAttack();
+}
+
+function drawAttack() {
+  const en = E(), box = $('#cmdBody'), s = cs;
+  box.innerHTML = '';
+  const title = s.pv.to != null && !s.pv.fixFrom ? t('c_공격', castleName(s.pv.to)) : null;
+  dlgHead(box, '군사', '출진', castleName(s.n), title);
+  if (s.res) return drawResult(box, { off: false, once: true });
+
+  const pbox = el('div', 'dparams');
+  const stop = msg => {
+    pbox.appendChild(el('p', 'note', msg)); box.appendChild(pbox);
+    const foot = el('div', 'dfoot');
+    const cl = el('button', 'dcl', t('close')); cl.onclick = closeCmd;
+    foot.appendChild(cl); box.appendChild(foot);
+  };
+  if (s.pv.fixFrom) {
+    const foes = en.castleDef(s.pv.from).adj.filter(x => G.castles[x].fac !== G.player);
+    if (!foes.length) return stop(t('foeNone'));
+    if (!foes.includes(s.pv.to)) s.pv.to = foes[0];
+    field(pbox, t('p_target'), selectEl(foes.map(x => [x,
+      `${castleName(x)} · ${facName(G.castles[x].fac)} · ${nf(en.garrisonTotal(G, x))}`]),
+      s.pv.to, v => { s.pv.to = +v; drawAttack(); }));
+  } else {
+    const src = en.castleDef(s.pv.to).adj.filter(x => G.castles[x].fac === G.player);
+    if (!src.length) return stop(t('srcNone'));
+    if (!src.includes(s.pv.from)) { s.pv.from = src[0]; s.pv.sel = null; }
+    field(pbox, t('p_from'), selectEl(src.map(x => [x, `${castleName(x)} · ${nf(en.garrisonTotal(G, x))}`]),
+      s.pv.from, v => { s.pv.from = +v; s.pv.sel = null; drawAttack(); }));
+  }
+  const from = s.pv.from, to = s.pv.to, tc = G.castles[to];
+  const rel = en.relOf(G, G.player, tc.fac), truce = G.factions[G.player].truce[tc.fac] || 0;
+  pbox.appendChild(el('p', 'hint', rel === 'ally' ? t('relAlly') : truce ? t('relTruce', truce)
+    : rel === 'war' ? t('relWar') : t('relPeace')));
+
+  const corps = en.corpsAt(G, from, G.player);
+  if (!s.pv.sel) s.pv.sel = corps.map(o => o.id);
+  let mine;
+  if (corps.length) {
+    pbox.appendChild(el('h4', null, t('pickCorps')));
+    for (const o of corps) {
+      const d = en.officerDef(o.id);
+      const on = s.pv.sel.includes(o.id);
+      const r = el('button', 'prow' + (on ? ' on' : ''));
+      r.type = 'button';
+      r.innerHTML = `<span class="por sm">${portraitTag(o.id, d)}</span>
+        <span class="pn"><b>${offName(d)}</b><i>${t('lv')}${o.lv}</i></span>
+        <span class="pst"><i>${t('st_mu')}</i>${o.mu}</span>
+        <span class="ppv">${t(o.corps.unit)} ${nf(o.corps.n)}</span>`;
+      r.onclick = () => {
+        s.pv.sel = on ? s.pv.sel.filter(x => x !== o.id) : s.pv.sel.concat(o.id);
+        Sound.sfx('click'); drawAttack();
+      };
+      pbox.appendChild(r);
+    }
+    mine = corps.filter(o => s.pv.sel.includes(o.id)).reduce((x, o) => x + o.corps.n, 0);
+  } else {
+    pbox.appendChild(el('p', 'hint', t('noCorps')));
+    s.pv.ratio = s.pv.ratio || 0.8;
+    const RA = [[1, t('ra100')], [0.8, t('ra80')], [0.6, t('ra60')], [0.4, t('ra40')]];
+    field(pbox, t('p_ratio'), segEl(RA, s.pv.ratio, v => { s.pv.ratio = +v; drawAttack(); }));
+    mine = Math.round(en.troopTotal(G.castles[from]) * s.pv.ratio);
+  }
+  // ★들어가기 전에 양쪽 병력을 보여 준다. 3,600 으로 14,000 을 치러 들어가면 학살당한다.
   const theirs = en.garrisonTotal(G, to);
   const ratio = theirs > 0 ? mine / theirs : 9;
-  const verdict = ratio >= 1.6 ? [t('v_plenty'), 'good'] :
-                  ratio >= 1.0 ? [t('v_even'), ''] :
-                  ratio >= 0.6 ? [t('v_short'), 'warn'] : [t('v_none'), 'bad'];
-  bar.className = 'fbal ' + verdict[1];
-  bar.innerHTML = `${t('forceMine')} <b>${nf(mine)}</b> · ${t('forceTheirs')} <b>${nf(theirs)}</b>
+  const verdict = ratio >= 1.6 ? [t('v_plenty'), 'good'] : ratio >= 1.0 ? [t('v_even'), '']
+    : ratio >= 0.6 ? [t('v_short'), 'warn'] : [t('v_none'), 'bad'];
+  const bal = el('div', 'fbal2 ' + verdict[1]);
+  bal.innerHTML = `${t('forceMine')} <b>${nf(mine)}</b> · ${t('forceTheirs')} <b>${nf(theirs)}</b>
     <span>${t('forceNote')} — ${verdict[0]}</span>`;
-}
+  pbox.appendChild(bal);
+  box.appendChild(pbox);
 
-function renderAttack(box) {
-  const en = E();
-  const c = G.castles[picked];
-  let from = null, to = null;
-  if (c.fac === G.player) {
-    const foes = en.castleDef(picked).adj.filter(n => G.castles[n].fac !== G.player);
-    if (!foes.length) return;
-    from = picked;
-    const row = el('div', 'orow atk');
-    row.appendChild(el('span', 'olab', t('oAttack')));
-    const s = el('select');
-    for (const n of foes) s.appendChild(new Option(`${castleName(n)} (${facName(G.castles[n].fac)})`, n));
-    s.onchange = () => { const w = box.querySelector('.corpsel'); if (w) { w.dataset.to = s.value; updateForce(en, w); } };
-    const ratio = el('select');
-    const RA = LANG === 'ko' ? [[1,'전군'],[0.8,'8할'],[0.6,'6할'],[0.4,'4할']]
-                             : [[1,'all'],[0.8,'80%'],[0.6,'60%'],[0.4,'40%']];
-    RA.forEach(([v, l]) => ratio.appendChild(new Option(l, v)));
-    ratio.selectedIndex = 1;
-    const picker = corpsPicker(en, from, +s.value);
-    const b = el('button', 'go danger', picker ? t('sally') : t('attack'));
-    b.onclick = () => uiAttack(from, +s.value, +ratio.value, picker, true);
-    const qb = el('button', null, t('quick'));
-    qb.title = LANG === 'ko' ? '전술 화면 없이 한 번에 결판냅니다'
-                             : 'Resolve at once, without the tactical screen';
-    qb.onclick = () => uiAttack(from, +s.value, +ratio.value, picker, false);
-    row.append(s, ratio, b, qb);
-    box.appendChild(row);
-    if (picker) box.appendChild(picker);
-  } else {
-    const src = en.castleDef(picked).adj.filter(n => G.castles[n].fac === G.player);
-    if (!src.length) return;
-    const row = el('div', 'orow atk');
-    row.appendChild(el('span', 'olab', t('oAttack')));
-    const s = el('select');
-    for (const n of src) s.appendChild(new Option(LANG === 'ko' ? `${castleName(n)}에서` : `from ${castleName(n)}`, n));
-    const ratio = el('select');
-    const RA2 = LANG === 'ko' ? [[1,'전군'],[0.8,'8할'],[0.6,'6할'],[0.4,'4할']]
-                              : [[1,'all'],[0.8,'80%'],[0.6,'60%'],[0.4,'40%']];
-    RA2.forEach(([v, l]) => ratio.appendChild(new Option(l, v)));
-    ratio.selectedIndex = 1;
-    const b = el('button', 'go danger', LANG === 'ko' ? `${castleName(picked)} 공격` : `Attack ${castleName(picked)}`);
-    b.onclick = () => uiAttack(+s.value, picked, +ratio.value, null);
-    row.append(s, ratio, b);
-    box.appendChild(row);
+  const foot = el('div', 'dfoot');
+  foot.appendChild(el('span', 'dcost', ''));
+  const cl = el('button', 'dcl', t('close')); cl.onclick = closeCmd;
+  const blocked = rel === 'ally' || truce > 0 || mine <= 0;
+  const quick = el('button', 'dgo alt', t('quick'));
+  quick.title = t('quickTip');
+  quick.disabled = blocked;
+  quick.onclick = () => attackRun(false);
+  foot.append(cl, quick);
+  if (corps.length) {
+    const tac = el('button', 'dgo', t('sally'));
+    tac.disabled = blocked || !s.pv.sel.length;
+    tac.onclick = () => attackRun(true);
+    foot.appendChild(tac);
   }
+  box.appendChild(foot);
 }
 
-function uiAttack(from, to, ratio, picker, tactical) {
-  const en = E();
-  const ids = picker ? [...picker.querySelectorAll('input:checked')].map(x => x.value) : [];
-
+function attackRun(tactical) {
+  const en = E(), s = cs, from = s.pv.from, to = s.pv.to;
+  const ids = (s.pv.sel || []).filter(id => G.officers[id] && G.officers[id].corps && G.officers[id].loc === from);
+  const nm = castleName(to);
   // ★부대를 거느린 무장이 있을 때만 전술 전투가 성립한다.
   //   주둔군 분견대만으로 나가는 출병은 예전처럼 자동 판정이다.
   if (tactical && ids.length) {
+    const df = G.castles[to].fac;
+    if (!en.atWar(G, G.player, df)) {
+      const w = en.doDeclareWar(G, G.player, df);
+      if (!w.ok) return toast(w.why, 'bad');
+    }
     const btl = window.SamhanBattle.start(G, from, to, ids, en);
-    if (!btl) return toast('출전할 부대가 없습니다');
-    BattleView.open(btl, (bb, res) => {
+    if (!btl) return toast(t('noSortie'), 'bad');
+    closeCmd();
+    BattleView.open(btl, (bb) => {
       const out = window.SamhanBattle.applyResult(G, bb, en);
-      const nm = en.castleDef(to).nm;
       Sound.sfx(out.captured ? 'capture' : 'lose');
       if (out.captured && window.CG) CG.happy();
-      toast(out.captured ? `${nm} 함락! (아군 ${nf(out.deadA)} · 적 ${nf(out.deadD)} 손실)`
-        : `${bb.over.why} (아군 ${nf(out.deadA)} · 적 ${nf(out.deadD)} 손실)`,
-        out.captured ? 'good' : 'bad');
-      pickedOff = null; save(); render();
+      toast(out.captured ? t('rCap', nm, nf(out.deadA), nf(out.deadD))
+        : t('rTacLose', bb.over.why, nf(out.deadA), nf(out.deadD)), out.captured ? 'good' : 'bad');
+      save(); render();
+      if (out.captured) goCastle(to);
     });
     return;
   }
-  const r = en.doAttack(G, from, to, ratio, ids.length ? ids : null);
-  if (!r.ok) return toast(r.why);
-  const nm = en.castleDef(to).nm;
-  const who = r.lead ? `${en.officerDef(r.lead).nm}, ` : '';
+  const r = en.doAttack(G, from, to, s.pv.ratio || 0.8, ids.length ? ids : null);
+  if (!r.ok) return toast(r.why, 'bad');
   if (r.captured && window.CG) CG.happy();
-  toast(r.captured ? `${who}${nm} 함락! (아군 ${nf(r.deadA)} · 적 ${nf(r.deadD)} 손실)`
-    : r.win ? `${nm} 공격 성공, 함락에는 이르지 못했습니다. (아군 ${nf(r.deadA)} 손실)`
-      : `${nm} 공격 실패. (아군 ${nf(r.deadA)} 손실)`, r.captured ? 'good' : r.win ? '' : 'bad');
-  save(); render();
+  Sound.sfx(r.captured ? 'capture' : r.win ? 'ok' : 'lose');
+  cs.res = {
+    off: r.lead && G.officers[r.lead] && G.officers[r.lead].fac === G.player ? r.lead : null,
+    good: r.captured || r.win,
+    msg: r.captured ? t('rCap', nm, nf(r.deadA), nf(r.deadD))
+      : r.win ? t('rWin', nm, nf(r.deadA)) : t('rLose', nm, nf(r.deadA)),
+  };
+  save(); render(); drawAttack();
 }
 
 // ────────────────────────────────────────── 명부
@@ -551,13 +960,13 @@ function renderRoster() {
   box.innerHTML = '';
   const mine = en.factionOfficers(G, G.player)
     .sort((a, b) => (b.mu + b.ji + b.jg) - (a.mu + a.ji + a.jg));
-  if (!mine.length) { box.appendChild(el('p', 'note', '거느린 무장이 없습니다.')); return; }
+  if (!mine.length) { box.appendChild(el('p', 'note', t('noOfficer'))); return; }
   for (const o of mine) {
     const d = en.officerDef(o.id);
     const row = el('button', 'rrow');
     row.innerHTML = `
       <span class="por sm">${portraitTag(o.id, d)}</span>
-      <span class="rn"><b>${offName(d)}</b><i>${castleName(o.loc)}${o.corps ? ` · ${t(o.corps.unit)} ${nf(o.corps.n)}` : ''}</i></span>
+      <span class="rn"><b>${offName(d)}</b><i>${castleName(o.loc)}${o.corps ? ` · ${t(o.corps.unit)} ${nf(o.corps.n)}` : ''}${o.done ? ' · ✓' : ''}</i></span>
       <span class="rs"><b>${o.mu}</b><b>${o.ji}</b><b>${o.jg}</b></span>
       <span class="rl">${t('lv')}${o.lv}<i class="loy sm"><i style="width:${Math.round(o.loy)}%"></i></i></span>`;
     row.onclick = () => openBio(o.id);
@@ -665,13 +1074,74 @@ function renderDiplo() {
   }
 }
 
+// ────────────────────────────────────────── 정보 일람
+let infoKind = 'castles';
+function openInfo(kind) { infoKind = kind; $('#info').hidden = false; drawInfo(); }
+function drawInfo() {
+  const en = E(), box = $('#infoBody');
+  box.innerHTML = '';
+  dlgHead(box, '정보', infoKind === 'castles' ? '거점일람' : '세력일람', facName(G.player));
+  box.appendChild(segEl([['castles', t('c_거점일람')], ['factions', t('c_세력일람')]], infoKind,
+    v => { infoKind = v; drawInfo(); }));
+  const wrapT = el('div', 'tscroll');
+  wrapT.style.marginTop = '10px';
+  const tb = el('table', 'itab');
+  if (infoKind === 'castles') {
+    tb.innerHTML = `<thead><tr><th>${t('thHold')}</th><th>${t('pop')}</th><th>${t('gold')}</th><th>${t('food')}</th>
+      <th>${t('thTroop')}</th><th>${t('치안')}</th><th>${t('성벽')}</th><th>${t('thIdle')}</th><th>${t('thPol')}</th></tr></thead>`;
+    const body = el('tbody');
+    for (const n of en.factionCastles(G, G.player).sort((a, b) => a - b)) {
+      const c = G.castles[n], d = en.castleDef(n), idle = en.idleAt(G, n).length;
+      const use = en.foodUse(c);
+      const tr = el('tr', 'go');
+      tr.innerHTML = `<td>${castleName(n)}</td><td>${nf(c.pop)}</td><td>${nf(c.gold)}</td>
+        <td class="${use > 0 && c.food / use < 3 ? 'low' : ''}">${nf(c.food)}</td>
+        <td>${nf(en.garrisonTotal(G, n))}<small style="color:var(--ink3)">/${nf(d.garr)}</small></td>
+        <td class="${c.sec < 30 ? 'low' : ''}">${Math.round(c.sec)}</td><td>${nf(c.wall)}</td>
+        <td class="${idle ? 'hot' : ''}">${idle || '—'}</td><td>${t('pol_' + en.policyOf(c))}</td>`;
+      tr.onclick = () => { $('#info').hidden = true; goCastle(n); };
+      body.appendChild(tr);
+    }
+    tb.appendChild(body);
+  } else {
+    tb.innerHTML = `<thead><tr><th>${t('thFac')}</th><th>${t('castlesN')}</th><th>${t('thTroop')}</th>
+      <th>${t('thOff')}</th><th>${t('thRel')}</th><th>${t('thAtt')}</th></tr></thead>`;
+    const body = el('tbody');
+    const rows = Object.values(G.factions).filter(f => f.alive)
+      .map(f => {
+        const cs2 = en.factionCastles(G, f.id);
+        return { f, cs2, troops: cs2.reduce((x, n) => x + en.garrisonTotal(G, n), 0) };
+      })
+      .sort((a, b) => b.cs2.length - a.cs2.length || b.troops - a.troops);
+    for (const { f, cs2, troops } of rows) {
+      const me = f.id === G.player;
+      const rel = me ? '—' : ((G.factions[G.player].truce[f.id] || 0) ? t('truce') : relName(en.relOf(G, G.player, f.id)));
+      const tr = el('tr', 'go' + (me ? ' me' : ''));
+      tr.innerHTML = `<td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${FACTIONS[f.id].color};margin-right:7px"></span>${facName(f.id)}</td>
+        <td>${cs2.length}</td><td>${nf(troops)}</td><td>${en.factionOfficers(G, f.id).length}</td>
+        <td>${rel}</td><td>${me ? '—' : Math.round(en.attOf(G, f.id, G.player))}</td>`;
+      const home = cs2.includes(f.cap) ? f.cap : cs2[0];
+      tr.onclick = () => { $('#info').hidden = true; goCastle(home); };
+      body.appendChild(tr);
+    }
+    tb.appendChild(body);
+  }
+  wrapT.appendChild(tb);
+  box.appendChild(wrapT);
+  const foot = el('div', 'dfoot');
+  foot.appendChild(el('span', 'dcost', t('infoHint')));
+  const cl = el('button', 'dcl', t('close')); cl.onclick = () => { $('#info').hidden = true; };
+  foot.appendChild(cl);
+  box.appendChild(foot);
+}
+
 // ────────────────────────────────────────── 사건
 let evQueue = [];
 function showEvent() {
   if (!evQueue.length) { $('#ev').hidden = true; return; }
   const e = evQueue[0];
   $('#ev').hidden = false;
-  $('#evwhen').textContent = `${e.y || G.year}년 ${e.m || G.month}월`;
+  $('#evwhen').textContent = t('ym', e.y || G.year, e.m || G.month);
   $('#evnm').textContent = e.nm;
   $('#evtxt').textContent = e.txt;
   $('#evsrc').textContent = `— ${e.src}`;
@@ -696,8 +1166,8 @@ function openBio(id) {
           <span class="chip ${d.real ? 'real' : 'fic'}">${d.real ? t('real') : t('fic')}</span>
         </div>
         <div class="bstats">
-          ${['mu', 'ji', 'jg'].map((k, i) => `
-            <div class="bs"><span>${(LANG === 'ko' ? ['무력','지력','정치'] : ['Might','Wit','Rule'])[i]}</span>
+          ${['mu', 'ji', 'jg'].map(k => `
+            <div class="bs"><span>${t('st_' + k)}</span>
               <b>${o[k]}</b><span class="bbar"><i style="width:${o[k]}%"></i></span></div>`).join('')}
         </div>
         <div class="blv">${t('lv')} ${o.lv} · ${t('exp')} ${o.exp}/${en.expNeed(o.lv)} ·
@@ -714,10 +1184,12 @@ function openBio(id) {
 }
 
 // ────────────────────────────────────────── 진행
+const MODALS = ['ev', 'cmd', 'rep', 'info', 'guide', 'btl', 'over'];
+const anyModal = () => MODALS.some(id => !$('#' + id).hidden);
+
 let adMonths = 0;
 function nextMonth() {
-  const en = E();
-  if (!$('#ev').hidden) return;              // 사건을 읽는 중엔 넘기지 않는다
+  if (anyModal()) return;                    // 사건·명령·보고를 읽는 중엔 넘기지 않는다
   // ★광고는 달이 넘어가는 자리에서만 — 전투 중이나 명령 중에 끼면 판을 망친다.
   //   cg.js 가 3분 쿨다운을 지키므로 여기서는 '적당한 자리'만 알려 준다.
   if (window.CG && CG.available() && ++adMonths >= 6) {
@@ -727,25 +1199,170 @@ function nextMonth() {
   }
   doNextMonth();
 }
+
+function snapshot() {
+  const en = E(), mine = en.factionCastles(G, G.player);
+  const s = { gold: 0, food: 0, troops: 0, castles: mine.length };
+  for (const n of mine) { const c = G.castles[n]; s.gold += c.gold; s.food += c.food; s.troops += en.garrisonTotal(G, n); }
+  return s;
+}
+
+let repPending = null;
 function doNextMonth() {
   const en = E();
+  const before = snapshot(), was = { y: G.year, m: G.month };
   en.runAllAI(G);
   en.nextTurn(G);
   save(); render();
   Sound.sfx('month');
-  // 이번 달에 일어난 사건을 차례로 보여 준다
+  repPending = buildReport(before, snapshot(), was);
+  // 이번 달에 일어난 사건을 차례로 보여 주고, 다 읽으면 보고를 올린다
   evQueue = G.log.filter(x => x.t === G.turn - 1 && x.k === 'event');
   if (evQueue.length) { Sound.sfx('event'); showEvent(); }
-  const left = G.log.filter(x => x.t === G.turn - 1 && x.k === 'leave' && x.fac === G.player);
-  if (left.length) {
-    toast(`${left.map(x => en.officerDef(x.off).nm).join(', ')}이(가) 떠났습니다.`, 'bad');
+  else flushReport();
+}
+
+function buildReport(before, after, was) {
+  const en = E(), turn = G.turn - 1, me = G.player;
+  const L = G.log.filter(x => x.t === turn);
+  return {
+    before, after, harvest: was.m === en.SIM.HARVEST_MONTH,
+    attacked: L.filter(x => x.k === 'battle' && x.df === me && x.af !== me),
+    left: L.filter(x => x.k === 'leave' && x.fac === me),
+    revolts: L.filter(x => x.k === 'revolt' && G.castles[x.n] && G.castles[x.n].fac === me),
+    gov: L.filter(x => x.k === 'gov'),
+    falls: L.filter(x => x.k === 'fall'),
+    advice: en.advise(G, me).slice(0, 3),
+  };
+}
+
+function reportOn() { return Store.get('samhan_report') !== '0'; }
+function flushReport() {
+  const rep = repPending;
+  repPending = null;
+  if (!rep || G.over) return;
+  if (reportOn()) return showReport(rep);
+  // 보고를 끈 사람에게도 나쁜 소식만은 알린다
+  if (rep.left.length) toast(t('repLeave', rep.left.map(x => offName(E().officerDef(x.off))).join(', ')), 'bad');
+  const lost = rep.attacked.filter(x => x.captured);
+  if (lost.length) toast(t('repLost', castleName(lost[0].to)), 'bad');
+}
+
+function showReport(rep) {
+  const en = E(), box = $('#repBody');
+  box.innerHTML = '';
+  const head = el('div', 'dhead');
+  head.innerHTML = `<span class="dcat">${t('repKicker')} · ${facName(G.player)}</span><h3>${t('repTitle', t('ym', G.year, G.month))}</h3>`;
+  box.appendChild(head);
+
+  const grid = el('div', 'rgrid');
+  const cell = (label, a, b) => {
+    const dlt = b - a;
+    return `<div class="rcell"><span>${label}</span><b>${nf(b)}</b>
+      <i class="${dlt > 0 ? 'up' : dlt < 0 ? 'down' : ''}">${dlt > 0 ? '+' : dlt < 0 ? '−' : '±'}${nf(Math.abs(dlt))}</i></div>`;
+  };
+  grid.innerHTML = cell(t('gold'), rep.before.gold, rep.after.gold) + cell(t('food'), rep.before.food, rep.after.food) +
+    cell(t('thTroop'), rep.before.troops, rep.after.troops) + cell(t('castlesN'), rep.before.castles, rep.after.castles);
+  box.appendChild(grid);
+
+  const lines = [];
+  if (rep.harvest) lines.push([t('repHarvest'), 'good']);
+  for (const b of rep.attacked) {
+    lines.push([t(b.captured ? 'repAtkLost' : 'repAtkHeld', facName(b.af), castleName(b.to), nf(b.deadD), nf(b.deadA)),
+      b.captured ? 'bad' : 'good']);
   }
-  const b = G.log.filter(x => x.t === G.turn - 1 && x.k === 'battle');
-  const mineLost = b.filter(x => G.castles[x.to].fac === G.player || x.captured);
-  if (b.length) {
-    const last = b[b.length - 1];
-    if (last.captured) toast(`${en.castleDef(last.to).nm}의 주인이 바뀌었습니다.`);
+  for (const x of rep.revolts) lines.push([t('repRevolt', castleName(x.n)), 'bad']);
+  if (rep.left.length) lines.push([t('repLeave', rep.left.map(x => offName(en.officerDef(x.off))).join(', ')), 'bad']);
+  for (const x of rep.falls) lines.push([t('repFall', facName(x.fac)), '']);
+  if (rep.gov.length) lines.push([t('repGov', rep.gov.reduce((s, x) => s + x.count, 0), rep.gov.length), '']);
+  if (lines.length) {
+    const sec = el('div', 'rsec');
+    sec.appendChild(el('h4', null, t('repNews')));
+    const ul = el('ul');
+    for (const [txt, cls] of lines) ul.appendChild(el('li', cls, txt));
+    sec.appendChild(ul);
+    box.appendChild(sec);
   }
+
+  const sec = el('div', 'rsec');
+  sec.appendChild(el('h4', null, t('repAdvice')));
+  if (!rep.advice.length) sec.appendChild(el('p', 'note', t('repNone')));
+  for (const a of rep.advice) {
+    const row = el('div', 'adv');
+    row.appendChild(el('span', null, advText(a)));
+    const b = el('button', null, t('advGo'));
+    b.onclick = () => { $('#rep').hidden = true; advGo(a); };
+    row.appendChild(b);
+    sec.appendChild(row);
+  }
+  box.appendChild(sec);
+
+  const foot = el('div', 'dfoot');
+  const chk = el('label', 'rchk');
+  const cb = el('input'); cb.type = 'checkbox'; cb.checked = true;
+  cb.onchange = () => Store.set('samhan_report', cb.checked ? '1' : '0');
+  chk.append(cb, el('span', null, t('repShow')));
+  foot.appendChild(chk);
+  const ok = el('button', 'dgo', t('repOk'));
+  ok.onclick = () => { $('#rep').hidden = true; };
+  foot.appendChild(ok);
+  box.appendChild(foot);
+  $('#rep').hidden = false;
+}
+
+function advText(a) {
+  const en = E(), nm = castleName(a.n);
+  switch (a.k) {
+    case 'food': return t('adv_food', nm, a.v);
+    case 'deficit': return t('adv_deficit', nm, nf(a.v));
+    case 'threat': return t('adv_threat', nm, castleName(a.to), a.v);
+    case 'sec': return t('adv_sec', nm, a.v);
+    case 'loy': return t('adv_loy', offName(en.officerDef(a.off)), a.v);
+    case 'wild': return t('adv_wild', nm, offName(en.officerDef(a.off)));
+    case 'hidden': return t('adv_hidden', nm, a.v);
+    case 'target': return t('adv_target', nm, castleName(a.to), a.v);
+    case 'thin': return t('adv_thin', nm, a.v);
+    default: return a.k;
+  }
+}
+// 진언을 누르면 그 거점으로 가서 알맞은 명령 창까지 열어 준다
+function advGo(a) {
+  goCastle(a.n);
+  const open = { food: '매매', deficit: '상업', sec: '치안', threat: '징집', thin: '징집', hidden: '탐색' }[a.k];
+  if (a.k === 'target') return openAttack(a.n, null) || (cs.pv.to = a.to, drawAttack());
+  if (a.k === 'wild') return openCmd('등용', a.n, { target: a.off });
+  if (a.k === 'loy') { openCmd('포상', a.n); cs.off = a.off; return drawCmd(); }
+  if (open) openCmd(open, a.n);
+}
+
+// ────────────────────────────────────────── 첫 판 안내
+let guideStep = 0;
+function openGuide() { guideStep = 0; $('#guide').hidden = false; drawGuide(); }
+function closeGuide() { $('#guide').hidden = true; Store.set('samhan_guide', '1'); }
+function drawGuide() {
+  const box = $('#guideBody');
+  box.innerHTML = '';
+  const i = guideStep + 1;
+  const head = el('div', 'dhead');
+  head.innerHTML = `<span class="dcat">${t('guideTitle')} · ${i} / 4</span><h3>${t('g' + i + 't')}</h3>`;
+  box.appendChild(head);
+  box.appendChild(el('p', 'gbody', t('g' + i)));
+  const dots = el('div', 'gdots');
+  for (let k = 0; k < 4; k++) dots.appendChild(el('i', k === guideStep ? 'on' : null));
+  box.appendChild(dots);
+  const foot = el('div', 'dfoot');
+  const skip = el('button', 'dcl', t('guideSkip')); skip.onclick = closeGuide;
+  foot.appendChild(skip);
+  foot.appendChild(el('span', 'dcost', ''));
+  if (guideStep > 0) {
+    const prev = el('button', 'dcl', t('guidePrev'));
+    prev.onclick = () => { guideStep--; drawGuide(); };
+    foot.appendChild(prev);
+  }
+  const next = el('button', 'dgo', guideStep < 3 ? t('guideNext') : t('guideStart'));
+  next.onclick = () => { if (guideStep < 3) { guideStep++; drawGuide(); } else closeGuide(); };
+  foot.appendChild(next);
+  box.appendChild(foot);
 }
 
 function toast(msg, kind) {
@@ -788,19 +1405,33 @@ window.addEventListener('DOMContentLoaded', () => {
   };
   $('#snd').classList.toggle('off', Sound.muted());
   $('#next').onclick = nextMonth;
+  $('#idle').onclick = nextIdle;
+  $('#help').onclick = openGuide;
   $('#bioClose').onclick = () => { $('#bio').hidden = true; };
   $('#bio').onclick = e => { if (e.target.id === 'bio') $('#bio').hidden = true; };
-  $('#restart').onclick = () => { Store.del('samhan_game'); location.reload(); };
+  $('#restart').onclick = () => {
+    if (G && !G.over && !G.skirmish && !confirm(t('restartAsk'))) return;
+    Store.del('samhan_game'); location.reload();
+  };
   $('#btlend').onclick = () => BattleView.endTurn();
-  $('#evok').onclick = () => { evQueue.shift(); showEvent(); render(); };
+  $('#evok').onclick = () => { evQueue.shift(); showEvent(); render(); if (!evQueue.length) flushReport(); };
   $('#overback').onclick = () => { Store.del('samhan_game'); location.reload(); };
+  $$('[data-close]').forEach(b => {
+    b.onclick = () => { if (b.dataset.close === 'cmd') closeCmd(); else $('#' + b.dataset.close).hidden = true; };
+  });
+  // 바깥을 누르면 닫힌다 — 안내만은 끝까지 읽게 둔다
+  for (const id of ['cmd', 'rep', 'info']) {
+    $('#' + id).addEventListener('click', e => { if (e.target.id === id) { if (id === 'cmd') closeCmd(); else $('#' + id).hidden = true; } });
+  }
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') $('#bio').hidden = true;
-    if (e.key === ' ' && !$('#game').hidden && $('#bio').hidden) { e.preventDefault(); nextMonth(); }
+    if (e.key === 'Escape') {
+      $('#bio').hidden = true;
+      if (!$('#cmd').hidden) closeCmd();
+      $('#rep').hidden = true; $('#info').hidden = true;
+    }
+    const typing = /INPUT|SELECT|TEXTAREA/.test((e.target && e.target.tagName) || '');
+    if (e.key === ' ' && !typing && !$('#game').hidden && $('#bio').hidden) { e.preventDefault(); nextMonth(); }
   });
-  $$('.tab').forEach(t => t.onclick = () => {
-    $$('.tab').forEach(x => x.classList.toggle('on', x === t));
-    $$('.tabpane').forEach(p => p.hidden = p.id !== t.dataset.pane);
-  });
+  $$('.tab').forEach(tab => { tab.onclick = () => showTab(tab.dataset.pane); });
   if (new URLSearchParams(location.search).get('test')) window.runSamhanTests?.();
 });

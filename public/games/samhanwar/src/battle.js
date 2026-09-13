@@ -486,6 +486,7 @@ function score(b, u, t) {
 function applyResult(g, b, En) {
   const a = g.castles[b.from], d = g.castles[b.to];
   const win = b.over && b.over.winner === 'A';
+  const atkFac = a.fac, defFac = d.fac;
   let deadA = 0, deadD = 0;
 
   for (const u of b.units) {
@@ -544,7 +545,7 @@ function applyResult(g, b, En) {
     a.morale = Math.max(10, a.morale - 12);
   }
   g.log.push({ t: g.turn, k: 'battle', from: b.from, to: b.to, win, captured, deadA, deadD,
-               tactical: true });
+               af: atkFac, df: defFac, tactical: true });
   return { win, captured, deadA, deadD };
 }
 

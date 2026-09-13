@@ -342,6 +342,101 @@ window.runSamhanTests = function () {
     ge.log.filter(x => x.k === 'event' && x.id === 'mucheon').length >= 2,
     `${ge.log.filter(x => x.k === 'event' && x.id === 'mucheon').length}회`);
 
+  // ── v2: 코에이 문법 — 축성·수송·매매·위임·진언 (2026-09-13) ─────────────
+  {
+    const gv = en.newGame('고구려', 5151);
+    const capN = FACTIONS['고구려'].cap;
+    const reach = en.reachable(gv, capN);
+    ok('수송 가능 거점 = 아군 영토로 이어진 곳',
+      reach.length > 0 && reach.every(n => gv.castles[n].fac === '고구려') && !reach.includes(capN), reach.join(','));
+    const far = reach.find(n => !en.castleDef(capN).adj.includes(n));
+    const c = gv.castles[capN];
+    c.wall = 2000; c.gold = 5000;
+    const fo = en.idleAt(gv, capN)[0];
+    const fr = en.doFortify(gv, capN, fo.id);
+    ok('축성이 성벽을 올린다', fr.ok && c.wall > 2000 && c.wall <= en.castleDef(capN).wall && fo.done,
+      fr.why || `${fr.before}→${fr.after}`);
+    ok('축성에 자금이 든다', c.gold === 5000 - en.fortifyCost(c));
+    ok('한 무장이 두 번 축성하지 못한다', !en.doFortify(gv, capN, fo.id).ok);
+
+    const to = reach[0], tc = gv.castles[to];
+    const g0s = c.gold + tc.gold, f0s = c.food + tc.food, i0s = c.troops.보병 + tc.troops.보병;
+    const tp = en.idleAt(gv, capN)[0];
+    const tr = en.doTransport(gv, capN, to, tp.id, { gold: 1000, food: 3000, 보병: 500 });
+    ok('수송', tr.ok, tr.why);
+    ok('수송은 총량을 보존한다',
+      c.gold + tc.gold === g0s && c.food + tc.food === f0s && c.troops.보병 + tc.troops.보병 === i0s);
+    const enemyN = CASTLES.find(x => gv.castles[x.n].fac !== '고구려').n;
+    const tp2 = en.idleAt(gv, capN)[0];
+    ok('남의 거점으로는 수송 불가', !!tp2 && !en.doTransport(gv, capN, enemyN, tp2.id, { gold: 10 }).ok);
+    ok('가진 것보다 많이는 못 보낸다', !!tp2 && !en.doTransport(gv, capN, to, tp2.id, { gold: c.gold + 1 }).ok);
+
+    c.cm = 60; c.gold = 4000;
+    const food0 = c.food, price = en.grainPrice(gv, capN);
+    const b1 = en.doTrade(gv, capN, 'buy', 2000);
+    ok('군량을 산다', b1.ok && c.food === food0 + 2000 && c.gold === 4000 - Math.ceil(20 * price), b1.why);
+    const s1 = en.doTrade(gv, capN, 'sell', 1000);
+    ok('파는 값이 사는 값보다 싸다', s1.ok && s1.gold < Math.ceil(10 * price), s1.why);
+    ok('거래량 상한', !en.doTrade(gv, capN, 'buy', en.tradeCap(c) + 100).ok);
+    const m0 = gv.month;
+    gv.month = 9; const p9 = en.grainPrice(gv, capN);
+    gv.month = 7; const p7 = en.grainPrice(gv, capN);
+    gv.month = m0;
+    ok('추수철 군량이 여름보다 싸다', p9 < p7, `9월 ${p9} · 7월 ${p7}`);
+    ok('상업이 낮으면 상인이 오지 않는다', (() => { const k = c.cm; c.cm = 10; const r = en.doTrade(gv, capN, 'buy', 100); c.cm = k; return !r.ok; })());
+
+    if (far) {
+      const mv = en.idleAt(gv, capN)[0];
+      const mr = mv ? en.doMove(gv, mv.id, far) : { ok: false, why: '무장 부족' };
+      ok('인접하지 않아도 아군 영토면 이동', mr.ok && mv.loc === far, mr.why);
+    } else ok('인접하지 않아도 아군 영토면 이동', true, '해당 지형 없음');
+
+    const gd2 = en.newGame('신라', 8080);
+    const dn = FACTIONS['신라'].cap;
+    const sn = en.factionCastles(gd2, '신라').find(n => n !== dn);
+    ok('방침 설정', en.setPolicy(gd2, dn, '내정').ok && en.policyOf(gd2.castles[dn]) === '내정');
+    ok('없는 방침은 거절', !en.setPolicy(gd2, dn, '약탈').ok);
+    const idle0 = en.idleAt(gd2, dn).length, idleS = sn ? en.idleAt(gd2, sn).length : 0;
+    en.runDelegated(gd2);
+    ok('위임 거점의 무장이 일한다', idle0 > 0 && en.idleAt(gd2, dn).length < idle0,
+      `${idle0}→${en.idleAt(gd2, dn).length}`);
+    ok('직할 거점은 건드리지 않는다', !sn || en.idleAt(gd2, sn).length === idleS);
+    ok('위임 기록', gd2.log.some(x => x.k === 'gov' && x.n === dn));
+
+    const ga = en.newGame('백제', 3131);
+    const an = FACTIONS['백제'].cap;
+    ga.castles[an].food = 10; ga.castles[an].sec = 12;
+    const adv = en.advise(ga, '백제');
+    ok('진언: 군량 경고', adv.some(a => a.k === 'food' && a.n === an), adv.map(a => a.k).join(','));
+    ok('진언: 치안 경고', adv.some(a => a.k === 'sec' && a.n === an));
+    ok('진언은 종류마다 하나', new Set(adv.map(a => a.k)).size === adv.length);
+    ok('진언 문구가 양쪽 언어에 있다',
+      ['food', 'deficit', 'threat', 'sec', 'loy', 'wild', 'hidden', 'target', 'thin']
+        .every(k => typeof I18N.ko['adv_' + k] === 'function' && typeof I18N.en['adv_' + k] === 'function'));
+    ok('대기 무장 수 = 명령 안 받은 아군 무장',
+      en.idleCastles(ga, '백제').reduce((s2, x) => s2 + x.k, 0) ===
+      Object.values(ga.officers).filter(o => o.fac === '백제' && !o.done && ga.castles[o.loc].fac === '백제').length);
+
+    const gz = en.newGame('가야', 2468);
+    let zbad = null;
+    for (let i = 0; i < 36 && !zbad; i++) {
+      for (const n of en.factionCastles(gz, gz.player)) en.setPolicy(gz, n, en.POLICIES[1 + (n % 3)]);
+      en.runAllAI(gz); en.nextTurn(gz);
+      for (const c2 of Object.values(gz.castles)) {
+        for (const k of ['gold', 'food', 'wall', 'sec', 'ag', 'cm', 'train', 'morale']) {
+          if (!num(c2[k]) || c2[k] < 0) zbad = `${k} @${c2.n} ${i}턴 (${c2[k]})`;
+        }
+        if (c2.wall > en.castleDef(c2.n).wall) zbad = `성벽 초과 @${c2.n}`;
+        if (en.troopTotal(c2) > en.castleDef(c2.n).garr * 1.5) zbad = `주둔 초과 @${c2.n}`;
+      }
+    }
+    ok('위임 36턴 무사고', !zbad, zbad || `${gz.year}년 ${gz.month}월 · 위임 명령 ${gz.log.filter(x => x.k === 'gov').reduce((s2, x) => s2 + x.count, 0)}건`);
+    const back2 = en.loadState(en.saveState(gz));
+    ok('위임 방침이 저장된다', !!back2 &&
+      en.factionCastles(back2, back2.player).every(n => !!back2.castles[n].gov));
+    ok('전투 기록에 공수 세력이 남는다', gz.log.filter(x => x.k === 'battle').every(x => x.af && x.df));
+  }
+
   // ── 60턴 무인 진행 ─────────────────────────
   const s = en.newGame('고구려', 77);
   let bad = null, battles = 0, caps = 0;

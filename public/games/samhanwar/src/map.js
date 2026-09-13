@@ -7,6 +7,7 @@ const MapView = (() => {
   let cv, ctx, g, paths = null, view = { s: 1, tx: 0, ty: 0 }, sel = null, hover = null;
   let onPick = () => {};
   let drag = null, moved = 0;
+  let badges = null;          // {거점: 대기 무장 수} — 일이 남은 거점을 지도에서 보이게
 
   function init(canvas, game, pick) {
     cv = canvas; ctx = cv.getContext('2d'); g = game; onPick = pick || (() => {});
@@ -182,7 +183,24 @@ const MapView = (() => {
       ctx.fillStyle = css('--ink');
       ctx.fillText(label, x, y - radius(c.sz) - 3);
     }
-  }
 
-  return { init, draw, resize, select, focus, setGame, get sel() { return sel; } };
+    // 대기 무장 배지
+    if (badges) {
+      ctx.font = '600 10px "IBM Plex Mono", monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      for (const [n, k] of Object.entries(badges)) {
+        const c = BY_N[n];
+        if (!c || !k) continue;
+        const [x, y] = toScreen(c.x, c.y);
+        const bx = x + radius(c.sz) + 5, by = y + radius(c.sz) + 3;
+        ctx.beginPath(); ctx.arc(bx, by, 7, 0, 7);
+        ctx.fillStyle = css('--hwangto'); ctx.fill();
+        ctx.fillStyle = '#17130A';
+        ctx.fillText(String(k), bx, by + 0.5);
+      }
+    }
+  }
+  function setBadges(b) { badges = b; }
+
+  return { init, draw, resize, select, focus, setGame, setBadges, get sel() { return sel; } };
 })();
