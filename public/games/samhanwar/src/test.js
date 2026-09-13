@@ -437,6 +437,175 @@ window.runSamhanTests = function () {
     ok('전투 기록에 공수 세력이 남는다', gz.log.filter(x => x.k === 'battle').every(x => x.af && x.df));
   }
 
+  // ── v3: 포로·계략·사자 외교·방어전 (2026-09-13) ─────────────
+  {
+    const BT3 = window.SamhanBattle;
+    const tries = (n, fn) => { for (let i = 0; i < n; i++) { const r = fn(i); if (r) return r; } return null; };
+    ok('군주 17세력 모두 지정', Object.keys(FACTIONS).every(f => !!en.LORD_ID[f]));
+
+    // 함락 → 포로
+    const gp = en.newGame('고구려', 6161);
+    const foeN = CASTLES.find(c => gp.castles[c.n].fac === '위' && c.adj.some(x => gp.castles[x].fac === '고구려')).n;
+    const inside = en.officersAt(gp, foeN).filter(o => o.fac === '위').length;
+    const st = en.settleFallen(gp, foeN, '위', '고구려', 100);
+    ok('함락 시 무장이 모두 정리된다', st.caught.length + st.fled.length + st.scattered.length === inside,
+      `잡힘 ${st.caught.length} · 달아남 ${st.fled.length} · 흩어짐 ${st.scattered.length}`);
+    const cap0 = st.caught.length ? gp.officers[st.caught[0]] : null;
+    ok('포로는 재야 목록에 없다', !st.caught.length || !en.wildAt(gp, foeN).some(o => o.captive));
+    if (cap0) {
+      gp.castles[foeN].fac = '고구려';
+      ok('포로 등용 가망이 유한', num(en.hireCaptiveChance(gp, cap0.id)));
+      const h = en.doCaptive(gp, '고구려', cap0.id, 'hire');
+      ok('포로 설득', h.ok, h.why);
+      ok('한 달에 한 번만 설득', !en.doCaptive(gp, '고구려', cap0.id, 'hire').ok || h.joined);
+    }
+    // 군주는 굽히지 않는다
+    const gl = en.newGame('백제', 7272);
+    const lordW = gl.officers[en.LORD_ID['위']];
+    Object.assign(lordW, { captive: '백제', capFrom: '위', prevLoy: 100, capTurn: 0, fac: null });
+    ok('살아 있는 나라의 군주는 등용 불가', en.hireCaptiveChance(gl, lordW.id) === 0);
+    const fr = en.doCaptive(gl, '백제', lordW.id, 'free');
+    ok('석방하면 원래 나라로', fr.ok && lordW.fac === '위' && gl.castles[lordW.loc].fac === '위', `→ ${lordW.loc}`);
+    const vict = en.factionOfficers(gl, '위').find(o => !en.isLord(gl, o.id));
+    Object.assign(vict, { captive: '백제', capFrom: '위', prevLoy: 80, capTurn: 0, fac: null, loc: FACTIONS['백제'].cap });
+    const att0 = en.attOf(gl, '위', '백제');
+    const kr = en.doCaptive(gl, '백제', vict.id, 'kill');
+    ok('처단', kr.ok && vict.dead && vict.loc === -1 && en.attOf(gl, '위', '백제') < att0);
+    ok('죽은 무장은 어디에도 안 잡힌다', !en.officersAt(gl, FACTIONS['백제'].cap).some(o => o.id === vict.id));
+    // 갇힌 성을 잃으면 풀려난다
+    const v2 = en.factionOfficers(gl, '위').find(o => !en.isLord(gl, o.id) && !o.dead);
+    const jail = FACTIONS['백제'].cap;
+    Object.assign(v2, { captive: '백제', capFrom: '위', prevLoy: 80, capTurn: 0, fac: null, loc: jail });
+    gl.castles[jail].fac = '마한';
+    en.processCaptives(gl);
+    ok('갇힌 성을 잃으면 포로가 풀려난다', !v2.captive && v2.fac === '위');
+    gl.castles[jail].fac = '백제';
+
+    // 계략
+    const gs = en.newGame('고구려', 8383);
+    const home = CASTLES.find(c => gs.castles[c.n].fac === '고구려' && en.plotTargets(gs, c.n).length).n;
+    const tgt = en.plotTargets(gs, home)[0];
+    ok('계략 대상 = 맞닿은 남의 거점', en.castleDef(home).adj.includes(tgt) && gs.castles[tgt].fac !== '고구려');
+    const plotter = en.idleAt(gs, home)[0];
+    plotter.ji = 100; plotter.jg = 100;
+    const sec0 = gs.castles[tgt].sec;
+    const hitR = tries(30, () => {
+      gs.castles[home].gold = 5000; plotter.done = false;
+      const r = en.doPlot(gs, home, plotter.id, '유언비어', tgt);
+      return r.ok && r.hit ? r : null;
+    });
+    ok('유언비어가 치안을 깎는다', !!hitR && gs.castles[tgt].sec < sec0, hitR ? `−${hitR.eff.sec}` : '30회 모두 실패');
+    ok('계략은 명령을 소모한다', plotter.done && !en.doPlot(gs, home, plotter.id, '유언비어', tgt).ok);
+    const tf = gs.castles[tgt].fac;
+    const victim = en.officersAt(gs, tgt).find(o => o.fac === tf && !en.isLord(gs, o.id));
+    if (victim) {
+      const loy0 = victim.loy;
+      tries(30, () => { gs.castles[home].gold = 5000; plotter.done = false; const r = en.doPlot(gs, home, plotter.id, '이간', tgt, victim.id); return r.hit ? r : null; });
+      ok('이간이 충성을 깎는다', victim.loy < loy0, `${loy0}→${victim.loy}`);
+      ok('충성 85 이상이면 유혹 가망이 낮다', (() => { const k = victim.loy; victim.loy = 99; const p = en.plotChance(gs, '유혹', plotter.id, tgt, victim.id); victim.loy = k; return p <= 0.1; })());
+      victim.loy = 20;
+      const lure = tries(40, () => { gs.castles[home].gold = 5000; plotter.done = false; const r = en.doPlot(gs, home, plotter.id, '유혹', tgt, victim.id); return r.hit ? r : null; });
+      ok('유혹하면 우리 편으로 온다', !!lure && victim.fac === '고구려' && victim.loc === home);
+    } else ok('이간이 충성을 깎는다', true, '대상 무장 없음');
+    const lordT = en.officersAt(gs, tgt).find(o => en.isLord(gs, o.id));
+    ok('군주에게는 이간이 안 통한다', !lordT || !en.doPlot(gs, home, en.idleAt(gs, home)[0].id, '이간', tgt, lordT.id).ok);
+
+    // 사자 외교
+    const gd3 = en.newGame('신라', 9494);
+    const smart = { jg: 100, ji: 100 }, dull = { jg: 10, ji: 10 };
+    ok('정치 높은 사자가 동맹 가망을 올린다', en.allyChance(gd3, '신라', '가야', smart) > en.allyChance(gd3, '신라', '가야', dull));
+    const capS = FACTIONS['신라'].cap;
+    const env = en.idleAt(gd3, capS)[0];
+    gd3.castles[capS].gold = 3000;
+    const gr = en.doGift(gd3, '신라', '가야', 500, { src: capS, envoy: env.id });
+    ok('친선은 사자 명령을 소모하고 그 거점 자금이 든다', gr.ok && env.done && gd3.castles[capS].gold === 2500, gr.why);
+    ok('수도를 잃어도 외교 자금은 내 거점에서', (() => {
+      const g2 = en.newGame('백제', 1212); const cp = FACTIONS['백제'].cap;
+      g2.castles[cp].fac = '마한';
+      return en.purseOf(g2, '백제').fac === '백제';
+    })());
+    // 공동작전
+    const gj = en.newGame('고구려', 3434);
+    gj.factions['부여'].rel['고구려'] = 'ally'; gj.factions['고구려'].rel['부여'] = 'ally';
+    gj.factions['부여'].att['고구려'] = 100;
+    const jt = en.jointTargets(gj, '고구려', '부여');
+    ok('공동작전 대상 = 동맹과 맞닿은 교전 상대의 거점', jt.every(n => en.atWar(gj, '고구려', gj.castles[n].fac)), `${jt.length}곳`);
+    if (jt.length) {
+      const jr = tries(20, () => { const c = en.purseOf(gj, '고구려'); c.gold = 5000; const r = en.doJoint(gj, '고구려', '부여', jt[0]); return r.accepted ? r : null; });
+      ok('공동작전을 받으면 동맹이 곧장 친다', !!jr && typeof jr.battle.win === 'boolean' && gj.log.some(x => x.k === 'joint'));
+    } else ok('공동작전을 받으면 동맹이 곧장 친다', true, '대상 없음(지형)');
+    // 항복 권고
+    const gq = en.newGame('마한', 5656);
+    // ★3배가 넘는 상대에게 doDemand 를 부르면 실제로 항복해 나라가 사라진다 — 비율이 모자란 쌍에만 부른다
+    const weakPair = Object.keys(FACTIONS).find(f => f !== '마한' && en.demandRatio(gq, '마한', f) < 3);
+    ok('세력 차이 3배 미만이면 권고 불가', !weakPair || !en.doDemand(gq, '마한', weakPair).ok, weakPair || '해당 없음');
+    for (const n of en.factionCastles(gq, '마한')) gq.castles[n].troops.보병 = 200000;
+    const small = Object.keys(FACTIONS).filter(f => f !== '마한' && gq.factions[f].alive)
+      .sort((a, b) => en.factionCastles(gq, a).length - en.factionCastles(gq, b).length)[0];
+    ok('압도하면 가망이 생긴다', en.demandChance(gq, '마한', small) > 0, `${small} 비 ${en.demandRatio(gq, '마한', small).toFixed(1)}`);
+    const sc = en.factionCastles(gq, small);
+    const dq = tries(40, () => { en.purseOf(gq, '마한').gold = 5000; const r = en.doDemand(gq, '마한', small); return r.accepted ? r : null; });
+    ok('항복하면 거점·무장이 넘어온다', !!dq && sc.every(n => gq.castles[n].fac === '마한') && !gq.factions[small].alive &&
+      en.factionOfficers(gq, small).length === 0);
+
+    // 방어전
+    const gdf = en.newGame('백제', 4545);
+    gdf.holdAttacks = true;
+    const myN = FACTIONS['백제'].cap;
+    const enemyN = en.castleDef(myN).adj.find(x => gdf.castles[x].fac !== '백제');
+    const ef = gdf.castles[enemyN].fac;
+    en.doDeclareWar(gdf, ef, '백제');
+    gdf.castles[enemyN].troops = { 보병: 40000, 기병: 20000, 궁병: 10000 };
+    gdf.factions[ef].aggr = 1;
+    for (const x of Object.values(gdf.castles)) if (x.fac === '백제') x.troops = { 보병: 300, 기병: 0, 궁병: 0 };
+    let inc = null;
+    for (let i = 0; i < 12 && !inc; i++) { gdf.incoming = []; en.aiTurn(gdf, ef); inc = (gdf.incoming || []).find(x => x.af === ef); }
+    ok('사람 거점 공격은 바로 판정하지 않고 쌓인다', !!inc && gdf.castles[inc.to].fac === '백제', inc ? `${inc.from}→${inc.to}` : '침공 없음');
+    if (inc) {
+      ok('침공이 유효하다', en.incomingValid(gdf, inc));
+      const aT0 = en.troopTotal(gdf.castles[inc.from]);
+      const bd = BT3.start(gdf, inc.from, inc.to, [], en, { human: 'D', atkRatio: inc.ratio });
+      ok('방어 전투 개시(사람=수비)', !!bd && bd.human === 'D' && BT3.sideUnits(bd, 'A').length > 0 && BT3.sideUnits(bd, 'A').every(u => u.gar));
+      let gg = 0;
+      while (bd && !bd.over && gg++ < 4000) BT3.aiStep(bd);
+      ok('방어 전투가 끝난다', !!bd && !!bd.over, bd && bd.over ? bd.over.why : '');
+      const sentN = BT3.sideUnits(bd, 'A').length >= 0 ? bd.units.filter(u => u.side === 'A').reduce((x, u) => x + u.maxHp, 0) : 0;
+      const survN = bd.units.filter(u => u.side === 'A').reduce((x, u) => x + u.hp, 0);
+      const out = BT3.applyResult(gdf, bd, en);
+      const aT1 = en.troopTotal(gdf.castles[inc.from]);
+      ok('주둔군 공격 부대의 병력이 출발 거점에 맞게 남는다',
+        out.win ? aT1 === aT0 - sentN : aT1 === aT0 - sentN + survN, `${aT0}→${aT1} (보냄 ${sentN} · 생존 ${survN} · ${out.win ? '함락' : '격퇴'})`);
+      ok('방어 결과가 전투와 일치', out.captured === (gdf.castles[inc.to].fac === ef));
+    }
+    const gdf2 = en.newGame('백제', 4546);
+    gdf2.incoming = [{ from: enemyN, to: myN, af: gdf2.castles[enemyN].fac, ratio: 0.8 }];
+    en.doDeclareWar(gdf2, gdf2.castles[enemyN].fac, '백제');
+    en.nextTurn(gdf2);
+    ok('묻지 않은 침공은 달이 넘어갈 때 자동 판정', (gdf2.incoming || []).length === 0 &&
+      gdf2.log.some(x => x.k === 'battle' && x.to === myN));
+
+    // AI 계략·포로 처분이 섞여도 36턴 무사고
+    const gz3 = en.newGame('고구려', 1357);
+    gz3.holdAttacks = true;
+    let bad3 = null;
+    for (let i = 0; i < 36 && !bad3; i++) {
+      en.aiTurn(gz3, gz3.player); en.runAllAI(gz3); en.nextTurn(gz3);
+      for (const o of Object.values(gz3.officers)) {
+        if (o.captive && (o.fac || o.dead)) bad3 = `포로 상태 모순 ${o.id}`;
+        if (o.captive && !gz3.factions[o.captive]) bad3 = `없는 세력의 포로 ${o.id}`;
+        if (!o.dead && !gz3.castles[o.loc]) bad3 = `없는 거점 ${o.id} @${o.loc}`;
+        if (o.fac && !gz3.factions[o.fac].alive && en.factionCastles(gz3, o.fac).length === 0 && o.fac !== gz3.player) {
+          // 망한 나라에 남은 무장은 월말 checkDead 뒤에도 소속만 남는다 — 기존 동작
+        }
+      }
+      for (const c of Object.values(gz3.castles)) if (!num(c.sec) || c.sec < 0) bad3 = `치안 이상 @${c.n}`;
+    }
+    ok('v3 36턴 무사고', !bad3, bad3 || `포로 로그 ${gz3.log.filter(x => x.k === 'captive').length} · 계략 ${gz3.log.filter(x => x.k === 'plot').length} · 투항 ${gz3.log.filter(x => x.k === 'turned').length}`);
+    ok('AI 가 계략을 쓴다', gz3.log.some(x => x.k === 'plot'));
+    ok('v3 문구가 양쪽 언어에 있다', ['c_포로', 'c_유혹', 'c_항복권고', 'defTitle', 'goalDef', 'repCapTook', 'adv_captive']
+      .every(k => I18N.ko[k] != null && typeof I18N.ko[k] === typeof I18N.en[k]));
+  }
+
   // ── 60턴 무인 진행 ─────────────────────────
   const s = en.newGame('고구려', 77);
   let bad = null, battles = 0, caps = 0;

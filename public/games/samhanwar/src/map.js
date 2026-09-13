@@ -202,5 +202,11 @@ const MapView = (() => {
   }
   function setBadges(b) { badges = b; }
 
-  return { init, draw, resize, select, focus, setGame, setBadges, get sel() { return sel; } };
+  // 자동화·검증용 — 거점의 화면(뷰포트) 좌표
+  function screenOf(n) {
+    const c = BY_N[n]; if (!c || !cv) return null;
+    const [x, y] = toScreen(c.x, c.y), r = cv.getBoundingClientRect();
+    return { x: r.left + x, y: r.top + y };
+  }
+  return { init, draw, resize, select, focus, setGame, setBadges, screenOf, get sel() { return sel; } };
 })();

@@ -301,8 +301,10 @@ h1 .hj{color:var(--ink3);font-weight:400;font-size:.4em;letter-spacing:.1em;
 /* ── 전투 화면 ───────────────────────────── */
 #btl{position:fixed;inset:0;background:rgba(6,8,5,.9);z-index:52;display:flex;
   align-items:center;justify-content:center;padding:16px}
-.btlbox{background:var(--panel);border:1px solid var(--line2);border-radius:4px;
-  width:100%;max-width:1080px;max-height:96vh;display:flex;flex-direction:column;overflow:hidden}
+.btlbox{position:relative;background:var(--panel);border:1px solid var(--line2);border-radius:4px;
+  width:100%;max-width:1080px;max-height:96vh;display:flex;flex-direction:column;overflow:hidden;
+  /* ★높이를 정해 두지 않으면 판 칸 크기가 '지금 판 크기'에서 다시 계산돼 18px 로 굳는다(09-13 스크린샷: 1080px 창에 360px 판) */
+  height:min(96vh,900px)}
 .btltop{display:flex;align-items:center;gap:16px;padding:11px 16px;
   border-bottom:1px solid var(--line);background:var(--surface);flex-wrap:wrap}
 .btltop b{font-family:"Gowun Batang",serif;font-size:17px}
@@ -329,7 +331,7 @@ h1 .hj{color:var(--ink3);font-weight:400;font-size:.4em;letter-spacing:.1em;
 .brow button:disabled{opacity:.35;cursor:default}
 .brow.skills button{border-color:color-mix(in srgb,var(--hwangto) 45%,transparent);
   color:var(--hwangto);padding:6px 12px;font-size:12.5px}
-.btltoast{position:absolute;left:50%;bottom:110px;transform:translate(-50%,10px);
+.btltoast{position:absolute;left:50%;top:84px;transform:translate(-50%,-6px);
   background:var(--surface);border:1px solid var(--line2);border-left:3px solid var(--hwangto);
   padding:9px 16px;border-radius:3px;font-size:13px;opacity:0;pointer-events:none;
   transition:opacity .16s,transform .16s;max-width:80%}
@@ -355,7 +357,7 @@ h1 .hj{color:var(--ink3);font-weight:400;font-size:.4em;letter-spacing:.1em;
 .cline .hot{color:var(--hwangto)}
 .polchip{background:var(--sunk);border:1px solid var(--line2);border-radius:2px;color:var(--ink2);
   font-size:11.5px;padding:3px 8px;white-space:nowrap}
-.ccats{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:8px}
+.ccats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:8px}
 .ccat{background:var(--surface);border:1px solid var(--line2);border-radius:3px;padding:8px 0;
   font-size:13px;font-weight:600;color:var(--ink2)}
 .ccat.on{background:var(--jusa);border-color:var(--jusa);color:#16110F}
@@ -383,7 +385,7 @@ html[lang="en"] .ccat{font-size:11.5px;font-weight:500}
 .dlgx{position:absolute;right:8px;top:8px;background:transparent;border:0;color:var(--ink3);
   font-size:20px;line-height:1;padding:4px 8px;z-index:2}
 .dhead .dcat{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;color:var(--hwangto)}
-.dhead h3{font-family:"Gowun Batang",serif;font-size:24px;margin:2px 0 4px;font-weight:700}
+.dhead h3{font-family:"Gowun Batang",serif;font-size:24px;margin:2px 0 4px;font-weight:700;word-break:keep-all}
 .dhead p{margin:0 0 14px;color:var(--ink2);font-size:13px;line-height:1.6}
 .dpick h4,.dparams h4,.rsec h4{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;
   text-transform:uppercase;color:var(--ink3);margin:6px 0 7px;font-weight:500}
@@ -439,6 +441,16 @@ html[lang="en"] .ccat{font-size:11.5px;font-weight:500}
 .fbal2 b{color:var(--ink)} .fbal2 span{display:block;font-size:11.5px;margin-top:2px;color:var(--ink3)}
 .fbal2.good span{color:var(--nokcheong)} .fbal2.warn span{color:var(--hwangto)} .fbal2.bad span{color:var(--jusa)}
 
+/* 포로 처우 */
+.capcard{display:grid;grid-template-columns:28px 1fr auto;gap:6px 9px;align-items:center;background:var(--panel);
+  border:1px solid var(--line);border-left:3px solid var(--hwangto);border-radius:3px;padding:8px 10px;margin-bottom:6px}
+.capacts{grid-column:1/-1;display:flex;gap:5px;flex-wrap:wrap}
+.capacts button{background:var(--surface);border:1px solid var(--line2);border-radius:3px;padding:6px 10px;font-size:12.5px}
+.capacts button.hire{color:var(--nokcheong);border-color:color-mix(in srgb,var(--nokcheong) 45%,transparent)}
+.capacts button.kill{color:var(--jusa);border-color:color-mix(in srgb,var(--jusa) 45%,transparent)}
+.capacts button:disabled{opacity:.4;cursor:default}
+#btlgoal{font-size:12px;color:var(--hwangto)}
+
 /* 월초 보고 */
 .rgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
 .rcell{background:var(--panel);border-radius:3px;padding:8px 10px;display:flex;flex-direction:column;min-width:0}
@@ -487,6 +499,8 @@ html[lang="en"] .ccat{font-size:11.5px;font-weight:500}
   #next{flex:1}
 }
 @media (max-width:540px){
+  /* ★폰에선 전투 머리가 세 줄로 접혀 위에 띄운 안내가 목표 문구·차례 종료를 덮었다 — 아래로 */
+  .btltoast{top:auto;bottom:112px}
   .dcost{flex-basis:100%;margin-right:0}
   .dfoot{justify-content:flex-end}
   .rgrid{grid-template-columns:1fr 1fr}
@@ -589,6 +603,7 @@ html[lang="en"] .ccat{font-size:11.5px;font-weight:500}
       <b id="i-btl"></b>
       <span id="btlturn">—</span>
       <span id="btlforce"></span>
+      <span id="btlgoal"></span>
       <button id="btlend"></button>
     </div>
     <div class="btlwrap"><canvas id="btlmap"></canvas></div>

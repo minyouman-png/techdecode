@@ -127,7 +127,7 @@ function garrisonTotal(g, n) {
   return troopTotal(c) + corpsAt(g, n, c.fac).reduce((s, o) => s + o.corps.n, 0);
 }
 function wildAt(g, n) {
-  return Object.values(g.officers).filter(o => o.loc === n && o.fac === null && o.found);
+  return Object.values(g.officers).filter(o => o.loc === n && o.fac === null && o.found && !o.captive && !o.dead);
 }
 
 // ──────────────────────────────────────────── 산출 공식 (설계서와 1:1)
@@ -415,8 +415,17 @@ function advise(g, fid) {
       const rel = relOf(g, fid, tc.fac), theirs = garrisonTotal(g, to);
       if (rel === 'war' && theirs >= Math.max(2000, mineG * 1.5))
         out.push({ k: 'threat', n, to, v: +(theirs / Math.max(1, mineG)).toFixed(1), pri: 80, s: theirs / Math.max(1, mineG) });
-      if (rel !== 'ally' && !truce(tc.fac) && corps > 0 && corps >= theirs * 1.3)
-        out.push({ k: 'target', n, to, v: +(corps / Math.max(1, theirs)).toFixed(1), pri: 40, s: corps / Math.max(1, theirs) });
+      // ★부대만 셌더니 부대를 안 만든 사람에게는 24개월 동안 한 번도 '칠 만합니다'가 안 나왔다(09-13 자유 플레이).
+      //   부대가 없으면 출진 창이 쓰는 주둔군 8할을 doAttack 과 같은 전력식으로 견준다.
+      if (rel !== 'ally' && !truce(tc.fac)) {
+        const his = castlePower(g, tc) * 1.28 + tc.wall * 0.15;
+        const mineP = corps > 0
+          ? corpsAt(g, n, fid).reduce((x, o) => x + power(c, o.corps.unit, o.corps.n, o), 0)
+          : castlePower(g, c) * 0.8;
+        const r = mineP / Math.max(1, his);
+        if (r >= 1.3 && (corps > 0 ? corps : troopTotal(c) * 0.8) >= 1000)
+          out.push({ k: 'target', n, to, v: +r.toFixed(1), pri: 40, s: r });
+      }
     }
     const idle = idleAt(g, n).length;
     const wild = wildAt(g, n);
@@ -429,9 +438,299 @@ function advise(g, fid) {
     const c = g.castles[o.loc];
     if (o.loy < 40 && c && c.fac === fid) out.push({ k: 'loy', n: o.loc, off: o.id, v: Math.round(o.loy), pri: 70, s: 40 - o.loy });
   }
+  const cps = captivesOf(g, fid);
+  if (cps.length) out.push({ k: 'captive', n: cps[0].loc, v: cps.length, pri: 65, s: cps.length });
   out.sort((a, b) => b.pri - a.pri || b.s - a.s);
   const seen = new Set();
   return out.filter(x => (seen.has(x.k) ? false : (seen.add(x.k), true)));
+}
+
+// ──────────────────────────────────────────── 3단계 — 포로·계략·사자 외교·방어전 (2026-09-13 v3)
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+// 군주 — 사료의 군주 이름과 같은 무장, 없으면 그 세력에서 가장 뛰어난 충성 100 무장
+const LORD_ID = (() => {
+  const out = {};
+  for (const [fid, F] of Object.entries(FACTIONS)) {
+    const mine = OFFICERS.filter(o => o.fac === fid);
+    const l = mine.find(o => o.nm === F.lord) ||
+      mine.slice().sort((x, y) => (y.loy - x.loy) || ((y.mu + y.ji + y.jg) - (x.mu + x.ji + x.jg)))[0];
+    if (l) out[fid] = l.id;
+  }
+  return out;
+})();
+function isLord(g, id) { const o = g.officers[id]; return !!o && !!o.fac && LORD_ID[o.fac] === id; }
+
+// 거점 그래프에서 가장 가까운 그 세력의 거점
+function nearestOwned(g, fid, from) {
+  const seen = new Set([from]), q = [from];
+  while (q.length) {
+    const n = q.shift();
+    if (g.castles[n] && g.castles[n].fac === fid) return n;
+    for (const x of castleDef(n).adj) if (!seen.has(x)) { seen.add(x); q.push(x); }
+  }
+  return null;
+}
+// 자금이 나갈 거점 — 수도를 빼앗겼으면 가장 넉넉한 거점
+function purseOf(g, fid) {
+  const cap = g.factions[fid] && g.factions[fid].cap;
+  if (g.castles[cap] && g.castles[cap].fac === fid) return g.castles[cap];
+  const mine = factionCastles(g, fid).map(n => g.castles[n]).sort((x, y) => y.gold - x.gold);
+  return mine[0] || g.castles[cap];
+}
+function envoyBonus(o) { return o ? (o.jg * 0.6 + o.ji * 0.4 - 55) / 200 : 0; }
+function envoyOf(g, a, opt) {
+  const src = opt && opt.src != null && g.castles[opt.src] && g.castles[opt.src].fac === a ? g.castles[opt.src] : purseOf(g, a);
+  if (!opt || !opt.envoy) return { src, o: null };
+  const o = g.officers[opt.envoy];
+  if (!o || o.fac !== a || o.loc !== src.n) return { why: '그 거점의 무장이 아닙니다' };
+  if (o.done) return { why: '이미 이번 달 명령을 받았습니다' };
+  return { src, o };
+}
+function spendEnvoy(o) { if (o) { o.done = true; o.exp += 10; } }
+
+// 함락 — 성에 있던 무장은 사로잡히거나 이웃 거점으로 달아나고, 달아날 곳이 없으면 재야로 흩어진다
+function settleFallen(g, n, oldFac, newFac, leadMu) {
+  const flee = castleDef(n).adj.filter(x => g.castles[x].fac === oldFac);
+  const caught = [], fled = [], scattered = [];
+  for (const o of Object.values(g.officers)) {
+    if (o.loc !== n || o.fac !== oldFac) continue;
+    o.corps = null;
+    let p = flee.length ? clamp(0.35 + ((leadMu || 60) - o.mu) / 200, 0.1, 0.7) : 0.85;
+    if (LORD_ID[oldFac] === o.id && flee.length) p = Math.min(p, 0.3);   // 군주는 먼저 빼돌린다
+    if (newFac && rndOf(g) < p) {
+      o.captive = newFac; o.capFrom = oldFac; o.prevLoy = o.loy; o.capTurn = g.turn;
+      o.fac = null; o.loy = 0; o.found = true;
+      caught.push(o.id);
+    } else if (flee.length) {
+      o.loc = flee[Math.floor(rndOf(g) * flee.length)];
+      o.loy = Math.max(0, o.loy - 4);
+      fled.push(o.id);
+    } else {
+      o.fac = null; o.loy = 0; o.found = true;
+      scattered.push(o.id);
+    }
+  }
+  if (caught.length) g.log.push({ t: g.turn, k: 'captive', n, fac: newFac, from: oldFac, ids: caught });
+  if (fled.length) g.log.push({ t: g.turn, k: 'fled', n, fac: oldFac, ids: fled });
+  return { caught, fled, scattered };
+}
+
+function captivesOf(g, fid) { return Object.values(g.officers).filter(o => o.captive === fid && !o.dead); }
+function hireCaptiveChance(g, id) {
+  const o = g.officers[id];
+  if (!o || !o.captive) return 0;
+  const from = g.factions[o.capFrom], alive = !!(from && from.alive);
+  if (alive && LORD_ID[o.capFrom] === id) return 0;                  // 살아 있는 나라의 군주는 굽히지 않는다
+  const prev = o.prevLoy == null ? 80 : o.prevLoy;
+  return clamp(0.12 + (100 - prev) / 120 + (alive ? 0 : 0.35) + Math.min(6, g.turn - (o.capTurn || g.turn)) * 0.04, 0.03, 0.9);
+}
+function releaseCaptive(g, o, why) {
+  const from = o.capFrom, alive = g.factions[from] && g.factions[from].alive;
+  const home = alive ? nearestOwned(g, from, o.loc) : null;
+  const captor = o.captive;
+  o.captive = null;
+  if (home != null) { o.fac = from; o.loc = home; o.loy = Math.min(100, (o.prevLoy == null ? 70 : o.prevLoy) + 3); }
+  else { o.fac = null; o.loy = 0; o.found = true; }
+  g.log.push({ t: g.turn, k: 'freed', off: o.id, by: captor, fac: from, home, why });
+  delete o.capFrom; delete o.prevLoy; delete o.capTurn; delete o.capTry;
+  return home;
+}
+function doCaptive(g, fid, id, act) {
+  const o = g.officers[id];
+  if (!o || o.captive !== fid || o.dead) return { ok: false, why: '우리가 잡은 포로가 아닙니다' };
+  if (act === 'hire') {
+    if (o.capTry === g.turn) return { ok: false, why: '이번 달엔 이미 설득했습니다' };
+    o.capTry = g.turn;
+    const p = hireCaptiveChance(g, id);
+    if (p > 0 && rndOf(g) < p) {
+      const from = o.capFrom;
+      o.captive = null; o.fac = fid; o.loy = 50 + Math.round(rndOf(g) * 15); o.done = true;
+      delete o.capFrom; delete o.prevLoy; delete o.capTurn; delete o.capTry;
+      g.log.push({ t: g.turn, k: 'turned', off: id, fac: fid, from });
+      return { ok: true, joined: true, chance: p };
+    }
+    return { ok: true, joined: false, chance: p };
+  }
+  if (act === 'free') {
+    const from = o.capFrom;
+    const home = releaseCaptive(g, o, 'free');
+    if (home != null) addAtt(g, from, fid, 10);
+    return { ok: true, home };
+  }
+  if (act === 'kill') {
+    const from = o.capFrom, alive = g.factions[from] && g.factions[from].alive;
+    o.captive = null; o.dead = true; o.fac = null; o.loc = -1; o.corps = null;
+    if (alive) addAtt(g, from, fid, -25);
+    for (const f of Object.keys(g.factions)) if (f !== fid && f !== from) addAtt(g, f, fid, -4);
+    for (const x of factionOfficers(g, fid)) x.loy = Math.max(0, x.loy - 1.5);   // 보는 눈이 있다
+    g.log.push({ t: g.turn, k: 'executed', off: id, by: fid, fac: from });
+    return { ok: true };
+  }
+  return { ok: false, why: '없는 처분' };
+}
+// 월말 — 성을 빼앗기면 포로는 풀려나고, 가끔은 스스로 달아난다
+function processCaptives(g) {
+  for (const o of Object.values(g.officers)) {
+    if (!o.captive || o.dead) continue;
+    const c = g.castles[o.loc];
+    if (!c || c.fac !== o.captive) releaseCaptive(g, o, 'lost');
+    else if (rndOf(g) < 0.05) releaseCaptive(g, o, 'escape');
+  }
+}
+
+// 계략 — 인접한 남의 거점(동맹 제외)에 지력으로 건다
+const PLOTS = {
+  유언비어: { cost: 100, officer: false },
+  선동: { cost: 200, officer: false },
+  이간: { cost: 100, officer: true },
+  유혹: { cost: 300, officer: true },
+};
+function plotTargets(g, n) {
+  const fid = g.castles[n].fac;
+  return castleDef(n).adj.filter(x => g.castles[x].fac !== fid && relOf(g, fid, g.castles[x].fac) !== 'ally');
+}
+function defWit(g, n) { const o = bestOfficer(g, n, 'ji'); return o ? o.ji : 30; }
+function plotChance(g, kind, offId, to, targetId) {
+  const o = g.officers[offId], tc = g.castles[to], t = targetId ? g.officers[targetId] : null;
+  if (!o || !tc) return 0;
+  if (kind === '유언비어') return clamp(0.3 + (o.ji - defWit(g, to)) / 90, 0.05, 0.9);
+  if (kind === '선동') return clamp(0.15 + (o.ji - defWit(g, to)) / 110 + (50 - tc.sec) / 150, 0.03, 0.8);
+  if (!t) return 0;
+  if (kind === '이간') return isLord(g, t.id) ? 0 : clamp(0.3 + (o.ji - t.ji) / 90, 0.05, 0.9);
+  if (kind === '유혹') return isLord(g, t.id) ? 0 : clamp((85 - t.loy) / 45 + (o.jg - t.ji) / 250, 0.02, 0.8);
+  return 0;
+}
+function doPlot(g, n, offId, kind, to, targetId) {
+  const c = g.castles[n], o = g.officers[offId], P = PLOTS[kind];
+  if (!P) return { ok: false, why: '없는 계략' };
+  if (!o || o.loc !== n || o.fac !== c.fac) return { ok: false, why: '그 거점의 무장이 아닙니다' };
+  if (o.done) return { ok: false, why: '이미 이번 달 명령을 받았습니다' };
+  if (!plotTargets(g, n).includes(to)) return { ok: false, why: '이 거점과 맞닿은 남의 거점이 아닙니다' };
+  const tc = g.castles[to], tf = tc.fac;
+  let t = null;
+  if (P.officer) {
+    t = g.officers[targetId];
+    if (!t || t.loc !== to || t.fac !== tf) return { ok: false, why: '그 거점의 무장이 아닙니다' };
+    if (isLord(g, t.id)) return { ok: false, why: '군주에게는 통하지 않습니다' };
+  }
+  if (c.gold < P.cost) return { ok: false, why: `자금이 모자랍니다 (${P.cost} 필요)` };
+  const p = plotChance(g, kind, offId, to, targetId);
+  c.gold -= P.cost;
+  o.done = true; o.exp += 14;
+  const hit = rndOf(g) < p;
+  const eff = {};
+  if (hit) {
+    if (kind === '유언비어') {
+      eff.sec = Math.min(tc.sec, Math.round(6 + o.ji / 10 + rndOf(g) * 4));
+      tc.sec -= eff.sec; tc.morale = Math.max(5, tc.morale - 4);
+    } else if (kind === '선동') {
+      eff.sec = Math.min(tc.sec, Math.round(12 + o.ji / 8));
+      tc.sec -= eff.sec;
+      eff.desert = 0;
+      for (const u of UNIT_KEYS) { const k = Math.round(tc.troops[u] * 0.06); tc.troops[u] -= k; eff.desert += k; }
+      tc.pop = Math.round(tc.pop * 0.98);
+      if (tc.sec < 20) g.log.push({ t: g.turn, k: 'revolt', n: to });
+    } else if (kind === '이간') {
+      eff.loy = Math.min(t.loy, Math.round(6 + o.ji / 8));
+      t.loy -= eff.loy;
+    } else if (kind === '유혹') {
+      if (t.corps && t.corps.n > 0) {
+        const room = Math.max(0, castleDef(to).garr - troopTotal(tc));
+        tc.troops[t.corps.unit] += Math.min(t.corps.n, room);
+      }
+      t.corps = null; t.fac = c.fac; t.loc = n; t.loy = 45 + Math.round(rndOf(g) * 15); t.done = true;
+      eff.joined = true;
+    }
+  } else {
+    addAtt(g, tf, c.fac, rndOf(g) < 0.5 ? -8 : -3);          // 들키면 원한을 산다
+  }
+  g.log.push({ t: g.turn, k: 'plot', kind, by: c.fac, from: n, n: to, tf, ok: hit, eff, off: offId, target: targetId || null });
+  return { ok: true, hit, chance: p, eff };
+}
+
+// 공동작전 — 동맹에게 그 거점을 쳐 달라고 청한다. 받아들이면 이번 달에 곧장 친다.
+function jointSources(g, ally, to) {
+  return castleDef(to).adj.filter(x => g.castles[x].fac === ally)
+    .sort((x, y) => garrisonTotal(g, y) - garrisonTotal(g, x));
+}
+function jointTargets(g, a, ally) {
+  return CASTLES.map(c => c.n).filter(n => {
+    const f = g.castles[n].fac;
+    return f !== a && f !== ally && atWar(g, a, f) && relOf(g, ally, f) !== 'ally' &&
+      !((g.factions[ally].truce[f] || 0) > 0) && jointSources(g, ally, n).length;
+  });
+}
+function jointChance(g, a, ally, envoy) { return clamp((attOf(g, ally, a) - 40) / 60 + envoyBonus(envoy), 0.05, 0.9); }
+const JOINT_COST = 300;
+function doJoint(g, a, ally, to, opt) {
+  if (relOf(g, a, ally) !== 'ally') return { ok: false, why: '동맹이 아닙니다' };
+  if (!jointTargets(g, a, ally).includes(to)) return { ok: false, why: '동맹이 칠 수 있는 교전 상대의 거점이 아닙니다' };
+  const ev = envoyOf(g, a, opt);
+  if (ev.why) return { ok: false, why: ev.why };
+  if (ev.src.gold < JOINT_COST) return { ok: false, why: `자금이 모자랍니다 (${JOINT_COST} 필요)` };
+  const p = jointChance(g, a, ally, ev.o);
+  ev.src.gold -= JOINT_COST;
+  spendEnvoy(ev.o);
+  if (rndOf(g) >= p) { addAtt(g, ally, a, -2); return { ok: true, accepted: false, chance: p }; }
+  const from = jointSources(g, ally, to)[0];
+  const battle = doAttack(g, from, to, 0.7);
+  addAtt(g, ally, a, -4);
+  g.log.push({ t: g.turn, k: 'joint', a, ally, from, to, win: battle.win, captured: battle.captured });
+  return { ok: true, accepted: true, chance: p, from, battle };
+}
+
+// 항복 권고 — 거점도 병력도 세 배는 되어야 귀를 기울인다
+function powerOf(g, fid) { return factionCastles(g, fid).reduce((x, n) => x + garrisonTotal(g, n), 0); }
+function demandRatio(g, a, b) {
+  const hc = factionCastles(g, b).length;
+  return Math.min(factionCastles(g, a).length / Math.max(1, hc), powerOf(g, a) / Math.max(1, powerOf(g, b)));
+}
+function demandChance(g, a, b, envoy) {
+  const r = demandRatio(g, a, b);
+  if (r < 3) return 0;
+  return clamp((r - 3) / 8 + 0.08 + envoyBonus(envoy) + (attOf(g, b, a) - 50) / 400 +
+    (factionCastles(g, b).length <= 1 ? 0.1 : 0), 0.03, 0.6);
+}
+const DEMAND_COST = 500;
+function doDemand(g, a, b, opt) {
+  if (!g.factions[b] || !g.factions[b].alive || a === b) return { ok: false, why: '없는 세력' };
+  if (relOf(g, a, b) === 'ally') return { ok: false, why: '동맹에게는 권하지 않습니다' };
+  if (demandRatio(g, a, b) < 3) return { ok: false, why: '세력 차이가 세 배는 되어야 귀를 기울입니다' };
+  const ev = envoyOf(g, a, opt);
+  if (ev.why) return { ok: false, why: ev.why };
+  if (ev.src.gold < DEMAND_COST) return { ok: false, why: `자금이 모자랍니다 (${DEMAND_COST} 필요)` };
+  const p = demandChance(g, a, b, ev.o);
+  ev.src.gold -= DEMAND_COST;
+  spendEnvoy(ev.o);
+  if (rndOf(g) >= p) { addAtt(g, b, a, -10); return { ok: true, accepted: false, chance: p }; }
+  const castles = factionCastles(g, b);
+  for (const n of castles) g.castles[n].fac = a;
+  for (const o of Object.values(g.officers)) {
+    if (o.fac === b) { o.fac = a; o.loy = LORD_ID[b] === o.id ? 65 : 55; o.done = true; }
+    if (o.captive === b) o.captive = a;
+  }
+  g.factions[b].alive = false;
+  for (const f of Object.values(g.factions)) { f.rel[b] = 'peace'; delete f.truce[b]; }
+  g.log.push({ t: g.turn, k: 'surrender', a, b, castles: castles.length });
+  return { ok: true, accepted: true, chance: p, castles: castles.length };
+}
+
+// 방어전 — AI 가 사람 거점을 칠 때 쌓아 둔 침공
+function incomingValid(g, x) {
+  const a = g.castles[x.from], d = g.castles[x.to];
+  if (!a || !d || a.fac !== x.af || d.fac !== g.player) return false;
+  if (relOf(g, x.af, g.player) === 'ally' || (g.factions[x.af].truce[g.player] || 0) > 0) return false;
+  return Math.round(troopTotal(a) * x.ratio) > 0;
+}
+function incomingForce(g, x) { return Math.round(troopTotal(g.castles[x.from]) * x.ratio); }
+function defendAuto(g, x) {
+  if (!incomingValid(g, x)) return { ok: false, why: '침공이 무산되었습니다' };
+  return doAttack(g, x.from, x.to, x.ratio);
+}
+function resolveIncoming(g) {
+  const list = g.incoming || [];
+  g.incoming = [];
+  for (const x of list) defendAuto(g, x);
 }
 
 // ──────────────────────────────────────────── 외교
@@ -479,16 +778,21 @@ function doDeclareWar(g, a, b) {
 }
 
 // 강화 — 자금을 얹어 청한다. 상대가 이기고 있으면 잘 받지 않는다.
-function doPeace(g, a, b, gold) {
-  if (!atWar(g, a, b)) return { ok: false, why: '전쟁 중이 아닙니다' };
-  const cap = g.castles[g.factions[a].cap];
-  gold = Math.max(0, Math.floor(gold || 0));
-  if (cap.gold < gold) return { ok: false, why: `자금이 모자랍니다 (${gold} 필요)` };
+function peaceChance(g, a, b, gold, envoy) {
   const mine = factionCastles(g, a).length, his = factionCastles(g, b).length;
   const edge = his / Math.max(1, mine);          // 상대가 우세하면 콧대가 높다
-  const p = Math.max(0.05, Math.min(0.95,
-    (attOf(g, b, a) / 100) * 0.6 + gold / 4000 + (1 - Math.min(2, edge)) * 0.25));
+  return clamp((attOf(g, b, a) / 100) * 0.6 + (gold || 0) / 4000 + (1 - Math.min(2, edge)) * 0.25 + envoyBonus(envoy), 0.05, 0.95);
+}
+function doPeace(g, a, b, gold, opt) {
+  if (!atWar(g, a, b)) return { ok: false, why: '전쟁 중이 아닙니다' };
+  const ev = envoyOf(g, a, opt);
+  if (ev.why) return { ok: false, why: ev.why };
+  const cap = ev.src;
+  gold = Math.max(0, Math.floor(gold || 0));
+  if (cap.gold < gold) return { ok: false, why: `자금이 모자랍니다 (${gold} 필요)` };
+  const p = peaceChance(g, a, b, gold, ev.o);
   cap.gold -= gold;
+  spendEnvoy(ev.o);
   if (rndOf(g) < p) {
     setRel(g, a, b, 'peace');
     g.factions[a].truce[b] = 12; g.factions[b].truce[a] = 12;   // 1년간 재선전포고 금지
@@ -501,10 +805,16 @@ function doPeace(g, a, b, gold) {
 }
 
 // 동맹 — 호감이 높아야 받는다
-function doAlly(g, a, b) {
+function allyChance(g, a, b, envoy) {
+  return clamp((attOf(g, b, a) - 55) / 45 + envoyBonus(envoy), 0.02, 0.9);
+}
+function doAlly(g, a, b, opt) {
   if (atWar(g, a, b)) return { ok: false, why: '전쟁 중에는 맺지 못합니다' };
   if (relOf(g, a, b) === 'ally') return { ok: false, why: '이미 동맹입니다' };
-  const p = Math.max(0.02, Math.min(0.9, (attOf(g, b, a) - 55) / 45));
+  const ev = envoyOf(g, a, opt);
+  if (ev.why) return { ok: false, why: ev.why };
+  const p = allyChance(g, a, b, ev.o);
+  spendEnvoy(ev.o);
   if (rndOf(g) < p) {
     setRel(g, a, b, 'ally');
     addAtt(g, b, a, 10);
@@ -523,12 +833,16 @@ function doBreakAlly(g, a, b) {
 }
 
 // 예물 — 호감을 산다
-function doGift(g, a, b, gold) {
-  const cap = g.castles[g.factions[a].cap];
+function giftGain(gold, envoy) { return Math.round(gold / 120 * (envoy ? 0.75 + envoy.jg / 200 : 1)); }
+function doGift(g, a, b, gold, opt) {
+  const ev = envoyOf(g, a, opt);
+  if (ev.why) return { ok: false, why: ev.why };
+  const cap = ev.src;
   gold = Math.max(100, Math.floor(gold));
   if (cap.gold < gold) return { ok: false, why: `자금이 모자랍니다 (${gold} 필요)` };
   cap.gold -= gold;
-  const gain = Math.round(gold / 120);
+  spendEnvoy(ev.o);
+  const gain = giftGain(gold, ev.o);
   addAtt(g, b, a, gain);
   return { ok: true, gain };
 }
@@ -601,7 +915,7 @@ function doRecruitOfficer(g, n, offId, targetId) {
   const c = g.castles[n], o = g.officers[offId], t = g.officers[targetId];
   if (!o || o.loc !== n || o.fac !== c.fac) return { ok: false, why: '그 거점의 무장이 아닙니다' };
   if (o.done) return { ok: false, why: '이미 이번 달 명령을 받았습니다' };
-  if (!t || t.loc !== n || t.fac !== null) return { ok: false, why: '이 거점의 재야 인물이 아닙니다' };
+  if (!t || t.loc !== n || t.fac !== null || t.captive || t.dead) return { ok: false, why: '이 거점의 재야 인물이 아닙니다' };
   if (!t.found) return { ok: false, why: '아직 찾지 못한 사람입니다' };
   o.done = true; o.exp += 8;
   const td = officerDef(targetId);
@@ -711,10 +1025,8 @@ function doAttack(g, from, to, send, offIds) {
       }
       d.train = a.train; d.morale = Math.min(100, a.morale + 8);
       d.wall = Math.round(castleDef(to).wall * 0.4);
-      // 함락된 쪽 무장은 포로가 되어 흩어진다. 부대는 사라진다.
-      for (const o of officersAt(g, to)) {
-        if (o.fac === old) { o.fac = null; o.loy = 0; o.corps = null; o.found = true; }
-      }
+      // 함락된 쪽 무장은 사로잡히거나 이웃 거점으로 달아난다. 부대는 사라진다.
+      settleFallen(g, to, old, a.fac, lead ? lead.mu : 60);
       checkDead(g, old);
     }
   } else {
@@ -951,6 +1263,7 @@ function endMonth(g) {
       else f.att[o] += f.att[o] < 50 ? 0.3 : -0.2;
     }
   }
+  processCaptives(g);
   for (const fid of Object.keys(g.factions)) checkDead(g, fid);
   runEvents(g);
 }
@@ -972,6 +1285,7 @@ function levelUp(g, o) {
 function troopCap(o) { return 1200 + o.lv * 300; }
 
 function nextTurn(g) {
+  resolveIncoming(g);
   endMonth(g);
   g.turn++;
   g.month++;
@@ -1000,10 +1314,28 @@ function aiTurn(g, fid) {
   const offs = factionOfficers(g, fid).filter(o => !o.done);
   const aggr = g.factions[fid].aggr;
 
+  // 포로 — AI 는 처단하지 않는다. 설득해 보고, 안 되면 가끔 풀어 준다.
+  for (const cp of captivesOf(g, fid)) {
+    const r1 = doCaptive(g, fid, cp.id, 'hire');
+    if (r1.ok && !r1.joined && rndOf(g) < 0.25) doCaptive(g, fid, cp.id, 'free');
+  }
+
   for (const o of offs) {
     const c = g.castles[o.loc];
     if (!c || c.fac !== fid) continue;
     const r = rndOf(g);
+    // 지략가는 가끔 이웃에게 계략을 건다 — 사람 세력도 당하는 쪽이 되어야 한다
+    if (o.ji >= 72 && c.gold > 500 && r < 0.05) {
+      const tg = plotTargets(g, c.n).filter(x => relOf(g, fid, g.castles[x].fac) === 'war' || attOf(g, fid, g.castles[x].fac) < 40);
+      if (tg.length) {
+        const to = tg[Math.floor(rndOf(g) * tg.length)];
+        const victims = officersAt(g, to).filter(x => x.fac === g.castles[to].fac && !isLord(g, x.id));
+        const r2 = victims.length && rndOf(g) < 0.35
+          ? doPlot(g, c.n, o.id, '이간', to, victims[Math.floor(rndOf(g) * victims.length)].id)
+          : doPlot(g, c.n, o.id, '유언비어', to);
+        if (r2.ok) continue;
+      }
+    }
     // 병력이 얇으면 채우고, 곳간이 얇으면 상업, 아니면 농업/치안
     // ★채우는 선(0.75)이 나가는 선(0.5)보다 위여야 한다. 반대로 두면 둘 사이에서 굳는다.
     if (troopTotal(c) < castleDef(c.n).garr * 0.75 && c.gold > 600) {
@@ -1046,7 +1378,12 @@ function aiTurn(g, fid) {
     const mine_p = castlePower(g, c) * 0.8;
     const his_p = castlePower(g, g.castles[t]) * 1.28 + g.castles[t].wall * 0.15;
     if (mine_p > his_p * (1.15 + (1 - aggr) * 0.45) && rndOf(g) < 0.35 + aggr * 0.45) {
-      doAttack(g, n, t, 0.8);
+      // ★사람 세력의 거점을 칠 때는 바로 판정하지 않고 쌓아 둔다 — 화면이 요격·농성을 묻는다.
+      //   아무도 묻지 않으면(자가검증·자동 진행) nextTurn 이 자동 판정한다.
+      if (g.holdAttacks && g.castles[t].fac === g.player) {
+        g.incoming = g.incoming || [];
+        if (!g.incoming.some(x => x.to === t)) g.incoming.push({ from: n, to: t, af: fid, ratio: 0.8 });
+      } else doAttack(g, n, t, 0.8);
     }
   }
 }
@@ -1116,5 +1453,11 @@ function loadState(s) {
     grainPrice, sellPrice, tradeCap, tradeLeft, doTrade,
     POLICIES, policyOf, setPolicy, runDelegated,
     devRange, trainGain, searchChance, hireChance, idleAt, idleCastles, advise,
+    LORD_ID, isLord, nearestOwned, purseOf, envoyBonus, settleFallen,
+    captivesOf, hireCaptiveChance, doCaptive, processCaptives,
+    PLOTS, plotTargets, plotChance, doPlot, defWit,
+    peaceChance, allyChance, giftGain, jointTargets, jointSources, jointChance, doJoint, JOINT_COST,
+    powerOf, demandRatio, demandChance, doDemand, DEMAND_COST,
+    incomingValid, incomingForce, defendAuto, resolveIncoming,
   };
 })();

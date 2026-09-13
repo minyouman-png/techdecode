@@ -141,12 +141,15 @@ function enterGame(fresh) {
   $('#game').hidden = false;
   MapView.init($('#map'), G, pickCastle);
   MapView.setGame(G);
+  // ★AI 가 내 거점을 칠 때 바로 판정하지 않고 요격·농성을 묻는다(v3 방어전)
+  if (!G.skirmish) G.holdAttacks = true;
   const cap = E().factionCastles(G, G.player).includes(FACTIONS[G.player].cap)
     ? FACTIONS[G.player].cap : (E().factionCastles(G, G.player)[0] || FACTIONS[G.player].cap);
   pickCastle(cap);
   MapView.focus(cap);
   render();
   if (fresh && !Store.get('samhan_guide')) openGuide();
+  else if (G.incoming && G.incoming.length) { monthCtx = { before: snapshot(), was: { y: G.year, m: G.month } }; handleIncoming(); }
 }
 
 // ────────────────────────────────────────── 렌더
@@ -261,9 +264,11 @@ function renderPanel() {
   // 무장
   const here = en.officersAt(G, picked);
   const ours = here.filter(o => o.fac === c.fac);
-  const wild = here.filter(o => o.fac === null && o.found);
+  const wild = here.filter(o => o.fac === null && o.found && !o.captive && !o.dead);
+  const caps = here.filter(o => o.captive && !o.dead);
   const hiddenCount = here.filter(o => o.fac === null && !o.found).length;
   if (ours.length) box.appendChild(offList(t('here'), ours, own));
+  if (caps.length && own) box.appendChild(offList(t('capHere'), caps, own, 'cap'));
   if (wild.length) box.appendChild(offList(t('wild'), wild, own, true));
   if (own && hiddenCount) box.appendChild(el('p', 'note', t('hidden', hiddenCount)));
 }
@@ -283,11 +288,13 @@ function offList(title, list, own, isWild) {
         ${o.fac ? `<span class="loy"><i style="width:${Math.round(o.loy)}%"></i></span>` : ''}
       </span>
       <span class="ostat"><i>${t('abMu')}</i>${o.mu}<i>${t('abJi')}</i>${o.ji}<i>${t('abJg')}</i>${o.jg}</span>`;
-    // 재야 카드를 누르면 곧장 등용 명령으로, 아군 카드는 열전으로
-    b.onclick = () => (isWild && own ? openCmd('등용', picked, { target: o.id }) : openBio(o.id));
+    // 재야 카드를 누르면 곧장 등용 명령으로, 포로 카드는 포로 처우로, 아군 카드는 열전으로
+    const cap = isWild === 'cap';
+    const act = () => (cap ? openCmd('포로', picked) : isWild && own ? openCmd('등용', picked, { target: o.id }) : openBio(o.id));
+    b.onclick = act;
     b.oncontextmenu = ev => { ev.preventDefault(); openBio(o.id); };
-    const info = el('span', 'bioBtn', isWild && own ? t('c_등용') : t('bio'));
-    info.onclick = ev => { ev.stopPropagation(); isWild && own ? openCmd('등용', picked, { target: o.id }) : openBio(o.id); };
+    const info = el('span', 'bioBtn', cap ? t('c_포로') : isWild && own ? t('c_등용') : t('bio'));
+    info.onclick = ev => { ev.stopPropagation(); act(); };
     b.appendChild(info);
     wrap.appendChild(b);
   }
@@ -304,12 +311,13 @@ function portraitTag(id, d, lazy = true) {
 }
 
 // ────────────────────────────────────────── 명령 메뉴
-const CATS = ['내정', '군사', '인사', '외교', '정보'];
+const CATS = ['내정', '군사', '인사', '계략', '외교', '정보'];
 const MENU = {
   내정: ['농업', '상업', '치안', '축성', '수송', '매매', '방침'],
   군사: ['징집', '훈련', '편성', '해산', '출진'],
-  인사: ['탐색', '등용', '포상', '이동'],
-  외교: ['외교창'],
+  인사: ['탐색', '등용', '포상', '이동', '포로'],
+  계략: ['유언비어', '선동', '이간', '유혹'],
+  외교: ['친선', '동맹', '강화', '공동작전', '항복권고', '선전포고', '파기'],
   정보: ['거점일람', '세력일람'],
 };
 let cmdCat = '내정';
@@ -662,19 +670,261 @@ const CMD = {
     },
   },
 
+  포로: {
+    off: false, noExec: true,
+    block: () => (E().captivesOf(G, G.player).length ? null : t('capNone')),
+    more: () => E().captivesOf(G, G.player).length > 0,
+    params: (s, box) => {
+      const en = E(), list = en.captivesOf(G, G.player);
+      if (!list.length) { box.appendChild(el('p', 'note', t('capNone'))); return false; }
+      for (const o of list) {
+        const d = en.officerDef(o.id), p = en.hireCaptiveChance(G, o.id);
+        const lord = en.LORD_ID[o.capFrom] === o.id;
+        const card = el('div', 'capcard');
+        card.dataset.off = o.id;
+        card.innerHTML = `<span class="por sm">${portraitTag(o.id, d)}</span>
+          <span class="pn"><b>${offName(d)}</b><i>${t('capFromAt', facName(o.capFrom), castleName(o.loc))}${lord ? ` · ${t('lordMark')}` : ''}</i></span>
+          <span class="pst"><i>${t('abMu')}</i>${o.mu} <i>${t('abJi')}</i>${o.ji} <i>${t('abJg')}</i>${o.jg}</span>`;
+        const acts = el('div', 'capacts');
+        const b1 = el('button', 'hire', o.capTry === G.turn ? t('capTried') : `${t('capHire')} · ${t('chance', Math.round(p * 100))}`);
+        b1.disabled = o.capTry === G.turn || p === 0;
+        b1.onclick = () => capAct(o.id, 'hire');
+        const b2 = el('button', 'free', t('capFree'));
+        b2.onclick = () => capAct(o.id, 'free');
+        const b3 = el('button', 'kill', s.pv.kill === o.id ? t('capKillSure') : t('capKill'));
+        b3.onclick = () => { if (s.pv.kill !== o.id) { s.pv.kill = o.id; drawCmd(); return; } capAct(o.id, 'kill'); };
+        acts.append(b1, b2, b3);
+        card.appendChild(acts);
+        box.appendChild(card);
+      }
+      box.appendChild(el('p', 'hint', t('capHint')));
+      return true;
+    },
+  },
+
+  유언비어: plotCmd('유언비어'), 선동: plotCmd('선동'), 이간: plotCmd('이간'), 유혹: plotCmd('유혹'),
+
+  친선: diploCmd({
+    list: () => othersAlive(),
+    params: (s, box) => {
+      s.pv.amount = s.pv.amount || 300;
+      field(box, t('p_amount'), segEl([[300, costG(300)], [500, costG(500)], [1000, costG(1000)]], s.pv.amount,
+        v => { s.pv.amount = +v; drawCmd(); }));
+    },
+    preview: (o, s) => t('regardGain', E().giftGain(s.pv.amount || 300, o)),
+    exec: s => {
+      const r = E().doGift(G, G.player, s.pv.fac, s.pv.amount, { src: s.n, envoy: s.off });
+      return r.ok ? { ok: true, msg: t('rGift', facName(s.pv.fac), r.gain) } : r;
+    },
+  }),
+  동맹: diploCmd({
+    list: () => othersAlive().filter(f => E().relOf(G, G.player, f) === 'peace'),
+    hint: 'allyHint',
+    preview: (o, s) => t('chance', Math.round(E().allyChance(G, G.player, s.pv.fac, o) * 100)),
+    exec: s => {
+      const r = E().doAlly(G, G.player, s.pv.fac, { src: s.n, envoy: s.off });
+      if (!r.ok) return r;
+      return { ok: true, good: r.accepted, msg: r.accepted ? t('rAllyY', facName(s.pv.fac)) : t('rRefuse', facName(s.pv.fac), Math.round(r.chance * 100)) };
+    },
+  }),
+  강화: diploCmd({
+    list: () => othersAlive().filter(f => E().atWar(G, G.player, f)),
+    hint: 'peaceHint',
+    params: (s, box) => {
+      if (s.pv.amount == null) s.pv.amount = 500;
+      field(box, t('p_amount'), segEl([[0, t('noGold')], [500, costG(500)], [1000, costG(1000)]], s.pv.amount,
+        v => { s.pv.amount = +v; drawCmd(); }));
+    },
+    preview: (o, s) => t('chance', Math.round(E().peaceChance(G, G.player, s.pv.fac, s.pv.amount || 0, o) * 100)),
+    exec: s => {
+      const r = E().doPeace(G, G.player, s.pv.fac, s.pv.amount, { src: s.n, envoy: s.off });
+      if (!r.ok) return r;
+      return { ok: true, good: r.accepted, msg: r.accepted ? t('rPeaceY', facName(s.pv.fac)) : t('rRefuse', facName(s.pv.fac), Math.round(r.chance * 100)) };
+    },
+  }),
+  공동작전: diploCmd({
+    list: () => othersAlive().filter(f => E().relOf(G, G.player, f) === 'ally' && E().jointTargets(G, G.player, f).length),
+    hint: 'jointHint', cost: () => costG(E().JOINT_COST),
+    params: (s, box) => {
+      const en = E(), tg = en.jointTargets(G, G.player, s.pv.fac);
+      if (!tg.includes(+s.pv.to)) s.pv.to = tg[0];
+      field(box, t('p_target'), selectEl(tg.map(x => [x, `${castleName(x)} · ${facName(G.castles[x].fac)} · ${nf(en.garrisonTotal(G, x))}`]),
+        s.pv.to, v => { s.pv.to = +v; drawCmd(); }));
+      const src = en.jointSources(G, s.pv.fac, +s.pv.to)[0];
+      if (src != null) box.appendChild(el('p', 'hint', t('jointFrom', facName(s.pv.fac), castleName(src), nf(en.troopTotal(G.castles[src])))));
+    },
+    preview: (o, s) => t('chance', Math.round(E().jointChance(G, G.player, s.pv.fac, o) * 100)),
+    exec: s => {
+      const to = +s.pv.to, nm = castleName(to), ally = facName(s.pv.fac);
+      const r = E().doJoint(G, G.player, s.pv.fac, to, { src: s.n, envoy: s.off });
+      if (!r.ok) return r;
+      if (!r.accepted) return { ok: true, good: false, msg: t('rRefuse', ally, Math.round(r.chance * 100)) };
+      return { ok: true, good: r.battle.win, msg: r.battle.captured ? t('rJointCap', ally, nm) : r.battle.win ? t('rJointWin', ally, nm) : t('rJointLose', ally, nm) };
+    },
+  }),
+  항복권고: diploCmd({
+    list: () => othersAlive().filter(f => E().relOf(G, G.player, f) !== 'ally'),
+    hint: 'demandHint', cost: () => costG(E().DEMAND_COST),
+    params: (s, box) => {
+      const r = E().demandRatio(G, G.player, s.pv.fac);
+      box.appendChild(el('p', 'hint tot', t('demandRatio', r.toFixed(1))));
+      return r >= 3;
+    },
+    preview: (o, s) => t('chance', Math.round(E().demandChance(G, G.player, s.pv.fac, o) * 100)),
+    exec: s => {
+      const fac = facName(s.pv.fac);
+      const r = E().doDemand(G, G.player, s.pv.fac, { src: s.n, envoy: s.off });
+      if (!r.ok) return r;
+      return { ok: true, good: r.accepted, msg: r.accepted ? t('rSurr', fac, r.castles) : t('rRefuse', fac, Math.round(r.chance * 100)) };
+    },
+  }),
+  선전포고: diploCmd({
+    envoy: false, hint: 'warHint',
+    list: () => { const nb = new Set(E().neighbors(G, G.player)); return othersAlive().filter(f => nb.has(f) && E().relOf(G, G.player, f) === 'peace' && !(G.factions[G.player].truce[f] > 0)); },
+    exec: s => {
+      const r = E().doDeclareWar(G, G.player, s.pv.fac);
+      return r.ok ? { ok: true, good: false, msg: t('rWar', facName(s.pv.fac)) } : r;
+    },
+  }),
+  파기: diploCmd({
+    envoy: false, hint: 'unallyHint',
+    list: () => othersAlive().filter(f => E().relOf(G, G.player, f) === 'ally'),
+    exec: s => {
+      const r = E().doBreakAlly(G, G.player, s.pv.fac);
+      return r.ok ? { ok: true, good: false, msg: t('rUnally', facName(s.pv.fac)) } : r;
+    },
+  }),
+
   외교창: { go: () => showTab('pane-diplo') },
   거점일람: { go: () => openInfo('castles') },
   세력일람: { go: () => openInfo('factions') },
 };
+
+function othersAlive() { return Object.values(G.factions).filter(f => f.alive && f.id !== G.player).map(f => f.id); }
+function relLabel(fid) {
+  const tr = G.factions[G.player].truce[fid] || 0;
+  return tr ? t('truce') : relName(E().relOf(G, G.player, fid));
+}
+
+// 계략 — 대상 거점(과 무장)을 먼저 고르고, 지력 순 무장이 가망과 함께 나온다
+function plotCmd(kind) {
+  const P = () => E().PLOTS[kind];
+  return {
+    off: true, idle: true, stat: 'ji', paramsFirst: true,
+    cost: () => costG(E().PLOTS[kind].cost),
+    block: n => (E().plotTargets(G, n).length ? null : t('plotNone')),
+    preview: (o, s) => (s.pv.to != null && (!P().officer || s.pv.target)
+      ? t('chance', Math.round(E().plotChance(G, kind, o.id, +s.pv.to, s.pv.target) * 100)) : ''),
+    params: (s, box) => {
+      const en = E(), tg = en.plotTargets(G, s.n);
+      if (!tg.length) { box.appendChild(el('p', 'note', t('plotNone'))); return false; }
+      if (!tg.includes(+s.pv.to)) { s.pv.to = tg[0]; s.pv.target = null; }
+      field(box, t('p_target'), selectEl(tg.map(x => [x,
+        `${castleName(x)} · ${facName(G.castles[x].fac)} · ${t('치안')} ${Math.round(G.castles[x].sec)} · ${t('st_ji')} ${en.defWit(G, x)}`]),
+        s.pv.to, v => { s.pv.to = +v; s.pv.target = null; drawCmd(); }));
+      if (P().officer) {
+        const tc = G.castles[+s.pv.to];
+        const list = en.officersAt(G, +s.pv.to).filter(o => o.fac === tc.fac && !en.isLord(G, o.id))
+          .sort((x, y) => x.loy - y.loy);
+        if (!list.length) { box.appendChild(el('p', 'note', t('plotNoOfficer'))); return false; }
+        if (!list.some(o => o.id === s.pv.target)) s.pv.target = list[0].id;
+        box.appendChild(el('h4', null, t('p_victim')));
+        for (const w of list) {
+          const d = en.officerDef(w.id);
+          const b = el('button', 'tgt' + (w.id === s.pv.target ? ' on' : ''));
+          b.type = 'button';
+          b.innerHTML = `<span class="por sm">${portraitTag(w.id, d)}</span>
+            <span class="pn"><b>${offName(d)}</b><i>${t('lv')}${w.lv}</i></span>
+            <span class="pst"><i>${t('st_loy')}</i>${Math.round(w.loy)} <i>${t('st_ji')}</i>${w.ji}</span>`;
+          b.onclick = () => { s.pv.target = w.id; Sound.sfx('click'); drawCmd(); };
+          box.appendChild(b);
+        }
+      }
+      box.appendChild(el('p', 'hint', t('ph_' + kind)));
+      return true;
+    },
+    exec: s => {
+      const to = +s.pv.to, tf = G.castles[to].fac;
+      const tn = castleName(to), vn = s.pv.target ? offName(E().officerDef(s.pv.target)) : '';
+      const r = E().doPlot(G, s.n, s.off, kind, to, s.pv.target);
+      if (!r.ok) return r;
+      if (!r.hit) return { ok: true, good: false, msg: t('rPlotFail', tn, facName(tf), Math.round(r.chance * 100)) };
+      if (kind === '유혹') s.pv.target = null;
+      return { ok: true, good: true, msg: kind === '유언비어' ? t('rRumor', tn, r.eff.sec)
+        : kind === '선동' ? t('rIncite', tn, r.eff.sec, nf(r.eff.desert))
+        : kind === '이간' ? t('rDiscord', vn, r.eff.loy) : t('rLure', vn, castleName(s.n)) };
+    },
+  };
+}
+
+// 외교 — 사자를 보낼 거점·상대 세력을 먼저 고르고, 정치 순 무장이 사자로 나온다
+function diploCmd(o) {
+  const envoy = o.envoy !== false;
+  return {
+    off: envoy, idle: true, stat: 'jg', paramsFirst: true, cost: o.cost,
+    block: () => (o.list().length ? null : t('facNone')),
+    preview: o.preview && ((off, s) => (s.pv.fac ? o.preview(off, s) : '')),
+    params: (s, box) => {
+      const en = E(), list = o.list();
+      if (envoy) {
+        const mine = en.factionCastles(G, G.player).sort((x, y) => x - y);
+        field(box, t('p_src'), selectEl(mine.map(n => [n,
+          `${castleName(n)} · ${t('idleShort', en.idleAt(G, n).length)} · ${t('gold')} ${nf(G.castles[n].gold)}`]),
+          s.n, v => { s.n = +v; s.off = null; drawCmd(); }));
+      }
+      if (!list.length) { box.appendChild(el('p', 'note', t('facNone'))); return false; }
+      if (!list.includes(s.pv.fac)) s.pv.fac = list[0];
+      field(box, t('p_fac'), selectEl(list.map(f => [f,
+        `${facName(f)} · ${relLabel(f)} · ${t('thAtt')} ${Math.round(en.attOf(G, f, G.player))} · ${t('castlesN')} ${en.factionCastles(G, f).length}`]),
+        s.pv.fac, v => { s.pv.fac = v; drawCmd(); }));
+      const extra = o.params ? o.params(s, box) : true;
+      if (o.hint) box.appendChild(el('p', 'hint', t(o.hint)));
+      return extra !== false;
+    },
+    exec: o.exec,
+  };
+}
+// 외교 탭에서 부를 때 — 사자를 낼 수 있는 거점을 고른다
+function envoyCastle() {
+  const en = E();
+  if (picked != null && G.castles[picked].fac === G.player && en.idleAt(G, picked).length) return picked;
+  const best = en.factionCastles(G, G.player)
+    .map(n => ({ n, k: en.idleAt(G, n).length, g: G.castles[n].gold }))
+    .sort((x, y) => ((y.k > 0) - (x.k > 0)) || y.g - x.g)[0];
+  return best ? best.n : en.purseOf(G, G.player).n;
+}
+
+function capAct(id, act) {
+  const en = E(), o = G.officers[id], nm = offName(en.officerDef(id)), from = o.capFrom;
+  const r = en.doCaptive(G, G.player, id, act);
+  if (!r.ok) return toast(r.why, 'bad');
+  const msg = act === 'hire' ? (r.joined ? t('rCapHireY', nm) : t('rCapHireN', nm, Math.round(r.chance * 100)))
+    : act === 'free' ? (r.home != null ? t('rCapFree', nm, facName(from)) : t('rCapFreeWild', nm))
+    : t('rCapKill', nm);
+  Sound.sfx(act === 'hire' && r.joined ? 'ok' : act === 'kill' ? 'no' : 'click');
+  cs.pv.kill = null;
+  cs.res = { msg, off: act === 'kill' ? null : id, good: act === 'hire' ? r.joined : undefined };
+  save(); render(); drawCmd();
+}
 
 // ────────────────────────────────────────── 명령 창 — 명령 → 무장 → 조건 → 결과
 let cs = null;   // {id, n, off, pv, res}
 function openCmd(id, n, pv) {
   cs = { id, n, off: null, pv: Object.assign({}, pv || {}), res: null };
   $('#cmd').hidden = false;
+  $('#cmd .dlgx').hidden = false;
   drawCmd();
 }
-function closeCmd() { $('#cmd').hidden = true; cs = null; }
+function closeCmd() {
+  // ★방어전은 달 넘기기 한가운데다 — 결판을 내기 전에는 닫히지 않고, 닫으면 다음 침공으로 이어진다
+  if (cs && cs.id === '방어') {
+    if (!cs.res) return;
+    $('#cmd').hidden = true; cs = null;
+    handleIncoming();
+    return;
+  }
+  $('#cmd').hidden = true; cs = null;
+}
 
 function candidates(def, n) {
   const c = G.castles[n];
@@ -694,6 +944,7 @@ function dlgHead(box, cat, id, where, title) {
 function drawCmd() {
   if (!cs) return;
   if (cs.id === '출진') return drawAttack();
+  if (cs.id === '방어') return drawDefense();
   const en = E(), def = CMD[cs.id], box = $('#cmdBody'), c = G.castles[cs.n];
   box.innerHTML = '';
   dlgHead(box, catOf(cs.id), cs.id, castleName(cs.n));
@@ -733,10 +984,13 @@ function drawCmd() {
   const cost = def.cost ? def.cost(c) : '';
   foot.appendChild(el('span', 'dcost', `${cost ? t('costIs', cost) + ' · ' : ''}${t('purse', nf(c.gold), nf(c.food))}`));
   const cl = el('button', 'dcl', t('close')); cl.onclick = closeCmd;
-  const go = el('button', 'dgo', cs.id === '방침' ? t('setBtn') : t('exec'));
-  go.disabled = !can;
-  go.onclick = runCmd;
-  foot.append(cl, go);
+  foot.appendChild(cl);
+  if (!def.noExec) {
+    const go = el('button', 'dgo', cs.id === '방침' ? t('setBtn') : cs.id === '선전포고' ? t('c_선전포고') : t('exec'));
+    go.disabled = !can;
+    go.onclick = runCmd;
+    foot.appendChild(go);
+  }
   box.appendChild(foot);
 }
 
@@ -761,10 +1015,10 @@ function drawResult(box, def) {
   }
   box.appendChild(wrap);
   const foot = el('div', 'dfoot');
-  foot.appendChild(el('span', 'dcost', cs.id === '출진' ? '' : t('purse', nf(G.castles[cs.n].gold), nf(G.castles[cs.n].food))));
-  const cl = el('button', 'dcl', t('close')); cl.onclick = closeCmd;
+  foot.appendChild(el('span', 'dcost', cs.id === '출진' || cs.id === '방어' ? '' : t('purse', nf(G.castles[cs.n].gold), nf(G.castles[cs.n].food))));
+  const cl = el('button', 'dcl', cs.id === '방어' ? t('defNext') : t('close')); cl.onclick = closeCmd;
   foot.appendChild(cl);
-  const more = def.once ? false
+  const more = def.once ? false : def.more ? def.more()
     : def.off ? candidates(def, cs.n).some(o => !(def.idle && o.done)) : true;
   if (more) {
     const a = el('button', 'dgo alt', t('cmdAgain'));
@@ -822,6 +1076,7 @@ function openAttack(from, to) {
   cs = { id: '출진', n: from != null ? from : to, off: null, res: null,
          pv: { from, to, fixFrom: from != null } };
   $('#cmd').hidden = false;
+  $('#cmd .dlgx').hidden = false;
   drawAttack();
 }
 
@@ -889,8 +1144,10 @@ function drawAttack() {
   // ★들어가기 전에 양쪽 병력을 보여 준다. 3,600 으로 14,000 을 치러 들어가면 학살당한다.
   const theirs = en.garrisonTotal(G, to);
   const ratio = theirs > 0 ? mine / theirs : 9;
-  const verdict = ratio >= 1.6 ? [t('v_plenty'), 'good'] : ratio >= 1.0 ? [t('v_even'), '']
-    : ratio >= 0.6 ? [t('v_short'), 'warn'] : [t('v_none'), 'bad'];
+  // ★기준은 실측이다(09-13, 전술 전투 비율마다 24판): 1.0배 0% · 1.3배 46% · 1.6배 79% · 2.0배 96%.
+  //   예전 기준(1.0배 = 비등)은 한 판도 못 이기는 싸움을 해볼 만하다고 알려 줬다.
+  const verdict = ratio >= 1.8 ? [t('v_plenty'), 'good'] : ratio >= 1.3 ? [t('v_even'), '']
+    : ratio >= 0.9 ? [t('v_short'), 'warn'] : [t('v_none'), 'bad'];
   const bal = el('div', 'fbal2 ' + verdict[1]);
   bal.innerHTML = `${t('forceMine')} <b>${nf(mine)}</b> · ${t('forceTheirs')} <b>${nf(theirs)}</b>
     <span>${t('forceNote')} — ${verdict[0]}</span>`;
@@ -934,7 +1191,7 @@ function attackRun(tactical) {
       const out = window.SamhanBattle.applyResult(G, bb, en);
       Sound.sfx(out.captured ? 'capture' : 'lose');
       if (out.captured && window.CG) CG.happy();
-      toast(out.captured ? t('rCap', nm, nf(out.deadA), nf(out.deadD))
+      toast(out.captured ? t('rCap', nm, nf(out.deadA), nf(out.deadD)) + caughtNote(to)
         : t('rTacLose', bb.over.why, nf(out.deadA), nf(out.deadD)), out.captured ? 'good' : 'bad');
       save(); render();
       if (out.captured) goCastle(to);
@@ -948,10 +1205,80 @@ function attackRun(tactical) {
   cs.res = {
     off: r.lead && G.officers[r.lead] && G.officers[r.lead].fac === G.player ? r.lead : null,
     good: r.captured || r.win,
-    msg: r.captured ? t('rCap', nm, nf(r.deadA), nf(r.deadD))
+    msg: r.captured ? t('rCap', nm, nf(r.deadA), nf(r.deadD)) + caughtNote(to)
       : r.win ? t('rWin', nm, nf(r.deadA)) : t('rLose', nm, nf(r.deadA)),
   };
   save(); render(); drawAttack();
+}
+
+function caughtNote(to) {
+  const x = G.log.filter(v => v.k === 'captive' && v.t === G.turn && v.n === to && v.fac === G.player).pop();
+  return x ? ' ' + t('rCaught', x.ids.length) : '';
+}
+
+// ────────────────────────────────────────── 방어전 — 적이 내 거점을 칠 때 요격할지 농성할지
+let monthCtx = null;
+function openDefense(x) {
+  cs = { id: '방어', n: x.to, off: null, pv: { x }, res: null };
+  $('#cmd').hidden = false;
+  drawDefense();
+}
+function drawDefense() {
+  const en = E(), box = $('#cmdBody'), x = cs.pv.x, c = G.castles[x.to];
+  $('#cmd .dlgx').hidden = !cs.res;
+  box.innerHTML = '';
+  const head = el('div', 'dhead');
+  head.innerHTML = `<span class="dcat">${t('defKicker')} · ${t('ym', G.year, G.month)}</span>
+    <h3>${t('defTitle', facName(x.af), castleName(x.to))}</h3>
+    <p>${t('defLede', facName(x.af), castleName(x.from), castleName(x.to))}</p>`;
+  box.appendChild(head);
+  if (cs.res) return drawResult(box, { off: false, once: true });
+
+  const lead = en.bestOfficer(G, x.from, 'mu');
+  const theirs = en.incomingForce(G, x), mine = en.garrisonTotal(G, x.to);
+  const ratio = theirs > 0 ? mine * 1.28 / theirs : 9;
+  const verdict = ratio >= 1.6 ? [t('v_plenty'), 'good'] : ratio >= 1.0 ? [t('v_even'), '']
+    : ratio >= 0.6 ? [t('v_short'), 'warn'] : [t('v_none'), 'bad'];
+  const pbox = el('div', 'dparams');
+  const bal = el('div', 'fbal2 ' + verdict[1]);
+  bal.innerHTML = `${t('forceTheirs')} <b>${nf(theirs)}</b>${lead ? ` (${offName(en.officerDef(lead.id))})` : ''} ·
+    ${t('forceMine')} <b>${nf(mine)}</b> · ${t('성벽')} ${nf(c.wall)}<span>${t('defNote')} — ${verdict[0]}</span>`;
+  pbox.appendChild(bal);
+  pbox.appendChild(el('p', 'hint', t('defAutoHint')));
+  pbox.appendChild(el('p', 'hint', t('defTacHint')));
+  box.appendChild(pbox);
+
+  const foot = el('div', 'dfoot');
+  foot.appendChild(el('span', 'dcost', ''));
+  const auto = el('button', 'dgo alt', t('defAuto'));
+  auto.onclick = () => {
+    const r = en.defendAuto(G, x);
+    G.incoming.shift();
+    const nm = castleName(x.to);
+    Sound.sfx(r.captured ? 'lose' : 'ok');
+    cs.res = { good: !r.captured, msg: !r.ok ? t('defVoid') : r.captured ? t('defLost', nm, nf(r.deadD), nf(r.deadA))
+      : r.win ? t('defDamaged', nm, nf(r.deadD), nf(r.deadA)) : t('defHeld', nm, nf(r.deadD), nf(r.deadA)) };
+    save(); render(); drawDefense();
+  };
+  const tac = el('button', 'dgo', t('defTac'));
+  tac.disabled = mine <= 0;
+  tac.onclick = () => {
+    if (!en.atWar(G, x.af, G.player)) en.doDeclareWar(G, x.af, G.player);
+    const btl = window.SamhanBattle.start(G, x.from, x.to, [], en, { human: 'D', atkRatio: x.ratio });
+    if (!btl) return auto.onclick();
+    G.incoming.shift();
+    $('#cmd').hidden = true; cs = null;
+    BattleView.open(btl, (bb) => {
+      const out = window.SamhanBattle.applyResult(G, bb, en);
+      const nm = castleName(x.to);
+      toast(out.captured ? t('defLost', nm, nf(out.deadD), nf(out.deadA)) : t('defHeld', nm, nf(out.deadD), nf(out.deadA)),
+        out.captured ? 'bad' : 'good');
+      save(); render();
+      handleIncoming();
+    });
+  };
+  foot.append(auto, tac);
+  box.appendChild(foot);
 }
 
 // ────────────────────────────────────────── 명부
@@ -981,8 +1308,7 @@ function renderDiplo() {
   const en = E(), box = $('#diplo');
   box.innerHTML = '';
   const me = G.factions[G.player];
-  const cap = G.castles[me.cap];
-  const head = el('p', 'note', t('dCash', castleName(me.cap), nf(cap.gold)));
+  const head = el('p', 'note', t('dCash'));
   box.appendChild(head);
 
   const nb = new Set(en.neighbors(G, G.player));
@@ -1013,62 +1339,21 @@ function renderDiplo() {
     row.appendChild(left);
 
     const act = el('div', 'dact');
-    const mk = (label, fn, cls) => {
-      const b = el('button', cls, label); b.onclick = fn; act.appendChild(b);
+    const mk = (label, cmd, cls) => {
+      const b = el('button', cls, label);
+      b.onclick = () => openCmd(cmd, envoyCastle(), { fac: f.id });
+      act.appendChild(b);
     };
-    if (rel === 'war') {
-      mk(t('dPeace'), () => {
-        const r = en.doPeace(G, G.player, f.id, 500);
-        if (!r.ok) return toast(r.why);
-        toast(r.accepted
-          ? (LANG === 'ko' ? `${facName(f.id)}와(과) 화친했습니다. 1년간 다시 칠 수 없습니다.`
-                           : `${facName(f.id)} accepts. You cannot attack them for a year.`)
-          : (LANG === 'ko' ? `${facName(f.id)}이(가) 응하지 않았습니다. (가망 ${Math.round(r.chance*100)}%)`
-                           : `${facName(f.id)} refuses. (odds ${Math.round(r.chance*100)}%)`),
-          r.accepted ? 'good' : 'bad');
-        Sound.sfx(r.accepted ? 'ok' : 'no');
-        save(); render();
-      });
-    } else if (rel === 'ally') {
-      mk(t('dBreak'), () => {
-        if (!confirm(LANG === 'ko'
-          ? `${facName(f.id)}와(과)의 동맹을 파기하면 여러 세력이 등을 돌립니다. 그래도 하시겠습니까?`
-          : `Breaking with ${facName(f.id)} will turn several powers against you. Proceed?`)) return;
-        const r = en.doBreakAlly(G, G.player, f.id);
-        if (!r.ok) return toast(r.why);
-        toast(LANG === 'ko' ? `${facName(f.id)}와(과)의 동맹을 파기했습니다.`
-                             : `You have broken with ${facName(f.id)}.`, 'bad');
-        Sound.sfx('no'); save(); render();
-      }, 'war');
+    if (rel === 'war') mk(t('dPeace'), '강화');
+    else if (rel === 'ally') {
+      if (en.jointTargets(G, G.player, f.id).length) mk(t('dJoint'), '공동작전');
+      mk(t('dBreak'), '파기', 'war');
     } else {
-      if (isNb) mk(t('dWar'), () => {
-        if (!confirm(LANG === 'ko' ? `${facName(f.id)}에 선전포고하시겠습니까?`
-                                   : `Declare war on ${facName(f.id)}?`)) return;
-        const r = en.doDeclareWar(G, G.player, f.id);
-        if (!r.ok) return toast(r.why);
-        toast(LANG === 'ko' ? `${facName(f.id)}에 선전포고했습니다.`
-                             : `War declared on ${facName(f.id)}.`, 'bad');
-        Sound.sfx('no'); save(); render();
-      }, 'war');
-      mk(t('dAlly'), () => {
-        const r = en.doAlly(G, G.player, f.id);
-        if (!r.ok) return toast(r.why);
-        toast(r.accepted
-          ? (LANG === 'ko' ? `${facName(f.id)}와(과) 동맹을 맺었습니다.` : `${facName(f.id)} accepts the alliance.`)
-          : (LANG === 'ko' ? `${facName(f.id)}이(가) 응하지 않았습니다. (가망 ${Math.round(r.chance*100)}%)`
-                           : `${facName(f.id)} refuses. (odds ${Math.round(r.chance*100)}%)`),
-          r.accepted ? 'good' : '');
-        Sound.sfx(r.accepted ? 'ok' : 'no');
-        save(); render();
-      });
+      if (isNb && !truce) mk(t('dWar'), '선전포고', 'war');
+      mk(t('dAlly'), '동맹');
     }
-    mk(t('dGift'), () => {
-      const r = en.doGift(G, G.player, f.id, 300);
-      if (!r.ok) return toast(r.why);
-      toast(LANG === 'ko' ? `${facName(f.id)}에 예물을 보냈습니다. 호감 +${r.gain}`
-                           : `Gifts sent to ${facName(f.id)}. Regard +${r.gain}`);
-      Sound.sfx('ok'); save(); render();
-    });
+    mk(t('dGift'), '친선');
+    if (rel !== 'ally' && en.demandRatio(G, G.player, f.id) >= 3) mk(t('dDemand'), '항복권고');
     row.appendChild(act);
     box.appendChild(row);
   }
@@ -1209,13 +1494,26 @@ function snapshot() {
 
 let repPending = null;
 function doNextMonth() {
+  monthCtx = { before: snapshot(), was: { y: G.year, m: G.month } };
+  E().runAllAI(G);
+  handleIncoming();
+}
+// 쌓인 침공을 하나씩 묻고, 다 끝나면 달을 넘긴다
+function handleIncoming() {
+  const en = E(), list = G.incoming || [];
+  while (list.length && !en.incomingValid(G, list[0])) list.shift();
+  if (list.length) { save(); return openDefense(list[0]); }
+  G.incoming = [];
+  finishMonth();
+}
+function finishMonth() {
   const en = E();
-  const before = snapshot(), was = { y: G.year, m: G.month };
-  en.runAllAI(G);
+  const ctx = monthCtx || { before: snapshot(), was: { y: G.year, m: G.month } };
+  monthCtx = null;
   en.nextTurn(G);
   save(); render();
   Sound.sfx('month');
-  repPending = buildReport(before, snapshot(), was);
+  repPending = buildReport(ctx.before, snapshot(), ctx.was);
   // 이번 달에 일어난 사건을 차례로 보여 주고, 다 읽으면 보고를 올린다
   evQueue = G.log.filter(x => x.t === G.turn - 1 && x.k === 'event');
   if (evQueue.length) { Sound.sfx('event'); showEvent(); }
@@ -1232,6 +1530,12 @@ function buildReport(before, after, was) {
     revolts: L.filter(x => x.k === 'revolt' && G.castles[x.n] && G.castles[x.n].fac === me),
     gov: L.filter(x => x.k === 'gov'),
     falls: L.filter(x => x.k === 'fall'),
+    caught: L.filter(x => x.k === 'captive' && (x.fac === me || x.from === me)),
+    fled: L.filter(x => x.k === 'fled' && x.fac === me),
+    plots: L.filter(x => x.k === 'plot' && x.tf === me && x.by !== me),
+    freed: L.filter(x => x.k === 'freed' && (x.fac === me || x.by === me)),
+    turned: L.filter(x => x.k === 'turned' && x.from === me),
+    surr: L.filter(x => x.k === 'surrender' && x.a === me),
     advice: en.advise(G, me).slice(0, 3),
   };
 }
@@ -1274,6 +1578,23 @@ function showReport(rep) {
   for (const x of rep.revolts) lines.push([t('repRevolt', castleName(x.n)), 'bad']);
   if (rep.left.length) lines.push([t('repLeave', rep.left.map(x => offName(en.officerDef(x.off))).join(', ')), 'bad']);
   for (const x of rep.falls) lines.push([t('repFall', facName(x.fac)), '']);
+  const names = ids => ids.map(id => offName(en.officerDef(id))).join(', ');
+  for (const x of rep.caught) {
+    lines.push(x.fac === G.player ? [t('repCapTook', names(x.ids), castleName(x.n)), 'good']
+      : [t('repCapLost', names(x.ids), facName(x.fac)), 'bad']);
+  }
+  for (const x of rep.fled) lines.push([t('repFled', names(x.ids), castleName(x.n)), '']);
+  for (const x of rep.plots) {
+    lines.push(x.ok ? [t('repPlotHit', facName(x.by), t('c_' + x.kind), castleName(x.n)), 'bad']
+      : [t('repPlotMiss', facName(x.by), castleName(x.n)), 'good']);
+  }
+  for (const x of rep.freed) {
+    const nm = names([x.off]);
+    if (x.fac === G.player && x.home != null) lines.push([t('repBack', nm, facName(x.by)), 'good']);
+    else if (x.by === G.player) lines.push([t(x.why === 'lost' ? 'repCapLostCastle' : 'repEscaped', nm), 'bad']);
+  }
+  for (const x of rep.turned) lines.push([t('repTurned', names([x.off]), facName(x.fac)), 'bad']);
+  for (const x of rep.surr) lines.push([t('repSurrTook', facName(x.b), x.castles), 'good']);
   if (rep.gov.length) lines.push([t('repGov', rep.gov.reduce((s, x) => s + x.count, 0), rep.gov.length), '']);
   if (lines.length) {
     const sec = el('div', 'rsec');
@@ -1322,6 +1643,7 @@ function advText(a) {
     case 'hidden': return t('adv_hidden', nm, a.v);
     case 'target': return t('adv_target', nm, castleName(a.to), a.v);
     case 'thin': return t('adv_thin', nm, a.v);
+    case 'captive': return t('adv_captive', a.v);
     default: return a.k;
   }
 }
@@ -1332,6 +1654,7 @@ function advGo(a) {
   if (a.k === 'target') return openAttack(a.n, null) || (cs.pv.to = a.to, drawAttack());
   if (a.k === 'wild') return openCmd('등용', a.n, { target: a.off });
   if (a.k === 'loy') { openCmd('포상', a.n); cs.off = a.off; return drawCmd(); }
+  if (a.k === 'captive') return openCmd('포로', a.n);
   if (open) openCmd(open, a.n);
 }
 

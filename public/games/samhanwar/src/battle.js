@@ -87,12 +87,15 @@ function makeMap(b, def) {
 }
 
 // ──────────────────────────────────────── 전투 개시
-function start(g, from, to, offIds, En) {
+// opts.human — 사람이 쥔 편('A' 공격 · 'D' 수비). 방어전이면 'D'.
+// opts.atkRatio — 공격측을 무장 부대 대신 출발 거점 주둔군의 이 몫으로 꾸린다(AI 의 침공).
+function start(g, from, to, offIds, En, opts) {
+  const opt = opts || {};
   const a = g.castles[from], d = g.castles[to];
   const defDef = En.castleDef(to);
   const b = {
     seed: (g.rndState ^ (from * 733) ^ (to * 977)) | 0,
-    from, to, turn: 1, phase: 'A', over: null,
+    from, to, turn: 1, phase: 'A', over: null, human: opt.human === 'D' ? 'D' : 'A',
     month: g.month, year: g.year,
     units: [], log: [], W, H,
   };
@@ -100,7 +103,7 @@ function start(g, from, to, offIds, En) {
   const wallY = defDef.sz === '대' ? 3 : 2;
 
   let uid = 0;
-  const add = (side, offId, unit, hp, x, y) => {
+  const add = (side, offId, unit, hp, x, y, gar) => {
     const o = offId ? g.officers[offId] : null;
     const od = offId ? En.officerDef(offId) : null;
     b.units.push({
@@ -112,21 +115,45 @@ function start(g, from, to, offIds, En) {
       train: side === 'A' ? a.train : d.train,
       morale: side === 'A' ? a.morale : d.morale,
       moved: false, acted: false, confused: 0, hidden: false, hurt: 0, ambush: false,
+      gar: !!gar,            // 주둔군에서 쪼갠 부대 — 결과를 무장 부대가 아니라 주둔군에 되돌린다
     });
   };
 
-  // 공격측 — 아래 두 줄에 편다
-  const atk = offIds.map(id => g.officers[id])
-    .filter(o => o && o.corps && o.corps.n > 0).slice(0, MAX_SIDE);
   const spread = (n) => {
     const xs = [];
     const step = Math.max(1, Math.floor(W / (n + 1)));
     for (let i = 1; i <= n; i++) xs.push(Math.min(W - 1, i * step));
     return xs;
   };
-  const axs = spread(atk.length || 1);
-  atk.forEach((o, i) => add('A', o.id, o.corps.unit, o.corps.n, axs[i], H - 1 - (i % 2)));
-  if (!atk.length) return null;
+  const chunkUp = (troops, ratio, room) => {
+    const out = [];
+    for (const u of ['보병', '기병', '궁병']) {
+      let n = Math.round(troops[u] * ratio);
+      while (n > 0 && out.length < room) { const take = Math.min(n, CHUNK); out.push({ unit: u, n: take }); n -= take; }
+      if (n > 0) { const last = out.filter(c => c.unit === u).pop() || out[out.length - 1]; if (last) last.n += n; }
+    }
+    return out;
+  };
+  const leadFor = (n, fac, key, used) => En.officersAt(g, n)
+    .filter(o => o.fac === fac && !used.has(o.id)).sort((x, y) => y[key] - x[key])[0] || null;
+
+  // 공격측 — 아래 두 줄에 편다
+  if (opt.atkRatio) {
+    const ch = chunkUp(a.troops, opt.atkRatio, MAX_SIDE);
+    if (!ch.length) return null;
+    const axs = spread(ch.length), used = new Set();
+    ch.forEach((c, i) => {
+      const lead = leadFor(from, a.fac, c.unit === '궁병' ? 'ji' : 'mu', used);
+      if (lead) used.add(lead.id);
+      add('A', lead ? lead.id : null, c.unit, c.n, axs[i], H - 1 - (i % 2), true);
+    });
+  } else {
+    const atk = (offIds || []).map(id => g.officers[id])
+      .filter(o => o && o.corps && o.corps.n > 0).slice(0, MAX_SIDE);
+    if (!atk.length) return null;
+    const axs = spread(atk.length);
+    atk.forEach((o, i) => add('A', o.id, o.corps.unit, o.corps.n, axs[i], H - 1 - (i % 2)));
+  }
 
   // 수비측 — 부대를 가진 무장은 그대로 한 칸, 주둔군은 비슷한 크기로 쪼갠다
   const dOffs = En.corpsAt(g, to, d.fac).slice(0, MAX_SIDE);
@@ -152,7 +179,7 @@ function start(g, from, to, offIds, En) {
     const useLead = lead && !usedLead.has(lead.id);
     if (useLead) usedLead.add(lead.id);
     add('D', useLead ? lead.id : null, ch.unit, ch.n,
-        dxs[di++], wallY + (ch.unit === '궁병' ? -1 : 1));
+        dxs[di++], wallY + (ch.unit === '궁병' ? -1 : 1), true);
   }
   for (const o of dOffs) add('D', o.id, o.corps.unit, o.corps.n, dxs[di++], wallY + 1);
   // 궁병은 성벽 위로 올린다(수비 보정 +50%)
@@ -161,6 +188,17 @@ function start(g, from, to, offIds, En) {
       const wy = wallY - 1;
       if (b.map[wy * W + u.x] === 4) u.y = wy;
     }
+  }
+  // ★성문을 비워 두면 기병이 곧장 올라와 3턴 만에 끝난다(09-13 방어전 추적: 수비가 성벽 앞에만 서 있었다).
+  //   병력이 가장 많은 보병(없으면 기병) 부대를 성문 칸에 세운다.
+  const gateHolder = b.units.filter(u => u.side === 'D' && u.unit !== '궁병')
+    .sort((x, y) => (y.unit === '보병') - (x.unit === '보병') || y.hp - x.hp)[0];
+  if (gateHolder) {
+    const occ = b.units.find(u => u !== gateHolder && u.x === b.gate.x && u.y === b.gate.y);
+    if (occ) { occ.y = Math.min(H - 1, occ.y + 2); }
+    gateHolder.x = b.gate.x; gateHolder.y = b.gate.y;
+    b.units.splice(b.units.indexOf(gateHolder), 1);
+    b.units.unshift(gateHolder);            // 겹침 정리에서 먼저 자리를 차지하게
   }
   // 겹침 정리
   const seen = new Set();
@@ -454,6 +492,23 @@ function aiStep(b) {
     }
   }
 
+  // ★수비측은 성문을 지킨다 — 성문 위의 부대는 떠나지 않고, 성문이 비었는데 적이 다가오면 채운다
+  if (u.side === 'D') {
+    const onGate = u.x === b.gate.x && u.y === b.gate.y;
+    if (onGate) {
+      const h = targetsFor(b, u).sort((a, c) => score(b, u, c) - score(b, u, a))[0];
+      if (h) { attack(b, u.id, h.id); return { unit: u.id, act: 'attack', target: h.id }; }
+      wait(b, u.id); return { unit: u.id, act: 'hold' };
+    }
+    if (u.unit !== '궁병' && !at(b, b.gate.x, b.gate.y) && foes.some(v => dist(v, b.gate) <= 9) &&
+        moveRange(b, u).some(c => c.x === b.gate.x && c.y === b.gate.y)) {
+      move(b, u.id, b.gate.x, b.gate.y);
+      const h = targetsFor(b, u).sort((a, c) => score(b, u, c) - score(b, u, a))[0];
+      if (h) { attack(b, u.id, h.id); return { unit: u.id, act: 'attack', target: h.id, moved: true }; }
+      u.acted = true; return { unit: u.id, act: 'gate' };
+    }
+  }
+
   // 때릴 수 있으면 때린다 — 상성 우위와 약한 적을 고른다
   let hit = targetsFor(b, u).sort((a, c) => score(b, u, c) - score(b, u, a))[0];
   if (hit) { attack(b, u.id, hit.id); return { unit: u.id, act: 'attack', target: hit.id }; }
@@ -493,7 +548,8 @@ function applyResult(g, b, En) {
     const lost = u.maxHp - u.hp;
     if (u.side === 'A') {
       deadA += lost;
-      if (u.off) {
+      if (u.off && u.gar) { const o = g.officers[u.off]; if (o) o.exp += win ? 50 : 20; }
+      else if (u.off) {
         const o = g.officers[u.off];
         if (o) {
           o.corps = u.hp > 0 ? { unit: u.unit, n: u.hp } : null;
@@ -506,19 +562,22 @@ function applyResult(g, b, En) {
       deadD += lost;
       if (u.off) {
         const o = g.officers[u.off];
-        if (o && o.corps) o.corps = u.hp > 0 ? { unit: u.unit, n: u.hp } : null;
+        if (o && !u.gar && o.corps) o.corps = u.hp > 0 ? { unit: u.unit, n: u.hp } : null;
+        if (o) o.exp += win ? 20 : 50;
       }
       // 주둔군에서 쪼갠 부대는 아래에서 병종별로 합산해 되돌린다
     }
   }
   // 주둔군에서 쪼갠 부대(무장 부대가 아닌 것)의 생존자를 병종별로 합산
   const back = { 보병: 0, 기병: 0, 궁병: 0 };
+  const sentA = { 보병: 0, 기병: 0, 궁병: 0 }, survA = { 보병: 0, 기병: 0, 궁병: 0 };
   for (const u of b.units) {
-    if (u.side !== 'D') continue;
-    const isCorps = u.off && g.officers[u.off] && g.officers[u.off].corps;
-    if (!isCorps) back[u.unit] += Math.max(0, u.hp);
+    if (u.side === 'D' && u.gar) back[u.unit] += Math.max(0, u.hp);
+    if (u.side === 'A' && u.gar) { sentA[u.unit] += u.maxHp; survA[u.unit] += Math.max(0, u.hp); }
   }
   for (const k of Object.keys(back)) d.troops[k] = back[k];
+  // 주둔군에서 나간 공격 부대 — 떠난 만큼 빼고, 지면 살아남은 이가 돌아온다
+  for (const k of Object.keys(sentA)) a.troops[k] = Math.max(0, a.troops[k] - sentA[k] + (win ? 0 : survA[k]));
 
   a.hosp += Math.round(deadA * 0.45);
   d.hosp += Math.round(deadD * 0.45);
@@ -534,13 +593,16 @@ function applyResult(g, b, En) {
     d.wall = Math.round(En.castleDef(b.to).wall * 0.4);
     d.train = a.train;
     d.morale = Math.min(100, a.morale + 8);
-    // 살아남은 공격 부대가 성으로 들어간다
+    // 살아남은 공격 부대가 성으로 들어간다 — 무장 부대는 무장째, 주둔군 부대는 병사만
+    let room = En.castleDef(b.to).garr, leadMu = 0;
     for (const u of b.units) {
-      if (u.side === 'A' && u.hp > 0 && u.off) g.officers[u.off].loc = b.to;
+      if (u.side !== 'A' || u.hp <= 0) continue;
+      if (u.off) leadMu = Math.max(leadMu, u.mu);
+      if (u.off && !u.gar) g.officers[u.off].loc = b.to;
     }
-    for (const o of En.officersAt(g, b.to)) {
-      if (o.fac === old) { o.fac = null; o.loy = 0; o.corps = null; o.found = true; }
-    }
+    for (const k of Object.keys(survA)) { const m = Math.min(survA[k], room); d.troops[k] += m; room -= m; }
+    // 성에 있던 무장은 사로잡히거나 달아난다
+    En.settleFallen(g, b.to, old, a.fac, leadMu || 60);
   } else {
     a.morale = Math.max(10, a.morale - 12);
   }
