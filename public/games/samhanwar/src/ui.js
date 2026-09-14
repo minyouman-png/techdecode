@@ -320,7 +320,7 @@ const MENU = {
   인사: ['탐색', '등용', '포상', '이동', '포로'],
   계략: ['유언비어', '선동', '이간', '유혹'],
   외교: ['친선', '동맹', '강화', '공동작전', '항복권고', '선전포고', '파기'],
-  정보: ['거점일람', '세력일람'],
+  정보: ['거점일람', '세력일람', '무장일람', '부대일람', '병종정보'],
 };
 let cmdCat = '내정';
 function catOf(id) { return CATS.find(k => MENU[k].includes(id)) || '군사'; }
@@ -800,6 +800,9 @@ const CMD = {
   외교창: { go: () => showTab('pane-diplo') },
   거점일람: { go: () => openInfo('castles') },
   세력일람: { go: () => openInfo('factions') },
+  무장일람: { go: () => openInfo('officers') },
+  부대일람: { go: () => openInfo('corps') },
+  병종정보: { go: () => openInfo('units') },
 };
 
 function othersAlive() { return Object.values(G.factions).filter(f => f.alive && f.id !== G.player).map(f => f.id); }
@@ -1304,12 +1307,13 @@ function renderRoster() {
   const mine = en.factionOfficers(G, G.player)
     .sort((a, b) => (b.mu + b.ji + b.jg) - (a.mu + a.ji + a.jg));
   if (!mine.length) { box.appendChild(el('p', 'note', t('noOfficer'))); return; }
+  const rk = en.ranksOf(G, G.player);
   for (const o of mine) {
     const d = en.officerDef(o.id);
     const row = el('button', 'rrow');
     row.innerHTML = `
       <span class="por sm">${portraitTag(o.id, d)}</span>
-      <span class="rn"><b>${offName(d)}</b><i>${castleName(o.loc)}${o.corps ? ` · ${t(o.corps.unit)} ${nf(o.corps.n)}` : ''}${o.done ? ' · ✓' : ''}</i></span>
+      <span class="rn"><b>${offName(d)}</b><i>${rk[o.id] !== 'officer' ? t('rank_' + rk[o.id]) + ' · ' : ''}${castleName(o.loc)}${o.corps ? ` · ${t(o.corps.unit)} ${nf(o.corps.n)}` : ''}${o.done ? ' · ✓' : ''}</i></span>
       <span class="rs"><b>${o.mu}</b><b>${o.ji}</b><b>${o.jg}</b></span>
       <span class="rl">${t('lv')}${o.lv}<i class="loy sm"><i style="width:${Math.round(o.loy)}%"></i></i></span>`;
     row.onclick = () => openBio(o.id);
@@ -1376,64 +1380,238 @@ function renderDiplo() {
 }
 
 // ────────────────────────────────────────── 정보 일람
-let infoKind = 'castles';
-function openInfo(kind) { infoKind = kind; $('#info').hidden = false; drawInfo(); }
+// ★09-14 사용자 요청 "세력 정보·장수 직위·레벨·장수 정보·병력 스펙·부대 정보" —
+//   거점 · 세력(행을 누르면 상세) · 무장(직위·레벨, 머리글 정렬) · 부대(예상 공방) · 병종(전투가 쓰는 수치 그대로)
+const INFO_KINDS = [['castles', '거점일람'], ['factions', '세력일람'], ['officers', '무장일람'],
+  ['corps', '부대일람'], ['units', '병종정보']];
+let infoKind = 'castles', infoFac = null, infoScope = 'mine', infoSort = { k: 'rank', dir: 1 };
+const RANK_IDX = r => E().RANK_ORDER.indexOf(r);
+function openInfo(kind, fac) { infoKind = kind; infoFac = fac || null; $('#info').hidden = false; drawInfo(); }
 function drawInfo() {
   const en = E(), box = $('#infoBody');
   box.innerHTML = '';
-  dlgHead(box, '정보', infoKind === 'castles' ? '거점일람' : '세력일람', facName(G.player));
-  box.appendChild(segEl([['castles', t('c_거점일람')], ['factions', t('c_세력일람')]], infoKind,
-    v => { infoKind = v; drawInfo(); }));
-  const wrapT = el('div', 'tscroll');
-  wrapT.style.marginTop = '10px';
-  const tb = el('table', 'itab');
-  if (infoKind === 'castles') {
-    tb.innerHTML = `<thead><tr><th>${t('thHold')}</th><th>${t('pop')}</th><th>${t('gold')}</th><th>${t('food')}</th>
-      <th>${t('thTroop')}</th><th>${t('치안')}</th><th>${t('성벽')}</th><th>${t('thIdle')}</th><th>${t('thPol')}</th></tr></thead>`;
-    const body = el('tbody');
-    for (const n of en.factionCastles(G, G.player).sort((a, b) => a - b)) {
-      const c = G.castles[n], d = en.castleDef(n), idle = en.idleAt(G, n).length;
-      const use = en.foodUse(c);
-      const tr = el('tr', 'go');
-      tr.innerHTML = `<td>${castleName(n)}</td><td>${nf(c.pop)}</td><td>${nf(c.gold)}</td>
-        <td class="${use > 0 && c.food / use < 3 ? 'low' : ''}">${nf(c.food)}</td>
-        <td>${nf(en.garrisonTotal(G, n))}<small style="color:var(--ink3)">/${nf(d.garr)}</small></td>
-        <td class="${c.sec < 30 ? 'low' : ''}">${Math.round(c.sec)}</td><td>${nf(c.wall)}</td>
-        <td class="${idle ? 'hot' : ''}">${idle || '—'}</td><td>${t('pol_' + en.policyOf(c))}</td>`;
-      tr.onclick = () => { $('#info').hidden = true; goCastle(n); };
-      body.appendChild(tr);
-    }
-    tb.appendChild(body);
-  } else {
-    tb.innerHTML = `<thead><tr><th>${t('thFac')}</th><th>${t('castlesN')}</th><th>${t('thTroop')}</th>
-      <th>${t('thOff')}</th><th>${t('thRel')}</th><th>${t('thAtt')}</th></tr></thead>`;
-    const body = el('tbody');
-    const rows = Object.values(G.factions).filter(f => f.alive)
-      .map(f => {
-        const cs2 = en.factionCastles(G, f.id);
-        return { f, cs2, troops: cs2.reduce((x, n) => x + en.garrisonTotal(G, n), 0) };
-      })
-      .sort((a, b) => b.cs2.length - a.cs2.length || b.troops - a.troops);
-    for (const { f, cs2, troops } of rows) {
-      const me = f.id === G.player;
-      const rel = me ? '—' : ((G.factions[G.player].truce[f.id] || 0) ? t('truce') : relName(en.relOf(G, G.player, f.id)));
-      const tr = el('tr', 'go' + (me ? ' me' : ''));
-      tr.innerHTML = `<td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${FACTIONS[f.id].color};margin-right:7px"></span>${facName(f.id)}</td>
-        <td>${cs2.length}</td><td>${nf(troops)}</td><td>${en.factionOfficers(G, f.id).length}</td>
-        <td>${rel}</td><td>${me ? '—' : Math.round(en.attOf(G, f.id, G.player))}</td>`;
-      const home = cs2.includes(f.cap) ? f.cap : cs2[0];
-      tr.onclick = () => { $('#info').hidden = true; goCastle(home); };
-      body.appendChild(tr);
-    }
-    tb.appendChild(body);
-  }
-  wrapT.appendChild(tb);
-  box.appendChild(wrapT);
+  const kind = INFO_KINDS.find(k => k[0] === infoKind) || INFO_KINDS[0];
+  dlgHead(box, '정보', kind[1], facName(G.player));
+  box.appendChild(segEl(INFO_KINDS.map(([k, c]) => [k, t('c_' + c)]), kind[0],
+    v => { infoKind = v; infoFac = null; drawInfo(); }));
+  const draw = { castles: infoCastles, factions: infoFac ? infoFaction : infoFactions, officers: infoOfficers,
+    corps: infoCorps, units: infoUnits };
+  draw[kind[0]](en, box);
   const foot = el('div', 'dfoot');
-  foot.appendChild(el('span', 'dcost', t('infoHint')));
+  foot.appendChild(el('span', 'dcost', kind[0] === 'castles' ? t('infoHint') : ''));
   const cl = el('button', 'dcl', t('close')); cl.onclick = () => { $('#info').hidden = true; };
   foot.appendChild(cl);
   box.appendChild(foot);
+}
+// 표 한 장. heads = [[정렬키|null, 머리글, 칸 class]] — sortable 이면 키가 있는 머리글을 눌러 정렬한다
+function infoTable(box, heads, rows, sortable) {
+  const wrapT = el('div', 'tscroll');
+  wrapT.style.marginTop = '10px';
+  const tb = el('table', 'itab'), hr = el('tr');
+  for (const [k, label, cls] of heads) {
+    const can = !!(sortable && k), on = can && infoSort.k === k;
+    const th = el('th', [cls, can ? 'sort' : '', on ? 'on' : ''].filter(Boolean).join(' ') || null,
+      label + (on ? (infoSort.dir > 0 ? ' ▾' : ' ▴') : ''));
+    if (can) th.onclick = () => { infoSort = { k, dir: infoSort.k === k ? -infoSort.dir : 1 }; drawInfo(); };
+    hr.appendChild(th);
+  }
+  const thead = el('thead');
+  thead.appendChild(hr); tb.appendChild(thead);
+  const body = el('tbody');
+  rows.forEach(r => body.appendChild(r));
+  tb.appendChild(body);
+  wrapT.appendChild(tb);
+  box.appendChild(wrapT);
+}
+const facDot = fid => `<span class="fdot" style="background:${FACTIONS[fid].color}"></span>`;
+function lordOf(en, fid) {
+  const id = en.LORD_ID[fid], o = id && G.officers[id];
+  return o && o.fac === fid ? id : null;
+}
+function relText(en, fid) {
+  if (fid === G.player) return '—';
+  return (G.factions[G.player].truce[fid] || 0) ? t('truce') : relName(en.relOf(G, G.player, fid));
+}
+
+function infoCastles(en, box) {
+  const rows = en.factionCastles(G, G.player).sort((a, b) => a - b).map(n => {
+    const c = G.castles[n], d = en.castleDef(n), idle = en.idleAt(G, n).length;
+    const use = en.foodUse(c);
+    const tr = el('tr', 'go');
+    tr.innerHTML = `<td>${castleName(n)}</td><td>${nf(c.pop)}</td><td>${nf(c.gold)}</td>
+      <td class="${use > 0 && c.food / use < 3 ? 'low' : ''}">${nf(c.food)}</td>
+      <td>${nf(en.garrisonTotal(G, n))}<small style="color:var(--ink3)">/${nf(d.garr)}</small></td>
+      <td class="${c.sec < 30 ? 'low' : ''}">${Math.round(c.sec)}</td><td>${nf(c.wall)}</td>
+      <td class="${idle ? 'hot' : ''}">${idle || '—'}</td><td>${t('pol_' + en.policyOf(c))}</td>`;
+    tr.onclick = () => { $('#info').hidden = true; goCastle(n); };
+    return tr;
+  });
+  infoTable(box, [[null, t('thHold')], [null, t('pop')], [null, t('gold')], [null, t('food')], [null, t('thTroop')],
+    [null, t('치안')], [null, t('성벽')], [null, t('thIdle')], [null, t('thPol')]], rows);
+}
+
+function infoFactions(en, box) {
+  const rows = Object.values(G.factions).filter(f => f.alive)
+    .map(f => {
+      const cs2 = en.factionCastles(G, f.id);
+      return { f, cs2, troops: cs2.reduce((x, n) => x + en.garrisonTotal(G, n), 0) };
+    })
+    .sort((a, b) => b.cs2.length - a.cs2.length || b.troops - a.troops)
+    .map(({ f, cs2, troops }) => {
+      const me = f.id === G.player, lord = lordOf(en, f.id);
+      const tr = el('tr', 'go' + (me ? ' me' : ''));
+      tr.innerHTML = `<td>${facDot(f.id)}${facName(f.id)}</td><td class="l">${lord ? offName(en.officerDef(lord)) : '—'}</td>
+        <td>${cs2.length}</td><td>${nf(troops)}</td><td>${en.factionOfficers(G, f.id).length}</td>
+        <td>${relText(en, f.id)}</td><td>${me ? '—' : Math.round(en.attOf(G, f.id, G.player))}</td>`;
+      tr.onclick = () => { Sound.sfx('click'); infoFac = f.id; drawInfo(); };
+      return tr;
+    });
+  infoTable(box, [[null, t('thFac')], [null, t('thLord'), 'l'], [null, t('castlesN')], [null, t('thTroop')],
+    [null, t('thOff')], [null, t('thRel')], [null, t('thAtt')]], rows);
+}
+
+// 세력 상세 — 군주·수도·병종별 병력·금·군량·관계, 거점 표, 무장 표
+function infoFaction(en, box) {
+  const fid = infoFac, F = FACTIONS[fid], f = G.factions[fid];
+  const back = el('button', 'dcl ibk', t('infoBack'));
+  back.onclick = () => { infoFac = null; drawInfo(); };
+  box.appendChild(back);
+  const holds = en.factionCastles(G, fid).sort((a, b) => a - b);
+  const offs = en.factionOfficers(G, fid), rk = en.ranksOf(G, fid), lord = lordOf(en, fid);
+  const men = { 보병: 0, 기병: 0, 궁병: 0 };
+  let gold = 0, food = 0;
+  for (const n of holds) {
+    const c = G.castles[n];
+    gold += c.gold; food += c.food;
+    for (const u in men) men[u] += c.troops[u];
+  }
+  const corps = offs.filter(o => o.corps && o.corps.n > 0);
+  for (const o of corps) men[o.corps.unit] += o.corps.n;
+  const kv = (k, v) => `<span>${k}<b>${v}</b></span>`;
+  const head = el('div', 'ifac');
+  head.innerHTML = `<h4>${facDot(fid)}${facName(fid)} <small>${F.hanja}</small></h4>
+    <div class="ikv">
+      ${kv(t('thLord'), lord ? offName(en.officerDef(lord)) : '—')}
+      ${kv(t('fdCap'), holds.includes(f.cap) ? castleName(f.cap) : '—')}
+      ${kv(t('castlesN'), holds.length)}
+      ${kv(t('thOff'), offs.length)}
+      ${kv(t('fdAvgLv'), offs.length ? (offs.reduce((x, o) => x + o.lv, 0) / offs.length).toFixed(1) : '—')}
+      ${kv(t('fdCorps'), corps.length)}
+      ${kv(t('thTroop'), nf(men.보병 + men.기병 + men.궁병))}
+      ${['보병', '기병', '궁병'].map(u => kv(t(u), nf(men[u]))).join('')}
+      ${kv(t('gold'), nf(gold))}
+      ${kv(t('food'), nf(food))}
+      ${fid === G.player ? '' : kv(t('thRel'), relText(en, fid)) + kv(t('thAtt'), Math.round(en.attOf(G, fid, G.player)))}
+    </div>`;
+  box.appendChild(head);
+  box.appendChild(el('div', 'isub', t('fdHolds')));
+  infoTable(box, [[null, t('thHold')], [null, t('thTroop')], [null, t('성벽')], [null, t('rank_gov'), 'l']],
+    holds.map(n => {
+      const gov = offs.find(o => o.loc === n && (rk[o.id] === 'gov' || rk[o.id] === 'lord'));
+      const tr = el('tr', 'go');
+      tr.innerHTML = `<td>${castleName(n)}</td><td>${nf(en.garrisonTotal(G, n))}</td><td>${nf(G.castles[n].wall)}</td>
+        <td class="l">${gov ? offName(en.officerDef(gov.id)) : '—'}</td>`;
+      tr.onclick = () => { $('#info').hidden = true; goCastle(n); };
+      return tr;
+    }));
+  box.appendChild(el('div', 'isub', t('fdOfficers')));
+  const list = offs.map(o => ({ o, r: rk[o.id] }))
+    .sort((a, b) => RANK_IDX(a.r) - RANK_IDX(b.r) || b.o.lv - a.o.lv);
+  infoTable(box, officerHeads(false), list.map(x => officerRow(en, x.o, x.r, false)));
+}
+
+function officerHeads(withFac) {
+  return [['name', t('thName')], ['rank', t('thRank'), 'l'], ...(withFac ? [['fac', t('thFac'), 'l']] : []),
+    ['lv', t('lv')], ['mu', t('st_mu')], ['ji', t('st_ji')], ['jg', t('st_jg')], ['loy', t('loy')],
+    [null, t('thLoc')], ['corps', t('thCorps')], [null, t('thStat')]];
+}
+function officerRow(en, o, r, withFac) {
+  const d = en.officerDef(o.id), cap = en.troopCap(o);
+  const state = [o.done ? t('doneMark') : '', o.hurt > 0 ? t('hurtN', o.hurt) : ''].filter(Boolean).join(' · ') || '—';
+  const tr = el('tr', 'go');
+  tr.innerHTML = `<td>${offName(d)}</td><td class="l rk rk-${r}">${t('rank_' + r)}</td>
+    ${withFac ? `<td class="l">${facDot(o.fac)}${facName(o.fac)}</td>` : ''}
+    <td>${o.lv}<small class="dim"> ${o.exp}/${en.expNeed(o.lv)}</small></td>
+    <td>${o.mu}</td><td>${o.ji}</td><td>${o.jg}</td>
+    <td class="${o.loy < 40 ? 'low' : ''}">${Math.round(o.loy)}</td>
+    <td>${castleName(o.loc)}</td>
+    <td>${o.corps && o.corps.n > 0 ? `${t(o.corps.unit)} ${nf(o.corps.n)}` : '—'}<small class="dim">/${nf(cap)}</small></td>
+    <td>${state}</td>`;
+  tr.onclick = () => openBio(o.id);
+  return tr;
+}
+
+function infoOfficers(en, box) {
+  const sc = segEl([['mine', t('scopeMine')], ['all', t('scopeAll')]], infoScope, v => { infoScope = v; drawInfo(); });
+  sc.style.marginTop = '8px';
+  box.appendChild(sc);
+  const all = infoScope === 'all';
+  const facs = all ? Object.values(G.factions).filter(f => f.alive).map(f => f.id) : [G.player];
+  const list = [];
+  for (const fid of facs) {
+    const rk = en.ranksOf(G, fid);
+    for (const o of en.factionOfficers(G, fid)) list.push({ o, r: rk[o.id] });
+  }
+  const { k, dir } = infoSort;
+  const name = x => offName(en.officerDef(x.o.id));
+  const cmp = {
+    name: (a, b) => name(a).localeCompare(name(b)),
+    rank: (a, b) => RANK_IDX(a.r) - RANK_IDX(b.r),
+    fac: (a, b) => facName(a.o.fac).localeCompare(facName(b.o.fac)),
+    corps: (a, b) => (b.o.corps ? b.o.corps.n : 0) - (a.o.corps ? a.o.corps.n : 0),
+  }[k] || ((a, b) => (b.o[k] || 0) - (a.o[k] || 0));
+  list.sort((a, b) => cmp(a, b) * dir || RANK_IDX(a.r) - RANK_IDX(b.r) || b.o.lv - a.o.lv);
+  infoTable(box, officerHeads(all), list.map(x => officerRow(en, x.o, x.r, all)), true);
+  box.appendChild(el('p', 'hint', t('infoOffNote', list.length)));
+}
+
+function infoCorps(en, box) {
+  const rk = en.ranksOf(G, G.player), B = window.SamhanBattle;
+  const list = en.factionOfficers(G, G.player).filter(o => o.corps && o.corps.n > 0)
+    .sort((a, b) => b.corps.n - a.corps.n);
+  if (!list.length) { box.appendChild(el('p', 'note', t('noCorpsList'))); return; }
+  const rows = list.map(o => {
+    const c = G.castles[o.loc], cap = en.troopCap(o), unit = o.corps.unit;
+    // 전투를 열 때와 같은 재료 — 무장 능력 + 머무는 거점의 훈련도·사기
+    const s = B.unitStats({ unit, mu: o.mu, ji: o.ji, train: c.train, morale: c.morale, hurt: 0 });
+    const tr = el('tr', 'go');
+    tr.innerHTML = `<td>${offName(en.officerDef(o.id))}</td><td class="l rk rk-${rk[o.id]}">${t('rank_' + rk[o.id])}</td>
+      <td>${castleName(o.loc)}</td><td>${t(unit)}</td>
+      <td>${nf(o.corps.n)}<small class="dim">/${nf(cap)}</small><span class="ibar"><i style="width:${Math.min(100, Math.round(o.corps.n / cap * 100))}%"></i></span></td>
+      <td>${Math.round(c.train)}</td><td>${Math.round(c.morale)}</td>
+      <td>${s.atk.toFixed(1)}</td><td>${s.def.toFixed(1)}</td><td>${s.mv}</td><td>${s.rng}</td><td>${s.ki}</td>
+      <td>${nf(Math.round(en.power(c, unit, o.corps.n, o)))}</td>`;
+    tr.onclick = () => openBio(o.id);
+    return tr;
+  });
+  infoTable(box, [[null, t('thName')], [null, t('thRank'), 'l'], [null, t('thLoc')], [null, t('thUnit')], [null, t('thN')],
+    [null, t('훈련도')], [null, t('사기')], [null, t('thAtk')], [null, t('thDef')], [null, t('thMv')], [null, t('thRng')],
+    [null, t('thKi')], [null, t('thPow')]], rows);
+  box.appendChild(el('p', 'hint', t('corpsNote', list.length, nf(list.reduce((x, o) => x + o.corps.n, 0)))));
+}
+
+function infoUnits(en, box) {
+  const U = en.SIM.UNITS, T = window.SamhanBattle.TERR;
+  const weakTo = u => Object.keys(U).find(k => U[k].beats === u);
+  infoTable(box, [[null, t('thUnit')], [null, t('thAtk')], [null, t('thDef')], [null, t('thMv')], [null, t('thRng')],
+    [null, t('thBeats')], [null, t('thWeak')], [null, t('thCost')], [null, t('thUp')]],
+    Object.entries(U).map(([k, s]) => {
+      const tr = el('tr');
+      tr.innerHTML = `<td>${t(k)}</td><td>${s.atk}</td><td>${s.def}</td><td>${s.mv}</td><td>${s.rng}</td>
+        <td>${t(s.beats)}</td><td>${t(weakTo(k))}</td><td>${nf(s.cost)}</td><td>${nf(s.up)}</td>`;
+      return tr;
+    }));
+  infoTable(box, [[null, t('thTerr')], [null, t('thMvCost')], [null, t('thDefMul')], [null, t('thNote'), 'l']],
+    Object.values(T).map(x => {
+      const notes = [x.wall ? t('tnWall') : !x.horse ? t('tnNoHorse') : x.horseMv ? t('tnHorseMv', x.horseMv) : '',
+        x.hide ? t('tnHide') : '', x.gate ? t('tnGate') : ''].filter(Boolean).join(' · ') || '—';
+      const tr = el('tr');
+      tr.innerHTML = `<td>${t(x.nm)}</td><td>${x.wall ? 3 : x.mv}</td><td>×${x.def.toFixed(2)}</td><td class="l">${notes}</td>`;
+      return tr;
+    }));
+  const ul = el('ul', 'ifx');
+  ul.innerHTML = ['uf1', 'uf2', 'uf3', 'uf4', 'uf5'].map(k => `<li>${t(k, en.SIM.COUNTER)}</li>`).join('');
+  box.appendChild(ul);
 }
 
 // ────────────────────────────────────────── 사건
@@ -1462,7 +1640,7 @@ function openBio(id) {
         <h3>${offName(d)}<span class="bh">${d.hanja}</span>${d.sex === '여' ? `<em class="fem">${t('female')}</em>` : ''}</h3>
         <div class="btag">
           <span class="chip" style="--c:${f ? f.color : '#8a8a8a'}">${f ? facName(o.fac) : t('wild')}</span>
-          <span class="chip plain">${castleName(o.loc)}</span>
+          ${o.fac ? `<span class="chip plain">${t('rank_' + en.ranksOf(G, o.fac)[o.id])}</span>` : ''}<span class="chip plain">${castleName(o.loc)}</span>
           <span class="chip plain">${t(d.unit)}</span>
           <span class="chip ${d.real ? 'real' : 'fic'}">${d.real ? t('real') : t('fic')}</span>
         </div>

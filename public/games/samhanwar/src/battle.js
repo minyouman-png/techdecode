@@ -111,7 +111,7 @@ function start(g, from, to, offIds, En, opts) {
       nm: od ? od.nm : (side === 'A' ? '아군 분견대' : '주둔군'),
       unit, hp: Math.max(1, Math.round(hp)), maxHp: Math.max(1, Math.round(hp)),
       x, y, mu: o ? o.mu : 45, ji: o ? o.ji : 40, jg: o ? o.jg : 40,
-      ki: o ? Math.floor(o.ji / 20) : 0,
+      ki: o ? kiOf(o.ji) : 0,
       train: side === 'A' ? a.train : d.train,
       morale: side === 'A' ? a.morale : d.morale,
       moved: false, acted: false, confused: 0, hidden: false, hurt: 0, ambush: false,
@@ -260,11 +260,15 @@ function moveRange(b, u) {
   }
   return out;
 }
+// ★병종 수치는 엔진 SIM.UNITS 한 곳에서 읽는다 — 전투와 정보 창(병종 정보)이 같은 수를 쓰게(09-14).
+//   예전엔 이 파일에 같은 값이 따로 적혀 있었다.
+function unitSpec(unit) { const U = window.SamhanEngine.SIM.UNITS; return U[unit] || U.보병; }
+function kiOf(ji) { return Math.floor(ji / 20); }
 function SIM_MV(u) {
-  const base = { 보병: 5, 기병: 8, 궁병: 5 }[u.unit] || 5;
+  const base = unitSpec(u.unit).mv;
   return u.hurt > 0 ? Math.max(2, base - 2) : base;
 }
-function rangeOf(u) { return u.unit === '궁병' ? 2 : 1; }
+function rangeOf(u) { return unitSpec(u.unit).rng; }
 const dist = (a, c) => Math.abs(a.x - c.x) + Math.abs(a.y - c.y);
 
 function targetsFor(b, u) {
@@ -274,17 +278,18 @@ function targetsFor(b, u) {
 
 // ──────────────────────────────────────── 전투 계산
 function atkStat(u) {
-  const A = { 보병: 10, 기병: 16, 궁병: 12 }[u.unit];
+  const A = unitSpec(u.unit).atk;
   const hurt = u.hurt > 0 ? 0.8 : 1;
   return A * (1 + u.mu / 200) * (0.4 + u.train / 167) * (0.6 + u.morale / 250) * hurt;
 }
 function defStat(b, u) {
-  const D = { 보병: 12, 기병: 8, 궁병: 6 }[u.unit];
   // 수비측은 농성 이점을 받는다 — 성벽 위가 아니어도 미리 자리를 잡고 기다린다
   const siege = u.side === 'D' ? 1.15 : 1;
-  return D * terrOf(b, u.x, u.y).def * (1 + u.mu / 300) * siege;
+  return baseDef(u) * terrOf(b, u.x, u.y).def * siege;
 }
-const BEATS = { 보병: '기병', 기병: '궁병', 궁병: '보병' };
+function baseDef(u) { return unitSpec(u.unit).def * (1 + u.mu / 300); }
+// 정보 창(부대 일람) — 평지에서 칠 때의 값. 전투와 같은 함수를 쓴다.
+function unitStats(u) { return { atk: atkStat(u), def: baseDef(u), mv: SIM_MV(u), rng: rangeOf(u), ki: kiOf(u.ji || 0) }; }
 
 function damage(b, a, d) {
   let ratio = atkStat(a) / Math.max(1, defStat(b, d));
@@ -293,7 +298,7 @@ function damage(b, a, d) {
   //   (실측: 0.7배 승률 7% → 1.0배 93%). 손실을 입어도 대열은 버티므로 최대 병력을 섞는다.
   const eff = a.hp * 0.6 + a.maxHp * 0.4;
   let dmg = eff * 0.20 * ratio;
-  if (BEATS[a.unit] === d.unit) dmg *= 1.3;
+  if (unitSpec(a.unit).beats === d.unit) dmg *= window.SamhanEngine.SIM.COUNTER;
   if (a.ambush) dmg *= 2;
   dmg *= 0.9 + rnd(b) * 0.2;
   return Math.max(1, Math.round(dmg));
@@ -552,7 +557,7 @@ function aiStep(b) {
 }
 function score(b, u, t) {
   let s = damage(b, u, t) / Math.max(1, t.hp);
-  if (BEATS[u.unit] === t.unit) s += 0.3;
+  if (unitSpec(u.unit).beats === t.unit) s += 0.3;
   if (t.off) s += 0.15;
   return s;
 }
@@ -634,6 +639,6 @@ function applyResult(g, b, En) {
 window.SamhanBattle = {
   W, H, MAX_TURN, MAX_SIDE, CHUNK, TERR, SKILLS,
   start, move, attack, duel, skill, wait, endPhase, aiStep, autoRun, phaseDone,
-  moveRange, targetsFor, sideUnits, applyResult, terrOf, at, dist, rangeOf, damage,
+  moveRange, targetsFor, sideUnits, applyResult, terrOf, at, dist, rangeOf, damage, unitSpec, unitStats,
 };
 })();

@@ -459,6 +459,29 @@ const LORD_ID = (() => {
   return out;
 })();
 function isLord(g, id) { const o = g.officers[id]; return !!o && !!o.fac && LORD_ID[o.fac] === id; }
+// 직위 — 정보 창·무장 목록에 보여 주기만 한다(규칙에는 쓰지 않는다, 09-14 "장수 직위").
+//   군주 = LORD_ID · 군사 = 군주 다음으로 지력이 높은 사람 · 태수 = 군주가 머물지 않는 아군 거점마다 레벨이 가장 높은 사람
+//   · 장군 = 부대를 거느린 사람 · 나머지는 무장
+const RANK_ORDER = ['lord', 'sage', 'gov', 'general', 'officer'];
+function ranksOf(g, fid) {
+  const out = {};
+  const mine = factionOfficers(g, fid);
+  const sum = o => o.mu + o.ji + o.jg;
+  const lord = mine.find(o => LORD_ID[fid] === o.id);
+  if (lord) out[lord.id] = 'lord';
+  const sage = mine.filter(o => !out[o.id]).sort((a, b) => b.ji - a.ji || b.lv - a.lv)[0];
+  if (sage) out[sage.id] = 'sage';
+  const gov = new Map();
+  for (const o of mine) {
+    if (out[o.id] || !g.castles[o.loc] || g.castles[o.loc].fac !== fid) continue;
+    if (lord && lord.loc === o.loc) continue;              // 군주가 머무는 성은 군주가 직접 다스린다
+    const cur = gov.get(o.loc);
+    if (!cur || o.lv > cur.lv || (o.lv === cur.lv && sum(o) > sum(cur))) gov.set(o.loc, o);
+  }
+  for (const o of gov.values()) out[o.id] = 'gov';
+  for (const o of mine) if (!out[o.id]) out[o.id] = o.corps && o.corps.n > 0 ? 'general' : 'officer';
+  return out;
+}
 
 // 거점 그래프에서 가장 가까운 그 세력의 거점
 function nearestOwned(g, fid, from) {
@@ -1453,7 +1476,7 @@ function loadState(s) {
     grainPrice, sellPrice, tradeCap, tradeLeft, doTrade,
     POLICIES, policyOf, setPolicy, runDelegated,
     devRange, trainGain, searchChance, hireChance, idleAt, idleCastles, advise,
-    LORD_ID, isLord, nearestOwned, purseOf, envoyBonus, settleFallen,
+    LORD_ID, isLord, ranksOf, RANK_ORDER, nearestOwned, purseOf, envoyBonus, settleFallen,
     captivesOf, hireCaptiveChance, doCaptive, processCaptives,
     PLOTS, plotTargets, plotChance, doPlot, defWit,
     peaceChance, allyChance, giftGain, jointTargets, jointSources, jointChance, doJoint, JOINT_COST,

@@ -677,6 +677,29 @@ window.runSamhanTests = function () {
     `${Object.values(s.officers).filter(o => o.corps && o.corps.n > 0).length}부대`);
   ok('총 병력 유한', Object.values(s.castles).every(c => num(en.troopTotal(c))));
 
+  // ── 정보 창 — 직위·병종 수치 (09-14) ──────────────
+  {
+    const g1 = en.newGame('고구려', 7);
+    let bad = '';
+    for (const fid of Object.keys(g1.factions)) {
+      const rk = en.ranksOf(g1, fid), offs = en.factionOfficers(g1, fid);
+      const cnt = r => offs.filter(o => rk[o.id] === r).length;
+      if (offs.some(o => !en.RANK_ORDER.includes(rk[o.id]))) bad = `직위 없음 ${fid}`;
+      if (cnt('lord') > 1 || cnt('sage') > 1) bad = `군주·군사 중복 ${fid}`;
+      const gov = offs.filter(o => rk[o.id] === 'gov').map(o => o.loc);
+      if (new Set(gov).size !== gov.length) bad = `태수 중복 ${fid}`;
+    }
+    ok('직위 — 세력마다 군주·군사 1명, 거점마다 태수 1명', !bad, bad);
+    ok('직위 — 고구려 군주는 동천왕', en.ranksOf(g1, '고구려').dongcheon === 'lord');
+    const B = window.SamhanBattle, U = en.SIM.UNITS;
+    ok('부대 일람의 이동·사거리 = 병종 표', Object.keys(U).every(k => {
+      const st = B.unitStats({ unit: k, mu: 50, ji: 40, train: 50, morale: 70, hurt: 0 });
+      return st.mv === U[k].mv && st.rng === U[k].rng && st.ki === 2;
+    }));
+    ok('병종 표 — 궁병 사거리 2·기병 이동 8·상성 한 바퀴',
+      U.궁병.rng === 2 && U.기병.mv === 8 && U[U[U.보병.beats].beats].beats === '보병');
+  }
+
   // ── 저장 왕복 ──────────────────────────────
   const raw = en.saveState(s);
   const back = en.loadState(raw);
