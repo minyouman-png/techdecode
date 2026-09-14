@@ -243,6 +243,32 @@ window.runSamhanTests = function () {
   if (out.captured) ok('함락 시 주인이 바뀐다', gb.castles[tgtB].fac === '고구려');
   else ok('함락 실패 시 주인 유지', gb.castles[tgtB].fac !== '고구려');
 
+  // ── 위임 전투 (09-14) — 수동으로 몇 걸음 두다 넘겨도, 처음부터 넘겨도 반드시 끝나고 결과가 들어간다
+  let delOk = 0, delSteps = 0;
+  const delBad = [];
+  for (let k = 0; k < 12; k++) {
+    const gd = en.newGame('고구려', 7000 + k * 53);
+    const capD = FACTIONS['고구려'].cap;
+    const od = en.officersAt(gd, capD).filter(o => o.fac === '고구려').slice(0, 4);
+    for (const o of od) {
+      const u = ['보병', '기병', '궁병'][od.indexOf(o) % 3];
+      en.doAssign(gd, capD, o.id, u, Math.min(en.troopCap(o), gd.castles[capD].troops[u], 1500));
+    }
+    const tgD = en.castleDef(capD).adj.find(n => gd.castles[n].fac !== '고구려');
+    const bd = BT.start(gd, capD, tgD, od.filter(o => o.corps && o.corps.n > 0).map(o => o.id), en,
+                        k % 2 ? { human: 'D' } : undefined);
+    if (!bd) { delBad.push(`시드${k} 개시 실패`); continue; }
+    for (let s2 = 0; s2 < k * 3 && !bd.over; s2++) BT.aiStep(bd);      // 수동 전투 도중을 흉내 낸다
+    const ty = BT.autoRun(bd);
+    delSteps += ty.steps;
+    const sane = bd.units.every(u => u.hp >= 0 && num(u.hp));
+    if (bd.over && bd.delegated && sane && bd.turn <= BT.MAX_TURN + 1) {
+      const o2 = BT.applyResult(gd, bd, en);
+      if (num(o2.deadA) && num(o2.deadD)) delOk++; else delBad.push(`시드${k} 결과 NaN`);
+    } else delBad.push(`시드${k} ${bd.over ? '이상' : '안 끝남'}`);
+  }
+  ok('위임 전투 12판 — 끝나고 결과 반영', delOk === 12, delBad.join(', ') || `평균 ${Math.round(delSteps / 12)}걸음`);
+
   // 여러 시드로 반복 — 교착·예외가 없어야 한다
   let fails = 0, ended = 0, turns = [];
   for (let k = 0; k < 25; k++) {

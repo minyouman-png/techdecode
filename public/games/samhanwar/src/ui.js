@@ -31,6 +31,8 @@ function applyStatic() {
   $('#overback').textContent = t('backMenu');
   $('#evok').textContent = t('evOk');
   $('#btlend').textContent = t('btlEnd');
+  $('#btldel').textContent = t('bDelegate');
+  $('#btldel').title = t('delegateTip');
   $('#help').title = t('guideTitle');
   $('#langbtn').textContent = LANG === 'ko' ? 'English' : '한국어';
   $('#maphint').textContent = LANG === 'ko'
@@ -1167,7 +1169,12 @@ function drawAttack() {
     const tac = el('button', 'dgo', t('sally'));
     tac.disabled = blocked || !s.pv.sel.length;
     tac.onclick = () => attackRun(true);
-    foot.appendChild(tac);
+    // 위임 — 같은 전술 전투를 무장들에게 맡기고 지도 위에서 지켜본다(09-14)
+    const del = el('button', 'dgo alt', t('delegate'));
+    del.title = t('delegateTip');
+    del.disabled = tac.disabled;
+    del.onclick = () => attackRun('delegate');
+    foot.append(del, tac);
   }
   box.appendChild(foot);
 }
@@ -1187,7 +1194,7 @@ function attackRun(tactical) {
     const btl = window.SamhanBattle.start(G, from, to, ids, en);
     if (!btl) return toast(t('noSortie'), 'bad');
     closeCmd();
-    BattleView.open(btl, (bb) => {
+    const finish = (bb) => {
       const out = window.SamhanBattle.applyResult(G, bb, en);
       Sound.sfx(out.captured ? 'capture' : 'lose');
       if (out.captured && window.CG) CG.happy();
@@ -1195,7 +1202,9 @@ function attackRun(tactical) {
         : t('rTacLose', bb.over.why, nf(out.deadA), nf(out.deadD)), out.captured ? 'good' : 'bad');
       save(); render();
       if (out.captured) goCastle(to);
-    });
+    };
+    if (tactical === 'delegate') BattleView.runDelegated(btl, finish);
+    else BattleView.open(btl, finish);
     return;
   }
   const r = en.doAttack(G, from, to, s.pv.ratio || 0.8, ids.length ? ids : null);
@@ -1260,24 +1269,31 @@ function drawDefense() {
       : r.win ? t('defDamaged', nm, nf(r.deadD), nf(r.deadA)) : t('defHeld', nm, nf(r.deadD), nf(r.deadA)) };
     save(); render(); drawDefense();
   };
-  const tac = el('button', 'dgo', t('defTac'));
-  tac.disabled = mine <= 0;
-  tac.onclick = () => {
+  const sally = (delegated) => {
     if (!en.atWar(G, x.af, G.player)) en.doDeclareWar(G, x.af, G.player);
     const btl = window.SamhanBattle.start(G, x.from, x.to, [], en, { human: 'D', atkRatio: x.ratio });
     if (!btl) return auto.onclick();
     G.incoming.shift();
     $('#cmd').hidden = true; cs = null;
-    BattleView.open(btl, (bb) => {
+    const finish = (bb) => {
       const out = window.SamhanBattle.applyResult(G, bb, en);
       const nm = castleName(x.to);
       toast(out.captured ? t('defLost', nm, nf(out.deadD), nf(out.deadA)) : t('defHeld', nm, nf(out.deadD), nf(out.deadA)),
         out.captured ? 'bad' : 'good');
       save(); render();
       handleIncoming();
-    });
+    };
+    if (delegated) BattleView.runDelegated(btl, finish);
+    else BattleView.open(btl, finish);
   };
-  foot.append(auto, tac);
+  const tac = el('button', 'dgo', t('defTac'));
+  tac.disabled = mine <= 0;
+  tac.onclick = () => sally(false);
+  const del = el('button', 'dgo alt', t('defDel'));
+  del.title = t('delegateTip');
+  del.disabled = mine <= 0;
+  del.onclick = () => sally(true);
+  foot.append(auto, del, tac);
   box.appendChild(foot);
 }
 
@@ -1737,6 +1753,7 @@ window.addEventListener('DOMContentLoaded', () => {
     Store.del('samhan_game'); location.reload();
   };
   $('#btlend').onclick = () => BattleView.endTurn();
+  $('#btldel').onclick = () => BattleView.delegate();
   $('#evok').onclick = () => { evQueue.shift(); showEvent(); render(); if (!evQueue.length) flushReport(); };
   $('#overback').onclick = () => { Store.del('samhan_game'); location.reload(); };
   $$('[data-close]').forEach(b => {

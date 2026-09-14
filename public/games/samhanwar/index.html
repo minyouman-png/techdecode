@@ -313,9 +313,35 @@ h1 .hj{color:var(--ink3);font-weight:400;font-size:.4em;letter-spacing:.1em;
 #btlforce .fA{color:var(--jusa)} #btlforce .fD{color:#7EA0C4}
 #btlend{margin-left:auto;background:var(--jusa);border:0;color:#16110F;font-weight:600;
   padding:8px 16px;border-radius:3px}
-.btlwrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
-  padding:12px;background:var(--sunk);overflow:auto}
-#btlmap{display:block;image-rendering:pixelated;cursor:pointer}
+#btldel{margin-left:auto;background:transparent;border:1px solid var(--line2);color:var(--ink);
+  padding:7px 14px;border-radius:3px}
+#btldel + #btlend{margin-left:0}
+#btldel:hover:not(:disabled){border-color:var(--hwangto);color:var(--hwangto)}
+#btldel:disabled{opacity:.35;cursor:default}
+
+/* ── 위임 전투 연출 (fx.js) ──────────────── */
+.dfx{position:fixed;inset:0;z-index:58;cursor:progress}
+.dfx[hidden]{display:none}
+.dfxcv{position:absolute;inset:0;display:block}
+.dfxcard{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);width:min(440px,calc(100% - 32px));
+  background:var(--panel);border:1px solid var(--line2);border-left:3px solid var(--hwangto);border-radius:4px;
+  padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.45);cursor:default}
+.dfxhead{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+.dfxk{font-size:11.5px;color:var(--hwangto);letter-spacing:.06em}
+.dfxt{font-family:"Gowun Batang",serif;font-size:18px}
+.dfxbar{display:grid;grid-template-columns:8em 1fr 5.5em;align-items:center;gap:10px;font-size:12.5px;margin:5px 0}
+.dfxbar .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dfxbar i{display:block;height:8px;background:var(--sunk);border-radius:2px;overflow:hidden}
+.dfxbar em{display:block;height:100%;width:100%;background:var(--c)}
+.dfxbar .n{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.dfxfoot{display:flex;align-items:center;gap:10px;margin-top:10px}
+.dfxres{flex:1;font-size:13px;color:var(--ink2)}
+.dfxskip{background:transparent;border:1px solid var(--line2);color:var(--ink2);padding:6px 12px;
+  border-radius:3px;font-size:12.5px}
+.dfxskip:hover{border-color:var(--hwangto);color:var(--hwangto)}
+/* ★판이 상자보다 크면(폰) 가운데 정렬이 왼쪽을 스크롤 밖으로 잘라낸다 — 캔버스 margin:auto 로 가운데에 둔다 */
+.btlwrap{flex:1;min-height:0;display:flex;padding:8px;background:#0D0E0A;overflow:auto}
+#btlmap{display:block;margin:auto;cursor:pointer}
 #btlcmd{padding:12px 16px 14px;border-top:1px solid var(--line);min-height:96px}
 .bsel{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:9px}
 .bsel b{font-family:"Gowun Batang",serif;font-size:17px}
@@ -604,6 +630,7 @@ html[lang="en"] .ccat{font-size:11.5px;font-weight:500}
       <span id="btlturn">—</span>
       <span id="btlforce"></span>
       <span id="btlgoal"></span>
+      <button id="btldel"></button>
       <button id="btlend"></button>
     </div>
     <div class="btlwrap"><canvas id="btlmap"></canvas></div>
@@ -655,7 +682,9 @@ html[lang="en"] .ccat{font-size:11.5px;font-weight:500}
 <script src="src/sound.js"></script>
 <script src="src/map.js"></script>
 <script src="src/battle.js"></script>
+<script src="src/battlegfx.js"></script>
 <script src="src/battleui.js"></script>
+<script src="src/fx.js"></script>
 <script src="src/test.js"></script>
 <script src="src/ui.js"></script>
 </body>

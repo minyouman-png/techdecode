@@ -4,21 +4,20 @@
 const BattleView = (() => {
   const B = () => window.SamhanBattle;
   let cv, ctx, b = null, sel = null, mode = null, cells = [], onDone = null, busy = false;
-  let hoverCell = null, flash = [], skillName = null;
+  let hoverCell = null, skillName = null;
+  let pendingDelegate = false;       // 적 페이즈 도중에 위임을 누르면, 그 한 걸음이 끝난 뒤 넘긴다
 
   // ★사람이 쥔 편. 방어전(v3)에서는 수비측('D')이다 — 'A' 를 박아 두면 적 부대를 조종하게 된다.
   const me = () => (b && b.human) || 'A';
-  const COL = {
-    0: '#242a1f', 1: '#2c3a26', 2: '#3a3a30', 3: '#1d2b38', 4: '#4a453a', 5: '#5c4630',
-  };
-
   function open(battle, done) {
-    b = battle; onDone = done; sel = null; mode = null; cells = []; busy = false; flash = [];
+    b = battle; onDone = done; sel = null; mode = null; cells = []; busy = false;
+    pendingDelegate = false;
     document.getElementById('btl').hidden = false;
     Sound.play('battle');
     if (window.CG) CG.play();
     cv = document.getElementById('btlmap');
     ctx = cv.getContext('2d');
+    BattleGfx.init(cv, () => draw());
     if (!open._wired) {
       cv.addEventListener('click', click);
       cv.addEventListener('mousemove', hover);
@@ -36,6 +35,7 @@ const BattleView = (() => {
 
   function close() {
     document.getElementById('btl').hidden = true;
+    BattleGfx.stop();
     b = null;
     Sound.play('field');
   }
@@ -43,25 +43,17 @@ const BattleView = (() => {
   function resize() {
     if (!cv) return;
     const wrap = cv.parentElement.getBoundingClientRect();
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
     // ★손가락으로 누를 칸은 최소한의 크기가 있어야 한다. 좁은 화면에서는 칸을 줄이는 대신
     //   판을 키우고 감싼 상자가 스크롤한다(실측: 390px 폭에서 칸이 18px 까지 줄었다).
     const touch = window.matchMedia('(pointer: coarse)').matches;
-    const minCell = touch ? 30 : 18;
-    const cell = Math.max(minCell, Math.floor(Math.min(wrap.width / B().W, wrap.height / B().H)));
-    cv.style.width = cell * B().W + 'px';
-    cv.style.height = cell * B().H + 'px';
-    cv.width = cell * B().W * dpr;
-    cv.height = cell * B().H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    cv._cell = cell;
+    BattleGfx.layout(wrap.width, wrap.height, touch, B().W, B().H);
     draw();
   }
 
   function cellAt(ev) {
+    if (!b) return { x: -1, y: -1 };
     const r = cv.getBoundingClientRect();
-    return { x: Math.floor((ev.clientX - r.left) / cv._cell),
-             y: Math.floor((ev.clientY - r.top) / cv._cell) };
+    return BattleGfx.pick(b, ev.clientX - r.left, ev.clientY - r.top);   // 쿼터뷰 — 솟은 칸을 앞에서부터 찾는다
   }
   function hover(ev) {
     const c = cellAt(ev);
@@ -88,8 +80,6 @@ const BattleView = (() => {
         const r = B().attack(b, sel.id, u.id);
         if (!r.ok) { toastB(r.why); Sound.sfx('no'); return; }
         Sound.sfx(sel.unit === '궁병' ? 'arrow' : 'hit');
-        flashAt(u, `−${nfB(r.dmg)}`, '#D9614A');
-        if (r.back) flashAt(sel, `−${nfB(r.back)}`, '#C7A254');
         mode = null; cells = []; sel = null;
         render(); maybeEnd();
         return;
@@ -99,9 +89,8 @@ const BattleView = (() => {
     if (mode === 'skill') {
       const r = B().skill(b, sel.id, skillName, x, y);
       if (!r.ok) { toastB(r.why); mode = null; cells = []; render(); return; }
-      if (r.dmg) { flashAt(u, `−${nfB(r.dmg)}`, '#E08A3C'); Sound.sfx(skillName === '화계' ? 'fire' : 'hit'); }
-      if (r.heal) flashAt(u, `+${nfB(r.heal)}`, '#6BA893');
-      if (r.hit === false) flashAt(u, '실패', '#787E74');
+      if (r.dmg) Sound.sfx(skillName === '화계' ? 'fire' : 'hit');
+      if (r.hit === false) flashAt(u, LANG === 'ko' ? '실패' : 'Failed', '#B9B2A2');
       mode = null; cells = []; sel = null;
       render(); maybeEnd();
       return;
@@ -111,11 +100,10 @@ const BattleView = (() => {
         const r = B().duel(b, sel.id, u.id);
         if (!r.ok) { toastB(r.why); Sound.sfx('no'); return; }
         Sound.sfx('duel');
-        if (!r.accepted) flashAt(u, '거절', '#787E74');
+        if (!r.accepted) flashAt(u, LANG === 'ko' ? '거절' : 'Refused', '#B9B2A2');
         else {
           const w = b.units.find(v => v.id === r.winner);
           const l = b.units.find(v => v.id === r.loser);
-          flashAt(l, `−${nfB(r.cut)}`, '#D9614A');
           toastB(LANG === 'ko' ? `${w.nm}이(가) ${l.nm}을(를) 이겼습니다.`
                                 : `${w.nm} bested ${l.nm}.`);
         }
@@ -137,17 +125,8 @@ const BattleView = (() => {
     render();
   }
 
-  function flashAt(u, text, color) {
-    if (!u) return;
-    flash.push({ x: u.x, y: u.y, text, color, t: performance.now() });
-    requestAnimationFrame(tick);
-  }
-  function tick() {
-    const now = performance.now();
-    flash = flash.filter(f => now - f.t < 1100);
-    draw();
-    if (flash.length) requestAnimationFrame(tick);
-  }
+  // 글자만 띄운다(거절·실패). 피해·회복 숫자는 BattleGfx.sync 가 상태를 비교해 띄운다 — AI 의 수에도 똑같이.
+  function flashAt(u, text, color) { if (u) BattleGfx.say(u, text, color); }
 
   // ── 적 페이즈 ─────────────────────────────
   function endTurn() {
@@ -164,6 +143,7 @@ const BattleView = (() => {
     if (!b || b.phase === me()) return;
     busy = true; render();
     const step = () => {
+      if (pendingDelegate && b && !b.over) { busy = false; handOff(); return; }
       if (!b || b.over) { busy = false; render(); maybeEnd(); return; }
       const r = B().aiStep(b);
       render();
@@ -187,80 +167,51 @@ const BattleView = (() => {
     }, 900);
   }
 
+  // ── 위임 ──────────────────────────────────
+  // 여기서부터 AI 가 양쪽을 끝까지 두고, 전략 지도 위 연출(DelegateFX)로 넘어간다(09-14 사용자 요청).
+  function delegate() {
+    if (!b || b.over) return;
+    if (busy) { pendingDelegate = true; toastB(t('delegating')); render(); return; }
+    handOff();
+  }
+  function handOff() {
+    pendingDelegate = false;
+    const bb = b, done = onDone;
+    b = null;                                  // 남은 setTimeout 걸음이 판을 건드리지 않게
+    BattleGfx.stop();
+    document.getElementById('btl').hidden = true;
+    runDelegated(bb, done);
+  }
+  // 전투 창을 열지 않고 곧장 맡긴다 — 출병·방어 창의 [위임]
+  function runDelegated(bb, done) {
+    const before = forces(bb);
+    const tally = B().autoRun(bb);
+    DelegateFX.play({ b: bb, before, after: forces(bb), tally }, () => {
+      Sound.play('field');
+      if (done) done(bb, bb.over);
+    });
+  }
+  function forces(bb) {
+    const sum = s => B().sideUnits(bb, s).reduce((n, u) => n + u.hp, 0);
+    return { A: sum('A'), D: sum('D') };
+  }
+
   // ── 그리기 ────────────────────────────────
+  // 그림은 BattleGfx(쿼터뷰)가 그린다 — 여기서는 무엇을 강조할지만 정해 넘긴다
   function draw() {
     if (!ctx || !b) return;
-    const c = cv._cell;
-    const W = B().W, H = B().H;
-    ctx.clearRect(0, 0, c * W, c * H);
-    for (let y = 0; y < H; y++) {
-      for (let x = 0; x < W; x++) {
-        ctx.fillStyle = COL[b.map[y * W + x]] || COL[0];
-        ctx.fillRect(x * c, y * c, c, c);
-        ctx.strokeStyle = 'rgba(0,0,0,.28)';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x * c + .5, y * c + .5, c - 1, c - 1);
-      }
-    }
-    // 성문
-    ctx.strokeStyle = '#C7A254'; ctx.lineWidth = 2;
-    ctx.strokeRect(b.gate.x * c + 2, b.gate.y * c + 2, c - 4, c - 4);
-
-    // 이동/대상 표시
-    if (mode === 'move') {
-      ctx.fillStyle = 'rgba(107,168,147,.30)';
-      for (const p of cells) ctx.fillRect(p.x * c, p.y * c, c, c);
-    }
-    if (mode === 'attack' || mode === 'duel') {
-      ctx.fillStyle = 'rgba(217,97,74,.30)';
-      for (const t of B().targetsFor(b, sel)) {
-        if (mode === 'duel' && (!t.off || !sel.off || B().dist(sel, t) !== 1)) continue;
-        ctx.fillRect(t.x * c, t.y * c, c, c);
-      }
-    }
-
-    // 부대
-    for (const u of b.units) {
-      if (u.hp <= 0) continue;
-      const px = u.x * c, py = u.y * c;
-      if (u.hidden && u.side !== me()) continue;        // 숨은 적은 안 보인다
-      ctx.fillStyle = u.side === me() ? '#8E3B2A' : '#3E5F7E';
-      if (u.hidden) ctx.globalAlpha = .5;
-      ctx.fillRect(px + 2, py + 2, c - 4, c - 4);
-      ctx.globalAlpha = 1;
-      if (u === sel) { ctx.strokeStyle = '#F0E6D2'; ctx.lineWidth = 2; ctx.strokeRect(px + 2, py + 2, c - 4, c - 4); }
-      // 병종 글자
-      ctx.fillStyle = '#EFEADF';
-      ctx.font = `700 ${Math.round(c * 0.42)}px "Gowun Batang", serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      // ★타일의 병종 글자도 언어를 따라간다(영어면 F/H/B)
-      ctx.fillText(t(u.unit)[0], px + c / 2, py + c / 2 - c * 0.06);
-      // 체력 막대
-      const w = (c - 8) * (u.hp / u.maxHp);
-      ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(px + 4, py + c - 8, c - 8, 3.5);
-      ctx.fillStyle = u.side === me() ? '#6BA893' : '#C7A254';
-      ctx.fillRect(px + 4, py + c - 8, w, 3.5);
-      if (u.acted) { ctx.fillStyle = 'rgba(0,0,0,.42)'; ctx.fillRect(px + 2, py + 2, c - 4, c - 4); }
-      if (u.confused > 0) {
-        ctx.fillStyle = '#C77ACC'; ctx.font = `700 ${Math.round(c * 0.3)}px sans-serif`;
-        ctx.fillText('※', px + c - 7, py + 8);
-      }
-    }
-    // 뜨는 숫자
-    const now = performance.now();
-    for (const f of flash) {
-      const k = (now - f.t) / 1100;
-      ctx.globalAlpha = 1 - k;
-      ctx.fillStyle = f.color;
-      ctx.font = `700 ${Math.round(c * 0.42)}px "IBM Plex Mono", monospace`;
-      ctx.textAlign = 'center';
-      ctx.fillText(f.text, f.x * c + c / 2, f.y * c + c / 2 - k * c * 0.9);
-      ctx.globalAlpha = 1;
-    }
-    if (hoverCell) {
-      ctx.strokeStyle = 'rgba(240,230,210,.5)'; ctx.lineWidth = 1.5;
-      ctx.strokeRect(hoverCell.x * c + 1, hoverCell.y * c + 1, c - 2, c - 2);
-    }
+    const targets = (mode === 'attack' || mode === 'duel') && sel
+      ? B().targetsFor(b, sel).filter(v => mode !== 'duel' || (v.off && sel.off && B().dist(sel, v) === 1))
+      : [];
+    BattleGfx.draw({ b, me: me(), sel, mode, cells: mode === 'move' ? cells : [], targets,
+                     hover: hoverCell, colors: sideColors() });
+  }
+  // 편 색 — 공격측은 출발 거점, 수비측은 목표 거점의 세력색
+  function sideColors() {
+    const g = typeof G !== 'undefined' ? G : null;
+    const fa = g && g.castles[b.from] ? g.castles[b.from].fac : null;
+    const fd = g && g.castles[b.to] ? g.castles[b.to].fac : null;
+    return { A: (FACTIONS[fa] || {}).color || '#8E3B2A', D: (FACTIONS[fd] || {}).color || '#3E5F7E' };
   }
 
   function nfB(n) { return Math.round(n).toLocaleString(LANG === 'ko' ? 'ko-KR' : 'en-US'); }
@@ -273,7 +224,10 @@ const BattleView = (() => {
 
   function render() {
     if (!b) return;
+    BattleGfx.sync(b);                          // 직전 상태와 비교해 이동·공격·피해 연출을 만든다
     document.getElementById('btlturn').textContent = t('btlTurn', b.turn, B().MAX_TURN, b.phase === me() ? 'A' : 'D');
+    const del = document.getElementById('btldel');
+    if (del) del.disabled = !!b.over || pendingDelegate;
     const A = B().sideUnits(b, me()), D = B().sideUnits(b, me() === 'A' ? 'D' : 'A');
     const sum = l => l.reduce((s, u) => s + u.hp, 0);
     document.getElementById('btlforce').innerHTML =
@@ -342,9 +296,10 @@ const BattleView = (() => {
 
   // 자동화·검증용 — 칸의 화면 좌표
   function cellCenter(x, y) {
-    if (!cv) return null;
-    const r = cv.getBoundingClientRect(), c = cv._cell;
-    return { x: r.left + x * c + c / 2, y: r.top + y * c + c / 2 };
+    if (!cv || !b) return null;
+    const r = cv.getBoundingClientRect(), p = BattleGfx.aim(b, x, y);
+    return { x: r.left + p.x, y: r.top + p.y };
   }
-  return { open, close, endTurn, render, cellCenter, get battle() { return b; }, get busy() { return busy; } };
+  return { open, close, endTurn, delegate, runDelegated, render, cellCenter,
+           get battle() { return b; }, get busy() { return busy; } };
 })();

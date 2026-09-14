@@ -78,6 +78,67 @@ const Sound = (() => {
     src.start(t);
   }
 
+  // ── 위임 전투 연출의 소리 (09-14) ────────────────
+  // 띠를 통과시킨 노이즈 — 주파수가 f0 에서 f1 로 흘러간다
+  function noiseBand(t, dur, gain, f0, f1, q, attack) {
+    const n = Math.max(1, Math.floor(ctx.sampleRate * dur));
+    const buf = ctx.createBuffer(1, n, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = q || 1;
+    f.frequency.setValueAtTime(f0, t);
+    f.frequency.exponentialRampToValueAtTime(f1 || f0, t + dur);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gain, t + (attack || 0.01));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f); f.connect(g); g.connect(sfxGain);
+    src.start(t); src.stop(t + dur + 0.02);
+  }
+  // 함성 '우와아아' — 여러 사람의 톱니파 목소리를 모음 울림통(F1·F2) 필터 두 개에 통과시킨다.
+  //   필터가 '우'(낮고 좁은 입) 자리에서 '아'(열린 입) 자리로 올라가면서 '우와' 가 된다.
+  function shout(t, dur, voices) {
+    for (let i = 0; i < voices; i++) {
+      const st = t + i * 0.035 + Math.random() * 0.05;
+      const f0 = 115 + Math.random() * 120;
+      const o = ctx.createOscillator(); o.type = 'sawtooth';
+      o.frequency.setValueAtTime(f0 * 0.82, st);
+      o.frequency.linearRampToValueAtTime(f0 * 1.15, st + dur * 0.3);
+      o.frequency.linearRampToValueAtTime(f0 * 0.92, st + dur);
+      const vib = ctx.createOscillator(), vg = ctx.createGain();
+      vib.frequency.value = 4.5 + Math.random() * 2.5; vg.gain.value = f0 * 0.035;
+      vib.connect(vg); vg.connect(o.frequency);
+      const f1 = ctx.createBiquadFilter(); f1.type = 'bandpass'; f1.Q.value = 5;
+      f1.frequency.setValueAtTime(330, st); f1.frequency.linearRampToValueAtTime(780, st + dur * 0.35);
+      const f2 = ctx.createBiquadFilter(); f2.type = 'bandpass'; f2.Q.value = 7;
+      f2.frequency.setValueAtTime(760, st); f2.frequency.linearRampToValueAtTime(1180, st + dur * 0.35);
+      const g = ctx.createGain(), peak = 0.07 + Math.random() * 0.04;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(peak, st + 0.22 + Math.random() * 0.12);
+      g.gain.setValueAtTime(peak, st + dur * 0.65);
+      g.gain.exponentialRampToValueAtTime(0.0001, st + dur);
+      o.connect(f1); o.connect(f2); f1.connect(g); f2.connect(g); g.connect(sfxGain);
+      o.start(st); vib.start(st); o.stop(st + dur + 0.05); vib.stop(st + dur + 0.05);
+    }
+    noiseBand(t, dur, 0.06, 700, 1100, 0.8, 0.3);          // 흙먼지 속 숨소리
+  }
+  // 칼 부딪침 '챙'·'캉' — 쇠붙이의 비조화 배음(1 : 2.76 : 5.40 : 8.93) + 날카로운 첫소리
+  function clang(t, gain, bright) {
+    const base = (bright ? 1250 : 820) * (0.85 + Math.random() * 0.3);
+    [1, 2.76, 5.40, 8.93].forEach((r, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = base * r;
+      const d = (bright ? 0.42 : 0.3) / (1 + i * 0.7);
+      g.gain.setValueAtTime(gain / (1 + i * 0.8), t);
+      g.gain.exponentialRampToValueAtTime(0.0003, t + d);
+      o.connect(g); g.connect(sfxGain); o.start(t); o.stop(t + d + 0.02);
+    });
+    noiseBand(t, 0.06, gain * 1.1, 4200, 2500, 0.7, 0.002);
+  }
+  // 화살 한 대 — 높은 바람 소리가 내려온다
+  function whoosh(t, gain) { noiseBand(t, 0.32, gain, 3400, 900, 2.2, 0.04); }
+
   // ── 배경음 ───────────────────────────────────
   const TRACKS = {
     // 전략 — 느리고 비어 있다. 드론 위에 대금 가락.
@@ -157,6 +218,16 @@ const Sound = (() => {
     event:   () => { if (!init()) return; resume(); const t = ctx.currentTime;
                      drum(t, 0.30, 64); flute(note(1, 0), t + 0.1, 1.3, 0.16); },
     month:   () => beep(note(0, -1), 0.28, 'sine', 0.07),
+    // 위임 전투 연출
+    warcry:  () => { if (!init()) return; resume(); const t = ctx.currentTime;
+                     shout(t, 1.9, 10); drum(t, 0.40, 66); drum(t + 0.45, 0.32, 74); },
+    clang:   () => { if (!init()) return; resume(); const t = ctx.currentTime;
+                     clang(t, 0.20, Math.random() < 0.5);
+                     if (Math.random() < 0.55) clang(t + 0.11, 0.14, true); },     // 챙챙 · 캉캉
+    volley:  () => { if (!init()) return; resume(); const t = ctx.currentTime;
+                     for (let i = 0; i < 6; i++) whoosh(t + i * 0.045 + Math.random() * 0.03, 0.05); },
+    thud:    () => { if (!init()) return; resume(); const t = ctx.currentTime;
+                     drum(t, 0.42, 58); drum(t + 0.16, 0.30, 64); },
   };
   function sfx(name) { const f = SFX[name]; if (f) { try { f(); } catch (e) { /* 소리는 게임을 막지 않는다 */ } } }
 

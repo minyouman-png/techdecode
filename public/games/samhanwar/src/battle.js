@@ -467,6 +467,26 @@ function finish(b, winner, why) {
   b.log.push({ k: 'end', winner, why });
 }
 
+// ──────────────────────────────────────── 위임 — 사람 편까지 AI 가 끝까지 둔다(09-14)
+// ★수동 전투 도중에 넘겨받아도 된다 — 이미 행동한 부대는 acted 로 남아 aiStep 이 건너뛴다.
+//   30턴 상한이 있어 반드시 끝나지만, 혹시 모를 교착에 대비해 걸음 수 상한을 따로 둔다.
+function autoRun(b, cap) {
+  const tally = { steps: 0, melee: 0, arrows: 0, fire: 0, confuse: 0 };
+  const limit = cap || 6000;
+  b.delegated = true;
+  while (!b.over && tally.steps < limit) {
+    const r = aiStep(b);
+    tally.steps++;
+    if (r.act === 'attack') {
+      const u = b.units.find(v => v.id === r.unit);
+      if (u && u.unit === '궁병') tally.arrows++; else tally.melee++;
+    } else if (r.act === '화계') tally.fire++;
+    else if (r.act === '혼란') tally.confuse++;
+  }
+  if (!b.over) finish(b, 'D', '기한 초과 — 공격측이 물러납니다');
+  return tally;
+}
+
 // ──────────────────────────────────────── 적 페이즈 AI
 function aiStep(b) {
   // 한 부대만 움직인다. 화면이 한 걸음씩 보여줄 수 있게.
@@ -613,7 +633,7 @@ function applyResult(g, b, En) {
 
 window.SamhanBattle = {
   W, H, MAX_TURN, MAX_SIDE, CHUNK, TERR, SKILLS,
-  start, move, attack, duel, skill, wait, endPhase, aiStep, phaseDone,
+  start, move, attack, duel, skill, wait, endPhase, aiStep, autoRun, phaseDone,
   moveRange, targetsFor, sideUnits, applyResult, terrOf, at, dist, rangeOf, damage,
 };
 })();
