@@ -18,7 +18,7 @@ let G = null;
 let picked = null;      // 선택 거점
 
 // ────────────────────────────────────────── 언어·소리
-const STATIC = ['brand', 'eyebrow', 'lede', 'pickhead', 'picksub', 'tYm', 'tTurn', 'tFac', 'tCastle',
+const STATIC = ['brand', 'eyebrow', 'lede', 'pickHead', 'pickSub', 'tYm', 'tTurn', 'tFac', 'tCastle',
                 'tGold', 'tFood', 'tTroop', 'tabCastle', 'tabRoster', 'tabDiplo', 'over', 'btl'];
 function applyStatic() {
   for (const k of STATIC) {

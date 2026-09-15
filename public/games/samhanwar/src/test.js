@@ -12,6 +12,14 @@ window.runSamhanTests = function () {
   ok('거점 37개', CASTLES.length === 37, `${CASTLES.length}개`);
   ok('세력 17개', Object.keys(FACTIONS).length === 17);
   ok('무장 id 유일', new Set(OFFICERS.map(o => o.id)).size === OFFICERS.length);
+  // ★사전에 없는 키는 t() 가 키 이름을 그대로 돌려준다 — 세력 고르기 머리글이 'pickhead' 로 떠 있었다(2026-09-15)
+  if (typeof STATIC !== 'undefined') {
+    const miss = STATIC.filter(k => I18N.ko[k] == null || I18N.en[k] == null);
+    ok('화면 고정 문구 키가 두 언어 사전에 다 있다', miss.length === 0, miss.join(','));
+  }
+  const rawKey = [...document.querySelectorAll('[id^="i-"]')]
+    .filter(el => el.textContent.trim().toLowerCase() === el.id.slice(2).toLowerCase()).map(el => el.id);
+  ok('화면에 사전 키 이름이 그대로 찍힌 곳이 없다', rawKey.length === 0, rawKey.join(','));
 
   const byN = Object.fromEntries(CASTLES.map(c => [c.n, c]));
   let sym = true, iso = 0;
