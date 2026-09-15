@@ -29,7 +29,6 @@ function applyStatic() {
   $('#next').textContent = t('next');
   $('#restart').textContent = t('restart');
   $('#overback').textContent = t('backMenu');
-  $('#evok').textContent = t('evOk');
   $('#btlend').textContent = t('btlEnd');
   $('#btldel').textContent = t('bDelegate');
   $('#btldel').title = t('delegateTip');
@@ -114,7 +113,8 @@ function startSkirmish() {
   if (window.CG) CG.play();
   // ★alert 는 페이지를 멈춘다 — 포털 iframe 안에서는 게임이 멈춘 것처럼 보이고,
   //   자동화·녹화도 그 자리에서 막힌다(실측). 게임 안의 안내 모달을 쓴다.
-  evQueue = [{ nm: t('modeSkirmish'), txt: t('skirmishIntro'), src: '삼국지 위서 동이전',
+  evQueue = [{ id: 'girinyeong', kind: 'hist', maxPanels: 3, nm: t('modeSkirmish'), txt: t('skirmishIntro'),
+               src: '삼국지 위서 동이전 한전', srcEn: 'Records of the Three Kingdoms, Book of Wei, Account of the Han',
                result: '', y: G.year, m: G.month }];
   showEvent();
   const btl = window.SamhanBattle.start(G, from, to, ids, en);
@@ -150,7 +150,11 @@ function enterGame(fresh) {
   pickCastle(cap);
   MapView.focus(cap);
   render();
-  if (fresh && !Store.get('samhan_guide')) openGuide();
+  if (fresh) {
+    evQueue = [storyRec('prologue')];
+    afterStory = () => { if (!Store.get('samhan_guide')) openGuide(); };
+    showEvent();
+  }
   else if (G.incoming && G.incoming.length) { monthCtx = { before: snapshot(), was: { y: G.year, m: G.month } }; handleIncoming(); }
 }
 
@@ -187,7 +191,13 @@ function render() {
     $('#overtxt').textContent = G.over === G.player
       ? t('winMe', facName(G.over))
       : t('winOther', facName(G.over), facName(G.player));
-    $('#over').hidden = false;
+    if (!G.skirmish && !G.endingShown) {
+      G.endingShown = true;
+      evQueue = [storyRec(G.over === G.player ? 'ending_win' : 'ending_lose')];
+      afterStory = () => { $('#over').hidden = false; };
+      save();
+      showEvent();
+    } else if ($('#ev').hidden) $('#over').hidden = false;
   }
 }
 
@@ -681,7 +691,7 @@ const CMD = {
       if (!list.length) { box.appendChild(el('p', 'note', t('capNone'))); return false; }
       for (const o of list) {
         const d = en.officerDef(o.id), p = en.hireCaptiveChance(G, o.id);
-        const lord = en.LORD_ID[o.capFrom] === o.id;
+        const lord = en.lordIdOf(G, o.capFrom) === o.id;
         const card = el('div', 'capcard');
         card.dataset.off = o.id;
         card.innerHTML = `<span class="por sm">${portraitTag(o.id, d)}</span>
@@ -1425,7 +1435,7 @@ function infoTable(box, heads, rows, sortable) {
 }
 const facDot = fid => `<span class="fdot" style="background:${FACTIONS[fid].color}"></span>`;
 function lordOf(en, fid) {
-  const id = en.LORD_ID[fid], o = id && G.officers[id];
+  const id = en.lordIdOf(G, fid), o = id && G.officers[id];
   return o && o.fac === fid ? id : null;
 }
 function relText(en, fid) {
@@ -1614,17 +1624,160 @@ function infoUnits(en, box) {
   box.appendChild(ul);
 }
 
-// ────────────────────────────────────────── 사건
+// ────────────────────────────────────────── 사건 — 만화
+// 사건마다 story.js 의 칸을 한 장씩 넘기고, 마지막에 사건 정리(줄거리·출전·결과)를 보인다.
+// ★#evok 은 언제 눌러도 한 번에 닫힌다 — 검증 도구(ui_check·playtest)가 사건 창을 그렇게 넘긴다.
 let evQueue = [];
+let afterStory = null;                       // 여는·맺는 이야기를 다 본 뒤 할 일(안내·결과창)
+const comic = { rec: null, panels: [], i: 0, sum: false };
+const HAS_SPEECH = typeof window.speechSynthesis !== 'undefined' && typeof window.SpeechSynthesisUtterance !== 'undefined';
+const voiceOn = () => Store.get('samhan_voice') !== '0';
+const evL = (ko, en) => (LANG === 'en' && en ? en : ko);
+function storyRec(id) {
+  return { id, kind: 'story', nm: t(id === 'prologue' ? 'storyPrologue' : 'storyEnding'), y: G.year, m: G.month };
+}
+function storyVars(rec) {
+  const lid = E().lordIdOf(G, G.player), lo = lid && G.officers[lid];
+  return {
+    fac: facName(G.player),
+    castle: rec.castle != null ? castleName(rec.castle) : '',
+    win: G.over ? facName(G.over) : '',
+    lordId: lo && !lo.dead && lo.fac === G.player ? lid : null,
+  };
+}
+const fillVars = (str, v) => String(str || '').replace(/\{(fac|castle|win)\}/g, (_, k) => v[k]);
+
+function stopVoice() { if (HAS_SPEECH) { try { speechSynthesis.cancel(); } catch (e) { /* 막혀도 게임은 계속 */ } } }
+// 나레이션을 소리로 읽는다 — 브라우저 내장 음성(파일 0바이트). 음소거·포털 음소거·끔 설정이면 읽지 않는다.
+function speak(text) {
+  if (!HAS_SPEECH || !voiceOn() || !text) return;
+  const muted = typeof Sound.muted === 'function' ? Sound.muted() : !!Sound.muted;
+  if (muted || (window.CG && CG.debug && CG.debug().portalMuted)) return;
+  try {
+    stopVoice();
+    const want = LANG === 'en' ? 'en' : 'ko';
+    const all = speechSynthesis.getVoices();
+    const mine = all.filter(x => (x.lang || '').toLowerCase().startsWith(want));
+    if (all.length && !mine.length) return;   // 그 언어 목소리가 없으면 엉뚱한 발음으로 읽느니 조용히
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = want === 'en' ? 'en-US' : 'ko-KR';
+    if (mine.length) u.voice = mine.find(x => /natural|premium|enhanced|google|yuna|sora/i.test(x.name)) || mine[0];
+    u.rate = want === 'en' ? 0.98 : 1.0; u.pitch = 0.95; u.volume = 0.9;
+    speechSynthesis.speak(u);
+  } catch (e) { /* 소리는 게임을 막지 않는다 */ }
+}
+
 function showEvent() {
+  stopVoice();
   if (!evQueue.length) { $('#ev').hidden = true; return; }
   const e = evQueue[0];
+  const ST = window.SamhanStory ? SamhanStory.STORY : {};
+  comic.rec = e;
+  comic.panels = e.again ? [] : (ST[e.id] || []).slice(0, e.maxPanels || 99);
+  comic.i = 0;
+  comic.sum = comic.panels.length === 0;
   $('#ev').hidden = false;
   $('#evwhen').textContent = t('ym', e.y || G.year, e.m || G.month);
-  $('#evnm').textContent = e.nm;
-  $('#evtxt').textContent = e.txt;
-  $('#evsrc').textContent = `— ${e.src}`;
-  $('#evres').textContent = e.result || '';
+  $('#evnm').textContent = evL(e.nm, e.nmEn);
+  const kind = $('#evkind');
+  kind.className = 'evkind ' + (e.kind || '');
+  kind.textContent = e.kind === 'hist' ? t('evHist') : e.kind === 'fic' ? t('evFic') : '';
+  $('#evtxt').textContent = evL(e.txt, e.txtEn) || '';
+  $('#evsrc').textContent = e.kind === 'fic' ? t('evFicSrc') : (e.src ? `— ${evL(e.src, e.srcEn)}` : '');
+  $('#evres').textContent = evL(e.result, e.resultEn) || '';
+  $('#evres').hidden = !$('#evres').textContent;
+  drawComic(true);
+}
+function comicBar() {
+  const e = comic.rec, n = comic.panels.length, last = comic.i >= n - 1;
+  const hasSum = e && e.kind !== 'story';
+  const done = comic.sum || (last && !hasSum);
+  $('#comic').hidden = comic.sum;
+  $('#evsum').hidden = !comic.sum;
+  $('#evprev').textContent = t('evPrev');
+  $('#evprev').hidden = n === 0 || (!comic.sum && comic.i === 0);
+  $('#evnext').hidden = done;
+  $('#evnext').textContent = last ? t('evSum') : t('evNext');
+  $('#evok').textContent = done ? t('evOk') : t('evClose');
+  $('#evok').classList.toggle('primary', done);
+  $('#evvoice').hidden = !HAS_SPEECH || comic.sum || n === 0;
+  $('#evvoice').textContent = voiceOn() ? t('evVoiceOn') : t('evVoiceOff');
+  $('#evvoice').setAttribute('aria-pressed', voiceOn() ? 'true' : 'false');
+  $('#evpg').textContent = comic.sum || !n ? '' : `${comic.i + 1} / ${n}`;
+}
+function paintCanvas() {
+  const p = comic.panels[comic.i];
+  if (!p || comic.sum || !window.Scenes) return;
+  const box = $('#comic'), cv = $('#evcv'), r = box.getBoundingClientRect();
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = Math.max(320, Math.round(r.width * dpr));
+  cv.height = Math.max(180, Math.round(r.height * dpr));
+  Scenes.draw(cv, p.s, `${comic.rec.id}-${comic.i}`);
+}
+function drawComic(fresh) {
+  comicBar();
+  const p = comic.panels[comic.i];
+  if (comic.sum || !p) return;
+  const e = comic.rec, v = storyVars(e), EX = window.SamhanStory ? SamhanStory.EXTRAS : {};
+  paintCanvas();
+  const box = $('#comic');
+  box.classList.remove('turn'); void box.offsetWidth; box.classList.add('turn');
+  const nar = fillVars(evL(p.nar[0], p.nar[1]), v);
+  $('#cnar').textContent = nar;
+  $('#cfx').textContent = p.fx ? evL(p.fx[0], p.fx[1]) : '';
+  const cast = (p.cast || []).slice(0, 3);
+  const pos = cast.length === 1 ? ['l'] : cast.length === 2 ? ['l', 'r'] : ['l', 'c', 'r'];
+  const wrap = $('#ccast');
+  wrap.innerHTML = '';
+  cast.forEach((raw, k) => {
+    const id = raw === '{lord}' ? v.lordId : raw;
+    const fig = el('div', 'fig ' + pos[k]);
+    const lines = (p.say || []).filter(sy => sy[0] === raw).map(sy => fillVars(evL(sy[1], sy[2]), v));
+    if (lines.length) {
+      const b = el('div', 'bub', lines.join('\n'));
+      b.style.animationDelay = `${0.2 + k * 0.35}s`;
+      fig.appendChild(b);
+    }
+    const fp = el('div', 'fp');
+    let name = '';
+    if (id && id[0] !== '@' && E().officerDef(id)) {
+      const d = E().officerDef(id);
+      fp.innerHTML = portraitTag(id, d, false);
+      const al = ((window.SamhanStory && SamhanStory.ALIAS) || {})[e.id];
+      name = al && al[id] ? evL(al[id][0], al[id][1]) : offName(d);
+    } else {
+      const x = id ? EX[id] : null;
+      fp.appendChild(el('div', 'sil' + (x && x.sex === '여' ? ' w' : '')));
+      name = x ? evL(x.ko, x.en) : v.fac;
+    }
+    fig.appendChild(fp);
+    fig.appendChild(el('div', 'fn', name));
+    wrap.appendChild(fig);
+  });
+  if (p.snd) Sound.sfx(p.snd);
+  else if (!fresh) Sound.sfx('click');
+  speak(nar);
+}
+function comicStep(d) {
+  const n = comic.panels.length, hasSum = comic.rec && comic.rec.kind !== 'story';
+  if (comic.sum) { if (d < 0 && n) { comic.sum = false; comic.i = n - 1; drawComic(); } return; }
+  const j = comic.i + d;
+  if (j < 0) return;
+  if (j >= n) {
+    if (hasSum) { comic.sum = true; stopVoice(); comicBar(); }
+    else closeEvent();
+    return;
+  }
+  comic.i = j;
+  drawComic();
+}
+function closeEvent() {
+  stopVoice();
+  evQueue.shift(); showEvent(); render();
+  if (!evQueue.length) {
+    if (afterStory) { const f = afterStory; afterStory = null; f(); }
+    flushReport();
+  }
 }
 
 // ────────────────────────────────────────── 열전
@@ -1932,7 +2085,16 @@ window.addEventListener('DOMContentLoaded', () => {
   };
   $('#btlend').onclick = () => BattleView.endTurn();
   $('#btldel').onclick = () => BattleView.delegate();
-  $('#evok').onclick = () => { evQueue.shift(); showEvent(); render(); if (!evQueue.length) flushReport(); };
+  $('#evok').onclick = closeEvent;
+  $('#evnext').onclick = () => comicStep(1);
+  $('#evprev').onclick = () => comicStep(-1);
+  $('#evvoice').onclick = () => {
+    Store.set('samhan_voice', voiceOn() ? '0' : '1');
+    if (voiceOn()) speak($('#cnar').textContent); else stopVoice();
+    comicBar();
+  };
+  if (HAS_SPEECH) { try { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => {}; } catch (e) { /* 무시 */ } }
+  window.addEventListener('resize', () => { if (!$('#ev').hidden) paintCanvas(); });
   $('#overback').onclick = () => { Store.del('samhan_game'); location.reload(); };
   $$('[data-close]').forEach(b => {
     b.onclick = () => { if (b.dataset.close === 'cmd') closeCmd(); else $('#' + b.dataset.close).hidden = true; };
@@ -1942,6 +2104,17 @@ window.addEventListener('DOMContentLoaded', () => {
     $('#' + id).addEventListener('click', e => { if (e.target.id === id) { if (id === 'cmd') closeCmd(); else $('#' + id).hidden = true; } });
   }
   document.addEventListener('keydown', e => {
+    if (!$('#ev').hidden) {
+      const onButton = /BUTTON/.test((e.target && e.target.tagName) || '');
+      if (e.key === 'Escape') { e.preventDefault(); closeEvent(); return; }
+      if ((e.key === ' ' && !onButton) || e.key === 'ArrowRight') {
+        e.preventDefault();
+        if (!$('#evnext').hidden) comicStep(1); else closeEvent();
+        return;
+      }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); comicStep(-1); return; }
+      if (e.key === ' ') return;
+    }
     if (e.key === 'Escape') {
       $('#bio').hidden = true;
       if (!$('#cmd').hidden) closeCmd();

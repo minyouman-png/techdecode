@@ -281,22 +281,71 @@ h1 .hj{color:var(--ink3);font-weight:400;font-size:.4em;letter-spacing:.1em;
 .dsec{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;
   text-transform:uppercase;color:var(--ink3);margin:14px 0 4px;font-weight:500}
 
-/* ── 사건 ────────────────────────────────── */
-#ev{position:fixed;inset:0;background:rgba(8,10,7,.82);z-index:54;display:flex;
-  align-items:center;justify-content:center;padding:24px}
+/* ── 사건 — 만화 칸 ─────────────────────────── */
+#ev{position:fixed;inset:0;background:rgba(8,10,7,.86);z-index:54;display:flex;
+  align-items:center;justify-content:center;padding:18px}
 .evbox{background:var(--surface);border:1px solid var(--line2);border-left:3px solid var(--hwangto);
-  border-radius:4px;max-width:560px;padding:24px 28px 22px}
-.evhead{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
-#evwhen{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--hwangto);
-  letter-spacing:.1em}
-#evnm{font-family:"Gowun Batang",serif;font-size:25px;font-weight:700}
-#ev p{font-family:"Gowun Batang",serif;font-size:15.5px;line-height:1.9;margin:0 0 10px}
-.evsrc{font-family:"IBM Plex Sans KR",sans-serif!important;font-size:12px!important;
-  color:var(--ink3);margin-bottom:14px!important}
-.evres{background:var(--sunk);border-radius:3px;padding:11px 14px;font-size:13.5px;
-  color:var(--ink2);margin-bottom:16px}
-#evok{background:var(--hwangto);border:0;color:#17130A;font-weight:600;padding:9px 20px;
-  border-radius:3px}
+  border-radius:4px;width:min(900px,100%);max-height:100%;overflow:auto;padding:16px 18px 14px}
+.evhead{display:flex;align-items:baseline;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+#evwhen{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--hwangto);letter-spacing:.1em}
+#evnm{font-family:"Gowun Batang",serif;font-size:23px;font-weight:700}
+.evkind{font-size:11px;letter-spacing:.06em;padding:2px 8px;border-radius:10px;border:1px solid var(--line2);color:var(--ink2)}
+.evkind.hist{color:var(--hwangto);border-color:color-mix(in srgb,var(--hwangto) 50%,transparent)}
+.evkind.fic{color:var(--nokcheong);border-color:color-mix(in srgb,var(--nokcheong) 50%,transparent)}
+.evkind:empty{display:none}
+#evvoice[aria-pressed="true"]{color:var(--hwangto);border-color:color-mix(in srgb,var(--hwangto) 55%,transparent)}
+#evvoice[aria-pressed="false"]{color:var(--ink3)}
+.comic{position:relative;aspect-ratio:16/9;background:#050604;border:3px solid #0b0c09;
+  outline:1px solid var(--line2);overflow:hidden;border-radius:2px;max-height:62vh;margin:0 auto}
+.comic canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.comic.turn canvas{animation:cpan .5s ease-out}
+@keyframes cpan{from{opacity:.25;transform:scale(1.03)}to{opacity:1;transform:none}}
+.cnar{position:absolute;top:10px;left:10px;max-width:min(64%,560px);background:#E8DEC2;color:#17130B;
+  font-family:"Gowun Batang",serif;font-size:15px;line-height:1.65;padding:8px 12px;
+  border:2px solid #0b0c09;box-shadow:3px 3px 0 #0b0c09;z-index:3}
+.cnar:empty{display:none}
+.cfx{position:absolute;right:6%;top:18%;font-family:"Gowun Batang",serif;font-weight:700;
+  font-size:clamp(28px,6vw,64px);color:#F2E6C8;-webkit-text-stroke:2px #0b0c09;
+  text-shadow:4px 4px 0 var(--jusa);transform:rotate(-8deg);z-index:2;pointer-events:none}
+.cfx:not(:empty){animation:cstamp .35s cubic-bezier(.2,1.6,.4,1)}
+@keyframes cstamp{from{transform:rotate(-8deg) scale(1.9);opacity:0}to{transform:rotate(-8deg) scale(1);opacity:1}}
+.ccast{position:absolute;inset:0;z-index:4;pointer-events:none}
+.fig{position:absolute;bottom:0;width:21%;max-width:170px}
+.fig.l{left:3%}.fig.r{right:3%}.fig.c{left:50%;transform:translateX(-50%)}
+.fig .fp{aspect-ratio:4/5;border:3px solid #0b0c09;border-bottom:0;background:#1a1c16;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(232,222,194,.25)}
+.fig .fp img{width:100%;height:100%;object-fit:cover;display:block}
+.fig .sil{width:100%;height:100%;display:flex;align-items:flex-end;justify-content:center;
+  background:radial-gradient(circle at 50% 40%,#3d4035 0 17%,transparent 18%),
+    radial-gradient(ellipse 48% 38% at 50% 100%,#3d4035 0 98%,transparent 100%),linear-gradient(#20231c,#121410)}
+.fig .sil.w{background:radial-gradient(circle at 50% 42%,#4a3d3a 0 16%,transparent 17%),
+    radial-gradient(ellipse 30% 22% at 50% 30%,#2a2320 0 98%,transparent 100%),
+    radial-gradient(ellipse 46% 38% at 50% 100%,#4a3d3a 0 98%,transparent 100%),linear-gradient(#241f1c,#141110)}
+.fig .fn{background:#0b0c09;color:#E8DEC2;font-size:11.5px;text-align:center;padding:3px 4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bub{position:absolute;bottom:calc(100% + 12px);left:0;width:max-content;max-width:min(320px,40vw);
+  background:#FBF6E9;color:#15120C;font-family:"Gowun Batang",serif;font-size:14.5px;line-height:1.55;
+  padding:8px 12px;border:2px solid #0b0c09;border-radius:16px;box-shadow:2px 2px 0 #0b0c09;
+  white-space:pre-line;animation:cpop .28s ease-out both}
+.fig.r .bub{left:auto;right:0}
+.fig.c .bub{left:50%;transform:translateX(-50%)}
+.bub::after{content:"";position:absolute;bottom:-12px;left:26px;border:6px solid transparent;
+  border-top:8px solid #0b0c09;border-bottom:0}
+.fig.r .bub::after{left:auto;right:26px}
+.fig.c .bub::after{left:calc(50% - 6px)}
+.bub+.bub{margin-bottom:6px}
+@keyframes cpop{from{opacity:0;translate:0 6px}to{opacity:1;translate:0 0}}
+.evsum{padding:6px 2px 0}
+#ev .evsum p{font-family:"Gowun Batang",serif;font-size:15.5px;line-height:1.9;margin:0 0 10px}
+.evsrc{font-family:"IBM Plex Sans KR",sans-serif!important;font-size:12px!important;color:var(--ink3);margin-bottom:14px!important}
+.evres{background:var(--sunk);border-radius:3px;padding:11px 14px;font-size:13.5px;color:var(--ink2);margin-bottom:6px}
+.evbar{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+#evpg{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink3)}
+.evbar button{border-radius:3px;padding:9px 16px;min-height:40px}
+.evghost{background:transparent;border:1px solid var(--line2);color:var(--ink2)}
+#evnext{background:var(--hwangto);border:0;color:#17130A;font-weight:600}
+#evok{background:transparent;border:1px solid var(--line2);color:var(--ink2)}
+#evok.primary{background:var(--hwangto);border:0;color:#17130A;font-weight:600}
 
 /* ── 전투 화면 ───────────────────────────── */
 #btl{position:fixed;inset:0;background:rgba(6,8,5,.9);z-index:52;display:flex;
@@ -545,6 +594,13 @@ html[lang="en"] .ccat{font-size:11.5px;font-weight:500}
   #next{flex:1}
 }
 @media (max-width:540px){
+  .comic{aspect-ratio:4/5;max-height:60vh}
+  .fig{width:31%}
+  .bub{max-width:62vw;font-size:13.5px}
+  .cnar{max-width:calc(100% - 20px);font-size:13.5px}
+  #evnm{font-size:19px}
+  .evbox{padding:12px}
+
   /* ★폰에선 전투 머리가 세 줄로 접혀 위에 띄운 안내가 목표 문구·차례 종료를 덮었다 — 아래로 */
   .btltoast{top:auto;bottom:112px}
   .dcost{flex-basis:100%;margin-right:0}
@@ -635,11 +691,25 @@ html[lang="en"] .ccat{font-size:11.5px;font-weight:500}
 
 <div id="ev" hidden>
   <div class="evbox">
-    <div class="evhead"><span id="evwhen">—</span><b id="evnm">—</b></div>
-    <p id="evtxt"></p>
-    <p class="evsrc" id="evsrc"></p>
-    <div class="evres" id="evres"></div>
-    <button id="evok"></button>
+    <div class="evhead"><span id="evwhen">—</span><b id="evnm">—</b><span id="evkind" class="evkind"></span></div>
+    <div class="comic" id="comic">
+      <canvas id="evcv"></canvas>
+      <div class="cnar" id="cnar"></div>
+      <div class="cfx" id="cfx"></div>
+      <div class="ccast" id="ccast"></div>
+    </div>
+    <div class="evsum" id="evsum" hidden>
+      <p id="evtxt"></p>
+      <p class="evsrc" id="evsrc"></p>
+      <div class="evres" id="evres"></div>
+    </div>
+    <div class="evbar">
+      <button id="evvoice" class="evghost" type="button"></button>
+      <span id="evpg"></span>
+      <button id="evprev" class="evghost" type="button"></button>
+      <button id="evnext" type="button"></button>
+      <button id="evok" type="button"></button>
+    </div>
   </div>
 </div>
 
@@ -693,19 +763,21 @@ html[lang="en"] .ccat{font-size:11.5px;font-weight:500}
 
 <div id="toast" class="toast"></div>
 
-<script src="src/cg.js?v=20260915"></script>
-<script src="src/i18n.js?v=20260915"></script>
-<script src="src/data.js?v=20260915"></script>
-<script src="src/coast.js?v=20260915"></script>
-<script src="src/officers.js?v=20260915"></script>
-<script src="src/engine.js?v=20260915"></script>
-<script src="src/sound.js?v=20260915"></script>
-<script src="src/map.js?v=20260915"></script>
-<script src="src/battle.js?v=20260915"></script>
-<script src="src/battlegfx.js?v=20260915"></script>
-<script src="src/battleui.js?v=20260915"></script>
-<script src="src/fx.js?v=20260915"></script>
-<script src="src/test.js?v=20260915"></script>
-<script src="src/ui.js?v=20260915"></script>
+<script src="src/cg.js?v=20260915b"></script>
+<script src="src/i18n.js?v=20260915b"></script>
+<script src="src/data.js?v=20260915b"></script>
+<script src="src/coast.js?v=20260915b"></script>
+<script src="src/officers.js?v=20260915b"></script>
+<script src="src/engine.js?v=20260915b"></script>
+<script src="src/sound.js?v=20260915b"></script>
+<script src="src/map.js?v=20260915b"></script>
+<script src="src/battle.js?v=20260915b"></script>
+<script src="src/battlegfx.js?v=20260915b"></script>
+<script src="src/battleui.js?v=20260915b"></script>
+<script src="src/fx.js?v=20260915b"></script>
+<script src="src/scenes.js?v=20260915b"></script>
+<script src="src/story.js?v=20260915b"></script>
+<script src="src/test.js?v=20260915b"></script>
+<script src="src/ui.js?v=20260915b"></script>
 </body>
 </html>

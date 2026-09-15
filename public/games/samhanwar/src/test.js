@@ -376,6 +376,102 @@ window.runSamhanTests = function () {
     ge.log.filter(x => x.k === 'event' && x.id === 'mucheon').length >= 2,
     `${ge.log.filter(x => x.k === 'event' && x.id === 'mucheon').length}회`);
 
+  // ── 사건 만화 · 사료/가상 사건 (2026-09-15) ─────────────
+  {
+    const ST = window.SamhanStory && SamhanStory.STORY, EX = window.SamhanStory && SamhanStory.EXTRAS;
+    const HAN = /[가-힣]/;
+    ok('만화 대본이 실려 있다', !!ST && !!EX && !!window.Scenes);
+    const evs = en.EVENTS;
+    ok('사건마다 종류가 있다(사료/가상)', evs.every(e => e.kind === 'hist' || e.kind === 'fic'));
+    const nh = evs.filter(e => e.kind === 'hist').length, nf = evs.filter(e => e.kind === 'fic').length;
+    ok('사료 사건 18개 이상 · 가상 사건 8개 이상', nh >= 18 && nf >= 8, `사료 ${nh} · 가상 ${nf}`);
+    ok('사건 영문(이름·줄거리·출전)에 한글이 없다',
+      evs.every(e => e.nmEn && e.txtEn && e.srcEn && !HAN.test(e.nmEn + e.txtEn + e.srcEn)));
+    const ids = [...evs.map(e => e.id), 'prologue', 'ending_win', 'ending_lose'];
+    const short = ids.filter(id => !ST || !ST[id] || ST[id].length < 3);
+    ok('사건마다 만화가 3칸 이상', short.length === 0, short.join(','));
+    const bad = [];
+    for (const id of ids) (ST && ST[id] || []).forEach((p, i) => {
+      const tag = `${id}#${i + 1}`;
+      if (!Scenes.list.includes(p.s)) bad.push(`${tag} 장면 ${p.s}`);
+      if (!p.nar || !p.nar[0] || !p.nar[1] || HAN.test(p.nar[1])) bad.push(`${tag} 나레이션`);
+      for (const c of p.cast || []) {
+        const known = c === '{lord}' || (c[0] === '@' ? !!EX[c] : OFFICERS.some(o => o.id === c));
+        if (!known) bad.push(`${tag} 인물 ${c}`);
+      }
+      for (const sy of p.say || []) {
+        if (!(p.cast || []).includes(sy[0])) bad.push(`${tag} 칸에 없는 사람이 말함 ${sy[0]}`);
+        if (!sy[1] || !sy[2] || HAN.test(sy[2])) bad.push(`${tag} 말풍선`);
+      }
+      if (p.fx && (!p.fx[0] || !p.fx[1] || HAN.test(p.fx[1]))) bad.push(`${tag} 효과 글자`);
+    });
+    ok('만화 칸의 장면·인물·말풍선·영문이 다 맞다', bad.length === 0, bad.slice(0, 6).join(' / '));
+    const AL = (window.SamhanStory && SamhanStory.ALIAS) || {};
+    ok('사건 호칭(ALIAS)이 실제 사건·무장을 가리킨다', Object.entries(AL).every(([ev, m]) =>
+      !!ST[ev] && Object.entries(m).every(([id, nm]) => OFFICERS.some(o => o.id === id) && nm[0] && nm[1] && !HAN.test(nm[1]))));
+    ok('덧붙인 인물(EXTRAS)의 영문 이름에 한글이 없다', Object.values(EX || {}).every(x => x.ko && x.en && !HAN.test(x.en)));
+
+    // 사료 사건은 정해진 해·달에 실제로 터지고, 결과가 두 언어로 나온다
+    const PREP = {
+      pyeongyang247: g => { g.done.gwangugeom = true; },
+      gwanna251: g => { g.year = 248; g.month = 9; en.runEvents(g); },
+    };
+    const noFire = [], noEn = [];
+    for (const e of evs.filter(x => x.kind === 'hist' && x.y)) {
+      const g = en.newGame('고구려', 777);
+      g.done = {};
+      if (PREP[e.id]) PREP[e.id](g);
+      g.year = e.y; g.month = e.m; g.turn = (e.y - 246) * 12 + e.m;
+      const rec = en.runEvents(g).find(r => r.id === e.id);
+      if (!rec) noFire.push(e.id);
+      else if (!rec.result || !rec.resultEn || HAN.test(rec.resultEn)) noEn.push(e.id);
+    }
+    ok('사료 사건이 정해진 달에 일어난다(시작 판 기준)', noFire.length === 0, noFire.join(','));
+    ok('사건 결과가 두 언어로 나온다', noEn.length === 0, noEn.join(','));
+
+    // 가상 이야기 — 확률로 여러 가지가 오고, 한 달에 하나, 다섯 달 이상 띄운다
+    const ficSeen = new Set(); let perMonth = 0, gapOk = true, ficEn = true;
+    for (const [fac, seed] of [['신라', 3], ['백제', 5], ['고구려', 8], ['마한', 13]]) {
+      const g = en.newGame(fac, seed);
+      let last = -99;
+      for (let i = 3; i < 300; i++) {
+        g.turn = i; g.year = 246 + Math.floor(i / 12); g.month = (i % 12) + 1;
+        const f = en.runEvents(g).filter(r => r.kind === 'fic');
+        perMonth = Math.max(perMonth, f.length);
+        if (f.length) {
+          if (i - last < 5) gapOk = false;
+          last = i;
+          for (const r of f) { ficSeen.add(r.id); if (!r.resultEn || HAN.test(r.resultEn)) ficEn = false; }
+        }
+      }
+    }
+    ok('가상 이야기가 여러 가지 일어난다', ficSeen.size >= 7, `${ficSeen.size}종 ${[...ficSeen].join(',')}`);
+    ok('가상 이야기는 한 달에 하나, 다섯 달 이상 띄운다', perMonth <= 1 && gapOk);
+    ok('가상 이야기 결과도 두 언어', ficEn);
+
+    // 군주가 사건으로 죽으면 뒤를 잇고, 그 사실이 저장에 남는다
+    const gl = en.newGame('고구려', 99);
+    gl.year = 248; gl.month = 9; en.runEvents(gl);
+    ok('동천왕이 죽으면 연불이 군주가 된다',
+      gl.officers.dongcheon.dead && en.lordIdOf(gl, '고구려') === 'gy_yeonbul' && en.isLord(gl, 'gy_yeonbul'));
+    const gl2 = JSON.parse(JSON.stringify(gl));
+    ok('뒤를 이은 군주가 저장에 남는다', !!gl2.lords && gl2.lords['고구려'] === 'gy_yeonbul');
+    ok('죽은 무장은 명단에서 빠진다', !en.factionOfficers(gl, '고구려').some(o => o.id === 'dongcheon'));
+
+    // 칸 배경을 실제로 그린다 — 17장면 모두 빈 캔버스가 아니어야 한다
+    const cv = document.createElement('canvas'); cv.width = 320; cv.height = 180;
+    const blank = [];
+    for (const k of Scenes.list) {
+      const x = cv.getContext('2d'); x.clearRect(0, 0, 320, 180);
+      Scenes.draw(cv, k, 't');
+      const d = x.getImageData(0, 0, 320, 180).data;
+      let lo = 255, hi = 0;
+      for (let i = 0; i < d.length; i += 97) { const v = d[i] + d[i + 1] + d[i + 2]; lo = Math.min(lo, v); hi = Math.max(hi, v); }
+      if (hi - lo < 40) blank.push(k);
+    }
+    ok('장면 그림 17종이 모두 그려진다', Scenes.list.length >= 17 && blank.length === 0, blank.join(','));
+  }
+
   // ── v2: 코에이 문법 — 축성·수송·매매·위임·진언 (2026-09-13) ─────────────
   {
     const gv = en.newGame('고구려', 5151);

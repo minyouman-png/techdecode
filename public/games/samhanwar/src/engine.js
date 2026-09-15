@@ -458,7 +458,7 @@ const LORD_ID = (() => {
   }
   return out;
 })();
-function isLord(g, id) { const o = g.officers[id]; return !!o && !!o.fac && LORD_ID[o.fac] === id; }
+function isLord(g, id) { const o = g.officers[id]; return !!o && !!o.fac && lordIdOf(g, o.fac) === id; }
 // 직위 — 정보 창·무장 목록에 보여 주기만 한다(규칙에는 쓰지 않는다, 09-14 "장수 직위").
 //   군주 = LORD_ID · 군사 = 군주 다음으로 지력이 높은 사람 · 태수 = 군주가 머물지 않는 아군 거점마다 레벨이 가장 높은 사람
 //   · 장군 = 부대를 거느린 사람 · 나머지는 무장
@@ -467,7 +467,7 @@ function ranksOf(g, fid) {
   const out = {};
   const mine = factionOfficers(g, fid);
   const sum = o => o.mu + o.ji + o.jg;
-  const lord = mine.find(o => LORD_ID[fid] === o.id);
+  const lord = mine.find(o => lordIdOf(g, fid) === o.id);
   if (lord) out[lord.id] = 'lord';
   const sage = mine.filter(o => !out[o.id]).sort((a, b) => b.ji - a.ji || b.lv - a.lv)[0];
   if (sage) out[sage.id] = 'sage';
@@ -519,7 +519,7 @@ function settleFallen(g, n, oldFac, newFac, leadMu) {
     if (o.loc !== n || o.fac !== oldFac) continue;
     o.corps = null;
     let p = flee.length ? clamp(0.35 + ((leadMu || 60) - o.mu) / 200, 0.1, 0.7) : 0.85;
-    if (LORD_ID[oldFac] === o.id && flee.length) p = Math.min(p, 0.3);   // 군주는 먼저 빼돌린다
+    if (lordIdOf(g, oldFac) === o.id && flee.length) p = Math.min(p, 0.3);   // 군주는 먼저 빼돌린다
     if (newFac && rndOf(g) < p) {
       o.captive = newFac; o.capFrom = oldFac; o.prevLoy = o.loy; o.capTurn = g.turn;
       o.fac = null; o.loy = 0; o.found = true;
@@ -543,7 +543,7 @@ function hireCaptiveChance(g, id) {
   const o = g.officers[id];
   if (!o || !o.captive) return 0;
   const from = g.factions[o.capFrom], alive = !!(from && from.alive);
-  if (alive && LORD_ID[o.capFrom] === id) return 0;                  // 살아 있는 나라의 군주는 굽히지 않는다
+  if (alive && lordIdOf(g, o.capFrom) === id) return 0;                  // 살아 있는 나라의 군주는 굽히지 않는다
   const prev = o.prevLoy == null ? 80 : o.prevLoy;
   return clamp(0.12 + (100 - prev) / 120 + (alive ? 0 : 0.35) + Math.min(6, g.turn - (o.capTurn || g.turn)) * 0.04, 0.03, 0.9);
 }
@@ -729,7 +729,7 @@ function doDemand(g, a, b, opt) {
   const castles = factionCastles(g, b);
   for (const n of castles) g.castles[n].fac = a;
   for (const o of Object.values(g.officers)) {
-    if (o.fac === b) { o.fac = a; o.loy = LORD_ID[b] === o.id ? 65 : 55; o.done = true; }
+    if (o.fac === b) { o.fac = a; o.loy = lordIdOf(g, b) === o.id ? 65 : 55; o.done = true; }
     if (o.captive === b) o.captive = a;
   }
   g.factions[b].alive = false;
@@ -1074,108 +1074,340 @@ function checkDead(g, fid) {
   }
 }
 
-// ──────────────────────────────────────────── 사료 기반 사건
-// 246년 전후에 실제로 있었던 일들. 조건이 맞으면 그 달에 일어난다.
-// 한 번 일어난 사건은 다시 오지 않는다(g.done).
+// ──────────────────────────────────────────── 사건
+// kind 'hist' = 사서에 적힌 일(src 필수, 정해진 해·달에 온다) · 'fic' = 가상 이야기(창작, 조건이 맞으면 확률로 온다)
+// run(g, ctx) 는 [한국어 결과, 영어 결과] 를 돌려준다. 칸 만화 대본은 story.js 에 있다.
+// 한 번 일어난 사건은 다시 오지 않는다(g.done). 무천만 해마다 온다.
+function lordIdOf(g, fid) { return (g.lords && g.lords[fid]) || LORD_ID[fid]; }
+function aliveOff(g, id, fac) {
+  const o = g.officers[id];
+  return !!o && !o.dead && !o.captive && (fac === undefined || o.fac === fac);
+}
+// 사건으로 죽는다 — 군주였다면 뒤를 이을 사람을 정해 저장(g.lords)에 남긴다
+function killOff(g, id, heir) {
+  const o = g.officers[id];
+  if (!o || o.dead) return;
+  const fac = o.fac, wasLord = !!fac && lordIdOf(g, fac) === id;
+  o.dead = true; o.fac = null; o.loc = -1; o.corps = null; o.captive = null;
+  if (!wasLord) return;
+  const cand = heir && aliveOff(g, heir, fac) ? g.officers[heir]
+    : factionOfficers(g, fac).sort((a, b) => (b.lv - a.lv) || ((b.mu + b.ji + b.jg) - (a.mu + a.ji + a.jg)))[0];
+  if (!cand) return;
+  g.lords = g.lords || {};
+  g.lords[fac] = cand.id; cand.loy = 100;
+}
+const facAlive = (g, f) => !!(g.factions[f] && g.factions[f].alive);
+const owns = (g, n, f) => !!(g.castles[n] && g.castles[n].fac === f);
+function eachCastle(g, fid, fn) { for (const n of factionCastles(g, fid)) fn(g.castles[n], n); }
+const bump = (c, k, d, lo, hi) => { c[k] = Math.max(lo, Math.min(hi, Math.round(c[k] + d))); };
+function nameKoEn(kind, key, ko) {
+  const T = typeof NAMES_EN !== 'undefined' ? NAMES_EN : null;
+  const tab = T && (T[kind] || T[kind + 's']);
+  return [ko, (tab && tab[key]) || ko];
+}
+const facKE = f => nameKoEn('fac', f, FACTIONS[f] ? FACTIONS[f].nm : f);
+const castleKE = n => nameKoEn('castle', n, castleDef(n).nm);
+const foundIfWild = (g, id) => { const o = g.officers[id]; if (o && o.fac === null) o.found = true; };
+
 const EVENTS = [
+  // ── 사료 사건 ────────────────────────────────
   {
-    id: 'girinyeong', y: 246, m: 8, need: g => g.castles[10] && g.castles[22],
-    nm: '기리영 싸움',
+    id: 'girinyeong', kind: 'hist', y: 246, m: 8, need: g => g.castles[10] && g.castles[22],
+    nm: '기리영 싸움', nmEn: 'Battle of Girinyeong',
     txt: '낙랑의 부종사 오림이 진한 여덟 나라를 떼어 낙랑에 붙이려 했다. 통역이 말을 잘못 옮겨 ' +
          '한(韓)의 신지가 격분했고, 마한이 대방군의 기리영을 쳤다. 대방태수 궁준이 전사했다.',
-    src: '삼국지 위서 동이전',
+    txtEn: 'Wu Lin of Lelang tried to detach eight states from Jinhan. An interpreter garbled his words, the chiefs of Han ' +
+           'took offence, and Mahan stormed Girinyeong in Daifang. Gong Zun, Grand Administrator of Daifang, was killed.',
+    src: '삼국지 위서 동이전 한전', srcEn: 'Records of the Three Kingdoms, Book of Wei, Account of the Han',
     run: (g) => {
       setRel(g, '마한', '위', 'war');
       addAtt(g, '위', '마한', -30); addAtt(g, '마한', '위', -30);
       const d = g.castles[10];
       if (d) { d.wall = Math.round(d.wall * 0.7); d.morale = Math.max(10, d.morale - 15); }
-      const o = g.officers['gungjun'];
-      if (o && o.fac === '위' && rndOf(g) < 0.5) { o.hurt = 3; }
-      return '마한과 위가 등을 돌렸습니다. 대방의 성벽이 상했습니다.';
+      if (aliveOff(g, 'gungjun')) killOff(g, 'gungjun');
+      return ['마한과 위가 등을 돌렸습니다. 대방의 성벽이 상하고 궁준이 전사했습니다.',
+              'Mahan and Wei are now at war. The walls of Daifang are damaged and Gong Zun is dead.'];
     },
   },
   {
-    id: 'gwangugeom', y: 246, m: 10, need: g => g.castles[1],
-    nm: '관구검의 침공',
+    id: 'baekje_nakrang', kind: 'hist', y: 246, m: 8, need: g => g.castles[8] && g.castles[19],
+    nm: '백제, 낙랑 변경을 치다', nmEn: 'Baekje Raids the Lelang Border',
+    txt: '위가 고구려를 치는 틈을 타 백제 고이왕이 좌장 진충을 보내 낙랑 변경을 습격하고 ' +
+         '주민을 잡아왔다. 낙랑태수 유무가 노하자 왕이 침공을 두려워하여 그 사람들을 돌려보냈다.',
+    txtEn: 'While Wei was busy with Goguryeo, King Goi of Baekje sent his commander Jinchung to raid the Lelang border and seize ' +
+           'its people. When Liu Mao of Lelang grew angry, the king feared an invasion and sent them back.',
+    src: '삼국사기 백제본기 고이왕 13년', srcEn: 'Samguk Sagi, Annals of Baekje, King Goi year 13',
+    run: (g) => {
+      const c = g.castles[19];
+      if (c) bump(c, 'morale', 6, 0, 100);
+      addAtt(g, '위', '백제', -25);
+      const o = g.officers['jinchung'];
+      if (o) o.exp += 90;
+      return ['진충이 공을 세웠으나, 낙랑이 백제를 벼르게 되었습니다.',
+              'Jinchung has earned merit, but Lelang now bears a grudge against Baekje.'];
+    },
+  },
+  {
+    id: 'deungnae', kind: 'hist', y: 246, m: 9, need: g => aliveOff(g, 'deungnae', '고구려'),
+    nm: '득래의 간언', nmEn: 'The Warning of Deungnae',
+    txt: '득래는 왕이 중국과 등지는 것을 여러 번 말렸으나 왕이 따르지 않자, "이 땅에 쑥대가 나는 것을 보겠다" ' +
+         '탄식하고 먹지 않아 죽었다. 훗날 관구검은 그 무덤을 헐지 말라 명했다.',
+    txtEn: 'Deungnae warned the king again and again against turning on China. When he was ignored he sighed, "I shall see ' +
+           'mugwort grow on this land," and starved himself to death. Guanqiu Jian later ordered his grave left untouched.',
+    src: '삼국사기 고구려본기 동천왕 20년', srcEn: 'Samguk Sagi, Annals of Goguryeo, King Dongcheon year 20',
+    run: (g) => {
+      killOff(g, 'deungnae');
+      for (const o of factionOfficers(g, '고구려')) o.loy = Math.max(0, o.loy - 2);
+      return ['득래가 세상을 떠났습니다. 고구려 신하들의 마음이 무거워졌습니다.',
+              'Deungnae is dead. A heaviness has settled over the ministers of Goguryeo.'];
+    },
+  },
+  {
+    id: 'gwangugeom', kind: 'hist', y: 246, m: 10, need: g => g.castles[1],
+    nm: '관구검의 침공', nmEn: 'Guanqiu Jian Invades',
     txt: '위의 유주자사 관구검이 현도태수 왕기를 앞세워 고구려를 쳤다. 환도성이 함락되고 ' +
          '동천왕은 동쪽으로 달아났다. 밀우가 뒤를 막고, 유유가 거짓 항복으로 적장을 찔러 죽였다.',
-    src: '삼국지 위서 관구검전 · 삼국사기 열전',
+    txtEn: 'Guanqiu Jian, Inspector of You Province, struck Goguryeo with Wang Qi of Xuantu in the van. Hwando fell and King ' +
+           'Dongcheon fled east. Miru held the rear, and Yuyu feigned surrender to stab the enemy commander.',
+    src: '삼국지 위서 관구검전 · 삼국사기 고구려본기 동천왕 20년',
+    srcEn: 'Records of the Three Kingdoms, Biography of Guanqiu Jian · Samguk Sagi, King Dongcheon year 20',
     run: (g) => {
       setRel(g, '고구려', '위', 'war');
       const c = g.castles[1];
       if (c) { c.wall = Math.round(c.wall * 0.5); c.morale = Math.max(10, c.morale - 20); }
-      for (const id of ['miru', 'yuyu']) {
-        const o = g.officers[id];
-        if (o) o.exp += 120;
-      }
-      return '국내성의 성벽이 크게 상했습니다. 밀우와 유유가 공을 세웠습니다.';
+      for (const id of ['miru', 'yuyu']) { const o = g.officers[id]; if (o) o.exp += 120; }
+      return ['국내성의 성벽이 크게 상했습니다. 밀우와 유유가 공을 세웠습니다.',
+              'The walls of Gungnae are badly damaged. Miru and Yuyu have earned great merit.'];
     },
   },
   {
-    id: 'baekje_nakrang', y: 246, m: 8, need: g => g.castles[8] && g.castles[19],
-    nm: '백제, 낙랑 변경을 치다',
-    txt: '위가 고구려를 치는 틈을 타 백제 고이왕이 좌장 진충을 보내 낙랑 변경을 습격하고 ' +
-         '주민을 잡아왔다. 낙랑태수 유무가 노하자 왕이 침공을 두려워하여 그 사람들을 돌려보냈다.',
-    src: '삼국사기 백제본기 고이왕 13년',
+    id: 'pyeongyang247', kind: 'hist', y: 247, m: 2, need: g => owns(g, 1, '고구려') && g.done && g.done.gwangugeom,
+    nm: '평양성을 쌓다', nmEn: 'Building Pyongyang Fortress',
+    txt: '환도성이 전쟁으로 무너져 다시 도읍으로 삼기 어렵자, 동천왕이 평양성을 쌓고 백성과 종묘사직을 옮겼다. ' +
+         '이 평양이 지금의 평양인지는 학설이 갈린다.',
+    txtEn: 'With Hwando ruined by war, King Dongcheon built Pyongyang Fortress and moved his people and shrines there. ' +
+           'Scholars disagree on whether this was today\'s Pyongyang.',
+    src: '삼국사기 고구려본기 동천왕 21년', srcEn: 'Samguk Sagi, Annals of Goguryeo, King Dongcheon year 21',
     run: (g) => {
-      const c = g.castles[19];
-      if (c) c.pop += 3000;
-      addAtt(g, '위', '백제', -25);
-      const o = g.officers['jinchung'];
-      if (o) o.exp += 90;
-      return '위례성의 인구가 늘었으나, 낙랑이 백제를 벼르게 되었습니다.';
+      const c = g.castles[1];
+      bump(c, 'morale', 10, 0, 100); bump(c, 'sec', 6, 0, castleDef(1).cap); c.pop += 2000;
+      return ['국내성의 사기와 치안이 오르고 백성이 모여들었습니다.',
+              'Morale and order rise in Gungnae, and people gather there again.'];
     },
   },
   {
-    id: 'himiko', y: 248, m: 3, need: g => !!g.officers['himiko'],
-    nm: '히미코의 죽음',
+    id: 'bulnae247', kind: 'hist', y: 247, m: 4, need: g => owns(g, 18, '동예') && facAlive(g, '위'),
+    nm: '불내예왕', nmEn: 'The King of Bulnae-Ye',
+    txt: '정시 8년, 불내후가 위의 궁궐에 이르러 조공하니 황제가 그를 불내예왕으로 봉했다. ' +
+         '그는 백성 사이에 섞여 살며 사철마다 군에 나아가 예를 갖추었다.',
+    txtEn: 'In the eighth year of Zhengshi the Lord of Bulnae came to the Wei court with tribute and was named King of Bulnae-Ye. ' +
+           'He lived among his people and paid his respects at the commandery every season.',
+    src: '삼국지 위서 동이전 예전', srcEn: 'Records of the Three Kingdoms, Book of Wei, Account of the Ye',
+    run: (g) => {
+      addAtt(g, '위', '동예', 25); addAtt(g, '동예', '위', 25);
+      g.castles[18].gold += 500;
+      return ['위와 동예가 가까워졌습니다. 하슬라의 금고가 늘었습니다.',
+              'Wei and Dongye have grown closer. The treasury of Haseulla has grown.'];
+    },
+  },
+  {
+    id: 'zhangzheng247', kind: 'hist', y: 247, m: 6,
+    need: g => facAlive(g, '야마토') && facAlive(g, '구노국') && aliveOff(g, 'himiko', '야마토'),
+    nm: '황제의 누런 깃발', nmEn: 'The Emperor\'s Yellow Banner',
+    txt: '왜의 여왕 히미코와 구노국의 남왕 히미쿠코는 본래 사이가 나빴다. 히미코가 대방군에 싸우는 형편을 알리자, ' +
+         '위는 장정을 보내 조서와 누런 깃발을 난승미에게 주고 격문으로 타일렀다.',
+    txtEn: 'Himiko, queen of Wa, had long been at odds with Himikuko, male king of Kunu. When she reported the fighting to Daifang, ' +
+           'Wei sent Zhang Zheng to give Nashime an edict and a yellow banner and to admonish them by proclamation.',
+    src: '삼국지 위서 왜인전', srcEn: 'Records of the Three Kingdoms, Book of Wei, Account of the Wa',
+    run: (g) => {
+      setRel(g, '야마토', '구노국', 'war');
+      addAtt(g, '위', '야마토', 20); addAtt(g, '야마토', '위', 20);
+      const o = g.officers['nanseungmi']; if (o) o.exp += 80;
+      eachCastle(g, '야마토', c => bump(c, 'morale', 6, 0, 100));
+      return ['야마토와 구노국이 전쟁에 들어갔습니다. 위가 야마토의 편에 섰습니다.',
+              'Yamato and Kunu are at war. Wei has taken Yamato\'s side.'];
+    },
+  },
+  {
+    id: 'hwachin248', kind: 'hist', y: 248, m: 2, need: g => facAlive(g, '신라') && facAlive(g, '고구려'),
+    nm: '사로와 고구려의 화친', nmEn: 'Saro Makes Peace with Goguryeo',
+    txt: '첨해가 왕위에 오른 이듬해, 사로가 고구려에 사신을 보내 화친을 맺었다.',
+    txtEn: 'The year after Cheomhae took the throne, Saro sent envoys to Goguryeo and made peace.',
+    src: '삼국사기 신라본기 첨해이사금 2년', srcEn: 'Samguk Sagi, Annals of Silla, Cheomhae Isageum year 2',
+    run: (g) => {
+      if (relOf(g, '신라', '고구려') === 'war') setRel(g, '신라', '고구려', 'peace');
+      addAtt(g, '신라', '고구려', 25); addAtt(g, '고구려', '신라', 25);
+      return ['사로와 고구려의 사이가 가까워졌습니다.', 'Saro and Goguryeo have drawn closer.'];
+    },
+  },
+  {
+    id: 'himiko', kind: 'hist', y: 248, m: 3, need: g => aliveOff(g, 'himiko'),
+    nm: '히미코의 죽음', nmEn: 'The Death of Himiko',
     txt: '왜의 여왕 히미코가 죽었다. 무덤을 크게 만들고 따라 죽은 종이 백여 명이었다. ' +
          '남자를 왕으로 세웠으나 나라가 따르지 않아 서로 죽이기를 천여 명, ' +
          '다시 히미코의 종녀 이여를 세우고서야 잦아들었다.',
-    src: '삼국지 위서 왜인전',
+    txtEn: 'Himiko, queen of Wa, died. A great mound was raised and over a hundred servants died with her. A man was made king, ' +
+           'but the land would not obey and more than a thousand were killed, until Iyo of Himiko\'s clan was made queen.',
+    src: '삼국지 위서 왜인전', srcEn: 'Records of the Three Kingdoms, Book of Wei, Account of the Wa',
     run: (g) => {
-      const h = g.officers['himiko'];
-      if (h) { h.fac = null; h.loy = 0; h.corps = null; h.found = true; }
       const y = g.officers['wa_iyeo'];
-      if (y) { y.fac = '야마토'; y.loy = 100; y.lv += 3; }
+      if (y && !y.dead) { y.fac = '야마토'; y.loy = 100; y.lv += 3; y.found = true; }
+      killOff(g, 'himiko', 'wa_iyeo');
       for (const n of factionCastles(g, '야마토')) {
         const c = g.castles[n];
         c.sec = Math.max(5, c.sec - 20); c.morale = Math.max(10, c.morale - 15);
       }
-      return '야마토가 크게 흔들렸습니다. 이여가 뒤를 이었습니다.';
+      return ['야마토가 크게 흔들렸습니다. 이여가 뒤를 이었습니다.', 'Yamato is shaken to its core. Iyo has taken the throne.'];
     },
   },
   {
-    id: 'buyeo_gone', y: 249, m: 5, need: g => factionCastles(g, '부여').length > 0,
-    nm: '부여의 흉년',
-    txt: '부여에 서리가 일찍 내려 곡식이 상했다. 옛 풍속에 흉년이 들면 왕에게 허물을 돌려 ' +
-         '바꾸거나 죽이자 하였다.',
-    src: '삼국지 위서 동이전',
+    id: 'okjeo_tribute', kind: 'hist', y: 247, m: 7, need: g => g.castles[17] && g.castles[17].fac,
+    nm: '옥저의 공물', nmEn: 'The Tribute of Okjeo',
+    txt: '동옥저는 고구려에 소금과 물고기, 해초를 져 날랐다. 천 리 길을 지고 갔다 한다.',
+    txtEn: 'East Okjeo carried salt, fish and seaweed to Goguryeo on their backs, a thousand li on foot.',
+    src: '삼국지 위서 동이전 동옥저전', srcEn: 'Records of the Three Kingdoms, Book of Wei, Account of East Okjeo',
+    run: (g) => {
+      const owner = g.castles[17].fac;
+      for (const n of factionCastles(g, owner)) g.castles[n].food += 2000;
+      const [ko, en] = facKE(owner);
+      return [`${ko}의 군량이 늘었습니다.`, `The grain stores of ${en} have grown.`];
+    },
+  },
+  {
+    id: 'dongcheon248', kind: 'hist', y: 248, m: 9, need: g => aliveOff(g, 'dongcheon', '고구려'),
+    nm: '동천왕의 죽음과 시원', nmEn: 'The Death of Dongcheon',
+    txt: '동천왕이 죽자 그 은덕을 그리워하여 따라 죽으려는 신하가 많았다. 새 왕이 예가 아니라며 막았으나 ' +
+         '장례날 무덤에서 스스로 죽는 이가 많아, 사람들이 땔나무로 주검을 덮고 그곳을 시원(柴原)이라 불렀다.',
+    txtEn: 'When King Dongcheon died, many who remembered his kindness sought to die with him. The new king forbade it, yet many ' +
+           'killed themselves at the tomb, and people covered them with firewood and named the place Siwon.',
+    src: '삼국사기 고구려본기 동천왕 22년', srcEn: 'Samguk Sagi, Annals of Goguryeo, King Dongcheon year 22',
+    run: (g) => {
+      killOff(g, 'dongcheon', 'gy_yeonbul');
+      const heir = g.officers[lordIdOf(g, '고구려')];
+      if (heir) heir.lv += 2;
+      eachCastle(g, '고구려', c => bump(c, 'morale', -6, 10, 100));
+      const hn = heir ? heir.nm : '';
+      return [`동천왕이 세상을 떠났습니다. ${hn}이(가) 고구려의 뒤를 이었습니다.`,
+              `King Dongcheon is dead. ${heir && heir.en ? heir.en : 'His heir'} now rules Goguryeo.`];
+    },
+  },
+  {
+    id: 'seokuro249', kind: 'hist', y: 249, m: 4, need: g => aliveOff(g, 'seokuro', '신라') && facAlive(g, '야마토'),
+    nm: '석우로의 농담', nmEn: 'Seok Uro\'s Jest',
+    txt: '석우로가 왜의 사신 갈나고에게 "너희 왕을 소금 굽는 종으로 삼겠다" 농담했다. 노한 왜왕이 우도주군을 보내 쳐들어오자 ' +
+         '우로가 스스로 적진에 갔고, 왜인들은 그를 불태워 죽였다. 신라본기는 첨해왕 3년, 열전은 7년의 일로 적었다.',
+    txtEn: 'Seok Uro joked to the Wa envoy Galnago that he would make the Wa king a salt-boiling slave. The enraged king sent Udojugun ' +
+           'to attack; Uro went to the enemy himself and was burned to death. The Silla Annals date it to 249, his biography to 253.',
+    src: '삼국사기 신라본기 첨해이사금 3년 · 열전 석우로', srcEn: 'Samguk Sagi, Annals of Silla, Cheomhae year 3 · Biography of Seok Uro',
+    run: (g) => {
+      killOff(g, 'seokuro');
+      setRel(g, '신라', '야마토', 'war');
+      addAtt(g, '신라', '야마토', -30); addAtt(g, '야마토', '신라', -30);
+      eachCastle(g, '신라', c => bump(c, 'morale', -8, 10, 100));
+      return ['석우로가 죽었습니다. 사로와 야마토가 원수가 되었습니다.', 'Seok Uro is dead. Saro and Yamato are now bitter enemies.'];
+    },
+  },
+  {
+    id: 'buyeo_gone', kind: 'hist', y: 249, m: 5, need: g => factionCastles(g, '부여').length > 0,
+    nm: '부여의 흉년', nmEn: 'Famine in Buyeo',
+    txt: '부여의 옛 풍속에는 비바람이 고르지 못해 오곡이 여물지 않으면 그 허물을 왕에게 돌려, ' +
+         '왕을 바꾸거나 죽이자 하였다. 이해 부여에 흉년이 들었다.',
+    txtEn: 'By the old custom of Buyeo, when the weather failed and the grain did not ripen the king was blamed, and some would say ' +
+           'he should be replaced or killed. This year Buyeo\'s harvest failed.',
+    src: '삼국지 위서 동이전 부여전', srcEn: 'Records of the Three Kingdoms, Book of Wei, Account of Buyeo',
     run: (g) => {
       for (const n of factionCastles(g, '부여')) {
         const c = g.castles[n];
         c.food = Math.round(c.food * 0.5);
         c.sec = Math.max(5, c.sec - 12);
       }
-      return '부여의 곳간이 절반으로 줄었습니다.';
+      return ['부여의 곳간이 절반으로 줄었습니다.', 'Buyeo\'s granaries have been cut in half.'];
     },
   },
   {
-    id: 'okjeo_tribute', y: 247, m: 7, need: g => g.castles[17],
-    nm: '옥저의 공물',
-    txt: '동옥저는 고구려에 소금과 물고기, 해초를 져 날랐다. 천 리 길을 지고 갔다 한다.',
-    src: '삼국지 위서 동이전',
+    id: 'gwanna251', kind: 'hist', y: 251, m: 4,
+    need: g => aliveOff(g, 'gy_yeonbul', '고구려') && lordIdOf(g, '고구려') === 'gy_yeonbul',
+    nm: '관나부인의 가죽 주머니', nmEn: 'Lady Gwanna\'s Leather Sack',
+    txt: '중천왕이 아끼던 관나부인이 왕후 연씨를 시기하여, 가죽 주머니를 들고 "왕후가 나를 여기 넣어 바다에 던지려 한다"고 ' +
+         '모함했다. 거짓임을 안 왕은 도리어 관나부인을 그 주머니에 넣어 서해에 던지게 했다.',
+    txtEn: 'Lady Gwanna, favored by King Jungcheon, envied Queen Yeon and, holding a leather sack, claimed the queen meant to throw ' +
+           'her into the sea in it. Seeing the lie, the king had Lady Gwanna herself cast into the western sea in that sack.',
+    src: '삼국사기 고구려본기 중천왕 4년', srcEn: 'Samguk Sagi, Annals of Goguryeo, King Jungcheon year 4',
     run: (g) => {
-      const owner = g.castles[17].fac;
-      for (const n of factionCastles(g, owner)) g.castles[n].food += 2000;
-      return `${FACTIONS[owner] ? FACTIONS[owner].nm : owner}의 군량이 늘었습니다.`;
+      const cap = FACTIONS['고구려'].cap;
+      if (owns(g, cap, '고구려')) bump(g.castles[cap], 'sec', 5, 0, castleDef(cap).cap);
+      const o = g.officers['gy_yeonbul']; if (o) o.exp += 40;
+      return ['궁중의 기강이 바로 섰습니다.', 'Order in the palace has been restored.'];
     },
   },
   {
-    id: 'mucheon', y: 0, m: 10, repeat: true, need: g => g.castles[18],
-    nm: '무천(舞天)',
+    id: 'goegok255', kind: 'hist', y: 255, m: 9, need: g => facAlive(g, '백제') && facAlive(g, '신라'),
+    nm: '괴곡 싸움', nmEn: 'The Battle West of Goegok',
+    txt: '백제가 쳐들어오자 사로의 일벌찬 익종이 괴곡 서쪽에서 맞서 싸웠으나 전사했다.',
+    txtEn: 'When Baekje invaded, Ikjong, an ilbeolchan of Saro, met them west of Goegok and was killed.',
+    src: '삼국사기 신라본기 첨해이사금 9년', srcEn: 'Samguk Sagi, Annals of Silla, Cheomhae Isageum year 9',
+    run: (g) => {
+      setRel(g, '백제', '신라', 'war');
+      addAtt(g, '백제', '신라', -20); addAtt(g, '신라', '백제', -20);
+      eachCastle(g, '신라', c => { for (const u of UNIT_KEYS) c.troops[u] = Math.round(c.troops[u] * 0.9); });
+      return ['백제와 사로가 전쟁에 들어갔습니다. 사로의 병력이 줄었습니다.', 'Baekje and Saro are at war. Saro has lost troops.'];
+    },
+  },
+  {
+    id: 'yangmaek259', kind: 'hist', y: 259, m: 12,
+    need: g => facAlive(g, '고구려') && facAlive(g, '위') && aliveOff(g, 'gy_yeonbul', '고구려'),
+    nm: '양맥 골짜기 싸움', nmEn: 'The Valleys of Yangmaek',
+    txt: '위의 장수 위지해가 쳐들어오자 중천왕이 정예 기병 오천을 골라 양맥의 골짜기에서 쳐부수고 팔천여 명의 목을 베었다.',
+    txtEn: 'When the Wei general Yuchi Kai invaded, King Jungcheon chose five thousand elite horsemen, crushed him in the valleys ' +
+           'of Yangmaek, and took more than eight thousand heads.',
+    src: '삼국사기 고구려본기 중천왕 12년', srcEn: 'Samguk Sagi, Annals of Goguryeo, King Jungcheon year 12',
+    run: (g) => {
+      eachCastle(g, '위', c => { for (const u of UNIT_KEYS) c.troops[u] = Math.round(c.troops[u] * 0.92); });
+      eachCastle(g, '고구려', c => bump(c, 'morale', 10, 0, 100));
+      const o = g.officers['gy_yeonbul']; if (o) o.exp += 150;
+      return ['위의 병력이 줄고 고구려의 사기가 올랐습니다.', 'Wei\'s armies have shrunk and Goguryeo\'s morale soars.'];
+    },
+  },
+  {
+    id: 'goi260', kind: 'hist', y: 260, m: 1, need: g => facAlive(g, '백제'),
+    nm: '여섯 좌평과 열여섯 관등', nmEn: 'Six Ministers and Sixteen Ranks',
+    txt: '고이왕이 여섯 좌평을 두어 나랏일을 나누어 맡기고, 좌평에서 극우까지 열여섯 관등을 정했다.',
+    txtEn: 'King Goi appointed six jwapyeong ministers to share the affairs of state and set sixteen ranks, from jwapyeong down to geugu.',
+    src: '삼국사기 백제본기 고이왕 27년', srcEn: 'Samguk Sagi, Annals of Baekje, King Goi year 27',
+    run: (g) => {
+      eachCastle(g, '백제', (c, n) => bump(c, 'sec', 8, 0, castleDef(n).cap));
+      for (const o of factionOfficers(g, '백제')) o.loy = Math.min(100, o.loy + 6);
+      return ['백제의 치안과 신하들의 충성이 올랐습니다.', 'Order and loyalty rise across Baekje.'];
+    },
+  },
+  {
+    id: 'goi262', kind: 'hist', y: 262, m: 1, need: g => facAlive(g, '백제'),
+    nm: '뇌물을 받은 관리는', nmEn: 'The Law on Bribes',
+    txt: '고이왕이 영을 내려, 재물을 받거나 도둑질한 관리는 장물의 세 배를 물리고 평생 벼슬길을 막았다.',
+    txtEn: 'King Goi decreed that any official who took bribes or stole must repay threefold and be barred from office for life.',
+    src: '삼국사기 백제본기 고이왕 29년', srcEn: 'Samguk Sagi, Annals of Baekje, King Goi year 29',
+    run: (g) => {
+      eachCastle(g, '백제', (c, n) => { bump(c, 'sec', 6, 0, castleDef(n).cap); c.gold += 300; });
+      return ['백제의 치안이 오르고 거점마다 금 300이 들어왔습니다.', 'Order rises in Baekje, and each hold gains 300 gold.'];
+    },
+  },
+  {
+    id: 'jin265', kind: 'hist', y: 265, m: 12, need: g => facAlive(g, '위'),
+    nm: '위가 가고 진이 서다', nmEn: 'Wei Falls, Jin Rises',
+    txt: '사마염이 위의 마지막 황제에게서 자리를 물려받아 진(晉)을 세웠다. 이 게임에서는 위 세력이 이름을 그대로 둔 채 진을 잇는다.',
+    txtEn: 'Sima Yan took the throne from the last Wei emperor and founded the Jin dynasty. In this game the Wei faction keeps its name and carries on as Jin.',
+    src: '진서 무제기', srcEn: 'Book of Jin, Annals of Emperor Wu',
+    run: (g) => {
+      eachCastle(g, '위', (c) => { bump(c, 'morale', -12, 10, 100); bump(c, 'sec', -6, 5, 100); });
+      return ['낙랑과 대방의 사기와 치안이 떨어졌습니다.', 'Morale and order fall in Lelang and Daifang.'];
+    },
+  },
+  {
+    id: 'mucheon', kind: 'hist', y: 0, m: 10, repeat: true, need: g => g.castles[18] && g.castles[18].fac,
+    nm: '무천(舞天)', nmEn: 'Mucheon, the Dance to Heaven',
     txt: '예 사람은 시월이면 하늘에 제사하고 밤낮으로 술 마시며 노래하고 춤춘다. 이를 무천이라 한다.',
-    src: '삼국지 위서 동이전',
+    txtEn: 'In the tenth month the people of Ye sacrifice to Heaven, drinking, singing and dancing day and night. This is called Mucheon.',
+    src: '삼국지 위서 동이전 예전', srcEn: 'Records of the Three Kingdoms, Book of Wei, Account of the Ye',
     run: (g) => {
       const owner = g.castles[18].fac;
       for (const n of factionCastles(g, owner)) {
@@ -1183,26 +1415,192 @@ const EVENTS = [
         c.morale = Math.min(100, c.morale + 8);
         c.sec = Math.min(castleDef(n).cap, c.sec + 4);
       }
-      return `${FACTIONS[owner] ? FACTIONS[owner].nm : owner}의 사기가 올랐습니다.`;
+      const [ko, en] = facKE(owner);
+      return [`${ko}의 사기가 올랐습니다.`, `Morale rises across ${en}.`];
+    },
+  },
+
+  // ── 가상 이야기(창작) ─────────────────────────
+  {
+    id: 'f_minyu', kind: 'fic', chance: 0.25,
+    need: g => { const o = g.officers.kimminyu; return !!o && !o.dead && !o.captive && o.fac === null && !o.found && !!g.castles[18]; },
+    nm: '대관령의 창잡이', nmEn: 'The Spearman of Daegwallyeong',
+    txt: '대관령 고갯길을 막은 산적 떼를 창 한 자루로 흩어 버린 젊은이가 있었다. 그는 강릉의 김민유라 이름만 남기고 사라졌다.',
+    txtEn: 'A young man scattered the bandits blocking the Daegwallyeong pass with a single spear, left only the name Kim Min-yu of Gangneung, and vanished.',
+    src: '창작', srcEn: 'Fiction',
+    run: (g) => {
+      g.officers.kimminyu.found = true;
+      bump(g.castles[18], 'sec', 8, 0, castleDef(18).cap);
+      return ['재야 인재 김민유가 하슬라에 이름을 드러냈습니다. 탐색하지 않아도 등용할 수 있습니다.',
+              'Kim Min-yu has made his name known at Haseulla. He can be recruited without a search.'];
+    },
+  },
+  {
+    id: 'f_jeongchan', kind: 'fic', chance: 0.3, ms: [3, 4],
+    need: g => aliveOff(g, 'jeongchan') && !!g.castles[20],
+    nm: '정찬의 서쪽 창고', nmEn: 'Jeong Chan\'s West Storehouse',
+    txt: '보릿고개에 중원경의 솥이 비자, 아전 정찬이 풍년마다 덜어 둔 곡식 창고를 열어 백성에게 빌려주었다.',
+    txtEn: 'When the spring famine emptied the pots of Jungwongyeong, the clerk Jeong Chan opened a storehouse of grain he had set aside in good years and lent it out.',
+    src: '창작', srcEn: 'Fiction',
+    run: (g) => {
+      const c = g.castles[20];
+      c.food += 5000; bump(c, 'sec', 6, 0, castleDef(20).cap);
+      foundIfWild(g, 'jeongchan');
+      return ['중원경의 군량이 5,000 늘고 치안이 올랐습니다.', 'Jungwongyeong gains 5,000 grain and order rises.'];
+    },
+  },
+  {
+    id: 'f_forge', kind: 'fic', chance: 0.2,
+    need: g => aliveOff(g, 'kimgyeongho') && !!(g.castles[21] && g.castles[21].fac),
+    nm: '북원의 대장간', nmEn: 'The Smithy of Bugwon',
+    txt: '대장장이 김경호가 벼린 쇠창이 휘지 않는다는 소문에, 창을 든 장정 팔백이 북원성 군적에 이름을 올렸다.',
+    txtEn: 'Word spread that the spears forged by the smith Kim Gyeong-ho never bent, and eight hundred young men joined the rolls of Bugwon.',
+    src: '창작', srcEn: 'Fiction',
+    run: (g) => {
+      const c = g.castles[21];
+      c.troops['보병'] += 800; c.gold = Math.max(0, c.gold - 200);
+      foundIfWild(g, 'kimgyeongho');
+      return ['북원성에 보병 800이 늘었습니다(쇠값 금 200).', 'Bugwon gains 800 infantry (200 gold spent on iron).'];
+    },
+  },
+  {
+    id: 'f_archery', kind: 'fic', chance: 0.3, ms: [5, 6],
+    need: g => aliveOff(g, 'johyeonjin') && !!(g.castles[19] && g.castles[19].fac),
+    nm: '한수의 버들잎', nmEn: 'The Willow Leaf on the Han',
+    txt: '오월 씨뿌리기를 마친 뒤 한수 가의 활쏘기 겨루기에서, 위례의 조현진이 백 보 밖 버들잎을 꿰뚫었다.',
+    txtEn: 'At an archery contest on the Han after the May sowing, Jo Hyeon-jin of Wirye pierced a willow leaf a hundred paces away.',
+    src: '창작', srcEn: 'Fiction',
+    run: (g) => {
+      bump(g.castles[19], 'morale', 12, 0, 100);
+      g.officers.johyeonjin.exp += 100;
+      foundIfWild(g, 'johyeonjin');
+      return ['위례성의 사기가 올랐습니다. 조현진이 경험을 쌓았습니다.', 'Morale rises in Wirye. Jo Hyeon-jin gains experience.'];
+    },
+  },
+  {
+    id: 'f_plague', kind: 'fic', chance: 0.18, ms: [6, 7, 8],
+    pick: g => {
+      const list = factionCastles(g, g.player).filter(n => g.castles[n].sec < 60);
+      if (!list.length) return null;
+      return list.sort((a, b) => g.castles[b].pop - g.castles[a].pop)[0];
+    },
+    nm: '여름 열병', nmEn: 'Summer Fever',
+    txt: '여름 열병이 고을을 휩쓸었다. 무당의 굿으로도 잦아들지 않다가, 가을바람이 불고서야 물러갔다.',
+    txtEn: 'A summer fever swept the town. The shaman\'s rites could not stop it; only the autumn wind drove it away.',
+    src: '창작', srcEn: 'Fiction',
+    run: (g, n) => {
+      const c = g.castles[n], helped = aliveOff(g, 'kimyujin', g.player);
+      c.pop = Math.round(c.pop * (helped ? 0.95 : 0.9));
+      bump(c, 'morale', -8, 10, 100);
+      const [ko, en] = castleKE(n);
+      return helped
+        ? [`${ko}의 인구가 5% 줄었습니다. 김유진 덕분에 피해가 절반에 그쳤습니다.`, `${en} loses 5% of its people. Thanks to Kim Yu-jin, the toll was halved.`]
+        : [`${ko}의 인구가 10% 줄고 사기가 떨어졌습니다.`, `${en} loses 10% of its people and morale falls.`];
+    },
+  },
+  {
+    id: 'f_pirates', kind: 'fic', chance: 0.2,
+    need: g => aliveOff(g, 'jogyeongjun') && !!(g.castles[31] && g.castles[31].fac),
+    nm: '모래톱에 걸린 해적선', nmEn: 'Pirates on the Sandbar',
+    txt: '구야 포구를 턴 해적선을, 물때를 아는 조경준이 모래톱으로 몰아 불화살로 잡았다.',
+    txtEn: 'Pirates raided the harbor of Guya, but Jo Gyeong-jun, who knew the tides, drove their ships onto a sandbar and took them with fire arrows.',
+    src: '창작', srcEn: 'Fiction',
+    run: (g) => {
+      g.castles[31].gold += 700;
+      foundIfWild(g, 'jogyeongjun');
+      return ['구야의 금고에 금 700이 들어왔습니다.', 'The treasury of Guya gains 700 gold.'];
+    },
+  },
+  {
+    id: 'f_comet', kind: 'fic', chance: 0.08, need: g => g.year >= 250,
+    nm: '살별', nmEn: 'The Comet',
+    txt: '꼬리가 긴 살별이 동북 하늘을 가로질렀다. 사람들은 난리의 징조라 수군거렸다.',
+    txtEn: 'A long-tailed comet crossed the northeastern sky, and people whispered that it foretold war.',
+    src: '창작', srcEn: 'Fiction',
+    run: (g) => {
+      for (const c of Object.values(g.castles)) bump(c, 'morale', -5, 10, 100);
+      eachCastle(g, g.player, (c, n) => bump(c, 'sec', 5, 0, castleDef(n).cap));
+      return ['온 땅의 사기가 조금 떨어졌습니다. 우리 거점은 채비를 서둘러 치안이 올랐습니다.',
+              'Morale dips everywhere. Our holds hurried their preparations, and order rises.'];
+    },
+  },
+  {
+    id: 'f_bandits', kind: 'fic', chance: 0.3,
+    pick: g => {
+      if (!aliveOff(g, 'seojongbeom')) return null;
+      const list = factionCastles(g, g.player).filter(n => g.castles[n].sec < 40);
+      return list.length ? list.sort((a, b) => g.castles[a].sec - g.castles[b].sec)[0] : null;
+    },
+    nm: '밤의 도적 떼', nmEn: 'Bandits in the Night',
+    txt: '치안이 흐트러진 고을 바깥에서 도적 떼가 창고에 불을 질렀다. 무진의 기마 서종범이 밤길을 달려 그들을 흩었다.',
+    txtEn: 'Bandits set fire to the storehouses outside a lawless town, until Seo Jong-beom, the horseman of Mujin, rode through the night and scattered them.',
+    src: '창작', srcEn: 'Fiction',
+    run: (g, n) => {
+      const c = g.castles[n];
+      c.gold = Math.max(0, c.gold - 300); bump(c, 'sec', 8, 0, castleDef(n).cap);
+      foundIfWild(g, 'seojongbeom');
+      const [ko, en] = castleKE(n);
+      return [`${ko}이(가) 금 300을 잃었으나 도적이 흩어져 치안이 올랐습니다.`, `${en} lost 300 gold, but the bandits are gone and order rises.`];
+    },
+  },
+  {
+    id: 'f_market', kind: 'fic', chance: 0.2,
+    need: g => aliveOff(g, 'choiinu') && !!(g.castles[28] && g.castles[28].fac),
+    nm: '개성의 큰 장', nmEn: 'The Great Fair of Gaeseong',
+    txt: '낙랑과 마한의 상인이 함께 모인 개성의 큰 장에서, 두 곳 말을 다 하는 최인우가 흥정을 붙였다.',
+    txtEn: 'At a great fair in Gaeseong where merchants of Lelang and Mahan met, Choi In-u, who spoke both tongues, brokered the deals.',
+    src: '창작', srcEn: 'Fiction',
+    run: (g) => {
+      g.castles[28].gold += 900;
+      foundIfWild(g, 'choiinu');
+      return ['개성의 금고에 금 900이 들어왔습니다.', 'The treasury of Gaeseong gains 900 gold.'];
+    },
+  },
+  {
+    id: 'f_hunt', kind: 'fic', chance: 0.3, ms: [12, 1],
+    need: g => aliveOff(g, 'hamjunwon') && !!(g.castles[17] && g.castles[17].fac),
+    nm: '함주의 곰', nmEn: 'The Bear of Hamju',
+    txt: '한겨울 함주 고을에 내려온 큰 곰을, 홑옷 차림의 사냥꾼 함준원이 눈보라 속에서 잡았다.',
+    txtEn: 'In deep winter a great bear came down on Hamju, and Ham Jun-won, a hunter in a thin coat, brought it down in the blizzard.',
+    src: '창작', srcEn: 'Fiction',
+    run: (g) => {
+      const c = g.castles[17];
+      bump(c, 'morale', 8, 0, 100); c.food += 1500;
+      foundIfWild(g, 'hamjunwon');
+      return ['함주성의 사기가 오르고 군량이 1,500 늘었습니다.', 'Morale rises in Hamju and it gains 1,500 grain.'];
     },
   },
 ];
 
+const FIC_GAP = 5;             // 가상 이야기 사이 최소 간격(달) — 너무 잦으면 사료 사건이 묻힌다
 function runEvents(g) {
   g.done = g.done || {};
   const fired = [];
+  let ficFired = false;
   for (const e of EVENTS) {
     if (!e.repeat && g.done[e.id]) continue;
-    if (e.y && g.year !== e.y) continue;
-    if (e.m && g.month !== e.m) continue;
-    if (e.need && !e.need(g)) continue;
-    if (e.repeat && g.done[e.id] === g.year) continue;
-    const result = e.run(g);
+    let ctx = null;
+    if (e.kind === 'fic') {
+      if (ficFired || g.turn < 3 || g.turn - (g.lastFic == null ? -99 : g.lastFic) < FIC_GAP) continue;
+      if (e.ms && !e.ms.includes(g.month)) continue;
+      if (e.need && !e.need(g)) continue;
+      if (e.pick) { ctx = e.pick(g); if (ctx == null) continue; }
+      if (rndOf(g) >= e.chance) continue;
+    } else {
+      if (e.y && g.year !== e.y) continue;
+      if (e.m && g.month !== e.m) continue;
+      if (e.need && !e.need(g)) continue;
+      if (e.repeat && g.done[e.id] === g.year) continue;
+    }
+    const again = e.repeat && g.done[e.id] != null;
+    const out = e.run(g, ctx);
+    const [result, resultEn] = Array.isArray(out) ? out : [out, out];
     g.done[e.id] = e.repeat ? g.year : true;
+    if (e.kind === 'fic') { ficFired = true; g.lastFic = g.turn; }
     // ★일어난 달을 기록해 둔다 — 사건은 월말 정산에서 터지고 그 뒤에 달이 넘어가므로,
     //   화면에서 g.month 를 읽으면 한 달 뒤로 표시된다(실측: 8월 사건이 9월로).
-    const rec = { t: g.turn, k: 'event', id: e.id, nm: e.nm, txt: e.txt, src: e.src, result,
-                  y: g.year, m: g.month };
+    const rec = { t: g.turn, k: 'event', id: e.id, kind: e.kind, nm: e.nm, nmEn: e.nmEn, txt: e.txt, txtEn: e.txtEn,
+                  src: e.src, srcEn: e.srcEn, result, resultEn, castle: ctx, again, y: g.year, m: g.month };
     g.log.push(rec);
     fired.push(rec);
   }
@@ -1476,7 +1874,7 @@ function loadState(s) {
     grainPrice, sellPrice, tradeCap, tradeLeft, doTrade,
     POLICIES, policyOf, setPolicy, runDelegated,
     devRange, trainGain, searchChance, hireChance, idleAt, idleCastles, advise,
-    LORD_ID, isLord, ranksOf, RANK_ORDER, nearestOwned, purseOf, envoyBonus, settleFallen,
+    LORD_ID, lordIdOf, killOff, isLord, ranksOf, RANK_ORDER, nearestOwned, purseOf, envoyBonus, settleFallen,
     captivesOf, hireCaptiveChance, doCaptive, processCaptives,
     PLOTS, plotTargets, plotChance, doPlot, defWit,
     peaceChance, allyChance, giftGain, jointTargets, jointSources, jointChance, doJoint, JOINT_COST,
