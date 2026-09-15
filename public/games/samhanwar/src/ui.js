@@ -1714,6 +1714,24 @@ function paintCanvas() {
   cv.height = Math.max(180, Math.round(r.height * dpr));
   Scenes.draw(cv, p.s, `${comic.rec.id}-${comic.i}`);
 }
+// ★폰 폭에선 두 사람의 말풍선이 가운데서 겹쳐 앞사람 대사가 가려졌다(09-15 전수점검: 7칸).
+//   먼저 칸 폭을 나눠 좁혀 보고, 그래도 겹치면 앞 말풍선을 뒤 말풍선 위로 올린다.
+function layoutBubbles() {
+  const bs = [...$('#ccast').querySelectorAll('.bub')];
+  bs.forEach(b => { b.style.maxWidth = ''; b.style.marginBottom = ''; });
+  if (bs.length < 2 || $('#ev').hidden) return;
+  const R = b => b.getBoundingClientRect();
+  const hit = (A, B) => !(A.right <= B.left || A.left >= B.right || A.bottom <= B.top || A.top >= B.bottom);
+  if (!bs.some((b, k) => bs.some((c, j) => j > k && hit(R(b), R(c))))) return;
+  const w = R($('#comic')).width;
+  bs.forEach(b => { b.style.maxWidth = Math.max(130, Math.floor(w / bs.length) - 16) + 'px'; });
+  for (let k = 0; k < bs.length; k++) {
+    for (let j = k + 1; j < bs.length; j++) {
+      const A = R(bs[k]), B = R(bs[j]);
+      if (hit(A, B)) bs[k].style.marginBottom = (parseFloat(bs[k].style.marginBottom) || 0) + (A.bottom - B.top) + 8 + 'px';
+    }
+  }
+}
 function drawComic(fresh) {
   comicBar();
   const p = comic.panels[comic.i];
@@ -1754,6 +1772,8 @@ function drawComic(fresh) {
     fig.appendChild(el('div', 'fn', name));
     wrap.appendChild(fig);
   });
+  layoutBubbles();
+  if (document.fonts && document.fonts.status !== 'loaded') document.fonts.ready.then(layoutBubbles);
   if (p.snd) Sound.sfx(p.snd);
   else if (!fresh) Sound.sfx('click');
   speak(nar);
@@ -2094,7 +2114,7 @@ window.addEventListener('DOMContentLoaded', () => {
     comicBar();
   };
   if (HAS_SPEECH) { try { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => {}; } catch (e) { /* 무시 */ } }
-  window.addEventListener('resize', () => { if (!$('#ev').hidden) paintCanvas(); });
+  window.addEventListener('resize', () => { if (!$('#ev').hidden) { paintCanvas(); layoutBubbles(); } });
   $('#overback').onclick = () => { Store.del('samhan_game'); location.reload(); };
   $$('[data-close]').forEach(b => {
     b.onclick = () => { if (b.dataset.close === 'cmd') closeCmd(); else $('#' + b.dataset.close).hidden = true; };
