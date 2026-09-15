@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang="ko"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>글쓰기 — MeNew Soft</title><meta name="description" content="MeNew Soft 게시판 글쓰기"><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/board/write/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)"><meta name="robots" content="noindex, nofollow"><meta property="og:type" content="website"><meta property="og:title" content="글쓰기 — MeNew Soft"><meta property="og:description" content="MeNew Soft 게시판 글쓰기"><meta property="og:url" content="https://menewsoft.com/board/write/"><meta property="og:site_name" content="MeNew Soft"><meta property="og:image" content="https://menewsoft.com/og/default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="글쓰기"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://menewsoft.com/og/default.png"><link rel="sitemap" href="/sitemap-index.xml"><!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. --><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MeNew Soft","alternateName":["menewsoft","menewsoft.com","미뉴소프트","메뉴소프트","Tech Decode"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/index.DiusLBaZ.css"></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/">MeNew<span>Soft</span></a> <nav class="nav"> <a href="/">홈</a> <a href="/shops/">등록 업체</a> <a href="/news/">업체 소식</a> <a href="/games/">놀이공간</a> <a href="/blog/">글</a>  <a href="/learn/">초등 1학년 학습</a>  <a href="/board/">게시판</a> <a href="/about/">소개</a> <a href="/contact/">문의</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul>  </ul> </div> </nav> </div> </header> <main>  <section class="wrap bd bd-write"> <h1>글쓰기</h1> <p class="bd-write-who" id="who">로그인 상태를 확인하는 중…</p> <form class="bd-form" id="writeForm"> <div class="bd-form-row"> <label class="bd-form-cat">
+분류
+<select id="cat" disabled></select> </label> <label class="bd-form-title">
+제목
+<input id="title" maxlength="120" placeholder="제목을 입력하세요" disabled required> </label> </div> <label>
+내용
+<textarea id="body" rows="14" maxlength="10000" placeholder="내용을 입력하세요" disabled required></textarea> </label> <div class="bd-form-actions"> <button type="submit" class="bd-btn bd-btn-primary" id="submitBtn" disabled>등록</button> <button type="button" class="bd-btn" id="closeBtn">닫기</button> <span class="bd-hint" id="formMsg"></span> </div> </form> </section> <script>
+  (function () {
+    var LIMIT = 12000;   // 느린 회선을 억울하게 잡지 않도록 넉넉히 준다
+    function box(title, html) {
+      if (document.getElementById('bdDead')) return;
+      var host = document.querySelector('main .bd') || document.querySelector('main') || document.body;
+      if (!host) return;
+      var d = document.createElement('div');
+      d.id = 'bdDead';
+      d.className = 'bd-popup-help';
+      d.setAttribute('role', 'alert');
+      d.innerHTML = '<strong>' + title + '</strong>' + html;
+      host.prepend(d);
+    }
+    function dead() {
+      box('게시판 기능을 불러오지 못했습니다',
+        '<p>글쓰기·로그인에 필요한 파일(<b>www.gstatic.com</b>)을 이 브라우저가 받지 못했습니다.' +
+        ' 그래서 단추를 눌러도 아무 일이 일어나지 않습니다. 아래를 확인해 주세요.</p>' +
+        '<ul>' +
+        '<li><b>광고·추적 차단 확장</b>(uBlock, AdGuard 등)을 이 사이트에서 잠시 꺼 주세요</li>' +
+        '<li>회사·학교 네트워크라면 <b>다른 망(휴대폰 테더링 등)</b>에서 열어 보세요</li>' +
+        '<li>그 밖에는 <b>새로고침</b>으로 대개 해결됩니다</li>' +
+        '</ul>' +
+        '<p class="bd-popup-alt"><button type="button" class="bd-btn bd-btn-sm" ' +
+        'onclick="location.reload()">새로고침</button></p>');
+      // 죽은 단추를 살아 있는 것처럼 두지 않는다.
+      ['writeToggle', 'moreBtn', 'cbtn'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) { el.disabled = true; el.title = '게시판 기능을 불러오지 못했습니다'; }
+      });
+    }
+    // ① 모듈이 아예 안 돌았다 → 확실한 사망.
+    setTimeout(function () { if (!window.__bdReady) dead(); }, LIMIT);
+    // ② 모듈은 돌았는데 목록이 끝내 '불러오는 중' 이면 Firestore 쪽이 막힌 것이다.
+    setTimeout(function () {
+      var list = document.getElementById('list');
+      if (window.__bdReady && list && /불러오는 중/.test(list.textContent || '')) {
+        box('글 목록을 불러오지 못했습니다',
+          '<p>서버에서 글을 받아오지 못했습니다. 잠시 뒤 <b>새로고침</b>해 주세요.</p>' +
+          '<p class="bd-popup-alt"><button type="button" class="bd-btn bd-btn-sm" ' +
+          'onclick="location.reload()">새로고침</button></p>');
+      }
+    }, LIMIT + 6000);
+  })();
+</script>  </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>MeNew Soft</span> <div class="links" data-astro-cid-sz7xmlte> <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. --> <a href="/" data-astro-cid-sz7xmlte>홈</a> <a href="/shops/" data-astro-cid-sz7xmlte>등록 업체</a> <a href="/news/" data-astro-cid-sz7xmlte>업체 소식</a> <a href="/games/" data-astro-cid-sz7xmlte>놀이공간</a> <a href="/blog/" data-astro-cid-sz7xmlte>글</a> <a href="/glossary/" data-astro-cid-sz7xmlte>용어사전</a> <a href="/tools/" data-astro-cid-sz7xmlte>도구</a> <a href="/learn/" data-astro-cid-sz7xmlte>초등 1학년 학습</a> <a href="/about/" data-astro-cid-sz7xmlte>소개</a> <a href="/contact/" data-astro-cid-sz7xmlte>문의</a> <a href="/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 MeNew Soft · menewsoft.com (미뉴소프트) — AI로 만듭니다 — 가게 홈페이지·학습 게임·웹게임. 등록 내용이 틀렸다면 알려주세요.</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 오늘 <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · 전체 <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html> <script type="module" src="/_astro/write.astro_astro_type_script_index_0_lang.A4XvK8Nk.js"></script>
