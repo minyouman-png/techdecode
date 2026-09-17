@@ -186,6 +186,36 @@ export function copyFor(game: GameEntry, lang: Lang): GameCopy {
 
 export const games: GameEntry[] = [
   {
+    slug: 'okgu-island',
+    released: '2026-09',
+    tech: 'Three.js WebGL 3D · Kenney CC0 3D 모델 · Web Audio 합성음 · 자가검증 36항목',
+    playPath: '/games/okisland/index.html',
+    cover: '/games/okisland/cover.jpg',
+    koOnly: true,
+    copy: {
+      ko: {
+        title: '옥구슬 섬',
+        tagline: '바다 한가운데 작은 섬, 빛을 잃은 언덕 위 제단 — 흩어진 옥구슬 세 개를 찾아 되돌려 주는 3D 탐험 퍼즐. 미뉴소프트의 첫 3D 게임 시제품입니다.',
+        about: [
+          '처음 만든 <b>3D 게임</b>입니다. 섬 하나를 걸어 다니며 퍼즐 세 개를 풀고, 찾은 옥구슬을 언덕 위 제단에 바치면 끝나는 <b>10~15분짜리 시제품</b>입니다. 큰 게임을 만들기 전에 "이 방식이 재미있는가"를 먼저 확인하려고 작게 만들었습니다.',
+          '<b>서쪽 돌담</b>은 문이 닫혀 있습니다. 문 앞의 발판은 사람이 올라서면 살짝 눌렸다가 다시 올라옵니다 — 더 무거운 것이 필요합니다. 근처의 나무 상자를 <b>들어서</b> 옮겨 보세요.',
+          '<b>동쪽 바다</b>에는 한 칸씩 높아지는 돌기둥 여섯 개가 서 있고, 꼭대기에 구슬이 떠 있습니다. 점프로 올라가야 하고, 떨어지면 바다에 빠져 마지막으로 서 있던 곳에서 다시 시작합니다.',
+          '<b>북쪽 유적</b>에는 높이가 다른 돌기둥 네 개와 비문이 하나 있습니다. 비문의 말대로 두드리면 돌마다 다른 음이 울리고, 순서가 틀리면 빛이 꺼지며 처음부터입니다.',
+          '길은 화면 위쪽 <b>나침반</b>이 알려 줍니다. 아직 찾지 못한 구슬 쪽에 초록 표시가 뜨고, 세 개를 다 모으면 제단 쪽에 별이 뜹니다.',
+          '섬의 나무·바위·캐릭터 같은 3D 모델은 누구나 자유롭게 쓸 수 있도록 공개된 <b>Kenney의 CC0 에셋</b>이고, 지형·바다·퍼즐·카메라·충돌 처리·소리(파도 소리와 돌기둥의 음까지)는 전부 코드로 만들었습니다.',
+          '2026년 9월, AI가 만들었습니다 — 섬의 지형 생성, 캐릭터 조작과 충돌, 퍼즐, 연출, 그리고 사람 대신 끝까지 플레이해 보는 자가검증 36항목까지.',
+        ],
+        how: [
+          '이동 WASD(방향키) · 달리기 Shift · 점프 Space · 행동 E',
+          '마우스를 끌면 시점이 돌고, 휠로 확대·축소합니다',
+          '📱 폰·태블릿은 왼쪽 원으로 이동, 화면을 끌어 시점, 오른쪽 단추로 점프·행동',
+          '처음엔 바로 앞 <b>표지판</b>부터 읽어 보세요',
+          '상자를 든 채로는 점프할 수 없습니다 — 내려놓을 때도 E',
+        ],
+      },
+    },
+  },
+  {
     slug: 'samhan',
     released: '2026-09',
     tech: 'Canvas 2D · Web Audio 5음계 합성음 · 로컬 SDXL 초상 201장 · 한국어/영어',
@@ -1239,7 +1269,7 @@ export function playerUrl(slug: string, lang: Lang): string {
   return `/play/${slug}/?lang=${lang}`;
 }
 // 홈 화면 '인기 게임' 노출 순서 (앞에서부터 4개 노출)
-export const homeGameOrder = ['yujin-math', 'suho-math', 'kkaebi-math', 'uja-science', 'uja-moral', 'kkaebi-science', 'kkaebi-moral', 'munju-piano', 'munju-math', 'munju-history', 'joss-fighters', 'voxel-world', 'super-uja', 'menew-kart', 'yuja-knight', 'fruit-blocks', 'menew-empires', 'ppanggeul-adventure'];
+export const homeGameOrder = ['okgu-island', 'yujin-math', 'suho-math', 'kkaebi-math', 'uja-science', 'uja-moral', 'kkaebi-science', 'kkaebi-moral', 'munju-piano', 'munju-math', 'munju-history', 'joss-fighters', 'voxel-world', 'super-uja', 'menew-kart', 'yuja-knight', 'fruit-blocks', 'menew-empires', 'ppanggeul-adventure'];
 
 // 주간 도전과제: ISO 주차 % 게임 수로 로테이션 (클라이언트에서 계산)
 export const weeklyChallenges: Record<string, Record<Lang, string>> = {

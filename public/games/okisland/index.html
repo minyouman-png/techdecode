@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>옥구슬 섬 — 3D 섬 탐험 시제품</title>
+<script>
+  window.__errs = [];
+  window.addEventListener('error', e => window.__errs.push(String(e.message || e)));
+  window.addEventListener('unhandledrejection', e => window.__errs.push('promise: ' + String(e.reason && (e.reason.stack || e.reason))));
+</script>
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.min.js" } }
+</script>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#9fd3f5;font-family:"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;color:#fff;-webkit-user-select:none;user-select:none;touch-action:none}
+  canvas{display:block}
+  .panel{background:rgba(20,32,44,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:12px}
+  #quest{position:fixed;left:14px;top:calc(14px + env(safe-area-inset-top));padding:10px 14px;font-size:14px;line-height:1.55;min-width:190px;pointer-events:none}
+  #quest b{font-size:15px;color:#ffe08a}
+  #quest .done{opacity:.5;text-decoration:line-through}
+  #compass{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top));transform:translateX(-50%);width:min(360px,60vw);height:30px;overflow:hidden;pointer-events:none}
+  #compass span{position:absolute;top:5px;transform:translateX(-50%);font-size:13px;font-weight:700;white-space:nowrap}
+  #compass .tick{color:#fff}
+  #compass .mk{font-size:15px;top:4px}
+  #compass::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;background:#ffe08a;opacity:.8}
+  #prompt{position:fixed;left:50%;bottom:calc(120px + env(safe-area-inset-bottom));transform:translateX(-50%);padding:8px 16px;font-size:16px;font-weight:700;pointer-events:none;white-space:nowrap}
+  #prompt kbd{display:inline-block;background:#ffe08a;color:#222;border-radius:5px;padding:0 7px;margin-right:6px;font-family:inherit}
+  #toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translateX(-50%);max-width:min(620px,88vw);padding:12px 18px;font-size:16px;line-height:1.5;text-align:center;pointer-events:none;transition:opacity .3s}
+  .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px;box-sizing:border-box}
+  #title{background:linear-gradient(180deg,rgba(12,40,70,.35),rgba(12,40,70,.75))}
+  #title h1{font-size:clamp(40px,8vw,76px);margin:0 0 6px;letter-spacing:.06em;text-shadow:0 4px 18px rgba(0,0,0,.35)}
+  #title .sub{font-size:16px;opacity:.9;margin-bottom:22px}
+  #title .story{max-width:520px;font-size:15px;line-height:1.7;opacity:.95;margin-bottom:22px}
+  .btn{font:inherit;font-size:20px;font-weight:700;padding:12px 38px;border:0;border-radius:999px;background:#ffd35a;color:#2a2200;cursor:pointer;box-shadow:0 6px 0 #c79a1c}
+  .btn:active{transform:translateY(3px);box-shadow:0 3px 0 #c79a1c}
+  .btn[disabled]{opacity:.5}
+  .keys{margin-top:22px;font-size:13px;opacity:.85;line-height:1.8}
+  #loadbar{width:240px;height:8px;border-radius:4px;background:rgba(255,255,255,.25);margin:0 auto 18px;overflow:hidden}
+  #loadbar i{display:block;height:100%;width:0;background:#ffd35a;transition:width .2s}
+  #clear{background:rgba(10,30,50,.6)}
+  #clear h2{font-size:clamp(30px,6vw,52px);margin:0 0 12px;color:#ffe08a}
+  #clear p{font-size:17px;line-height:1.7;margin:4px 0}
+  #fade{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .35s}
+  #touch{position:fixed;inset:0;pointer-events:none}
+  #joy{position:absolute;left:calc(26px + env(safe-area-inset-left));bottom:calc(26px + env(safe-area-inset-bottom));width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.35);pointer-events:auto}
+  #joy i{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:rgba(255,255,255,.55)}
+  .tb{position:absolute;width:74px;height:74px;border-radius:50%;background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.4);color:#fff;font:700 15px inherit;font-family:inherit;pointer-events:auto}
+  .tb.on{background:rgba(255,211,90,.55)}
+  #bJump{right:calc(24px + env(safe-area-inset-right));bottom:calc(30px + env(safe-area-inset-bottom))}
+  #bAct{right:calc(110px + env(safe-area-inset-right));bottom:calc(30px + env(safe-area-inset-bottom))}
+  #bRun{right:calc(40px + env(safe-area-inset-right));bottom:calc(116px + env(safe-area-inset-bottom));width:60px;height:60px;font-size:13px}
+  #simout{position:fixed;left:0;top:0;right:0;bottom:0;overflow:auto;background:rgba(0,0,0,.8);color:#cfc;font:12px/1.5 monospace;white-space:pre;padding:10px;display:none}
+  [hidden]{display:none!important}
+  @media (max-width:600px){ #quest{font-size:12px;min-width:0;max-width:52vw;padding:8px 10px} #quest b{font-size:13px}
+    #compass{left:auto;right:12px;transform:none;width:40vw} #prompt{bottom:calc(190px + env(safe-area-inset-bottom))} }
+</style>
+</head>
+<body>
+<div id="quest" class="panel" hidden></div>
+<div id="compass" class="panel" hidden></div>
+<div id="prompt" class="panel" hidden></div>
+<div id="toast" class="panel" style="opacity:0"></div>
+<div id="fade"></div>
+
+<div id="touch" hidden>
+  <div id="joy"><i></i></div>
+  <button class="tb" id="bAct">행동</button>
+  <button class="tb" id="bJump">점프</button>
+  <button class="tb" id="bRun">달리기</button>
+</div>
+
+<div id="title" class="overlay">
+  <h1>옥구슬 섬</h1>
+  <div class="sub">3D 섬 탐험 시제품</div>
+  <div class="story">바다 한가운데 작은 섬. 언덕 위 제단은 오래전 빛을 잃었습니다.<br>
+    섬 곳곳에 흩어진 <b>옥구슬 세 개</b>를 찾아 제단에 되돌려 주세요.</div>
+  <div id="loadbar"><i></i></div>
+  <button class="btn" id="startBtn" disabled>불러오는 중…</button>
+  <div class="keys" id="keys">
+    이동 <b>WASD</b> · 달리기 <b>Shift</b> · 점프 <b>Space</b> · 행동 <b>E</b><br>
+    마우스 끌기 = 시점 회전 · 휠 = 확대/축소
+  </div>
+</div>
+
+<div id="clear" class="overlay" hidden>
+  <h2>제단에 빛이 돌아왔습니다!</h2>
+  <p id="clearStats"></p>
+  <p style="opacity:.8;font-size:14px;margin-top:14px">시제품은 여기까지입니다. 재미있었던 점과 아쉬운 점을 알려 주세요.</p>
+  <div style="margin-top:22px"><button class="btn" onclick="location.reload()">처음부터 다시</button></div>
+</div>
+
+<div id="simout"></div>
+<script type="module" src="./main.js"></script>
+</body>
+</html>
