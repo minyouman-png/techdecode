@@ -17,7 +17,7 @@
 export const VAULTS = [
   {
     id: 'v1',
-    name: '두 번 꺾이는 복도',
+    name: '두 번 꺾이는 복도', en: 'The corridor that turns twice', en_hint: 'Cameras never hurt you. Lasers only fire at what is marked.',
     hint: '카메라는 때리지 않는다. 레이저는 발각된 것만 때린다.',
     budget: 12,
     grid: [
@@ -41,7 +41,7 @@ export const VAULTS = [
   },
   {
     id: 'v2',
-    name: '개가 지키는 방',
+    name: '개가 지키는 방', en: 'The room the dogs watch', en_hint: 'Dogs bite only the slow. A locked door makes anyone slow.',
     hint: '개는 느린 것만 문다. 잠금문 앞에 멈춘 순간, 누구든 느려진다.',
     budget: 12,
     grid: [
@@ -65,7 +65,7 @@ export const VAULTS = [
   },
   {
     id: 'v3',
-    name: '바닥을 조심할 것',
+    name: '바닥을 조심할 것', en: 'Mind the floor', en_hint: 'The ghost dodges cameras but not pressure plates.',
     hint: '그림자는 카메라를 피하지만 압력판은 피하지 못한다.',
     budget: 17,
     grid: [
@@ -93,9 +93,9 @@ export const VAULTS = [
 
 /** 도둑 — 역할이 겹치지 않는다. 겹치면 편성이 '제일 센 것 도배'가 된다. */
 export const THIEVES = {
-  runner: { ko: '달리기', ch: '🏃', cost: 3, hp: 30,  spd: 3.2, note: '빠르다 · 약하다' },
-  tank:   { ko: '몸빵',   ch: '🧱', cost: 5, hp: 170, spd: 1.3, note: '느리다 · 튼튼하다 · 일부러 걸린다' },
-  tech:   { ko: '기술자', ch: '🔧', cost: 4, hp: 60,  spd: 2.0, note: '곁의 전기 장치를 멈춘다' },
+  runner: { ko: '달리기', en: 'Runner', en_note: 'fast · fragile', ch: '🏃', cost: 3, hp: 30,  spd: 3.2, note: '빠르다 · 약하다' },
+  tank:   { ko: '몸빵', en: 'Bruiser', en_note: 'slow · tough · gets caught on purpose',   ch: '🧱', cost: 5, hp: 170, spd: 1.3, note: '느리다 · 튼튼하다 · 일부러 걸린다' },
+  tech:   { ko: '기술자', en: 'Tech', en_note: 'shuts down nearby electrics', ch: '🔧', cost: 4, hp: 60,  spd: 2.0, note: '곁의 전기 장치를 멈춘다' },
   /* ══ 로스터 확장 (2026-09-23) ══════════════════════════════════════════
    * ⚠️★캠페인 30개를 재 보니 **답이 6가지뿐**이었고(30개 중 14개가 같은 답), 원인은 맵이 아니라
    *   **로스터**였다 — 도둑 4명 × 장치 5종이면 의미 있는 답이 서너 개로 수렴한다.
@@ -103,34 +103,34 @@ export const THIEVES = {
    *   그래야 그 장치로 지은 금고에 **새 답**이 생긴다.
    *     카메라 ← 그림자 · 잠금문 ← 자물쇠공 · 압력판 ← 곡예사 · 전기 ← 기술자(곁에 있을 때)
    *   레이저에는 일부러 짝을 두지 않았다 — 무엇으로도 못 지우는 위협이 하나는 있어야 한다. */
-  lockp:  { ko: '자물쇠공', ch: '🗝️', cost: 4, hp: 45,  spd: 2.2, note: '잠금문에 멈추지 않는다' },
-  acro:   { ko: '곡예사',  ch: '🤸', cost: 3, hp: 35,  spd: 2.6, note: '압력판을 밟지 않는다' },
-  ghost:  { ko: '그림자', ch: '🕯️', cost: 4, hp: 22,  spd: 2.4, note: '카메라에 안 잡힌다 · 압력판엔 잡힌다' },
+  lockp:  { ko: '자물쇠공', en: 'Locksmith', en_note: 'never stops at locked doors', ch: '🗝️', cost: 4, hp: 45,  spd: 2.2, note: '잠금문에 멈추지 않는다' },
+  acro:   { ko: '곡예사', en: 'Acrobat', en_note: 'never triggers pressure plates',  ch: '🤸', cost: 3, hp: 35,  spd: 2.6, note: '압력판을 밟지 않는다' },
+  ghost:  { ko: '그림자', en: 'Ghost', en_note: 'invisible to cameras · but plates still catch them', ch: '🕯️', cost: 4, hp: 22,  spd: 2.4, note: '카메라에 안 잡힌다 · 압력판엔 잡힌다' },
 };
 
 /** 개입 — 판당 딱 한 번. 한 번뿐이라 '언제 썼나'가 기억에 남는다. */
 export const MOVES = {
-  blackout: { ko: '정전',  ch: '⚡', note: '카메라·레이저 3.5초 정지' },
-  breach:   { ko: '폭파',  ch: '💥', note: '벽 한 칸을 부순다 (클릭)' },
-  decoy:    { ko: '양동',  ch: '📢', note: '개를 5초간 그곳으로 부른다 (클릭)' },
+  blackout: { ko: '정전', en: 'Blackout', en_note: 'cameras & lasers off for 3.5s',  ch: '⚡', note: '카메라·레이저 3.5초 정지' },
+  breach:   { ko: '폭파', en: 'Breach', en_note: 'destroy one wall tile (click)',  ch: '💥', note: '벽 한 칸을 부순다 (클릭)' },
+  decoy:    { ko: '양동', en: 'Decoy', en_note: 'lure the dogs there for 5s (click)',  ch: '📢', note: '개를 5초간 그곳으로 부른다 (클릭)' },
 };
 
 /** 장치 — ★하나로는 아무것도 못 한다. 조합만이 의미를 만든다. */
 export const DEVICES = {
-  C: { ko: '카메라',  r: 3.6, dmg: 0,  note: '닿은 도둑에게 발각을 건다 (피해 없음)', elec: true },
-  L: { ko: '레이저',  r: 4.2, dmg: 52, note: '발각된 도둑만 쏜다', elec: true },
+  C: { ko: '카메라', en: 'Camera', en_note: 'marks whoever it sees (no damage)',  r: 3.6, dmg: 0,  note: '닿은 도둑에게 발각을 건다 (피해 없음)', elec: true },
+  L: { ko: '레이저', en: 'Laser', en_note: 'only fires at marked thieves',  r: 4.2, dmg: 52, note: '발각된 도둑만 쏜다', elec: true },
   /* ⚠️반지름 3.2 · 피해 38 로는 **잠금문에 멈춘 도둑이 예외 없이 즉사**했다(6개 편성 전멸).
      개는 넓게 순찰하는 게 아니라 **한 자리를 지킨다** — 좁게(1.6), 아프지만 즉사는 아니게(12).
      이 두 값이 '달리기는 문 하나는 견디고 둘은 못 견딘다'는 결정을 만든다. */
-  D: { ko: '경비견',  r: 1.6, dmg: 12, note: '느린 도둑만 문다 (속도 2.0 이하)', elec: false },
+  D: { ko: '경비견', en: 'Guard dog', en_note: 'bites slow thieves only (speed 2.0 or less)',  r: 1.6, dmg: 12, note: '느린 도둑만 문다 (속도 2.0 이하)', elec: false },
   /* ⚠️반지름 5.0 으로 잡았더니 한 번 밟는 것만으로 금고 절반이 발각돼 아무도 못 뚫었다
      (밸런스 행렬 0/6). 압력판은 '그 구역'이지 '금고 전체'가 아니다 → 3.2 로 줄인다. */
-  P: { ko: '압력판',  r: 3.2, dmg: 0,  note: '밟으면 그 구역이 발각된다', elec: false },
-  K: { ko: '잠금문',  r: 0,   dmg: 0,  note: '통과에 1.6초 걸린다', elec: false },
+  P: { ko: '압력판', en: 'Pressure plate', en_note: 'step on it and the area is exposed',  r: 3.2, dmg: 0,  note: '밟으면 그 구역이 발각된다', elec: false },
+  K: { ko: '잠금문', en: 'Locked door', en_note: 'takes 1.6s to pass',  r: 0,   dmg: 0,  note: '통과에 1.6초 걸린다', elec: false },
   /* ★경비견의 거울상. 지금까지 **빠른 도둑을 벌하는 장치가 하나도 없었다** —
      그래서 '느린 팀이 답인 금고'가 아예 만들어지지 않았다(답 6가지의 큰 원인).
      유리 바닥은 빠르게 지나면 깨진다: 속도 2.4 이상만 걸린다. */
-  G: { ko: '유리 바닥', r: 1.4, dmg: 26, note: '빠른 도둑만 빠진다 (속도 2.4 이상)', elec: false },
+  G: { ko: '유리 바닥', en: 'Glass floor', en_note: 'only fast thieves fall through (speed 2.4+)', r: 1.4, dmg: 26, note: '빠른 도둑만 빠진다 (속도 2.4 이상)', elec: false },
 };
 
 /* ══ 2단계: 설계 ══════════════════════════════════════════════════════════

@@ -218,7 +218,7 @@ export const games: GameEntry[] = [
   {
     slug: 'vault-maker',
     released: '2026-09',
-    tech: 'Canvas 2D 청사진 렌더 · 에셋 0장(전부 코드로 그림) · 절차적 금고 생성 · 자동 밸런스 측정',
+    tech: 'Canvas 2D 청사진 렌더 · 에셋 0장(전부 코드로 그림) · 절차적 금고 생성 · 자동 밸런스 측정 · 한국어/영어',
     playPath: '/games/vaultmaker/index.html',
     cover: '/games/vaultmaker/cover.jpg',
     copy: {
