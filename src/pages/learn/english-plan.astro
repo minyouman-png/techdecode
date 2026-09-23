@@ -1,0 +1,239 @@
+---
+/* 유진이 영어학습 프로그램 (`/learn/english-plan/`) — 한국어 전용.
+ *
+ * ⚠️'읽는 계획표'가 아니라 **매일 여는 화면**이다. 그래서 종이에 옮겨 적는 문서가 아니라
+ *   ①오늘 할 것이 맨 위에 뜨고 ②한 회를 끝내면 눌러서 도장을 찍고 ③진도가 눈에 보이는 페이지로 만든다.
+ *   초1 아이에게 '얼마나 했는지 보이는 것'은 내용만큼 중요하다.
+ *
+ * ⚠️진도는 localStorage 에만 둔다(학습 코너의 다른 진도와 같은 원칙 — 아이 기록을 서버로 보내지 않는다).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { weeks, KIND, totalSessions, totalWeeks } from '../../i18n/english-plan';
+
+const title = '유진이 영어학습 프로그램';
+const description =
+  '초등 1학년 영어 15주 프로그램(2026년 9월~12월). 주 3일, 한 회 10~15분. 낱말 놀이터와 영어 동물원 게임으로 하는 45회 계획.';
+---
+<BaseLayout lang="ko" title={title} description={description} canonicalPath="/learn/english-plan/">
+  <main class="wrap enp" data-plan={JSON.stringify(weeks)}>
+    <p class="kick">초등 1학년 · 영어 · 2026년 9월~12월</p>
+    <h1>📅 유진이 영어학습 프로그램</h1>
+    <p class="lead">
+      <b>주 3일 · 한 회 10~15분 · 모두 {totalSessions}회.</b><br>
+      진도가 목표가 아닙니다. <b>영어를 좋아하게 되는 것</b>이 목표입니다.
+    </p>
+
+    <div class="prog">
+      <div class="pbar"><div id="pin"></div></div>
+      <p id="pmsg">시작해 볼까요?</p>
+    </div>
+
+    <section class="today" id="today"></section>
+
+    <div class="legend">
+      {Object.entries(KIND).map(([k, v]) => (
+        <span class={`lg k${k}`}>{v.emoji} <b>{v.ko}</b> {v.hint}</span>
+      ))}
+    </div>
+
+    <section id="weeks" class="weeks"></section>
+
+    <section class="why">
+      <h2>🧭 이 프로그램은 왜 이렇게 짰나</h2>
+      <ul>
+        <li><b>한 회 10~15분.</b> 짧게 끝내서 “또 하고 싶다”로 남깁니다. 길게 하면 그날 하루가 아니라
+          영어 자체가 싫어집니다. 아이가 더 하고 싶어 하면 그때 더 하세요 — 먼저 늘리지 마세요.</li>
+        <li><b>주 3일의 역할이 다릅니다.</b> 같은 낱말도 <b>듣기 → 놀이 → 찾기</b>로 형태를 바꿔야 지루해지지
+          않습니다. 세 번 만나지만 세 번 다 다른 일입니다.</li>
+        <li><b>새 낱말은 한 회 여섯 개 이하.</b> 낱말 85개를 15주에 나누면 주 여섯 개로 충분합니다.
+          서두를 이유가 없습니다.</li>
+        <li><b>4주마다 복습 주간.</b> 새 낱말 없이 놀이만 합니다. 아는 것을 다시 만나는 것도 공부입니다.</li>
+        <li><b>발음을 고치지 마세요.</b> 지적하는 순간 아이가 입을 닫습니다. 맞는 소리는 🔊 가 계속 들려줍니다.
+          그게 교정입니다.</li>
+        <li><b>초등학교 영어는 3학년에 시작합니다.</b> 지금 필요한 건 단어 시험이 아니라
+          “영어 = 재미있는 것”이라는 기억이고, 그게 3학년 이후를 결정합니다.</li>
+      </ul>
+      <p class="note">
+        도장은 이 브라우저에만 저장됩니다. 서버로 보내지 않습니다. ·
+        <a href="/learn/english-words/">낱말 놀이터</a> · <a href="/games/english-zoo/">영어 동물원 게임</a>
+      </p>
+    </section>
+  </main>
+
+  <style is:global>
+    /* ⚠️`is:global` 인 이유: 아래 주차·회차 카드는 자바스크립트가 만든다. Astro 의 스코프 스타일은
+       템플릿에 있는 요소에만 속성을 붙이므로 JS 로 만든 요소에는 안 먹는다(낱말 놀이터에서 겪음).
+       대신 전역으로 새지 않도록 모든 선택자를 `.enp` 아래로 한정한다. */
+    .enp{max-width:900px;margin:0 auto;padding:28px 16px 64px}
+    .enp .kick{color:#0284c7;font-weight:800;letter-spacing:.04em;margin:0 0 4px;font-size:13px}
+    .enp h1{font-size:clamp(25px,6vw,38px);margin:0 0 10px}
+    .enp .lead{color:#475569;line-height:1.85;margin:0 0 18px}
+    .enp .prog{margin:0 0 20px}
+    .enp .pbar{height:14px;background:#e2e8f0;border-radius:999px;overflow:hidden}
+    .enp .pbar>div{height:100%;width:0;border-radius:999px;transition:width .4s;
+      background:linear-gradient(90deg,#38bdf8,#22c55e)}
+    .enp #pmsg{margin:7px 0 0;font-weight:800;color:#0369a1;font-size:15px}
+    .enp .today{background:linear-gradient(135deg,#e0f2fe,#dcfce7);border:2px solid #7dd3fc;
+      border-radius:22px;padding:18px;margin-bottom:22px}
+    .enp .today .tt{font-size:13px;font-weight:800;color:#0369a1;letter-spacing:.03em}
+    .enp .today h3{margin:4px 0 8px;font-size:clamp(19px,4.8vw,24px)}
+    .enp .legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+    .enp .lg{font-size:12.5px;color:#475569;background:#f1f5f9;border-radius:999px;padding:5px 11px;font-weight:600}
+    .enp .weeks{display:grid;gap:12px}
+    .enp .wk{border:2px solid #e2e8f0;border-radius:20px;background:#fff;overflow:hidden}
+    .enp .wk.now{border-color:#0ea5e9;box-shadow:0 4px 16px rgba(14,165,233,.2)}
+    .enp .wk.rev{background:#fffbeb;border-color:#fde68a}
+    .enp .wh{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;width:100%;
+      background:none;border:0;font-family:inherit;text-align:left;color:inherit}
+    .enp .wh b{font-size:16px}
+    .enp .wh .rg{font-size:12.5px;color:#64748b;font-weight:700}
+    .enp .wh .th{flex:1;font-size:13.5px;color:#475569;font-weight:600}
+    .enp .wh .dots{display:flex;gap:4px}
+    .enp .wh .dots i{width:11px;height:11px;border-radius:50%;background:#e2e8f0;display:block}
+    .enp .wh .dots i.on{background:#22c55e}
+    .enp .wb{padding:0 16px 14px;display:none;flex-direction:column;gap:10px}
+    .enp .wk.open .wb{display:flex}
+    .enp .day{border:2px solid #f1f5f9;border-radius:16px;padding:13px 14px;background:#fff}
+    .enp .day.done{background:#f0fdf4;border-color:#bbf7d0}
+    .enp .dh{display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap}
+    .enp .dh .kd{font-size:12px;font-weight:800;border-radius:999px;padding:3px 9px}
+    .enp .dh .k1{background:#dbeafe;color:#1d4ed8}
+    .enp .dh .k2{background:#fce7f3;color:#be185d}
+    .enp .dh .k3{background:#dcfce7;color:#15803d}
+    .enp .dh strong{font-size:15.5px}
+    .enp .dh .mn{font-size:12px;color:#94a3b8;font-weight:700}
+    .enp .day ol{margin:0 0 8px;padding-left:19px;color:#334155;line-height:1.8;font-size:14.5px}
+    .enp .day .pr{font-size:13.5px;color:#92400e;background:#fffbeb;border-radius:11px;padding:8px 11px;
+      line-height:1.65;margin:0 0 8px}
+    .enp .day .lk{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px}
+    .enp .day .lk a{font-size:12.5px;font-weight:800;text-decoration:none;border-radius:999px;padding:6px 12px}
+    .enp .day .lk .w{background:#e0f2fe;color:#0369a1}
+    .enp .day .lk .g{background:#0284c7;color:#fff}
+    .enp .day .lk .v{background:#fee2e2;color:#b91c1c}
+    .enp .stamp{border:0;border-radius:999px;padding:9px 16px;font-weight:800;font-size:14px;
+      font-family:inherit;cursor:pointer;background:#f1f5f9;color:#475569}
+    .enp .day.done .stamp{background:#16a34a;color:#fff}
+    .enp .why{margin-top:30px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:20px;padding:20px}
+    .enp .why h2{font-size:20px;margin:0 0 10px}
+    .enp .why ul{margin:0 0 12px;padding-left:20px;color:#334155;line-height:1.95;font-size:14.5px}
+    .enp .note{color:#64748b;font-size:13.5px;margin:0}
+    @media(prefers-color-scheme:dark){
+      .enp .lead{color:#cbd5e1}.enp .pbar{background:#334155}
+      .enp .today{background:linear-gradient(135deg,#0c4a6e,#14532d);border-color:#0ea5e9}
+      .enp .today .tt{color:#7dd3fc}
+      .enp .lg{background:#1e293b;color:#cbd5e1}
+      .enp .wk{background:#1e293b;border-color:#334155}.enp .wk.rev{background:#292524;border-color:#78716c}
+      .enp .wh .th{color:#cbd5e1}.enp .wh .dots i{background:#334155}
+      .enp .day{background:#0f172a;border-color:#334155}.enp .day.done{background:#14311f;border-color:#166534}
+      .enp .day ol{color:#cbd5e1}.enp .day .pr{background:#3f2d0c;color:#fcd34d}
+      .enp .stamp{background:#334155;color:#cbd5e1}
+      .enp .why{background:#1e293b;border-color:#334155}.enp .why ul{color:#cbd5e1}
+    }
+  </style>
+
+  <script>
+    const root = document.querySelector('.enp') as HTMLElement;
+    const WEEKS = JSON.parse(root.dataset.plan!);
+    const KINDS: any = { 1: { ko: '만나기', emoji: '👋' }, 2: { ko: '놀이', emoji: '🎮' }, 3: { ko: '찾기', emoji: '🔍' } };
+    const SAVE = 'englishplan.v1';
+    const load = () => { try { return JSON.parse(localStorage.getItem(SAVE)!) || {}; } catch { return {}; } };
+    const save = (d: any) => { try { localStorage.setItem(SAVE, JSON.stringify(d)); } catch {} };
+    const key = (w: number, d: number) => `${w}-${d}`;
+
+    /** 오늘이 몇 주차인가 — 주차 범위(M/D~M/D)를 날짜로 바꿔 비교한다.
+     *  ⚠️12월 5째주는 1/3 까지라 해가 바뀐다. 끝 달이 시작 달보다 작으면 +1년으로 본다. */
+    function weekIndexToday(): number {
+      const now = new Date(); const Y = 2026;
+      for (let i = 0; i < WEEKS.length; i++) {
+        const [a, b] = WEEKS[i].range.split('~');
+        const [am, ad] = a.split('/').map(Number);
+        const [bm, bd] = b.split('/').map(Number);
+        const s = new Date(Y, am - 1, ad);
+        const e = new Date(bm < am ? Y + 1 : Y, bm - 1, bd, 23, 59, 59);
+        if (now >= s && now <= e) return i;
+      }
+      return now < new Date(Y, 8, 21) ? 0 : WEEKS.length - 1;
+    }
+
+    function dayCard(wi: number, di: number) {
+      const w = WEEKS[wi], d = w.days[di], st = load();
+      const done = !!st[key(w.no, di)];
+      const el = document.createElement('div');
+      el.className = 'day' + (done ? ' done' : '');
+      const k = KINDS[d.kind];
+      const links = [
+        `<a class="w" href="/learn/english-words/">🔤 낱말 놀이터</a>`,
+        `<a class="g" href="/games/english-zoo/">🦁 게임</a>`,
+        d.video ? `<a class="v" target="_blank" rel="noopener"
+             href="https://www.youtube.com/watch?v=${d.video.id}">▶ ${d.video.title}</a>` : '',
+      ].join('');
+      el.innerHTML =
+        `<div class="dh"><span class="kd k${d.kind}">${k.emoji} ${di + 1}일차 · ${k.ko}</span>`
+        + `<strong>${d.title}</strong><span class="mn">${d.min}</span></div>`
+        + `<ol>${d.steps.map((s: string) => `<li>${s}</li>`).join('')}</ol>`
+        + (d.parent ? `<p class="pr">👩‍🏫 <b>부모님께</b> — ${d.parent}</p>` : '')
+        + `<div class="lk">${links}</div>`
+        + `<button class="stamp">${done ? '✅ 했어요!' : '오늘 했어요'}</button>`;
+      el.querySelector('.stamp')!.addEventListener('click', () => {
+        const s = load();
+        if (s[key(w.no, di)]) delete s[key(w.no, di)]; else s[key(w.no, di)] = Date.now();
+        save(s); draw();
+      });
+      return el;
+    }
+
+    function draw() {
+      const st = load(), cur = weekIndexToday();
+      const total = WEEKS.length * 3;
+      const done = Object.keys(st).length;
+      (document.getElementById('pin') as HTMLElement).style.width = (done / total * 100) + '%';
+      document.getElementById('pmsg')!.textContent =
+        done === 0 ? '시작해 볼까요?' : `${total}회 중 ${done}회 했어요 · 남은 ${total - done}회`;
+
+      // 오늘 할 것 — 이번 주에서 아직 안 한 첫 회차
+      const w = WEEKS[cur];
+      const nd = [0, 1, 2].find((i) => !st[key(w.no, i)]);
+      const t = document.getElementById('today')!;
+      t.innerHTML = `<p class="tt">${w.label} · ${w.range}</p><h3>${w.theme}</h3>`;
+      t.appendChild(nd === undefined
+        ? Object.assign(document.createElement('p'),
+            { textContent: '🎉 이번 주는 다 했어요! 다음 주에 만나요.', style: 'margin:0;font-weight:800;color:#15803d' })
+        : dayCard(cur, nd));
+
+      const box = document.getElementById('weeks')!;
+      box.innerHTML = '';
+      WEEKS.forEach((w: any, wi: number) => {
+        const el = document.createElement('div');
+        const isNow = wi === cur;
+        el.className = 'wk' + (isNow ? ' now open' : '') + (w.review ? ' rev' : '');
+        const dots = [0, 1, 2].map((i) => `<i class="${st[key(w.no, i)] ? 'on' : ''}"></i>`).join('');
+        el.innerHTML = `<button class="wh"><b>${w.label}</b><span class="rg">${w.range}</span>`
+          + `<span class="th">${w.theme}</span><span class="dots">${dots}</span></button>`
+          + `<div class="wb"></div>`;
+        el.querySelector('.wh')!.addEventListener('click', () => el.classList.toggle('open'));
+        const body = el.querySelector('.wb')!;
+        [0, 1, 2].forEach((i) => body.appendChild(dayCard(wi, i)));
+        box.appendChild(el);
+      });
+    }
+    draw();
+
+    /* 자가검증 — `?test=plan` */
+    if (new URLSearchParams(location.search).get('test') === 'plan') {
+      const R: any[] = []; const ok = (n: string, c: boolean, d = '') => R.push({ n, c, d });
+      ok('주차 15개', WEEKS.length === 15, WEEKS.length);
+      ok('모든 주가 3회차', WEEKS.every((w: any) => w.days.length === 3));
+      ok('총 45회 그려짐', document.querySelectorAll('#weeks .day').length === 45,
+        document.querySelectorAll('#weeks .day').length);
+      ok('모든 회차에 제목·단계', WEEKS.every((w: any) => w.days.every((d: any) => d.title && d.steps.length >= 2)));
+      ok('복습 주간 3개', WEEKS.filter((w: any) => w.review).length === 3);
+      ok('오늘 칸이 그려짐', !!document.querySelector('#today .day, #today p'));
+      ok('도장 단추 존재', document.querySelectorAll('.stamp').length >= 45);
+      const vids = [...new Set(WEEKS.flatMap((w: any) => w.days.filter((d: any) => d.video).map((d: any) => d.video.id)))];
+      ok('영상 id 11자', vids.every((v: any) => typeof v === 'string' && v.length === 11), vids.length + '개');
+      const bad = R.filter((r) => !r.c);
+      (window as any).__TEST__ = { total: R.length, fail: bad.length, bad: bad.map((b) => b.n + (b.d ? ` (${b.d})` : '')) };
+      document.title = bad.length ? `FAIL ${bad.length}` : `PASS ${R.length}`;
+    }
+  </script>
+</BaseLayout>
