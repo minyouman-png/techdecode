@@ -43,6 +43,9 @@ GAMES = [
     ('문주의 수학 방탈출', None, None, [PUB / 'munju' / 'math' / 'cover.jpg']),
     ('문주의 한국사 탐험', None, None, [PUB / 'munju' / 'history' / 'cover.jpg']),
     ('조스 오브 파이터즈', None, None, [PUB / 'jossfight' / 'cover.jpg']),
+    # 영어 동물원은 문제 은행 대신 words.js 를 쓰고 음성이 낱말 단위라 전용 검사가 따로 있다
+    # (tools/englishzoo-selftest.py). 여기서는 커버만 본다.
+    ('영어 동물원', None, None, [PUB / 'englishzoo' / 'cover.jpg']),
 ]
 
 # 한국어 나레이션 속도의 대략치(글자/초). edge-tts SunHi, rate -8% 실측 기준.

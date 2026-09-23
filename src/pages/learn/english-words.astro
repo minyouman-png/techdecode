@@ -1,0 +1,203 @@
+---
+/* 영어 낱말 놀이터 (`/learn/english-words/`) — 한국어 전용.
+ *
+ * ⚠️`/learn/english` 는 12주 과정 안의 '놀이 영어' 과목 페이지다. 이 페이지는 그것과 별개로,
+ *   **낱말 하나하나를 소리로 익히는 곳**이다. 과정의 한 칸이 아니라 언제든 열어 두고 듣는 쪽이다.
+ *
+ * ⚠️★발음은 게임과 **같은 mp3 파일을 같이 쓴다**(`/games/englishzoo/audio/`).
+ *   페이지와 게임이 다른 소리를 내면 아이가 같은 낱말을 두 번 배우게 된다.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const title = '영어 낱말 놀이터';
+const description =
+  '초등학교 1학년 영어 낱말 85개를 실제 발음으로 듣고 익히는 곳. 동물·학교·가족·먹을 것·색깔·숫자·몸, 그리고 헷갈리는 짝.';
+---
+<BaseLayout lang="ko" title={title} description={description} canonicalPath="/learn/english-words/">
+  <main class="wrap enw">
+    <p class="kick">초등 1학년 · 영어</p>
+    <h1>🔤 영어 낱말 놀이터</h1>
+    <p class="lead">
+      낱말을 눌러 보세요. <b>진짜 영어 발음</b>이 나옵니다. 한 번 더 누르면 다시 들려줍니다.<br>
+      🐢 를 켜면 <b>천천히</b> 들려줘요 — 따라 말할 때 쓰세요.
+    </p>
+
+    <div class="tools">
+      <button id="slow" class="tgl" aria-pressed="false">🐢 천천히</button>
+      <button id="ko" class="tgl on" aria-pressed="true">🇰🇷 뜻 보기</button>
+      <span class="grow"></span>
+      <a class="play" href="/games/english-zoo/">🦁 게임으로 놀기</a>
+    </div>
+
+    <nav class="tabs" id="tabs"></nav>
+    <section id="cards" class="cards" aria-live="polite"></section>
+
+    <section class="pairs">
+      <h2>🤔 헷갈리는 짝</h2>
+      <p class="note">
+        소리나 생김새가 닮아 아이들이 자주 섞는 낱말입니다. <b>따로 배우면 각각은 알아도,
+        둘을 나란히 두면 못 고릅니다.</b> 그래서 여기서는 일부러 붙여 놓았습니다 — 번갈아 눌러
+        소리가 어떻게 다른지 들려주세요.
+      </p>
+      <div id="pairs" class="pairwrap"></div>
+    </section>
+
+    <section class="parent">
+      <h2>👩‍🏫 부모님께</h2>
+      <ul>
+        <li><b>철자를 외우게 하지 마세요.</b> 초등학교 영어는 3학년부터 시작합니다. 1학년에게 필요한 것은
+          단어 시험이 아니라 “영어 소리가 낯설지 않은 상태”입니다. 이 페이지에서 글자는 소리를 들은 뒤에
+          곁들여 보는 것일 뿐입니다.</li>
+        <li><b>길이보다 들은 횟수입니다.</b> 아이가 elephant 같은 긴 낱말은 알면서 tiger·lion 을 헷갈리는 일이
+          흔합니다. 노래나 수업에서 자주 들은 쪽이 남기 때문입니다. 짧아서 쉬운 것이 아닙니다.</li>
+        <li><b>하루 다섯 개면 충분합니다.</b> 한 주제를 한 번에 다 하지 마세요. 아는 것을 다시 듣는 것도 공부입니다.</li>
+        <li><b>맞히는 것보다 따라 말하는 것이 낫습니다.</b> 🐢 를 켜고 아이가 소리 내어 따라 하게 해 주세요.</li>
+      </ul>
+      <p class="note">별표는 이 브라우저에만 저장됩니다. 서버로 보내지 않습니다.</p>
+    </section>
+  </main>
+
+  <!-- ⚠️★`is:global` 인 이유: Astro 의 스코프 스타일은 **템플릿에 있는 요소에만** 속성을 붙인다.
+       이 페이지의 낱말 카드는 자바스크립트가 `createElement` 로 만들기 때문에 그 속성이 없고,
+       그래서 스코프 스타일이 통째로 안 먹었다(390px 실측: 그림·영어·뜻이 한 줄에 뭉쳤다).
+       대신 전역으로 새지 않도록 **모든 선택자를 `.enw` 아래로** 한정한다. -->
+  <style is:global>
+    .enw{max-width:960px;margin:0 auto;padding:28px 16px 64px}
+    .enw .kick{color:#0284c7;font-weight:800;letter-spacing:.04em;margin:0 0 4px;font-size:13px}
+    .enw h1{font-size:clamp(26px,6vw,40px);margin:0 0 10px}
+    .enw .lead{color:#475569;line-height:1.8;margin:0 0 18px}
+    .enw .tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .enw .grow{flex:1}
+    .enw .tgl{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:8px 14px;font-weight:800;
+      font-size:14px;cursor:pointer;font-family:inherit;color:#334155}
+    .enw .tgl.on{border-color:#0284c7;background:#e0f2fe;color:#0369a1}
+    .enw .play{background:#0284c7;color:#fff;border-radius:999px;padding:9px 18px;font-weight:800;
+      text-decoration:none;font-size:14px}
+    .enw .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px}
+    .enw .tabs button{flex:none;border:2px solid #e2e8f0;background:#fff;border-radius:14px;padding:9px 14px;
+      font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;color:#334155;white-space:nowrap}
+    .enw .tabs button.on{border-color:#0284c7;background:#0284c7;color:#fff}
+    .enw .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+    .enw .w{background:#fff;border:2px solid #e2e8f0;border-radius:18px;padding:12px 6px 10px;cursor:pointer;
+      display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;position:relative;
+      transition:transform .12s,border-color .15s,box-shadow .15s}
+    .enw .w:hover{border-color:#7dd3fc;box-shadow:0 4px 12px rgba(2,132,199,.14)}
+    .enw .w:active{transform:scale(.95)}
+    .enw .w.play{animation:ping .5s}
+    @keyframes ping{0%{transform:scale(1)}45%{transform:scale(1.1)}100%{transform:scale(1)}}
+    .enw .w .e{font-size:42px;line-height:1.1}
+    .enw .w .en{font-weight:900;font-size:15px;color:#0f172a}
+    .enw .w .ko{font-size:12px;color:#64748b;font-weight:700;min-height:1.2em}
+    .enw .w .star{position:absolute;top:5px;right:7px;font-size:13px;opacity:.25}
+    .enw .w.known .star{opacity:1}
+    .enw .pairs{margin-top:34px}
+    .enw .pairs h2, .enw .parent h2{font-size:21px;margin:0 0 8px}
+    .enw .note{color:#64748b;font-size:14px;line-height:1.75;margin:0 0 14px}
+    .enw .pairwrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+    .enw .pair{background:#fff7ed;border:2px solid #fed7aa;border-radius:18px;padding:10px;display:flex;gap:8px}
+    .enw .pair .w{flex:1;background:#fff;border-color:#fdba74}
+    .enw .parent{margin-top:34px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:18px}
+    .enw .parent ul{margin:0 0 10px;padding-left:20px;color:#334155;line-height:1.9;font-size:15px}
+    @media(prefers-color-scheme:dark){
+      .enw .lead{color:#cbd5e1}.tgl{background:#1e293b;border-color:#334155;color:#e2e8f0}
+      .enw .tgl.on{background:#0c4a6e;border-color:#0ea5e9;color:#e0f2fe}
+      .enw .tabs button{background:#1e293b;border-color:#334155;color:#e2e8f0}
+      .enw .w{background:#1e293b;border-color:#334155}.w .en{color:#f1f5f9}
+      .enw .pair{background:#292524;border-color:#57534e}.pair .w{background:#1c1917;border-color:#78716c}
+      .enw .parent{background:#1e293b;border-color:#334155}.parent ul{color:#cbd5e1}
+    }
+  </style>
+
+  <script>
+    import { THEMES, WORDS, byTheme, PAIRS } from '../../../public/games/englishzoo/words.js';
+
+    const $ = (s) => document.querySelector(s);
+    const SAVE = 'englishzoo.v1';         // ★게임과 같은 저장소를 쓴다 — 어디서 익혔든 별이 함께 쌓인다
+    const load = () => { try { return JSON.parse(localStorage.getItem(SAVE)) || {}; } catch { return {}; } };
+    const save = (d) => { try { localStorage.setItem(SAVE, JSON.stringify(d)); } catch {} };
+
+    let slow = false, showKo = true, tab = THEMES[0].id;
+    const cache = new Map();
+    function say(id) {
+      const key = id + (slow ? '_slow' : '');
+      if (!cache.has(key)) { const a = new Audio(`/games/englishzoo/audio/${key}.mp3`); a.preload = 'auto'; cache.set(key, a); }
+      const a = cache.get(key);
+      try { a.currentTime = 0; const p = a.play(); if (p && p.catch) p.catch(() => tts(id)); } catch { tts(id); }
+    }
+    /* mp3 가 실패했을 때만 쓰는 보조 — 기기에 영어 목소리가 없으면 이것도 무음이다. */
+    function tts(id) {
+      const w = WORDS.find(x => x.id === id); if (!w || !window.speechSynthesis) return;
+      const u = new SpeechSynthesisUtterance(w.en); u.lang = 'en-US'; u.rate = slow ? .6 : .85;
+      speechSynthesis.cancel(); speechSynthesis.speak(u);
+    }
+
+    function card(w) {
+      const d = load();
+      const b = document.createElement('button');
+      b.className = 'w' + (d[w.id] ? ' known' : '');
+      b.innerHTML = `<span class="star">⭐</span><span class="e">${w.emoji}</span>`
+        + `<span class="en">${w.en}</span><span class="ko">${showKo ? w.ko : ''}</span>`;
+      b.addEventListener('click', () => {
+        say(w.id);
+        b.classList.remove('play'); void b.offsetWidth; b.classList.add('play');
+        const s = load(); s[w.id] = (s[w.id] || 0) + 1; save(s);
+        b.classList.add('known');
+      });
+      return b;
+    }
+
+    function drawTabs() {
+      const n = $('#tabs'); n.innerHTML = '';
+      for (const t of THEMES) {
+        const b = document.createElement('button');
+        b.textContent = `${t.emoji} ${t.ko}`;
+        b.className = t.id === tab ? 'on' : '';
+        b.addEventListener('click', () => { tab = t.id; drawTabs(); drawCards(); });
+        n.appendChild(b);
+      }
+    }
+    function drawCards() {
+      const n = $('#cards'); n.innerHTML = '';
+      for (const w of byTheme(tab)) n.appendChild(card(w));
+    }
+    function drawPairs() {
+      const n = $('#pairs'); n.innerHTML = '';
+      for (const [a, b] of PAIRS) {
+        const box = document.createElement('div');
+        box.className = 'pair';
+        box.appendChild(card(a)); box.appendChild(card(b));
+        n.appendChild(box);
+      }
+    }
+
+    $('#slow').addEventListener('click', (e) => {
+      slow = !slow; e.currentTarget.classList.toggle('on', slow);
+      e.currentTarget.setAttribute('aria-pressed', String(slow));
+    });
+    $('#ko').addEventListener('click', (e) => {
+      showKo = !showKo; e.currentTarget.classList.toggle('on', showKo);
+      e.currentTarget.setAttribute('aria-pressed', String(showKo));
+      drawCards(); drawPairs();
+    });
+    drawTabs(); drawCards(); drawPairs();
+
+    /* 자가검증 — `?test=learn` 으로 연다. 낱말 수·발음 파일·짝이 실제로 맞는지 본다. */
+    if (new URLSearchParams(location.search).get('test') === 'learn') {
+      const R = []; const ok = (n, c, d = '') => R.push({ n, c, d });
+      ok('탭 수 = 주제 수', document.querySelectorAll('#tabs button').length === THEMES.length);
+      ok('카드가 그려짐', document.querySelectorAll('#cards .w').length === byTheme(tab).length);
+      ok('짝 칸이 그려짐', document.querySelectorAll('#pairs .pair').length === PAIRS.length);
+      ok('게임 링크 있음', !!document.querySelector('a.play'));
+      Promise.all(WORDS.flatMap(w => ['', '_slow'].map(s =>
+        fetch(`/games/englishzoo/audio/${w.id}${s}.mp3`, { method: 'HEAD' })
+          .then(r => r.ok ? null : `${w.id}${s}`).catch(() => `${w.id}${s}`))))
+        .then(miss => {
+          const m = miss.filter(Boolean);
+          ok('발음 파일 전부 존재', m.length === 0, m.slice(0, 5).join(','));
+          const bad = R.filter(r => !r.c);
+          (window as any).__TEST__ = { total: R.length, fail: bad.length, bad: bad.map(b => b.n + (b.d ? ` (${b.d})` : '')) };
+          document.title = bad.length ? `FAIL ${bad.length}` : `PASS ${R.length}`;
+        });
+    }
+  </script>
+</BaseLayout>
