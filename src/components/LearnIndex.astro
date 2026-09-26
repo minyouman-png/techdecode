@@ -289,7 +289,8 @@ const jsonLd = {
   .rec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 22px 0 10px; }
   .rec-label { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--faint); font-weight: 700; }
 
-  .subject-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+  /* ⚠️min(100%, 300px) — 320px 화면에선 여백 빼면 300px 이 안 남아 4px 넘쳤다(2026-09-26 원인 확정) */
+  .subject-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 18px; }
   .subject-card {
     display: flex; gap: 16px; align-items: flex-start; color: inherit;
     padding: 22px 20px; border-radius: 16px;

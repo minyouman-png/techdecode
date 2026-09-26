@@ -1,0 +1,116 @@
+---
+// CKA 강의 한 편 — 학습 목표 · 본문 · 연결된 실습 과제 · 확인 문제 · 완료 표시 · 이전/다음.
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+import { PART_OF_DOMAIN } from '../../../i18n/cka';
+import { TASKS } from '../../../scripts/kubesim/tasks.js';
+import '../../../styles/academy.css';
+
+export async function getStaticPaths() {
+  const all = (await getCollection('cka')).sort((a, b) => a.data.part - b.data.part || a.data.order - b.data.order);
+  return all.map((l, i) => ({ params: { slug: l.id }, props: { lesson: l, prev: all[i - 1] || null, next: all[i + 1] || null, idx: i + 1, total: all.length } }));
+}
+const { lesson, prev, next, idx, total } = Astro.props;
+const { Content } = await render(lesson);
+const d = lesson.data;
+const labs = d.labs.map((id) => TASKS.find((t) => t.id === id)!).filter(Boolean);
+// 퀴즈는 정답을 HTML 에 넣되 화면에 그리는 건 JS — 문항 순서는 그대로, 보기 순서도 그대로(강의 문맥과 맞춘다)
+const quizJson = JSON.stringify(d.quiz);
+---
+<BaseLayout lang="ko" title={`${d.title} — CKA 합격반`} description={d.summary} canonicalPath={`/academy/cka/${lesson.id}/`}>
+  <main class="acad lesson" data-slug={lesson.id}>
+    <p class="crumbs"><a href="/academy/">자격증 학원</a> › <a href="/academy/cka/">CKA</a> › {PART_OF_DOMAIN[d.domain]}</p>
+    <p class="kick">강의 {idx} / {total} · 약 {d.minutes}분</p>
+    <h1>{d.title}</h1>
+    <p class="lead">{d.summary}</p>
+
+    <div class="goals">
+      <h3>이 강의를 마치면</h3>
+      <ul>{d.goals.map((g) => <li>{g}</li>)}</ul>
+    </div>
+
+    <article class="body"><Content /></article>
+
+    {labs.length > 0 && (
+      <section>
+        <h2>⌨️ 직접 해 보기</h2>
+        <p class="muted small">브라우저 실습 터미널에서 풀고 자동 채점을 받습니다.</p>
+        <div class="labs">
+          {labs.map((t) => <a class="btn sm" href={`/academy/cka/lab/?task=${t.id}`} data-lab={t.id}>{t.title} <span class="pill lab-st" hidden></span></a>)}
+        </div>
+      </section>
+    )}
+
+    {d.quiz.length > 0 && (
+      <section class="quiz" id="quiz">
+        <h2>✅ 확인 문제</h2>
+        <div id="quiz-box" data-quiz={quizJson}></div>
+        <p id="quiz-score" class="muted" hidden></p>
+      </section>
+    )}
+
+    <div class="btns" style="margin-top:28px">
+      <button type="button" class="btn pri" id="done-btn">이 강의 완료 표시</button>
+      <a class="btn" href="/academy/cka/">과정 목차</a>
+    </div>
+
+    <nav class="pager">
+      {prev ? <a class="btn" href={`/academy/cka/${prev.id}/`}><span><small>← 이전</small>{prev.data.title}</span></a> : <span></span>}
+      {next ? <a class="btn" href={`/academy/cka/${next.id}/`} style="justify-content:flex-end;text-align:right"><span><small>다음 →</small>{next.data.title}</span></a> : <a class="btn pri" href="/academy/cka/exam/"><span><small>마지막 강의</small>모의고사 보기 →</span></a>}
+    </nav>
+  </main>
+  <script>
+    import { load, markLesson, saveQuiz, esc } from '../../../scripts/cka-progress.js';
+    const main = document.querySelector('main.acad') as HTMLElement;
+    const slug = main.dataset.slug!;
+    const doneBtn = document.getElementById('done-btn') as HTMLButtonElement;
+    function paintDone() {
+      const p = load();
+      if (p.lessons[slug]) { doneBtn.textContent = '✓ 완료한 강의'; doneBtn.classList.remove('pri'); }
+      for (const a of document.querySelectorAll<HTMLElement>('[data-lab]')) {
+        const r = p.labs[a.dataset.lab!];
+        const pill = a.querySelector('.lab-st') as HTMLElement;
+        if (r !== undefined) { pill.hidden = false; pill.textContent = r === 1 ? '만점' : `${Math.round(r * 100)}%`; pill.classList.toggle('ok', r === 1); }
+      }
+    }
+    doneBtn.addEventListener('click', () => { markLesson(slug); paintDone(); });
+    paintDone();
+
+    // ── 확인 문제 ──
+    const box = document.getElementById('quiz-box');
+    if (box) {
+      const qs: { q: string; options: string[]; answer: number; explain: string }[] = JSON.parse(box.dataset.quiz || '[]');
+      const md = (s: string) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
+      box.innerHTML = '<ol>' + qs.map((q, i) => `
+        <li class="q" data-i="${i}">
+          <p class="qt">Q${i + 1}. ${md(q.q)}</p>
+          <div class="opts">${q.options.map((o, j) => `<button type="button" class="opt" data-j="${j}">${String.fromCharCode(9312 + j)} ${md(o)}</button>`).join('')}</div>
+          <p class="ex" hidden></p>
+        </li>`).join('') + '</ol>';
+      let answered = 0, right = 0;
+      box.addEventListener('click', (e) => {
+        const b = (e.target as HTMLElement).closest('.opt') as HTMLButtonElement | null;
+        if (!b) return;
+        const li = b.closest('.q') as HTMLElement;
+        if (li.dataset.done) return;
+        li.dataset.done = '1';
+        const q = qs[Number(li.dataset.i)];
+        const j = Number(b.dataset.j);
+        const ok = j === q.answer;
+        answered++; if (ok) right++;
+        li.querySelectorAll<HTMLButtonElement>('.opt').forEach((o, k) => { o.disabled = true; if (k === q.answer) o.classList.add('right'); });
+        if (!ok) b.classList.add('wrong');
+        const ex = li.querySelector('.ex') as HTMLElement;
+        ex.hidden = false;
+        ex.innerHTML = `<b>${ok ? '정답!' : '아쉬워요.'}</b> ${md(q.explain)}`;
+        if (answered === qs.length) {
+          saveQuiz(slug, right, qs.length);
+          const sc = document.getElementById('quiz-score')!;
+          sc.hidden = false;
+          sc.innerHTML = `<b>${right} / ${qs.length}</b> 맞혔습니다. ${right === qs.length ? '완벽합니다 — 다음 강의로!' : '틀린 문제의 해설을 읽고 본문의 해당 부분을 다시 보세요.'}`;
+          if (right === qs.length) { markLesson(slug); paintDone(); }
+        }
+      });
+    }
+  </script>
+</BaseLayout>

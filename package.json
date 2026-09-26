@@ -17,7 +17,8 @@
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.2.0",
-    "astro": "^5.0.0"
+    "astro": "^5.0.0",
+    "js-yaml": "^4.3.2"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.2"

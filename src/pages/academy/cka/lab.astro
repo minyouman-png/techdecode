@@ -1,0 +1,196 @@
+---
+// CKA 실습 터미널 — 과제를 고르면 그 상황의 클러스터가 준비되고, 터미널에서 풀고, 채점받는다.
+// `?task=<id>` 로 특정 과제를 바로 연다. `?test=cka` 는 자가검증(tools/cka-selftest.py 가 돌린다).
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { TASKS, DOMAINS } from '../../../scripts/kubesim/tasks.js';
+import { getCollection } from 'astro:content';
+const lessonTitles = Object.fromEntries((await getCollection('cka')).map((l) => [l.id, l.data.title]));
+import '../../../styles/academy.css';
+
+const groups = Object.entries(DOMAINS).map(([k, v]) => ({ key: k, ko: v.ko, pct: v.weight, tasks: TASKS.filter((t) => t.domain === k) }));
+---
+<BaseLayout lang="ko" title="실습 터미널 — CKA 합격반" description={`브라우저에서 바로 쓰는 CKA 실습 클러스터. 시험형 과제 ${TASKS.length}개를 풀고 항목별 자동 채점을 받는다. kubectl · helm · etcdctl · kubeadm · systemctl · crictl 지원.`} canonicalPath="/academy/cka/lab/">
+  <main class="acad wide" data-lessons={JSON.stringify(lessonTitles)}>
+    <p class="crumbs"><a href="/academy/">자격증 학원</a> › <a href="/academy/cka/">CKA</a> › 실습 터미널</p>
+    <h1 style="font-size:clamp(1.5rem,4vw,2rem)">⌨️ 실습 터미널</h1>
+    <p class="lead small" style="font-size:15px">
+      과제를 고르면 그 상황의 클러스터(controlplane · node01 · node02)가 준비됩니다. 터미널에서 풀고 <b>채점하기</b>를 누르세요.
+      <code style="font-size:.9em">help</code> 로 쓸 수 있는 명령을 봅니다. <a href="/academy/cka/lab-setup/">사용법</a>
+    </p>
+    <div class="lab">
+      <div class="side">
+        <select class="picker" id="pick" aria-label="과제 고르기">
+          <option value="">🧪 자유 실습 — 빈 클러스터</option>
+          {groups.map((g) => (
+            <optgroup label={`${g.ko}${g.pct ? ` (${g.pct}%)` : ''}`}>
+              {g.tasks.map((t) => <option value={t.id}>{t.id.toUpperCase()} · {t.title}</option>)}
+            </optgroup>
+          ))}
+        </select>
+        <div class="card task" id="task"></div>
+        <div id="result"></div>
+        <div class="card hints" id="hints" hidden></div>
+        <div class="card sol" id="sol" hidden></div>
+      </div>
+      <div class="termbox"><div id="term"></div></div>
+    </div>
+    <p id="cka-test" class="small muted" hidden></p>
+  </main>
+  <script>
+    import { Cluster } from '../../../scripts/kubesim/engine.js';
+    import { Session } from '../../../scripts/kubesim/shell.js';
+    import { TASKS, DOMAINS, prepareTask, applyStep, score } from '../../../scripts/kubesim/tasks.js';
+    import { Terminal, TERM_CSS } from '../../../scripts/cka-terminal.js';
+    import { load, saveLab, fmt, esc } from '../../../scripts/cka-progress.js';
+
+    const st = document.createElement('style'); st.textContent = TERM_CSS; document.head.appendChild(st);
+    const $ = (id: string) => document.getElementById(id)!;
+    const pick = $('pick') as HTMLSelectElement;
+    const term = new Terminal($('term'));
+    let cur: any = null, cluster: any = null, session: any = null, hintN = 0;
+
+    const lessonHref = (t: any) => `/academy/cka/${t.lesson}/`;
+    const LESSONS: Record<string, string> = JSON.parse(document.querySelector('main.acad')!.getAttribute('data-lessons') || '{}');
+    function markOptions() {
+      const p = load();
+      for (const o of pick.options) { if (!o.value) continue; const r = p.labs[o.value]; const t = TASKS.find((x: any) => x.id === o.value); o.textContent = `${r === 1 ? '✅' : r ? '◐' : '·'} ${o.value.toUpperCase()} · ${t.title}`; }
+    }
+
+    /** 모범 답안을 '보낼 단위'로 묶는다 — heredoc(cat <<EOF … EOF)은 한 덩어리 */
+    function solutionBlocks(sol: any[]) {
+      const out: any[] = [];
+      for (let i = 0; i < sol.length; i++) {
+        const s = sol[i];
+        if (typeof s === 'string' && /<<-?\s*'?EOF/.test(s)) {
+          const lines = [s];
+          while (i + 1 < sol.length && sol[i + 1] !== 'EOF') lines.push(sol[++i]);
+          lines.push('EOF'); i++;
+          out.push({ lines });
+        } else out.push(typeof s === 'string' ? { lines: [s] } : { step: s });
+      }
+      return out;
+    }
+
+    function open(id: string) {
+      cur = TASKS.find((t: any) => t.id === id) || null;
+      hintN = 0;
+      $('result').innerHTML = '';
+      $('hints').hidden = true; $('sol').hidden = true;
+      if (cur) ({ cluster, session } = prepareTask(cur, Cluster, Session));
+      else { cluster = new Cluster(); session = new Session(cluster); }
+      term.setSession(session, cur ? `# 과제 ${cur.id.toUpperCase()} — ${cur.title}\n# 클러스터가 준비됐습니다. (help: 명령 목록)` : '# 자유 실습 — 깨끗한 3노드 클러스터(v1.35)입니다. help 로 명령 목록을 봅니다.');
+      const t = $('task');
+      if (!cur) {
+        t.innerHTML = `<h3>🧪 자유 실습</h3><div class="txt"><p>아무 명령이나 연습해 보세요. 망가뜨려도 <b>다시 시작</b>하면 됩니다.</p><ul><li><code>k get nodes</code> · <code>k get pods -A</code></li><li><code>k run web --image=nginx:1.27</code> → <code>k expose pod web --port=80</code></li><li><code>k run t --rm -it --image=busybox:1.37 --restart=Never -- wget -qO- -T2 web</code></li><li><code>ssh node01</code> → <code>systemctl status kubelet</code> → <code>exit</code></li></ul></div><div class="btns"><button class="btn sm" id="b-reset">다시 시작</button></div>`;
+      } else {
+        const dm = (DOMAINS as any)[cur.domain];
+        t.innerHTML = `<p class="kick">${esc(dm.ko)} · ${'★'.repeat(cur.level)}${'☆'.repeat(3 - cur.level)}</p>
+          <h3>${esc(cur.id.toUpperCase())} · ${esc(cur.title)}</h3>
+          <p class="ctx">controlplane:~# 에서 시작 — 노드 작업은 ssh 로 이동</p>
+          <div class="txt">${fmt(cur.text)}</div>
+          <div class="btns">
+            <button class="btn sm pri" id="b-grade">채점하기</button>
+            <button class="btn sm" id="b-hint">힌트 (${cur.hints.length})</button>
+            <button class="btn sm" id="b-sol">모범 답안</button>
+            <button class="btn sm" id="b-reset">다시 시작</button>
+            <button class="btn sm" id="b-next">다음 과제 →</button>
+          </div>
+          <p class="small muted" style="margin:10px 0 0">관련 강의: <a href="${lessonHref(cur)}">${esc(LESSONS[cur.lesson] || cur.lesson)}</a></p>`;
+        $('b-grade').onclick = grade;
+        $('b-hint').onclick = hint;
+        $('b-sol').onclick = showSol;
+        $('b-next').onclick = () => { const i = TASKS.indexOf(cur); go(TASKS[(i + 1) % TASKS.length].id); };
+      }
+      $('b-reset').onclick = () => open(cur ? cur.id : '');
+      markOptions();
+    }
+    function go(id: string) {
+      pick.value = id;
+      const u = new URL(location.href);
+      if (id) u.searchParams.set('task', id); else u.searchParams.delete('task');
+      history.replaceState(null, '', u);
+      open(id);
+      if (!matchMedia('(max-width: 900px)').matches) term.focus();
+    }
+    function grade() {
+      const r = score(cur, cluster, session);
+      saveLab(cur.id, r.ratio);
+      const cls = r.got === r.total ? 'pass' : r.got ? 'part' : '';
+      $('result').innerHTML = `<div class="result ${cls}"><b>${r.got === r.total ? '🎉 통과! ' : ''}${r.got} / ${r.total} 항목</b> <span class="muted small">(부분 점수 ${Math.round(r.ratio * 100)}%)</span>
+        <ul>${r.items.map((it: any) => `<li>${it.ok ? '✅' : '❌'} ${esc(it.t)}</li>`).join('')}</ul></div>`;
+      markOptions();
+      return r;
+    }
+    function hint() {
+      hintN = Math.min(cur.hints.length, hintN + 1);
+      const h = $('hints');
+      h.hidden = false;
+      h.innerHTML = `<b>힌트 ${hintN} / ${cur.hints.length}</b><ol>${cur.hints.slice(0, hintN).map((x: string) => `<li>${fmt(x).replace(/^<p>|<\/p>$/g, '')}</li>`).join('')}</ol>`;
+    }
+    function showSol() {
+      const s = $('sol');
+      if (!s.hidden) { s.hidden = true; return; }
+      if (!s.dataset.ok && !confirm('모범 답안을 볼까요? 먼저 힌트로 스스로 풀어 보는 것이 실력이 됩니다.')) return;
+      s.dataset.ok = '1';
+      s.hidden = false;
+      const blocks = solutionBlocks(cur.solution);
+      s.innerHTML = `<b>모범 답안</b> <span class="muted small">— ▶ 로 한 단계씩 터미널에 보낼 수 있습니다</span>` + blocks.map((b: any, i: number) => b.step
+        ? `<div class="step"><code>✏️ vi ${esc(b.step.vi)}\n# ${esc(b.step.note || '')}\n- ${esc(b.step.from)}\n+ ${esc(b.step.to)}</code><button class="btn sm" data-b="${i}">적용</button></div>`
+        : `<div class="step"><code>${esc(b.lines.join('\n'))}</code><button class="btn sm" data-b="${i}">▶</button></div>`).join('');
+      s.onclick = (e) => {
+        const btn = (e.target as HTMLElement).closest('button[data-b]') as HTMLElement | null;
+        if (!btn) return;
+        const b = blocks[Number(btn.dataset.b)];
+        if (b.step) { const r = applyStep(session, b.step); term.print(r.out, 'dim'); term.print(r.err, 'err'); }
+        else term.runLines(b.lines);
+        btn.textContent = '✓';
+      };
+    }
+
+    pick.addEventListener('change', () => go(pick.value));
+    const q = new URLSearchParams(location.search);
+    const first = q.get('task') && TASKS.some((t: any) => t.id === q.get('task')) ? q.get('task')! : '';
+    pick.value = first;
+    open(first);
+
+    // ── 자가검증(?test=cka): UI 를 통해 답안을 실제로 입력하고 채점까지 ──
+    if (q.get('test') === 'cka') {
+      const fails: string[] = [];
+      const typeLine = (line: string) => { const inp = document.querySelector('.term-input') as HTMLInputElement; inp.value = line; (document.querySelector('.term-in') as HTMLFormElement).requestSubmit(); };
+      for (const id of ['b1', 'w4', 'w11', 't6', 'a4', 'n4', 's3']) {
+        go(id);
+        for (const b of solutionBlocks(cur.solution)) {
+          if (b.step) {
+            // vi 는 실제 편집기 창으로: 열고 → 내용 바꾸고 → 저장
+            typeLine(`vi ${b.step.vi}`);
+            const ta = document.querySelector('.term-ed-text') as HTMLTextAreaElement;
+            if ((document.querySelector('.term-ed') as HTMLElement).hidden) { fails.push(`${id}: 편집기가 안 열림`); break; }
+            ta.value = ta.value.replace(b.step.from, b.step.to);
+            (document.querySelector('.term-ed-save') as HTMLButtonElement).click();
+          } else for (const l of b.lines) typeLine(l);
+        }
+        const r = grade();
+        if (r.got !== r.total) fails.push(`${id}: ${r.got}/${r.total} ${r.items.filter((x: any) => !x.ok).map((x: any) => x.t).join(' · ')}`);
+        if (!document.querySelector('.result')) fails.push(`${id}: 채점표가 안 그려짐`);
+      }
+      // 힌트·모범 답안 UI
+      go('t1'); $('b-hint').click(); if (!/힌트 1/.test($('hints').textContent || '')) fails.push('힌트 UI');
+      (window as any).confirm = () => true; $('b-sol').click(); if (!document.querySelectorAll('#sol .step').length) fails.push('모범 답안 UI');
+      // 자동완성
+      const inp = document.querySelector('.term-input') as HTMLInputElement;
+      // deploy·deployments 둘 다 후보라 'deploy' 에서 멈추는 게 맞다 → 후보가 하나뿐인 것으로 확인
+      inp.value = 'kubectl get namesp'; (document.querySelector('.term-tab') as HTMLButtonElement).click();
+      if (inp.value !== 'kubectl get namespaces ') fails.push(`자동완성: "${inp.value}"`);
+      inp.value = '';
+      // 가로 넘침
+      const W = document.documentElement.clientWidth;
+      let worst: any = null;
+      for (const el of document.querySelectorAll('body *')) { const r = (el as HTMLElement).getBoundingClientRect(); if (r.width && r.right > W + 1 && !(el as HTMLElement).closest('.term-out,.term-ed,.tablewrap,pre,.sol')) { if (!worst || r.right > worst.r) worst = { r: r.right, el: `${el.tagName}.${(el as HTMLElement).className}` }; } }
+      if (document.documentElement.scrollWidth > W + 1) fails.push(`가로 넘침 ${document.documentElement.scrollWidth}>${W} ${worst ? worst.el : ''}`);
+      const out = $('cka-test');
+      out.hidden = false;
+      out.textContent = fails.length ? 'FAIL\n' + fails.join('\n') : 'PASS';
+      document.title = (fails.length ? 'CKA-TEST FAIL ' : 'CKA-TEST PASS ') + fails.length;
+    }
+  </script>
+</BaseLayout>

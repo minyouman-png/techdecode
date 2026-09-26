@@ -1,0 +1,61 @@
+---
+// 자격증 학원(`/academy/`) — 자격증 과정들을 묶는 큰 단위. 첫 과정은 CKA.
+// ⚠️한국어 전용(학습 코너 `/learn/` 과 같은 이유 — 한국어로 쓴 강의라 다른 언어로 뿌리면 이탈만 만든다).
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { TASKS } from '../../scripts/kubesim/tasks.js';
+import '../../styles/academy.css';
+
+const lessons = await getCollection('cka');
+const title = '자격증 학원';
+const description = '설치 없이 브라우저에서 기초부터 실습까지. 첫 과정은 쿠버네티스 관리자 자격증 CKA — 강의 ' + lessons.length + '개, 자동 채점 실습 과제 ' + TASKS.length + '개, 실전 모의고사.';
+---
+<BaseLayout lang="ko" title={title} description={description} canonicalPath="/academy/">
+  <main class="acad">
+    <p class="kick">MENEW 자격증 학원</p>
+    <h1>🎓 자격증 학원</h1>
+    <p class="lead">
+      기초부터 차근차근 강의를 읽고, <b>설치 없이 브라우저 터미널에서 바로 실습</b>하고,
+      실제 시험처럼 시간을 재는 모의고사로 마무리합니다. 가입도 결제도 없습니다.
+    </p>
+
+    <h2>개설된 과정</h2>
+    <div class="grid">
+      <a class="card" href="/academy/cka/" style="color:inherit;display:block">
+        <p class="kick">CNCF · 리눅스 재단</p>
+        <h3 style="font-size:1.3rem;margin:4px 0 8px">☸️ CKA 쿠버네티스 관리자</h3>
+        <p class="muted small" style="margin:0 0 12px">Certified Kubernetes Administrator. 클러스터 설치·업그레이드·백업, 네트워크·스토리지, 트러블슈팅까지 — 100% 실기 시험 대비.</p>
+        <p style="margin:0;display:flex;gap:6px;flex-wrap:wrap">
+          <span class="pill k8s">강의 {lessons.length}개</span>
+          <span class="pill k8s">실습 과제 {TASKS.length}개</span>
+          <span class="pill k8s">모의고사</span>
+          <span class="pill ok" id="cka-pill">개설</span>
+        </p>
+      </a>
+      <div class="card" style="opacity:.75">
+        <p class="kick" style="color:var(--muted)">준비 중</p>
+        <h3 style="font-size:1.15rem;margin:4px 0 8px">CKAD · CKS</h3>
+        <p class="muted small" style="margin:0">쿠버네티스 개발자(CKAD)와 보안(CKS) 과정. CKA 과정의 실습 터미널을 그대로 이어 씁니다.</p>
+      </div>
+    </div>
+
+    <h2>공부하는 방법</h2>
+    <div class="grid">
+      <div class="card"><h3>① 강의</h3><p class="muted small" style="margin:0">출제 영역 순서대로. 강의마다 학습 목표와 확인 문제가 있어 이해했는지 바로 압니다.</p></div>
+      <div class="card"><h3>② 실습 터미널</h3><p class="muted small" style="margin:0">브라우저 안의 실습 클러스터에서 시험형 과제를 풀고 <b>항목별 자동 채점</b>을 받습니다. 망가진 클러스터도 버튼 하나로 재현됩니다.</p></div>
+      <div class="card"><h3>③ 모의고사</h3><p class="muted small" style="margin:0">실제 시험처럼 2시간, 영역 비중대로 뽑은 과제, 부분 점수, 합격선. 약한 영역을 알려 줍니다.</p></div>
+    </div>
+
+    <p class="note">
+      진도는 이 브라우저에만 저장됩니다(서버로 보내지 않음). 다른 기기에서는 처음부터 표시됩니다.
+      실습 과제는 공개된 교과과정을 바탕으로 새로 만든 문제이며, 실제 시험 문항(기출)이 아닙니다.
+    </p>
+  </main>
+  <script>
+    import { load } from '../../scripts/cka-progress.js';
+    const p = load();
+    const n = Object.keys(p.lessons).length;
+    const el = document.getElementById('cka-pill');
+    if (el && n) el.textContent = `강의 ${n}개 완료`;
+  </script>
+</BaseLayout>

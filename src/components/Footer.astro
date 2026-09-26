@@ -23,6 +23,7 @@ const t = useTranslations(lang);
         <a href={localizeUrl('/glossary/', lang)}>{t('nav_glossary')}</a>
         <a href={localizeUrl('/tools/', lang)}>{t('nav_tools')}</a>
         {lang === 'ko' && <a href="/learn/">{t('nav_learn')}</a>}
+        {lang === 'ko' && <a href="/academy/">{t('nav_academy')}</a>}
         <a href={localizeUrl('/about/', lang)}>{t('nav_about')}</a>
         <a href={localizeUrl('/contact/', lang)}>{t('nav_contact')}</a>
         <a href={localizeUrl('/privacy/', lang)}>Privacy</a>
