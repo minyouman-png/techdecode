@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="ko"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>파드 — 가장 작은 실행 단위 — CKA 합격반 — MeNew Soft</title><meta name="description" content="컨테이너를 감싸는 파드, command 와 args, 환경변수, 여러 컨테이너(사이드카·init), 재시작 정책과 파드 상태."><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/academy/cka/pods/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)"><meta property="og:type" content="website"><meta property="og:title" content="파드 — 가장 작은 실행 단위 — CKA 합격반 — MeNew Soft"><meta property="og:description" content="컨테이너를 감싸는 파드, command 와 args, 환경변수, 여러 컨테이너(사이드카·init), 재시작 정책과 파드 상태."><meta property="og:url" content="https://menewsoft.com/academy/cka/pods/"><meta property="og:site_name" content="MeNew Soft"><meta property="og:image" content="https://menewsoft.com/og/default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="파드 — 가장 작은 실행 단위 — CKA 합격반"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://menewsoft.com/og/default.png"><link rel="sitemap" href="/sitemap-index.xml"><!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. --><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MeNew Soft","alternateName":["menewsoft","menewsoft.com","미뉴소프트","메뉴소프트","Tech Decode"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/index.BD2eBubB.css">
+<link rel="stylesheet" href="/_astro/_slug_.DxXwq8uN.css"></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/">MeNew<span>Soft</span></a> <nav class="nav"> <a href="/">홈</a> <a href="/shops/">등록 업체</a> <a href="/news/">업체 소식</a> <a href="/games/">놀이공간</a> <a href="/blog/">글</a>  <a href="/learn/">초등 1학년 학습</a>  <a href="/academy/">자격증 학원</a>  <a href="/board/">게시판</a> <a href="/about/">소개</a> <a href="/contact/">문의</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul>  </ul> </div> </nav> </div> </header> <main>  <main class="acad lesson" data-slug="pods"> <p class="crumbs"><a href="/academy/">자격증 학원</a> › <a href="/academy/cka/">CKA</a> › 워크로드 · 스케줄링</p> <p class="kick">강의 7 / 28 · 약 25분</p> <h1>파드 — 가장 작은 실행 단위</h1> <p class="lead">컨테이너를 감싸는 파드, command 와 args, 환경변수, 여러 컨테이너(사이드카·init), 재시작 정책과 파드 상태.</p> <div class="goals"> <h3>이 강의를 마치면</h3> <ul><li>파드 매니페스트의 핵심 필드(containers · command · args · env · ports)를 쓸 수 있다</li><li>멀티 컨테이너 파드와 공유 볼륨, init 컨테이너·사이드카를 구성할 수 있다</li><li>파드 STATUS 값(Pending·ContainerCreating·CrashLoopBackOff 등)의 뜻을 안다</li></ul> </div> <article class="body"><h2 id="파드는-컨테이너의-포장지">파드는 컨테이너의 포장지</h2>
+<p>쿠버네티스는 컨테이너를 직접 다루지 않고 <strong>파드</strong>를 다룹니다. 파드 하나에는 컨테이너가 하나 이상 들어가고, 같은 파드의 컨테이너들은</p>
+<ul>
+<li><strong>같은 네트워크</strong>(같은 IP, <code>localhost</code> 로 서로 접근),</li>
+<li><strong>같은 볼륨</strong>(파드에 정의한 볼륨을 함께 마운트)</li>
+</ul>
+<p>을 씁니다. 그리고 항상 <strong>같은 노드</strong>에서 함께 뜨고 함께 사라집니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">apiVersion</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">v1</span></span>
+<span class="line"><span style="color:#85E89D">kind</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Pod</span></span>
+<span class="line"><span style="color:#85E89D">metadata</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">web</span></span>
+<span class="line"><span style="color:#85E89D">  labels</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    app</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">web</span></span>
+<span class="line"><span style="color:#85E89D">spec</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  containers</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">web</span></span>
+<span class="line"><span style="color:#85E89D">    image</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">nginx:1.27</span></span>
+<span class="line"><span style="color:#85E89D">    ports</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">    - </span><span style="color:#85E89D">containerPort</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">80</span><span style="color:#6A737D">        # 정보 표시용(없어도 통신은 된다)</span></span>
+<span class="line"><span style="color:#85E89D">    env</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">    - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">MODE</span></span>
+<span class="line"><span style="color:#85E89D">      value</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">prod</span></span></code></pre>
+<h2 id="command-와-args">command 와 args</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>파드 필드</th><th>덮어쓰는 것(Dockerfile)</th><th>kubectl run</th></tr></thead><tbody><tr><td><code>command</code></td><td>ENTRYPOINT</td><td><code>--command -- sleep 3600</code></td></tr><tr><td><code>args</code></td><td>CMD</td><td><code>-- sleep 3600</code></td></tr></tbody></table>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">command</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"sh"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"-c"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"echo start; sleep 3600"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#6A737D"># 또는</span></span>
+<span class="line"><span style="color:#85E89D">command</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"sleep"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#85E89D">args</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"3600"</span><span style="color:#E1E4E8">]</span></span></code></pre>
+<p>셸 문법(<code>;</code>, <code>&#x26;&#x26;</code>, <code>$(date)</code>, 반복문)을 쓰려면 반드시 <code>sh -c "…"</code> 로 감쌉니다.</p>
+<h2 id="여러-컨테이너-사이드카와-init-컨테이너">여러 컨테이너: 사이드카와 init 컨테이너</h2>
+<p><strong>사이드카</strong>는 메인 컨테이너 옆에서 함께 도는 보조 컨테이너입니다. 로그 수집, 프록시, 설정 동기화 등. 공유 볼륨이 핵심입니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">spec</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  containers</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">app</span></span>
+<span class="line"><span style="color:#85E89D">    image</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">busybox:1.37</span></span>
+<span class="line"><span style="color:#85E89D">    command</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"sh"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"-c"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"while true; do date >> /var/log/app.log; sleep 5; done"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#85E89D">    volumeMounts</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">    - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">logs</span></span>
+<span class="line"><span style="color:#85E89D">      mountPath</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">/var/log</span></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">sidecar</span></span>
+<span class="line"><span style="color:#85E89D">    image</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">busybox:1.37</span></span>
+<span class="line"><span style="color:#85E89D">    command</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"sh"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"-c"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"tail -f /var/log/app.log"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#85E89D">    volumeMounts</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">    - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">logs</span></span>
+<span class="line"><span style="color:#85E89D">      mountPath</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">/var/log</span></span>
+<span class="line"><span style="color:#85E89D">  volumes</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">logs</span></span>
+<span class="line"><span style="color:#85E89D">    emptyDir</span><span style="color:#E1E4E8">: {}</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> logs</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> -c</span><span style="color:#9ECBFF"> sidecar</span><span style="color:#6A737D">      # 컨테이너가 여럿이면 -c 로 지정</span></span></code></pre>
+<p><strong>init 컨테이너</strong>는 메인 컨테이너보다 <strong>먼저, 순서대로</strong> 실행되어 <strong>끝나야</strong> 합니다. “DB 가 준비될 때까지 기다리기”, “설정 파일 내려받기” 같은 준비 작업에 씁니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">spec</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  initContainers</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">wait-db</span></span>
+<span class="line"><span style="color:#85E89D">    image</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">busybox:1.37</span></span>
+<span class="line"><span style="color:#85E89D">    command</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"sh"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"-c"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"until nslookup db-svc; do sleep 2; done"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#85E89D">  containers</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">app</span></span>
+<span class="line"><span style="color:#85E89D">    image</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">nginx:1.27</span></span></code></pre>
+<blockquote>
+<p>쿠버네티스 1.29 부터는 <strong>네이티브 사이드카</strong>도 있습니다. <code>initContainers</code> 에 <code>restartPolicy: Always</code> 를 준 컨테이너는 끝나지 않고 메인 컨테이너와 함께 돌며, 메인보다 먼저 시작하고 나중에 종료됩니다. 교과과정의 “sidecar” 문제는 두 방식 모두 가능하니 지시문이 요구하는 방식을 따르세요.</p>
+</blockquote>
+<h2 id="재시작-정책">재시작 정책</h2>
+<p><code>spec.restartPolicy</code>: <code>Always</code>(기본) · <code>OnFailure</code> · <code>Never</code>. 파드 전체에 적용됩니다.</p>
+<ul>
+<li>계속 돌아야 하는 서버 → <code>Always</code></li>
+<li>한 번 실행하고 끝나는 작업(Job) → <code>Never</code> 또는 <code>OnFailure</code></li>
+</ul>
+<h2 id="파드-상태-읽기">파드 상태 읽기</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>STATUS</th><th>뜻</th><th>먼저 볼 곳</th></tr></thead><tbody><tr><td><code>Pending</code></td><td>아직 노드에 배정되지 않음</td><td><code>describe</code> → FailedScheduling 이유</td></tr><tr><td><code>ContainerCreating</code></td><td>노드는 정해짐, 컨테이너 준비 중</td><td>볼륨 마운트, CNI</td></tr><tr><td><code>Running</code></td><td>컨테이너 실행 중</td><td>READY 가 <code>0/1</code> 이면 준비성 검사 실패</td></tr><tr><td><code>Completed</code></td><td>정상 종료(종료 코드 0)</td><td>정상(Job 등)</td></tr><tr><td><code>Error</code></td><td>비정상 종료</td><td><code>logs</code></td></tr><tr><td><code>CrashLoopBackOff</code></td><td>계속 죽고 다시 뜨는 중</td><td><code>logs --previous</code>, <code>describe</code> 의 Last State</td></tr><tr><td><code>ErrImagePull</code> / <code>ImagePullBackOff</code></td><td>이미지를 못 받음</td><td>이미지 이름·태그 오타, 레지스트리 인증</td></tr><tr><td><code>CreateContainerConfigError</code></td><td>참조한 ConfigMap·Secret·키가 없음</td><td><code>describe</code> 의 Events</td></tr><tr><td><code>OOMKilled</code>(Last State)</td><td>메모리 제한 초과로 죽음</td><td><code>resources.limits.memory</code></td></tr><tr><td><code>Init:…</code></td><td>init 컨테이너 단계에서 멈춤</td><td><code>logs 파드 -c init이름</code></td></tr></tbody></table>
+<h2 id="파드는-대부분-못-고친다">파드는 대부분 못 고친다</h2>
+<p>실행 중인 파드에서 바꿀 수 있는 것은 <strong>이미지, activeDeadlineSeconds, tolerations 추가</strong> 정도입니다. 환경변수·볼륨·명령·리소스를 바꾸려면 다시 만들어야 합니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> pod</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> -o</span><span style="color:#9ECBFF"> yaml</span><span style="color:#F97583"> ></span><span style="color:#9ECBFF"> web.yaml</span></span>
+<span class="line"><span style="color:#B392F0">vi</span><span style="color:#9ECBFF"> web.yaml</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> replace</span><span style="color:#79B8FF"> --force</span><span style="color:#79B8FF"> -f</span><span style="color:#9ECBFF"> web.yaml</span><span style="color:#6A737D">     # 지우고 다시 만든다</span></span></code></pre>
+<p><code>kubectl edit pod</code> 로 못 바꾸는 필드를 고치면 거절되고, 수정본이 <code>/tmp/kubectl-edit-….yaml</code> 에 저장됩니다. 그 파일로 <code>replace --force</code> 하면 됩니다.</p></article> <section> <h2>⌨️ 직접 해 보기</h2> <p class="muted small">브라우저 실습 터미널에서 풀고 자동 채점을 받습니다.</p> <div class="labs"> <a class="btn sm" href="/academy/cka/lab/?task=w5" data-lab="w5">사이드카 로그 수집 컨테이너 <span class="pill lab-st" hidden></span></a><a class="btn sm" href="/academy/cka/lab/?task=b3" data-lab="b3">dry-run 으로 YAML 뼈대 만들기 <span class="pill lab-st" hidden></span></a> </div> </section> <section class="quiz" id="quiz"> <h2>✅ 확인 문제</h2> <div id="quiz-box" data-quiz="[{&#34;q&#34;:&#34;컨테이너 이미지의 ENTRYPOINT 를 덮어쓰는 파드 필드는?&#34;,&#34;options&#34;:[&#34;args&#34;,&#34;command&#34;,&#34;entrypoint&#34;,&#34;exec&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;command 는 ENTRYPOINT 를, args 는 CMD 를 덮어쓴다. kubectl run x --image=busybox -- sleep 10 은 args 를, --command -- sleep 10 은 command 를 채운다.&#34;},{&#34;q&#34;:&#34;같은 파드 안의 두 컨테이너가 파일을 주고받으려면?&#34;,&#34;options&#34;:[&#34;각자 hostPath 를 쓴다&#34;,&#34;같은 볼륨(emptyDir 등)을 둘 다 마운트한다&#34;,&#34;서비스를 만든다&#34;,&#34;불가능하다&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;파드의 볼륨은 파드 단위로 정의되고 여러 컨테이너가 함께 마운트할 수 있다. emptyDir 은 파드가 사는 동안만 있는 임시 공유 공간이다.&#34;},{&#34;q&#34;:&#34;init 컨테이너의 특징은?&#34;,&#34;options&#34;:[&#34;메인 컨테이너와 동시에 계속 돈다&#34;,&#34;메인 컨테이너보다 먼저, 순서대로 실행되고 끝나야 한다&#34;,&#34;노드마다 하나씩 뜬다&#34;,&#34;실패해도 무시된다&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;init 컨테이너는 순서대로 하나씩 실행되어 성공적으로 끝나야 메인 컨테이너가 시작된다. 실패하면 파드는 Init:Error / Init:CrashLoopBackOff 가 된다.&#34;},{&#34;q&#34;:&#34;busybox 이미지로 명령 없이 파드를 만들면 STATUS 가 CrashLoopBackOff 가 되는 이유는?&#34;,&#34;options&#34;:[&#34;이미지가 없어서&#34;,&#34;기본 명령(sh)이 바로 끝나는데 restartPolicy 가 Always 라 계속 재시작하므로&#34;,&#34;메모리 부족&#34;,&#34;포트 충돌&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;busybox 기본 명령은 할 일이 없어 즉시 끝난다. 파드의 기본 재시작 정책은 Always 라 끝난 컨테이너를 계속 다시 띄우고, 반복되면 백오프가 걸린다. sleep 3600 같은 명령을 준다.&#34;}]"></div> <p id="quiz-score" class="muted" hidden></p> </section> <div class="btns" style="margin-top:28px"> <button type="button" class="btn pri" id="done-btn">이 강의 완료 표시</button> <a class="btn" href="/academy/cka/">과정 목차</a> </div> <nav class="pager"> <a class="btn" href="/academy/cka/kubectl-essentials/"><span><small>← 이전</small>kubectl 손에 익히기</span></a> <a class="btn" href="/academy/cka/deployments/" style="justify-content:flex-end;text-align:right"><span><small>다음 →</small>디플로이먼트 — 롤링 업데이트와 롤백</span></a> </nav> </main> <script type="module" src="/_astro/_slug_.astro_astro_type_script_index_0_lang.B_WkOVAD.js"></script>  </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>MeNew Soft</span> <div class="links" data-astro-cid-sz7xmlte> <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. --> <a href="/" data-astro-cid-sz7xmlte>홈</a> <a href="/shops/" data-astro-cid-sz7xmlte>등록 업체</a> <a href="/news/" data-astro-cid-sz7xmlte>업체 소식</a> <a href="/games/" data-astro-cid-sz7xmlte>놀이공간</a> <a href="/blog/" data-astro-cid-sz7xmlte>글</a> <a href="/glossary/" data-astro-cid-sz7xmlte>용어사전</a> <a href="/tools/" data-astro-cid-sz7xmlte>도구</a> <a href="/learn/" data-astro-cid-sz7xmlte>초등 1학년 학습</a> <a href="/academy/" data-astro-cid-sz7xmlte>자격증 학원</a> <a href="/about/" data-astro-cid-sz7xmlte>소개</a> <a href="/contact/" data-astro-cid-sz7xmlte>문의</a> <a href="/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 MeNew Soft · menewsoft.com (미뉴소프트) — AI로 만듭니다 — 가게 홈페이지·학습 게임·웹게임. 등록 내용이 틀렸다면 알려주세요.</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 오늘 <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · 전체 <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html>

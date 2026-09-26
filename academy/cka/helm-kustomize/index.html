@@ -1,0 +1,144 @@
+<!DOCTYPE html><html lang="ko"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Helm 과 Kustomize — CKA 합격반 — MeNew Soft</title><meta name="description" content="2025 개정으로 들어온 패키지·구성 관리 도구. Helm 저장소·설치·값 덮어쓰기·template, Kustomize 의 namespace·images·replicas·patches."><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/academy/cka/helm-kustomize/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)"><meta property="og:type" content="website"><meta property="og:title" content="Helm 과 Kustomize — CKA 합격반 — MeNew Soft"><meta property="og:description" content="2025 개정으로 들어온 패키지·구성 관리 도구. Helm 저장소·설치·값 덮어쓰기·template, Kustomize 의 namespace·images·replicas·patches."><meta property="og:url" content="https://menewsoft.com/academy/cka/helm-kustomize/"><meta property="og:site_name" content="MeNew Soft"><meta property="og:image" content="https://menewsoft.com/og/default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Helm 과 Kustomize — CKA 합격반"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://menewsoft.com/og/default.png"><link rel="sitemap" href="/sitemap-index.xml"><!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. --><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MeNew Soft","alternateName":["menewsoft","menewsoft.com","미뉴소프트","메뉴소프트","Tech Decode"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/index.BD2eBubB.css">
+<link rel="stylesheet" href="/_astro/_slug_.DxXwq8uN.css"></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/">MeNew<span>Soft</span></a> <nav class="nav"> <a href="/">홈</a> <a href="/shops/">등록 업체</a> <a href="/news/">업체 소식</a> <a href="/games/">놀이공간</a> <a href="/blog/">글</a>  <a href="/learn/">초등 1학년 학습</a>  <a href="/academy/">자격증 학원</a>  <a href="/board/">게시판</a> <a href="/about/">소개</a> <a href="/contact/">문의</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul>  </ul> </div> </nav> </div> </header> <main>  <main class="acad lesson" data-slug="helm-kustomize"> <p class="crumbs"><a href="/academy/">자격증 학원</a> › <a href="/academy/cka/">CKA</a> › 아키텍처 · 설치 · 구성</p> <p class="kick">강의 17 / 28 · 약 25분</p> <h1>Helm 과 Kustomize</h1> <p class="lead">2025 개정으로 들어온 패키지·구성 관리 도구. Helm 저장소·설치·값 덮어쓰기·template, Kustomize 의 namespace·images·replicas·patches.</p> <div class="goals"> <h3>이 강의를 마치면</h3> <ul><li>Helm 저장소를 추가하고 차트를 버전·값을 지정해 설치·업그레이드·제거할 수 있다</li><li>helm template 으로 매니페스트만 뽑을 수 있다</li><li>kustomization.yaml 로 네임스페이스·이미지·레플리카를 바꿔 apply -k 할 수 있다</li></ul> </div> <article class="body"><h2 id="helm--쿠버네티스의-패키지-관리자">Helm — 쿠버네티스의 패키지 관리자</h2>
+<p><strong>차트</strong>(chart) = 템플릿 묶음, <strong>값</strong>(values) = 템플릿에 넣을 설정, <strong>릴리스</strong>(release) = 차트를 클러스터에 설치한 한 번의 인스턴스.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># 저장소</span></span>
+<span class="line"><span style="color:#B392F0">helm</span><span style="color:#9ECBFF"> repo</span><span style="color:#9ECBFF"> add</span><span style="color:#9ECBFF"> bitnami</span><span style="color:#9ECBFF"> https://charts.bitnami.com/bitnami</span></span>
+<span class="line"><span style="color:#B392F0">helm</span><span style="color:#9ECBFF"> repo</span><span style="color:#9ECBFF"> update</span></span>
+<span class="line"><span style="color:#B392F0">helm</span><span style="color:#9ECBFF"> repo</span><span style="color:#9ECBFF"> list</span></span>
+<span class="line"><span style="color:#B392F0">helm</span><span style="color:#9ECBFF"> search</span><span style="color:#9ECBFF"> repo</span><span style="color:#9ECBFF"> bitnami/nginx</span><span style="color:#79B8FF"> --versions</span><span style="color:#6A737D">     # 버전 목록</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 차트 살펴보기</span></span>
+<span class="line"><span style="color:#B392F0">helm</span><span style="color:#9ECBFF"> show</span><span style="color:#9ECBFF"> values</span><span style="color:#9ECBFF"> bitnami/nginx</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> less</span><span style="color:#6A737D">          # 바꿀 수 있는 값</span></span>
+<span class="line"><span style="color:#B392F0">helm</span><span style="color:#9ECBFF"> show</span><span style="color:#9ECBFF"> chart</span><span style="color:#9ECBFF"> bitnami/nginx</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 설치</span></span>
+<span class="line"><span style="color:#B392F0">helm</span><span style="color:#9ECBFF"> install</span><span style="color:#9ECBFF"> web</span><span style="color:#9ECBFF"> bitnami/nginx</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --version</span><span style="color:#79B8FF"> 21.1.2</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  -n</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --create-namespace</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --set</span><span style="color:#9ECBFF"> replicaCount=</span><span style="color:#79B8FF">2</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --set</span><span style="color:#9ECBFF"> service.type=ClusterIP</span></span>
+<span class="line"><span style="color:#6A737D"># 또는 값 파일로: -f my-values.yaml</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 관리</span></span>
+<span class="line"><span style="color:#B392F0">helm</span><span style="color:#9ECBFF"> list</span><span style="color:#79B8FF"> -A</span></span>
+<span class="line"><span style="color:#B392F0">helm</span><span style="color:#9ECBFF"> status</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> web</span></span>
+<span class="line"><span style="color:#B392F0">helm</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> values</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> web</span><span style="color:#6A737D">                    # 내가 준 값</span></span>
+<span class="line"><span style="color:#B392F0">helm</span><span style="color:#9ECBFF"> upgrade</span><span style="color:#9ECBFF"> web</span><span style="color:#9ECBFF"> bitnami/nginx</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --set</span><span style="color:#9ECBFF"> replicaCount=</span><span style="color:#79B8FF">3</span></span>
+<span class="line"><span style="color:#B392F0">helm</span><span style="color:#9ECBFF"> upgrade</span><span style="color:#79B8FF"> --install</span><span style="color:#9ECBFF"> web</span><span style="color:#9ECBFF"> bitnami/nginx</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> web</span><span style="color:#6A737D">   # 없으면 설치, 있으면 업그레이드</span></span>
+<span class="line"><span style="color:#B392F0">helm</span><span style="color:#9ECBFF"> rollback</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> 1</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> web</span></span>
+<span class="line"><span style="color:#B392F0">helm</span><span style="color:#9ECBFF"> uninstall</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> web</span></span></code></pre>
+<blockquote>
+<p><strong>릴리스는 네임스페이스에 속합니다.</strong> <code>helm list</code> 에 안 보이면 <code>-n</code> 이나 <code>-A</code> 를 빼먹은 것입니다.</p>
+</blockquote>
+<h3 id="helm-template--매니페스트만-뽑기">helm template — 매니페스트만 뽑기</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">helm</span><span style="color:#9ECBFF"> template</span><span style="color:#9ECBFF"> argocd</span><span style="color:#9ECBFF"> argo/argo-cd</span><span style="color:#79B8FF"> --version</span><span style="color:#79B8FF"> 8.3.0</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> argocd</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --set</span><span style="color:#9ECBFF"> crds.install=</span><span style="color:#79B8FF">false</span><span style="color:#F97583"> ></span><span style="color:#9ECBFF"> /opt/argo.yaml</span></span></code></pre>
+<ul>
+<li>클러스터에 아무것도 설치하지 않습니다. 결과를 검토하거나 <code>kubectl apply -f</code> 로 직접 넣을 때 씁니다.</li>
+<li><strong>CRD 빼기</strong>: <code>--skip-crds</code> 는 차트의 <code>crds/</code> 폴더에 든 CRD 만 뺍니다. 차트가 CRD 를 <strong>템플릿으로</strong> 넣는 경우(argo-cd 가 그렇다)에는 차트 값(<code>crds.install=false</code>)으로 꺼야 합니다. 차트마다 다르니 <strong><code>helm show values</code> 로 확인</strong>하는 것이 정석입니다.</li>
+</ul>
+<h2 id="kustomize--템플릿-없이-덧씌우기">Kustomize — 템플릿 없이 덧씌우기</h2>
+<p>Kustomize 는 원본 YAML 을 건드리지 않고, <code>kustomization.yaml</code> 에 적은 변경을 <strong>덧씌워</strong> 결과를 만듭니다. kubectl 에 내장되어 있습니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>app/</span></span>
+<span class="line"><span>├── deployment.yaml</span></span>
+<span class="line"><span>├── service.yaml</span></span>
+<span class="line"><span>└── kustomization.yaml</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#6A737D"># kustomization.yaml</span></span>
+<span class="line"><span style="color:#85E89D">apiVersion</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">kustomize.config.k8s.io/v1beta1</span></span>
+<span class="line"><span style="color:#85E89D">kind</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Kustomization</span></span>
+<span class="line"><span style="color:#85E89D">namespace</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">staging</span><span style="color:#6A737D">              # 모든 리소스의 네임스페이스</span></span>
+<span class="line"><span style="color:#85E89D">namePrefix</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">stg-</span><span style="color:#6A737D">                # 이름 앞에</span></span>
+<span class="line"><span style="color:#85E89D">labels</span><span style="color:#E1E4E8">:                         </span><span style="color:#6A737D"># (commonLabels 의 후속)</span></span>
+<span class="line"><span style="color:#E1E4E8">- </span><span style="color:#85E89D">pairs</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    env</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">staging</span></span>
+<span class="line"><span style="color:#85E89D">  includeSelectors</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">false</span></span>
+<span class="line"><span style="color:#85E89D">resources</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">- </span><span style="color:#9ECBFF">deployment.yaml</span></span>
+<span class="line"><span style="color:#E1E4E8">- </span><span style="color:#9ECBFF">service.yaml</span></span>
+<span class="line"><span style="color:#85E89D">images</span><span style="color:#E1E4E8">:                         </span><span style="color:#6A737D"># 이미지 태그·이름 바꾸기</span></span>
+<span class="line"><span style="color:#E1E4E8">- </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">nginx</span></span>
+<span class="line"><span style="color:#85E89D">  newTag</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"1.27"</span></span>
+<span class="line"><span style="color:#85E89D">replicas</span><span style="color:#E1E4E8">:                       </span><span style="color:#6A737D"># 레플리카 바꾸기</span></span>
+<span class="line"><span style="color:#E1E4E8">- </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">portal</span></span>
+<span class="line"><span style="color:#85E89D">  count</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">3</span></span>
+<span class="line"><span style="color:#85E89D">configMapGenerator</span><span style="color:#E1E4E8">:             </span><span style="color:#6A737D"># ConfigMap 생성(내용 해시가 이름에 붙는다)</span></span>
+<span class="line"><span style="color:#E1E4E8">- </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">app-config</span></span>
+<span class="line"><span style="color:#85E89D">  literals</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#9ECBFF">MODE=staging</span></span>
+<span class="line"><span style="color:#85E89D">patches</span><span style="color:#E1E4E8">:                        </span><span style="color:#6A737D"># 부분 수정</span></span>
+<span class="line"><span style="color:#E1E4E8">- </span><span style="color:#85E89D">target</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    kind</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Deployment</span></span>
+<span class="line"><span style="color:#85E89D">    name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">portal</span></span>
+<span class="line"><span style="color:#85E89D">  patch</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">|-</span></span>
+<span class="line"><span style="color:#9ECBFF">    - op: add</span></span>
+<span class="line"><span style="color:#9ECBFF">      path: /spec/template/spec/containers/0/env</span></span>
+<span class="line"><span style="color:#9ECBFF">      value: [{name: TIER, value: web}]</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> kustomize</span><span style="color:#9ECBFF"> app/</span><span style="color:#6A737D">          # 결과 미리 보기 ★ 적용 전에 꼭</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> apply</span><span style="color:#79B8FF"> -k</span><span style="color:#9ECBFF"> app/</span><span style="color:#6A737D">           # 적용</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> delete</span><span style="color:#79B8FF"> -k</span><span style="color:#9ECBFF"> app/</span><span style="color:#6A737D">          # 삭제</span></span></code></pre>
+<h3 id="base-와-overlay">base 와 overlay</h3>
+<p>환경별 차이만 overlay 에 둡니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>base/        (deployment.yaml, service.yaml, kustomization.yaml)</span></span>
+<span class="line"><span>overlays/</span></span>
+<span class="line"><span>  dev/kustomization.yaml       → resources: [../../base], namespace: dev</span></span>
+<span class="line"><span>  prod/kustomization.yaml      → resources: [../../base], replicas: 5, images: …</span></span></code></pre>
+<h2 id="무엇을-언제-쓰나">무엇을 언제 쓰나</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th></th><th>Helm</th><th>Kustomize</th></tr></thead><tbody><tr><td>방식</td><td>템플릿 + 값</td><td>원본 + 덧씌우기</td></tr><tr><td>남이 만든 소프트웨어 설치</td><td>◎ (차트 생태계)</td><td>△</td></tr><tr><td>내 앱의 환경별 배포</td><td>○</td><td>◎</td></tr><tr><td>설치 이력·롤백</td><td>릴리스 단위로 관리</td><td>없음(git 으로)</td></tr></tbody></table>
+<p>교과과정 표현은 “Use Helm and Kustomize to install cluster components” 입니다. 시험에서는 <strong>저장소 추가 → 버전 지정 설치 → 값 지정</strong>, <strong>template 으로 뽑기</strong>, <strong>kustomization 고쳐서 apply -k</strong> 가 핵심입니다.</p></article> <section> <h2>⌨️ 직접 해 보기</h2> <p class="muted small">브라우저 실습 터미널에서 풀고 자동 채점을 받습니다.</p> <div class="labs"> <a class="btn sm" href="/academy/cka/lab/?task=a7" data-lab="a7">Helm 차트 설치 <span class="pill lab-st" hidden></span></a><a class="btn sm" href="/academy/cka/lab/?task=a8" data-lab="a8">Helm template — CRD 없이 매니페스트 뽑기 <span class="pill lab-st" hidden></span></a><a class="btn sm" href="/academy/cka/lab/?task=a9" data-lab="a9">Kustomize 로 환경별 배포 <span class="pill lab-st" hidden></span></a> </div> </section> <section class="quiz" id="quiz"> <h2>✅ 확인 문제</h2> <div id="quiz-box" data-quiz="[{&#34;q&#34;:&#34;차트를 클러스터에 설치하지 않고 결과 YAML 만 보려면?&#34;,&#34;options&#34;:[&#34;helm install --dry-run 만 가능&#34;,&#34;helm template&#34;,&#34;helm show chart&#34;,&#34;helm get manifest&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;helm template 은 로컬에서 렌더링만 한다. helm install --dry-run 도 비슷하지만 template 이 가장 단순하다. get manifest 는 이미 설치된 릴리스의 것이다.&#34;},{&#34;q&#34;:&#34;설치할 때 값을 바꾸는 방법이 아닌 것은?&#34;,&#34;options&#34;:[&#34;--set key=value&#34;,&#34;-f values.yaml&#34;,&#34;--values values.yaml&#34;,&#34;--config key=value&#34;],&#34;answer&#34;:3,&#34;explain&#34;:&#34;값은 --set(여러 번 가능)이나 -f/--values 파일로 준다. 차트의 기본값은 helm show values 로 본다.&#34;},{&#34;q&#34;:&#34;Kustomize 로 적용하는 kubectl 명령은?&#34;,&#34;options&#34;:[&#34;kubectl apply -f dir/&#34;,&#34;kubectl apply -k dir/&#34;,&#34;kubectl kustomize apply&#34;,&#34;kubectl create -k&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;-k(--kustomize) 는 디렉터리의 kustomization.yaml 을 빌드해 적용한다. 결과만 보려면 kubectl kustomize dir/.&#34;},{&#34;q&#34;:&#34;특정 네임스페이스에 설치하면서 그 네임스페이스가 없으면 만들게 하는 Helm 옵션은?&#34;,&#34;options&#34;:[&#34;--namespace-create&#34;,&#34;--create-namespace&#34;,&#34;--new-namespace&#34;,&#34;자동으로 만들어진다&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;-n 이름 --create-namespace. 없으면 namespaces not found 로 실패한다.&#34;}]"></div> <p id="quiz-score" class="muted" hidden></p> </section> <div class="btns" style="margin-top:28px"> <button type="button" class="btn pri" id="done-btn">이 강의 완료 표시</button> <a class="btn" href="/academy/cka/">과정 목차</a> </div> <nav class="pager"> <a class="btn" href="/academy/cka/rbac/"><span><small>← 이전</small>RBAC — 누가 무엇을 할 수 있나</span></a> <a class="btn" href="/academy/cka/extensions-crd/" style="justify-content:flex-end;text-align:right"><span><small>다음 →</small>확장 인터페이스와 CRD · 오퍼레이터</span></a> </nav> </main> <script type="module" src="/_astro/_slug_.astro_astro_type_script_index_0_lang.B_WkOVAD.js"></script>  </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>MeNew Soft</span> <div class="links" data-astro-cid-sz7xmlte> <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. --> <a href="/" data-astro-cid-sz7xmlte>홈</a> <a href="/shops/" data-astro-cid-sz7xmlte>등록 업체</a> <a href="/news/" data-astro-cid-sz7xmlte>업체 소식</a> <a href="/games/" data-astro-cid-sz7xmlte>놀이공간</a> <a href="/blog/" data-astro-cid-sz7xmlte>글</a> <a href="/glossary/" data-astro-cid-sz7xmlte>용어사전</a> <a href="/tools/" data-astro-cid-sz7xmlte>도구</a> <a href="/learn/" data-astro-cid-sz7xmlte>초등 1학년 학습</a> <a href="/academy/" data-astro-cid-sz7xmlte>자격증 학원</a> <a href="/about/" data-astro-cid-sz7xmlte>소개</a> <a href="/contact/" data-astro-cid-sz7xmlte>문의</a> <a href="/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 MeNew Soft · menewsoft.com (미뉴소프트) — AI로 만듭니다 — 가게 홈페이지·학습 게임·웹게임. 등록 내용이 틀렸다면 알려주세요.</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 오늘 <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · 전체 <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html>

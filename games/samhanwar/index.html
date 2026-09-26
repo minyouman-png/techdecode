@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>삼한통일전 — 서기 246년</title>
+<meta name="description" content="서기 246년, 부여에서 규슈까지. 거점 37개와 세력 17개로 시작하는 고대 동아시아 군주 시뮬레이션.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#131611; --surface:#1C201A; --panel:#191D17; --sunk:#0E110C;
+  --ink:#E5E3D9; --ink2:#A9AEA3; --ink3:#787E74;
+  --line:#2C312A; --line2:#3B4138;
+  --jusa:#D9614A; --nokcheong:#6BA893; --hwangto:#C7A254;
+  --sea:#0F120E; --land:#20241D; --coast:#3A4034; --mapdot:#131611;
+  --link:#2A2F26; --link2:#454C40;
+  --bo:#8AA36B; --gi:#C2794E; --gung:#7E9BB8;
+}
+*{box-sizing:border-box}
+/* ★#over·#ev·#btl 이 display:flex 라 hidden 속성을 이긴다 — 이 줄이 없으면 결과창이 첫 화면을 덮는다 */
+[hidden]{display:none!important}
+html,body{height:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:"IBM Plex Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow:hidden;
+}
+button,select,input{font-family:inherit;font-size:13px;color:var(--ink)}
+button{cursor:pointer}
+
+/* ── 시작 화면 ───────────────────────────── */
+#intro{position:fixed;inset:0;overflow-y:auto;background:var(--paper);z-index:40;
+  display:flex;align-items:center;justify-content:center;padding:40px 24px}
+.introbox{max-width:900px;width:100%}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--jusa);font-weight:500}
+h1{font-family:"Gowun Batang",serif;font-weight:700;font-size:clamp(40px,7vw,68px);
+  line-height:1.05;margin:12px 0 0;letter-spacing:-.02em}
+h1 .hj{color:var(--ink3);font-weight:400;font-size:.4em;letter-spacing:.1em;
+  margin-left:.45em;vertical-align:.35em}
+.lede{color:var(--ink2);margin:16px 0 0;max-width:620px;font-size:16px}
+.pickhead{margin:36px 0 14px;display:flex;align-items:baseline;gap:14px;
+  border-top:1px solid var(--line);padding-top:22px}
+.pickhead h2{font-family:"Gowun Batang",serif;font-size:20px;margin:0;font-weight:700}
+.pickhead span{font-size:13px;color:var(--ink3)}
+#facpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:10px}
+.facbtn{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--c);
+  border-radius:3px;padding:12px 14px;text-align:left;display:flex;flex-direction:column;
+  gap:2px;transition:background .12s,border-color .12s}
+.facbtn:hover{background:var(--panel);border-color:var(--c)}
+.facbtn b{font-family:"Gowun Batang",serif;font-size:18px;font-weight:700}
+.facbtn i{font-style:normal;color:var(--ink3);font-size:12px;
+  font-family:"IBM Plex Mono",monospace}
+.fmeta{color:var(--ink2);font-size:12px;margin-top:4px}
+#modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:34px}
+.modebtn{background:var(--surface);border:1px solid var(--line2);border-radius:4px;
+  padding:20px 22px;text-align:left;display:flex;flex-direction:column;gap:5px;
+  transition:border-color .12s,background .12s}
+.modebtn:hover{border-color:var(--nokcheong);background:var(--panel)}
+.modebtn.hot{border-left:3px solid var(--jusa)}
+.modebtn b{font-family:"Gowun Batang",serif;font-size:22px;font-weight:700}
+.modebtn span{color:var(--ink2);font-size:13.5px}
+#overback{margin-top:18px;background:var(--jusa);border:0;color:#16110F;font-weight:600;
+  padding:10px 22px;border-radius:3px}
+.langbtn{position:absolute;top:20px;right:24px;background:var(--surface);
+  border:1px solid var(--line2);border-radius:3px;padding:6px 13px;color:var(--ink2);font-size:12.5px}
+.langbtn:hover{border-color:var(--nokcheong);color:var(--ink)}
+#snd{background:transparent;border:1px solid var(--line2);border-radius:3px;
+  padding:7px 11px;margin-left:8px;color:var(--ink3);font-size:14px;line-height:1}
+#snd.off{opacity:.4;text-decoration:line-through}
+#continue{margin-top:20px;background:var(--jusa);border:0;color:#16110F;font-weight:600;
+  padding:11px 20px;border-radius:3px;font-size:14px}
+
+/* ── 본 화면 ─────────────────────────────── */
+#game{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr}
+#top{display:flex;align-items:center;gap:0;padding:0 16px;height:52px;
+  background:var(--surface);border-bottom:1px solid var(--line);flex-wrap:nowrap;overflow-x:auto}
+#top .brand{font-family:"Gowun Batang",serif;font-weight:700;font-size:17px;
+  padding-right:16px;margin-right:16px;border-right:1px solid var(--line);white-space:nowrap}
+.tstat{display:flex;flex-direction:column;padding:0 15px;border-right:1px solid var(--line);
+  white-space:nowrap}
+.tstat dt{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink3);margin:0}
+.tstat dd{margin:0;font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}
+#idle{margin-left:auto;background:transparent;border:1px solid var(--hwangto);color:var(--hwangto);
+  border-radius:3px;padding:8px 12px;font-size:13px;font-weight:500;white-space:nowrap}
+#idle.zero{border-color:var(--line2);color:var(--ink3)}
+#help{background:transparent;border:1px solid var(--line2);border-radius:3px;
+  padding:7px 10px;margin-left:6px;color:var(--ink3);font-size:13px;line-height:1}
+#next{margin-left:8px;background:var(--jusa);border:0;color:#16110F;font-weight:600;
+  padding:9px 18px;border-radius:3px;font-size:13.5px;white-space:nowrap}
+#next:hover{filter:brightness(1.08)}
+#restart{background:transparent;border:1px solid var(--line2);border-radius:3px;
+  padding:8px 12px;margin-left:8px;color:var(--ink3);white-space:nowrap}
+
+#body{display:grid;grid-template-columns:1fr 356px;min-height:0}
+#mapwrap{position:relative;min-width:0;background:var(--sea)}
+#map{display:block;width:100%;height:100%;touch-action:none}
+#maphint{position:absolute;left:12px;bottom:10px;font-size:11.5px;color:var(--ink3);
+  background:color-mix(in srgb,var(--sea) 80%,transparent);padding:4px 9px;border-radius:3px;
+  pointer-events:none;font-family:"IBM Plex Mono",monospace}
+
+#side{border-left:1px solid var(--line);background:var(--panel);display:grid;
+  grid-template-rows:auto 1fr;min-height:0}
+.tabs{display:flex;border-bottom:1px solid var(--line)}
+.tab{flex:1;background:transparent;border:0;border-bottom:2px solid transparent;
+  padding:11px 0;color:var(--ink3);font-size:13px;font-weight:500}
+.tab.on{color:var(--ink);border-bottom-color:var(--jusa)}
+.tabpane{overflow-y:auto;padding:14px 16px 40px;min-height:0}
+
+/* 거점 패널 */
+.phead{border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:13px}
+.ptitle{display:flex;align-items:center;gap:9px}
+.ptitle b{font-family:"Gowun Batang",serif;font-size:24px;font-weight:700}
+.sz{display:inline-block;width:20px;height:20px;line-height:18px;text-align:center;
+  font-size:11px;font-weight:600;border-radius:2px;border:1px solid var(--line2);color:var(--ink2)}
+.s대{background:var(--jusa);color:#16110F;border-color:var(--jusa)}
+.pnow{color:var(--ink3);font-size:12px;font-family:"IBM Plex Mono",monospace;margin-top:3px}
+.pfac{margin-top:7px;font-size:13px;display:inline-flex;align-items:center;gap:7px;color:var(--ink2)}
+.pfac::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+.pfac i{font-style:normal;color:var(--ink3);font-family:"IBM Plex Mono",monospace;font-size:11px}
+
+.stats{display:flex;flex-direction:column;gap:7px;margin-bottom:13px}
+.st{display:grid;grid-template-columns:44px 62px 1fr;align-items:center;gap:8px;font-size:12.5px}
+.sl{color:var(--ink3)}
+.sv{font-variant-numeric:tabular-nums;font-weight:500}
+.sv i{font-style:normal;color:var(--ink3);font-size:11px}
+.sbar{height:4px;background:var(--sunk);border-radius:2px;overflow:hidden}
+.sbar i{display:block;height:100%;background:var(--nokcheong)}
+.sx{grid-column:2/4;font-size:11px;color:var(--ink3);
+  font-family:"IBM Plex Mono",monospace;margin-top:-3px}
+
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-bottom:13px;
+  padding:11px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.kv div{display:flex;justify-content:space-between;font-size:12.5px}
+.kv dt{margin:0;color:var(--ink3)}
+.kv dd{margin:0;font-variant-numeric:tabular-nums;font-weight:500}
+.kv dd i{font-style:normal;color:var(--ink3);font-size:11px}
+
+.troops{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}
+.tu{background:var(--sunk);border-radius:3px;padding:8px 10px;display:flex;
+  flex-direction:column;gap:1px;border-left:2px solid var(--c)}
+.u보병{--c:var(--bo)} .u기병{--c:var(--gi)} .u궁병{--c:var(--gung)}
+.tu span{font-size:11px;color:var(--ink3)}
+.tu b{font-size:15px;font-variant-numeric:tabular-nums;font-weight:500}
+
+.olist{margin-bottom:13px}
+.olist h4{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink3);margin:0 0 7px;font-weight:500}
+.ocard{width:100%;display:grid;grid-template-columns:34px 1fr auto auto;align-items:center;
+  gap:9px;background:var(--surface);border:1px solid var(--line);border-radius:3px;
+  padding:6px 9px;margin-bottom:5px;text-align:left}
+.ocard.on{border-color:var(--jusa);background:color-mix(in srgb,var(--jusa) 9%,var(--surface))}
+.ocard.wild{border-style:dashed;opacity:.9}
+.ocard:hover{border-color:var(--line2)}
+.por{width:34px;height:42px;border-radius:2px;overflow:hidden;background:var(--sunk);
+  display:flex;align-items:center;justify-content:center}
+.por.sm{width:28px;height:35px}
+.por img{width:100%;height:100%;object-fit:cover;display:block}
+.noimg{font-family:"Gowun Batang",serif;font-size:15px;color:var(--ink3)}
+.oinfo{display:flex;flex-direction:column;min-width:0}
+.oinfo b{font-family:"Gowun Batang",serif;font-size:15px;font-weight:700;white-space:nowrap}
+.fem{font-style:normal;font-size:9px;color:var(--jusa);border:1px solid var(--jusa);
+  border-radius:2px;padding:0 2px;margin-left:4px;vertical-align:2px}
+.olv{font-size:11px;color:var(--ink3);font-family:"IBM Plex Mono",monospace}
+.ostat{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink2);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.ostat i{font-style:normal;color:var(--ink3);margin:0 2px 0 6px;font-size:10px}
+.bioBtn{font-size:11px;color:var(--nokcheong);border:1px solid var(--line2);
+  border-radius:2px;padding:2px 6px;white-space:nowrap}
+.bioBtn:hover{border-color:var(--nokcheong)}
+
+/* 부대·충성 표시 */
+.cps{font-weight:600;color:var(--c)}
+.cps.u보병{--c:var(--bo)} .cps.u기병{--c:var(--gi)} .cps.u궁병{--c:var(--gung)}
+.loy{display:block;height:3px;background:var(--sunk);border-radius:2px;overflow:hidden;
+  margin-top:3px;max-width:96px}
+.loy>i{display:block;height:100%;background:var(--nokcheong)}
+.loy.sm{width:34px;margin:3px 0 0 auto}
+.rl{display:flex;flex-direction:column;align-items:flex-end}
+.hint{font-size:11px;color:var(--ink3);font-family:"IBM Plex Mono",monospace}
+.corpsel{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-2px 0 10px;
+  padding:8px 10px;background:var(--sunk);border-radius:3px}
+.cchk{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--ink2);
+  cursor:pointer}
+.cchk input{accent-color:var(--jusa);margin:0}
+.fbal{flex-basis:100%;font-size:12.5px;color:var(--ink2);padding-top:6px;
+  border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.fbal b{color:var(--ink);font-weight:600}
+.fbal span{display:block;font-size:11.5px;color:var(--ink3);margin-top:2px}
+.fbal.good span{color:var(--nokcheong)}
+.fbal.warn span{color:var(--hwangto)}
+.fbal.bad span{color:var(--jusa)}
+
+#orders{border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
+.orow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.olab{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink3);width:38px;flex:none}
+.orow button{background:var(--surface);border:1px solid var(--line2);border-radius:3px;
+  padding:6px 10px}
+.orow button:hover{border-color:var(--nokcheong)}
+.orow button.go{background:var(--nokcheong);border-color:var(--nokcheong);color:#0E1512;font-weight:600}
+.orow button.danger{background:var(--jusa);border-color:var(--jusa);color:#16110F}
+.orow select,.orow input{background:var(--sunk);border:1px solid var(--line2);
+  border-radius:3px;padding:6px 8px}
+.orow input{width:82px;font-variant-numeric:tabular-nums}
+.note{color:var(--ink3);font-size:12.5px;margin:6px 0}
+
+.rrow{width:100%;display:grid;grid-template-columns:28px 1fr auto auto;align-items:center;
+  gap:9px;background:transparent;border:0;border-bottom:1px solid var(--line);
+  padding:7px 2px;text-align:left}
+.rrow:hover{background:var(--surface)}
+.rn{display:flex;flex-direction:column;min-width:0}
+.rn b{font-family:"Gowun Batang",serif;font-size:14.5px;font-weight:700}
+.rn i{font-style:normal;font-size:11px;color:var(--ink3)}
+.rs{display:flex;gap:8px;font-family:"IBM Plex Mono",monospace;font-size:12px;
+  font-variant-numeric:tabular-nums;color:var(--ink2)}
+.rs b{font-weight:400;width:22px;text-align:right}
+.rl{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink3)}
+
+/* ── 열전 ────────────────────────────────── */
+#bio{position:fixed;inset:0;background:rgba(8,10,7,.72);z-index:57;display:flex;
+  align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+.biobox{background:var(--surface);border:1px solid var(--line2);border-radius:4px;
+  max-width:620px;width:100%;position:relative;max-height:88vh;overflow-y:auto}
+#bioClose{position:absolute;right:10px;top:10px;background:transparent;border:0;
+  color:var(--ink3);font-size:20px;line-height:1;padding:4px 8px}
+#bioBody{padding:24px 26px 26px}
+.biohead{display:grid;grid-template-columns:132px 1fr;gap:22px;padding-bottom:18px;
+  border-bottom:1px solid var(--line)}
+.bpor{width:132px;height:165px;border-radius:3px;overflow:hidden;background:var(--sunk);
+  display:flex;align-items:center;justify-content:center;border:1px solid var(--line)}
+.bpor img{width:100%;height:100%;object-fit:cover}
+.bpor .noimg{font-size:44px}
+.bmeta h3{font-family:"Gowun Batang",serif;font-size:29px;margin:0;font-weight:700;line-height:1.1}
+.bh{color:var(--ink3);font-weight:400;font-size:.5em;margin-left:.4em;
+  font-family:"IBM Plex Mono",monospace;letter-spacing:.06em}
+.btag{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px}
+.chip{font-size:11.5px;padding:2px 8px;border-radius:2px;display:inline-flex;align-items:center;
+  gap:6px;background:var(--sunk);color:var(--ink2);border:1px solid var(--line)}
+.chip[style*="--c"]::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--c)}
+.chip.real{color:var(--nokcheong);border-color:color-mix(in srgb,var(--nokcheong) 40%,transparent)}
+.chip.fic{color:var(--hwangto);border-color:color-mix(in srgb,var(--hwangto) 40%,transparent)}
+.bstats{display:flex;flex-direction:column;gap:6px}
+.bs{display:grid;grid-template-columns:38px 30px 1fr;align-items:center;gap:9px;font-size:12.5px}
+.bs span:first-child{color:var(--ink3)}
+.bs b{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
+  text-align:right;font-weight:500}
+.bbar{height:4px;background:var(--sunk);border-radius:2px;overflow:hidden}
+.bbar i{display:block;height:100%;background:var(--jusa)}
+.blv{margin-top:12px;font-size:11.5px;color:var(--ink3);font-family:"IBM Plex Mono",monospace}
+.biotext{padding-top:18px}
+.biotext h4{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--jusa);margin:0 0 9px;font-weight:500}
+.biotext p{margin:0 0 10px;font-size:15px;line-height:1.85;color:var(--ink);
+  font-family:"Gowun Batang",serif}
+.biotext .src{font-family:"IBM Plex Sans KR",sans-serif;font-size:12px;color:var(--ink3);
+  margin-top:12px}
+.biotext .src.fic{color:var(--hwangto)}
+
+/* ── 외교 ────────────────────────────────── */
+.drow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+  padding:9px 0;border-bottom:1px solid var(--line)}
+.dname{display:flex;flex-direction:column;min-width:0}
+.dname b{font-family:"Gowun Batang",serif;font-size:15.5px;font-weight:700;
+  display:flex;align-items:center;gap:7px}
+.dname b::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
+.dmeta{font-size:11.5px;color:var(--ink3);font-family:"IBM Plex Mono",monospace}
+.rel{font-size:11px;padding:1px 7px;border-radius:2px;border:1px solid currentColor}
+.rel.war{color:var(--jusa)} .rel.peace{color:var(--ink3)}
+.rel.ally{color:var(--nokcheong)} .rel.truce{color:var(--hwangto)}
+.attbar{height:4px;background:var(--sunk);border-radius:2px;overflow:hidden;
+  margin-top:4px;max-width:120px}
+.attbar>i{display:block;height:100%;background:var(--nokcheong)}
+.dact{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.dact button{background:var(--surface);border:1px solid var(--line2);border-radius:3px;
+  padding:5px 9px;font-size:12px}
+.dact button.war{color:var(--jusa);border-color:color-mix(in srgb,var(--jusa) 45%,transparent)}
+.dsec{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink3);margin:14px 0 4px;font-weight:500}
+
+/* ── 사건 — 만화 칸 ─────────────────────────── */
+#ev{position:fixed;inset:0;background:rgba(8,10,7,.86);z-index:54;display:flex;
+  align-items:center;justify-content:center;padding:18px}
+.evbox{background:var(--surface);border:1px solid var(--line2);border-left:3px solid var(--hwangto);
+  border-radius:4px;width:min(900px,100%);max-height:100%;overflow:auto;padding:16px 18px 14px}
+.evhead{display:flex;align-items:baseline;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+#evwhen{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--hwangto);letter-spacing:.1em}
+#evnm{font-family:"Gowun Batang",serif;font-size:23px;font-weight:700}
+.evkind{font-size:11px;letter-spacing:.06em;padding:2px 8px;border-radius:10px;border:1px solid var(--line2);color:var(--ink2)}
+.evkind.hist{color:var(--hwangto);border-color:color-mix(in srgb,var(--hwangto) 50%,transparent)}
+.evkind.fic{color:var(--nokcheong);border-color:color-mix(in srgb,var(--nokcheong) 50%,transparent)}
+.evkind:empty{display:none}
+#evvoice[aria-pressed="true"]{color:var(--hwangto);border-color:color-mix(in srgb,var(--hwangto) 55%,transparent)}
+#evvoice[aria-pressed="false"]{color:var(--ink3)}
+.comic{position:relative;aspect-ratio:16/9;background:#050604;border:3px solid #0b0c09;
+  outline:1px solid var(--line2);overflow:hidden;border-radius:2px;max-height:62vh;margin:0 auto}
+.comic canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.comic.turn canvas{animation:cpan .5s ease-out}
+@keyframes cpan{from{opacity:.25;transform:scale(1.03)}to{opacity:1;transform:none}}
+.cnar{position:absolute;top:10px;left:10px;max-width:min(64%,560px);background:#E8DEC2;color:#17130B;
+  font-family:"Gowun Batang",serif;font-size:15px;line-height:1.65;padding:8px 12px;
+  border:2px solid #0b0c09;box-shadow:3px 3px 0 #0b0c09;z-index:3}
+.cnar:empty{display:none}
+.cfx{position:absolute;right:6%;top:18%;font-family:"Gowun Batang",serif;font-weight:700;
+  font-size:clamp(28px,6vw,64px);color:#F2E6C8;-webkit-text-stroke:2px #0b0c09;
+  text-shadow:4px 4px 0 var(--jusa);transform:rotate(-8deg);z-index:2;pointer-events:none}
+.cfx:not(:empty){animation:cstamp .35s cubic-bezier(.2,1.6,.4,1)}
+@keyframes cstamp{from{transform:rotate(-8deg) scale(1.9);opacity:0}to{transform:rotate(-8deg) scale(1);opacity:1}}
+.ccast{position:absolute;inset:0;z-index:4;pointer-events:none}
+.fig{position:absolute;bottom:0;width:21%;max-width:170px}
+.fig.l{left:3%}.fig.r{right:3%}.fig.c{left:50%;transform:translateX(-50%)}
+.fig .fp{aspect-ratio:4/5;border:3px solid #0b0c09;border-bottom:0;background:#1a1c16;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(232,222,194,.25)}
+.fig .fp img{width:100%;height:100%;object-fit:cover;display:block}
+.fig .sil{width:100%;height:100%;display:flex;align-items:flex-end;justify-content:center;
+  background:radial-gradient(circle at 50% 40%,#3d4035 0 17%,transparent 18%),
+    radial-gradient(ellipse 48% 38% at 50% 100%,#3d4035 0 98%,transparent 100%),linear-gradient(#20231c,#121410)}
+.fig .sil.w{background:radial-gradient(circle at 50% 42%,#4a3d3a 0 16%,transparent 17%),
+    radial-gradient(ellipse 30% 22% at 50% 30%,#2a2320 0 98%,transparent 100%),
+    radial-gradient(ellipse 46% 38% at 50% 100%,#4a3d3a 0 98%,transparent 100%),linear-gradient(#241f1c,#141110)}
+.fig .fn{background:#0b0c09;color:#E8DEC2;font-size:11.5px;text-align:center;padding:3px 4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bub{position:absolute;bottom:calc(100% + 12px);left:0;width:max-content;max-width:min(320px,40vw);
+  background:#FBF6E9;color:#15120C;font-family:"Gowun Batang",serif;font-size:14.5px;line-height:1.55;
+  padding:8px 12px;border:2px solid #0b0c09;border-radius:16px;box-shadow:2px 2px 0 #0b0c09;
+  white-space:pre-line;animation:cpop .28s ease-out both}
+.fig.r .bub{left:auto;right:0}
+.fig.c .bub{left:50%;transform:translateX(-50%)}
+.bub::after{content:"";position:absolute;bottom:-12px;left:26px;border:6px solid transparent;
+  border-top:8px solid #0b0c09;border-bottom:0}
+.fig.r .bub::after{left:auto;right:26px}
+.fig.c .bub::after{left:calc(50% - 6px)}
+.bub+.bub{margin-bottom:6px}
+@keyframes cpop{from{opacity:0;translate:0 6px}to{opacity:1;translate:0 0}}
+.evsum{padding:6px 2px 0}
+#ev .evsum p{font-family:"Gowun Batang",serif;font-size:15.5px;line-height:1.9;margin:0 0 10px}
+.evsrc{font-family:"IBM Plex Sans KR",sans-serif!important;font-size:12px!important;color:var(--ink3);margin-bottom:14px!important}
+.evres{background:var(--sunk);border-radius:3px;padding:11px 14px;font-size:13.5px;color:var(--ink2);margin-bottom:6px}
+.evbar{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+#evpg{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink3)}
+.evbar button{border-radius:3px;padding:9px 16px;min-height:40px}
+.evghost{background:transparent;border:1px solid var(--line2);color:var(--ink2)}
+#evnext{background:var(--hwangto);border:0;color:#17130A;font-weight:600}
+#evok{background:transparent;border:1px solid var(--line2);color:var(--ink2)}
+#evok.primary{background:var(--hwangto);border:0;color:#17130A;font-weight:600}
+
+/* ── 전투 화면 ───────────────────────────── */
+#btl{position:fixed;inset:0;background:rgba(6,8,5,.9);z-index:52;display:flex;
+  align-items:center;justify-content:center;padding:16px}
+.btlbox{position:relative;background:var(--panel);border:1px solid var(--line2);border-radius:4px;
+  width:100%;max-width:1080px;max-height:96vh;display:flex;flex-direction:column;overflow:hidden;
+  /* ★높이를 정해 두지 않으면 판 칸 크기가 '지금 판 크기'에서 다시 계산돼 18px 로 굳는다(09-13 스크린샷: 1080px 창에 360px 판) */
+  height:min(96vh,900px)}
+.btltop{display:flex;align-items:center;gap:16px;padding:11px 16px;
+  border-bottom:1px solid var(--line);background:var(--surface);flex-wrap:wrap}
+.btltop b{font-family:"Gowun Batang",serif;font-size:17px}
+#btlturn{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink2)}
+#btlforce{display:flex;gap:14px;font-size:12.5px;font-variant-numeric:tabular-nums}
+#btlforce .fA{color:var(--jusa)} #btlforce .fD{color:#7EA0C4}
+#btlend{margin-left:auto;background:var(--jusa);border:0;color:#16110F;font-weight:600;
+  padding:8px 16px;border-radius:3px}
+#btldel{margin-left:auto;background:transparent;border:1px solid var(--line2);color:var(--ink);
+  padding:7px 14px;border-radius:3px}
+#btldel + #btlend{margin-left:0}
+#btldel:hover:not(:disabled){border-color:var(--hwangto);color:var(--hwangto)}
+#btldel:disabled{opacity:.35;cursor:default}
+
+/* ── 위임 전투 연출 (fx.js) ──────────────── */
+.dfx{position:fixed;inset:0;z-index:58;cursor:progress}
+.dfx[hidden]{display:none}
+.dfxcv{position:absolute;inset:0;display:block}
+.dfxcard{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);width:min(440px,calc(100% - 32px));
+  background:var(--panel);border:1px solid var(--line2);border-left:3px solid var(--hwangto);border-radius:4px;
+  padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.45);cursor:default}
+.dfxhead{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+.dfxk{font-size:11.5px;color:var(--hwangto);letter-spacing:.06em}
+.dfxt{font-family:"Gowun Batang",serif;font-size:18px}
+.dfxbar{display:grid;grid-template-columns:8em 1fr 5.5em;align-items:center;gap:10px;font-size:12.5px;margin:5px 0}
+.dfxbar .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dfxbar i{display:block;height:8px;background:var(--sunk);border-radius:2px;overflow:hidden}
+.dfxbar em{display:block;height:100%;width:100%;background:var(--c)}
+.dfxbar .n{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.dfxfoot{display:flex;align-items:center;gap:10px;margin-top:10px}
+.dfxres{flex:1;font-size:13px;color:var(--ink2)}
+.dfxskip{background:transparent;border:1px solid var(--line2);color:var(--ink2);padding:6px 12px;
+  border-radius:3px;font-size:12.5px}
+.dfxskip:hover{border-color:var(--hwangto);color:var(--hwangto)}
+/* ★판이 상자보다 크면(폰) 가운데 정렬이 왼쪽을 스크롤 밖으로 잘라낸다 — 캔버스 margin:auto 로 가운데에 둔다 */
+.btlwrap{flex:1;min-height:0;display:flex;padding:8px;background:#0D0E0A;overflow:auto}
+#btlmap{display:block;margin:auto;cursor:pointer}
+#btlcmd{padding:12px 16px 14px;border-top:1px solid var(--line);min-height:96px}
+.bsel{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.bsel b{font-family:"Gowun Batang",serif;font-size:17px}
+.bu{font-size:11.5px;padding:1px 7px;border-radius:2px;border:1px solid var(--c);color:var(--c)}
+.bu.u보병{--c:var(--bo)} .bu.u기병{--c:var(--gi)} .bu.u궁병{--c:var(--gung)}
+.bhp{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:14px}
+.bhp i{font-style:normal;color:var(--ink3);font-size:12px}
+.bstat{font-size:12px;color:var(--ink3);font-family:"IBM Plex Mono",monospace}
+.brow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.brow button{background:var(--surface);border:1px solid var(--line2);border-radius:3px;
+  padding:7px 14px;min-height:34px}
+.brow button:hover:not(:disabled){border-color:var(--nokcheong)}
+.brow button:disabled{opacity:.35;cursor:default}
+.brow.skills button{border-color:color-mix(in srgb,var(--hwangto) 45%,transparent);
+  color:var(--hwangto);padding:6px 12px;font-size:12.5px}
+.btltoast{position:absolute;left:50%;top:84px;transform:translate(-50%,-6px);
+  background:var(--surface);border:1px solid var(--line2);border-left:3px solid var(--hwangto);
+  padding:9px 16px;border-radius:3px;font-size:13px;opacity:0;pointer-events:none;
+  transition:opacity .16s,transform .16s;max-width:80%}
+.btltoast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ── 토스트·종료 ─────────────────────────── */
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);
+  background:var(--surface);border:1px solid var(--line2);border-left:3px solid var(--nokcheong);
+  padding:11px 18px;border-radius:3px;font-size:13.5px;opacity:0;pointer-events:none;
+  transition:opacity .18s,transform .18s;z-index:60;max-width:82vw}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.good{border-left-color:var(--nokcheong)}
+.toast.bad{border-left-color:var(--jusa)}
+#over{position:fixed;inset:0;background:rgba(8,10,7,.86);z-index:55;display:flex;
+  align-items:center;justify-content:center}
+#over div{text-align:center}
+#over h2{font-family:"Gowun Batang",serif;font-size:34px;margin:0 0 10px}
+
+/* ── v2 명령 메뉴 (코에이 문법: 명령 먼저 → 무장 고르기) ───────── */
+.cmenu{margin:2px 0 16px}
+.cline{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;
+  color:var(--ink3);margin-bottom:9px}
+.cline .hot{color:var(--hwangto)}
+.polchip{background:var(--sunk);border:1px solid var(--line2);border-radius:2px;color:var(--ink2);
+  font-size:11.5px;padding:3px 8px;white-space:nowrap}
+.ccats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:8px}
+.ccat{background:var(--surface);border:1px solid var(--line2);border-radius:3px;padding:8px 0;
+  font-size:13px;font-weight:600;color:var(--ink2)}
+.ccat.on{background:var(--jusa);border-color:var(--jusa);color:#16110F}
+.ccat{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:2px;padding-right:2px}
+html[lang="en"] .ccat{font-size:11.5px;font-weight:500}
+.clist{display:flex;flex-direction:column;gap:4px}
+.citem{display:grid;grid-template-columns:1fr auto;grid-template-areas:"b em" "s s";gap:1px 10px;
+  text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:8px 11px}
+.citem:hover{border-color:var(--nokcheong)}
+.citem b{grid-area:b;font-size:14px;font-weight:600}
+.citem span{grid-area:s;font-size:11.5px;color:var(--ink3);line-height:1.45}
+.citem em{grid-area:em;font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+  color:var(--hwangto);align-self:center;white-space:nowrap}
+.citem.dim b{color:var(--ink3)}
+.psub{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink3);margin:0 0 9px;font-weight:500;padding-top:12px;border-top:1px solid var(--line)}
+
+/* 대화상자 */
+.dlg{position:fixed;inset:0;background:rgba(8,10,7,.78);z-index:51;display:flex;
+  align-items:center;justify-content:center;padding:20px 16px}
+.dlgbox{position:relative;background:var(--surface);border:1px solid var(--line2);border-top:3px solid var(--jusa);
+  border-radius:4px;width:100%;max-width:560px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
+.dlgbox.wide{max-width:980px}   /* 정보 창 전용 — 부대 일람 13칸이 780 에선 잘렸다(09-14) */
+.dlgbody{overflow-y:auto;padding:20px 22px 0;min-height:0;flex:1}
+.dlgx{position:absolute;right:8px;top:8px;background:transparent;border:0;color:var(--ink3);
+  font-size:20px;line-height:1;padding:4px 8px;z-index:2}
+.dhead .dcat{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;color:var(--hwangto)}
+.dhead h3{font-family:"Gowun Batang",serif;font-size:24px;margin:2px 0 4px;font-weight:700;word-break:keep-all}
+.dhead p{margin:0 0 14px;color:var(--ink2);font-size:13px;line-height:1.6}
+.dpick h4,.dparams h4,.rsec h4{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink3);margin:6px 0 7px;font-weight:500}
+.prow{width:100%;display:grid;grid-template-columns:28px 1fr auto 84px;gap:9px;align-items:center;
+  background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:6px 9px;margin-bottom:4px;text-align:left}
+.prow.on{border-color:var(--jusa);background:color-mix(in srgb,var(--jusa) 10%,var(--panel))}
+.prow.done{opacity:.42;cursor:default}
+.pn{display:flex;flex-direction:column;min-width:0}
+.pn b{font-family:"Gowun Batang",serif;font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pn i{font-style:normal;font-size:11px;color:var(--ink3);font-family:"IBM Plex Mono",monospace}
+.pst{font-family:"IBM Plex Mono",monospace;font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pst i{font-style:normal;font-size:10px;color:var(--ink3);margin-right:4px}
+.ppv{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--nokcheong);text-align:right;white-space:nowrap}
+.dparams{margin:12px 0 4px}
+.fld{display:grid;grid-template-columns:68px 1fr;gap:10px;align-items:center;margin-bottom:8px;font-size:13px}
+.fld>span{color:var(--ink3);font-size:12px}
+.fld select,.fld input{background:var(--sunk);border:1px solid var(--line2);border-radius:3px;
+  padding:7px 8px;min-width:0;width:100%}
+.numw{display:flex;gap:6px;align-items:center;min-width:0}
+.numw input{flex:1;font-variant-numeric:tabular-nums}
+.numw button{background:var(--panel);border:1px solid var(--line2);border-radius:3px;padding:6px 9px;font-size:12px;white-space:nowrap}
+.numw i{font-style:normal;font-size:11px;color:var(--ink3);font-family:"IBM Plex Mono",monospace;white-space:nowrap}
+.seg{display:flex;flex-wrap:wrap;gap:4px}
+.seg button{background:var(--panel);border:1px solid var(--line2);border-radius:3px;padding:6px 11px;font-size:12.5px}
+.seg button.on{border-color:var(--nokcheong);color:var(--nokcheong);background:color-mix(in srgb,var(--nokcheong) 10%,var(--panel))}
+.seg button:disabled{opacity:.35;cursor:default}
+.dparams .hint{display:block;margin:2px 0 6px;line-height:1.5}
+.dparams .tot{color:var(--ink2)}
+.polgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.polopt{text-align:left;background:var(--panel);border:1px solid var(--line2);border-radius:3px;
+  padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.polopt b{font-size:14px}
+.polopt span{font-size:11.5px;color:var(--ink3);line-height:1.45}
+.polopt.on{border-color:var(--jusa);background:color-mix(in srgb,var(--jusa) 9%,var(--panel))}
+.tgt{width:100%;display:grid;grid-template-columns:28px 1fr auto;gap:9px;align-items:center;background:var(--panel);
+  border:1px dashed var(--line2);border-radius:3px;padding:6px 9px;margin-bottom:4px;text-align:left}
+.tgt.on{border-style:solid;border-color:var(--hwangto)}
+.dfoot{position:sticky;bottom:0;display:flex;align-items:center;gap:8px;padding:12px 22px 14px;margin:14px -22px 0;
+  border-top:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+.dcost{font-size:11.5px;color:var(--ink3);font-family:"IBM Plex Mono",monospace;margin-right:auto}
+.dgo{background:var(--jusa);border:0;color:#16110F;font-weight:600;padding:9px 18px;border-radius:3px}
+.dgo.alt{background:var(--nokcheong);color:#0E1512}
+.dgo:disabled{opacity:.35;cursor:default}
+.dcl{background:transparent;border:1px solid var(--line2);color:var(--ink2);padding:8px 14px;border-radius:3px}
+.dres{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;background:var(--panel);
+  border:1px solid var(--line);border-left:3px solid var(--nokcheong);border-radius:3px;padding:14px 16px}
+.dres.bad{border-left-color:var(--jusa)}
+.dres .por{width:64px;height:80px}
+.dres b{font-family:"Gowun Batang",serif;font-size:17px}
+.dres p{margin:4px 0 0;font-family:"Gowun Batang",serif;font-size:15.5px;line-height:1.7}
+.fbal2{font-size:12.5px;color:var(--ink2);padding:9px 11px;background:var(--sunk);border-radius:3px;margin-top:6px;
+  font-variant-numeric:tabular-nums}
+.fbal2 b{color:var(--ink)} .fbal2 span{display:block;font-size:11.5px;margin-top:2px;color:var(--ink3)}
+.fbal2.good span{color:var(--nokcheong)} .fbal2.warn span{color:var(--hwangto)} .fbal2.bad span{color:var(--jusa)}
+
+/* 포로 처우 */
+.capcard{display:grid;grid-template-columns:28px 1fr auto;gap:6px 9px;align-items:center;background:var(--panel);
+  border:1px solid var(--line);border-left:3px solid var(--hwangto);border-radius:3px;padding:8px 10px;margin-bottom:6px}
+.capacts{grid-column:1/-1;display:flex;gap:5px;flex-wrap:wrap}
+.capacts button{background:var(--surface);border:1px solid var(--line2);border-radius:3px;padding:6px 10px;font-size:12.5px}
+.capacts button.hire{color:var(--nokcheong);border-color:color-mix(in srgb,var(--nokcheong) 45%,transparent)}
+.capacts button.kill{color:var(--jusa);border-color:color-mix(in srgb,var(--jusa) 45%,transparent)}
+.capacts button:disabled{opacity:.4;cursor:default}
+#btlgoal{font-size:12px;color:var(--hwangto)}
+
+/* 월초 보고 */
+.rgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.rcell{background:var(--panel);border-radius:3px;padding:8px 10px;display:flex;flex-direction:column;min-width:0}
+.rcell span{font-size:11px;color:var(--ink3)}
+.rcell b{font-size:15px;font-variant-numeric:tabular-nums;font-weight:500}
+.rcell i{font-style:normal;font-size:11.5px;font-family:"IBM Plex Mono",monospace;color:var(--ink3)}
+.rcell i.up{color:var(--nokcheong)} .rcell i.down{color:var(--jusa)}
+.rsec{margin-bottom:10px}
+.rsec ul{margin:0;padding:0;list-style:none}
+.rsec li{font-size:13px;padding:5px 0;border-bottom:1px solid var(--line);line-height:1.5}
+.rsec li.bad{color:var(--jusa)} .rsec li.good{color:var(--nokcheong)}
+.adv{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:9px 0;
+  border-bottom:1px solid var(--line);font-size:13.5px;line-height:1.55}
+.adv button{background:var(--surface);border:1px solid var(--line2);border-radius:3px;padding:6px 10px;
+  font-size:12px;color:var(--nokcheong);white-space:nowrap}
+.rchk{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--ink3);margin-right:auto;cursor:pointer}
+.rchk input{accent-color:var(--jusa);margin:0}
+
+/* 정보 일람 */
+.tscroll{overflow-x:auto}
+.itab{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+.itab th{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.08em;color:var(--ink3);font-weight:500;
+  text-align:right;padding:6px 8px;border-bottom:1px solid var(--line2);white-space:nowrap}
+.itab td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.itab th:first-child,.itab td:first-child{text-align:left}
+.itab td:first-child{font-family:"Gowun Batang",serif;font-weight:700;font-size:13.5px}
+.itab tr.go{cursor:pointer}
+.itab tr.go:hover td{background:var(--panel)}
+.itab .low{color:var(--jusa)} .itab .hot{color:var(--hwangto)}
+.itab .me td:first-child{color:var(--jusa)}
+.itab th.l,.itab td.l{text-align:left}
+.itab th,.ikv span{text-transform:capitalize}
+.itab th.sort{cursor:pointer;user-select:none}
+.itab th.sort:hover,.itab th.sort.on{color:var(--ink)}
+.itab .dim{color:var(--ink3)}
+.itab .rk{font-size:11.5px;color:var(--ink2)}
+.itab .rk-lord{color:var(--jusa);font-weight:700}
+.itab .rk-sage{color:var(--nokcheong)}
+.itab .rk-gov{color:var(--hwangto)}
+.fdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px}
+.ibar{display:block;height:3px;background:var(--line);margin-top:3px;min-width:60px}
+.ibar i{display:block;height:100%;background:var(--nokcheong)}
+.ibk{margin-top:12px}
+.ifac h4{font:700 19px/1.3 "Gowun Batang",serif;margin:12px 0 8px}
+.ifac h4 small{font-size:12px;color:var(--ink3);font-weight:400}
+.ikv{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:2px 16px;font-size:12px;color:var(--ink3)}
+.ikv span{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);padding:5px 0}
+.ikv b{color:var(--ink);font-variant-numeric:tabular-nums;font-weight:600}
+.isub{margin:18px 0 0;font:500 10.5px/1 "IBM Plex Mono",monospace;letter-spacing:.08em;color:var(--ink3)}
+.ifx{margin:14px 0 0;padding-left:18px;font-size:12px;color:var(--ink3);line-height:1.85}
+
+/* 안내 */
+.gdots{display:flex;gap:5px;margin:4px 0 0}
+.gdots i{width:22px;height:3px;background:var(--line2);border-radius:2px}
+.gdots i.on{background:var(--jusa)}
+.gbody{font-family:"Gowun Batang",serif;font-size:16px;line-height:1.85;margin:6px 0 8px}
+
+/* ★폰 폭에선 상단 바가 옆으로 넘쳐 「다음 달」「대기」가 화면 밖에 있었다(2026-09-13 스크린샷) → 줄바꿈 */
+@media (max-width:720px){
+  #top{flex-wrap:wrap;height:auto;padding:6px 10px;row-gap:6px;overflow-x:visible}
+  #top .brand,#top .tstat:nth-of-type(2){display:none}
+  .tstat{padding:0 9px}
+  .tstat:first-of-type{padding-left:0}
+  #snd{margin-left:auto}
+  #idle{margin-left:0;flex:1}
+  #next{flex:1}
+}
+@media (max-width:540px){
+  .comic{aspect-ratio:4/5;max-height:60vh}
+  .fig{width:31%}
+  .fig .fn{white-space:normal;line-height:1.25;text-overflow:clip}  /* 영문 'Crown Prince Yeonbul' 이 잘렸다 */
+  .bub{max-width:62vw;font-size:13.5px}
+  .cnar{max-width:calc(100% - 20px);font-size:13.5px}
+  #evnm{font-size:19px}
+  .evbox{padding:12px}
+
+  /* ★폰에선 전투 머리가 세 줄로 접혀 위에 띄운 안내가 목표 문구·차례 종료를 덮었다 — 아래로 */
+  .btltoast{top:auto;bottom:112px}
+  .dcost{flex-basis:100%;margin-right:0}
+  .dfoot{justify-content:flex-end}
+  .rgrid{grid-template-columns:1fr 1fr}
+  .polgrid{grid-template-columns:1fr}
+  .prow{grid-template-columns:28px 1fr auto}
+  .ppv{grid-column:2/4;text-align:left}
+  .fld{grid-template-columns:1fr;gap:4px}
+  .dlgbody{padding:18px 16px 0}
+  .dfoot{margin:14px -16px 0;padding:10px 16px 12px}
+  .ccat{font-size:12px}
+}
+
+/* 손가락으로 쓰는 화면에서는 누를 것들을 키운다 */
+@media (pointer: coarse){
+  .brow button,.orow button,.dact button{min-height:44px;padding-left:16px;padding-right:16px}
+  .orow select,.orow input{min-height:44px}
+  .tab{padding:14px 0}
+  .ocard{padding:9px}
+  .cchk{min-height:34px}
+}
+@media (max-width:900px){
+  #body{grid-template-columns:1fr;grid-template-rows:minmax(260px,46vh) 1fr}
+  #side{border-left:0;border-top:1px solid var(--line)}
+  .biohead{grid-template-columns:1fr}
+  .bpor{width:120px;height:150px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div id="intro" style="position:relative">
+  <div class="introbox">
+    <button id="langbtn" class="langbtn">English</button>
+    <div class="eyebrow" id="i-eyebrow"></div>
+    <h1 id="i-title">삼한통일전<span class="hj">三韓統一戰</span></h1>
+    <p class="lede" id="i-lede"></p>
+    <button id="continue" hidden></button>
+    <div id="modes"></div>
+    <div id="pickwrap" hidden>
+      <div class="pickhead"><h2 id="i-pickhead"></h2><span id="i-picksub"></span></div>
+      <div id="facpick"></div>
+    </div>
+  </div>
+</div>
+
+<div id="game" hidden>
+  <div id="top">
+    <div class="brand" id="i-brand">삼한통일전</div>
+    <dl class="tstat"><dt id="i-tYm"></dt><dd id="ym">—</dd></dl>
+    <dl class="tstat"><dt id="i-tTurn"></dt><dd id="turnno">—</dd></dl>
+    <dl class="tstat"><dt id="i-tFac"></dt><dd id="facname">—</dd></dl>
+    <dl class="tstat"><dt id="i-tCastle"></dt><dd id="scastle">—</dd></dl>
+    <dl class="tstat"><dt id="i-tGold"></dt><dd id="sgold">—</dd></dl>
+    <dl class="tstat"><dt id="i-tFood"></dt><dd id="sfood">—</dd></dl>
+    <dl class="tstat"><dt id="i-tTroop"></dt><dd id="stroop">—</dd></dl>
+    <button id="snd" title="소리">♪</button>
+    <button id="help">?</button>
+    <button id="idle"></button>
+    <button id="next"></button>
+    <button id="restart"></button>
+  </div>
+  <div id="body">
+    <div id="mapwrap">
+      <canvas id="map"></canvas>
+      <div id="maphint"></div>
+    </div>
+    <div id="side">
+      <div class="tabs">
+        <button class="tab on" data-pane="pane-castle" id="i-tabCastle"></button>
+        <button class="tab" data-pane="pane-roster" id="i-tabRoster"></button>
+        <button class="tab" data-pane="pane-diplo" id="i-tabDiplo"></button>
+      </div>
+      <div class="tabpane" id="pane-castle">
+        <div id="panel"></div>
+      </div>
+      <div class="tabpane" id="pane-roster" hidden>
+        <div id="roster"></div>
+      </div>
+      <div class="tabpane" id="pane-diplo" hidden>
+        <div id="diplo"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ev" hidden>
+  <div class="evbox">
+    <div class="evhead"><span id="evwhen">—</span><b id="evnm">—</b><span id="evkind" class="evkind"></span></div>
+    <div class="comic" id="comic">
+      <canvas id="evcv"></canvas>
+      <div class="cnar" id="cnar"></div>
+      <div class="cfx" id="cfx"></div>
+      <div class="ccast" id="ccast"></div>
+    </div>
+    <div class="evsum" id="evsum" hidden>
+      <p id="evtxt"></p>
+      <p class="evsrc" id="evsrc"></p>
+      <div class="evres" id="evres"></div>
+    </div>
+    <div class="evbar">
+      <button id="evvoice" class="evghost" type="button"></button>
+      <span id="evpg"></span>
+      <button id="evprev" class="evghost" type="button"></button>
+      <button id="evnext" type="button"></button>
+      <button id="evok" type="button"></button>
+    </div>
+  </div>
+</div>
+
+<div id="btl" hidden>
+  <div class="btlbox">
+    <div class="btltop">
+      <b id="i-btl"></b>
+      <span id="btlturn">—</span>
+      <span id="btlforce"></span>
+      <span id="btlgoal"></span>
+      <button id="btldel"></button>
+      <button id="btlend"></button>
+    </div>
+    <div class="btlwrap"><canvas id="btlmap"></canvas></div>
+    <div id="btlcmd"></div>
+    <div id="btltoast" class="btltoast"></div>
+  </div>
+</div>
+
+<div id="bio" hidden>
+  <div class="biobox">
+    <button id="bioClose" aria-label="닫기">×</button>
+    <div id="bioBody"></div>
+  </div>
+</div>
+
+<div id="cmd" class="dlg" hidden><div class="dlgbox">
+  <button class="dlgx" data-close="cmd" aria-label="닫기">×</button>
+  <div class="dlgbody" id="cmdBody"></div>
+</div></div>
+
+<div id="rep" class="dlg" hidden><div class="dlgbox">
+  <button class="dlgx" data-close="rep" aria-label="닫기">×</button>
+  <div class="dlgbody" id="repBody"></div>
+</div></div>
+
+<div id="info" class="dlg" hidden><div class="dlgbox wide">
+  <button class="dlgx" data-close="info" aria-label="닫기">×</button>
+  <div class="dlgbody" id="infoBody"></div>
+</div></div>
+
+<div id="guide" class="dlg" hidden><div class="dlgbox">
+  <div class="dlgbody" id="guideBody"></div>
+</div></div>
+
+<div id="over" hidden><div>
+  <h2 id="i-over"></h2>
+  <p id="overtxt"></p>
+  <button id="overback"></button>
+</div></div>
+
+<div id="toast" class="toast"></div>
+
+<script src="src/cg.js?v=20260915c"></script>
+<script src="src/i18n.js?v=20260915c"></script>
+<script src="src/data.js?v=20260915c"></script>
+<script src="src/coast.js?v=20260915c"></script>
+<script src="src/officers.js?v=20260915c"></script>
+<script src="src/engine.js?v=20260915c"></script>
+<script src="src/sound.js?v=20260915c"></script>
+<script src="src/map.js?v=20260915c"></script>
+<script src="src/battle.js?v=20260915c"></script>
+<script src="src/battlegfx.js?v=20260915c"></script>
+<script src="src/battleui.js?v=20260915c"></script>
+<script src="src/fx.js?v=20260915c"></script>
+<script src="src/scenes.js?v=20260915c"></script>
+<script src="src/story.js?v=20260915c"></script>
+<script src="src/test.js?v=20260915c"></script>
+<script src="src/ui.js?v=20260915c"></script>
+</body>
+</html>

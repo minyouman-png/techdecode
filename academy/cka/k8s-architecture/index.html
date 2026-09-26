@@ -1,0 +1,166 @@
+<!DOCTYPE html><html lang="ko"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>쿠버네티스 아키텍처 — CKA 합격반 — MeNew Soft</title><meta name="description" content="컨트롤 플레인 네 부품과 노드의 두 부품이 각자 무엇을 하는지. 이걸 알아야 고장 위치를 좁힐 수 있다."><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/academy/cka/k8s-architecture/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)"><meta property="og:type" content="website"><meta property="og:title" content="쿠버네티스 아키텍처 — CKA 합격반 — MeNew Soft"><meta property="og:description" content="컨트롤 플레인 네 부품과 노드의 두 부품이 각자 무엇을 하는지. 이걸 알아야 고장 위치를 좁힐 수 있다."><meta property="og:url" content="https://menewsoft.com/academy/cka/k8s-architecture/"><meta property="og:site_name" content="MeNew Soft"><meta property="og:image" content="https://menewsoft.com/og/default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="쿠버네티스 아키텍처 — CKA 합격반"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://menewsoft.com/og/default.png"><link rel="sitemap" href="/sitemap-index.xml"><!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. --><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MeNew Soft","alternateName":["menewsoft","menewsoft.com","미뉴소프트","메뉴소프트","Tech Decode"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/index.BD2eBubB.css">
+<link rel="stylesheet" href="/_astro/_slug_.DxXwq8uN.css"></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/">MeNew<span>Soft</span></a> <nav class="nav"> <a href="/">홈</a> <a href="/shops/">등록 업체</a> <a href="/news/">업체 소식</a> <a href="/games/">놀이공간</a> <a href="/blog/">글</a>  <a href="/learn/">초등 1학년 학습</a>  <a href="/academy/">자격증 학원</a>  <a href="/board/">게시판</a> <a href="/about/">소개</a> <a href="/contact/">문의</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul>  </ul> </div> </nav> </div> </header> <main>  <main class="acad lesson" data-slug="k8s-architecture"> <p class="crumbs"><a href="/academy/">자격증 학원</a> › <a href="/academy/cka/">CKA</a> › 기초 체력</p> <p class="kick">강의 5 / 28 · 약 25분</p> <h1>쿠버네티스 아키텍처</h1> <p class="lead">컨트롤 플레인 네 부품과 노드의 두 부품이 각자 무엇을 하는지. 이걸 알아야 고장 위치를 좁힐 수 있다.</p> <div class="goals"> <h3>이 강의를 마치면</h3> <ul><li>kube-apiserver · etcd · kube-scheduler · kube-controller-manager 의 역할을 설명할 수 있다</li><li>kubelet · kube-proxy · 컨테이너 런타임의 역할을 설명할 수 있다</li><li>파드 하나가 만들어질 때 부품들이 어떤 순서로 움직이는지 안다</li><li>kubeadm 클러스터에서 컨트롤 플레인이 static pod 로 돈다는 것을 안다</li></ul> </div> <article class="body"><h2 id="두-층-컨트롤-플레인과-노드">두 층: 컨트롤 플레인과 노드</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>┌──────────────── 컨트롤 플레인 (controlplane) ────────────────┐</span></span>
+<span class="line"><span>│  kube-apiserver  ←→  etcd                                    │</span></span>
+<span class="line"><span>│        ↑   ↑                                                 │</span></span>
+<span class="line"><span>│  kube-scheduler   kube-controller-manager                    │</span></span>
+<span class="line"><span>└────────┼─────────────────────────────────────────────────────┘</span></span>
+<span class="line"><span>         │ (모든 대화는 API 서버를 거친다)</span></span>
+<span class="line"><span>┌────────┴───────── 워커 노드 (node01, node02 …) ───────────────┐</span></span>
+<span class="line"><span>│  kubelet  →  컨테이너 런타임(containerd)  →  파드(컨테이너)     │</span></span>
+<span class="line"><span>│  kube-proxy (Service 규칙)     CNI 플러그인 (파드 네트워크)       │</span></span>
+<span class="line"><span>└──────────────────────────────────────────────────────────────┘</span></span></code></pre>
+<h3 id="컨트롤-플레인">컨트롤 플레인</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>부품</th><th>하는 일</th><th>죽으면</th></tr></thead><tbody><tr><td><strong>kube-apiserver</strong></td><td>모든 요청의 입구. 인증·인가·검증 후 etcd 에 저장</td><td><code>kubectl</code> 전부 실패(<code>connection refused</code>)</td></tr><tr><td><strong>etcd</strong></td><td>클러스터 상태 저장소(키-값)</td><td>API 서버도 같이 죽는다</td></tr><tr><td><strong>kube-scheduler</strong></td><td>새 파드를 어느 노드에 둘지 결정</td><td>새 파드가 <strong>Events 없이</strong> Pending</td></tr><tr><td><strong>kube-controller-manager</strong></td><td>컨트롤러 묶음 — Deployment·ReplicaSet·Node·Job·ServiceAccount 등</td><td>레플리카가 맞춰지지 않음, 새 파드가 안 생김</td></tr></tbody></table>
+<h3 id="노드">노드</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>부품</th><th>하는 일</th><th>죽으면</th></tr></thead><tbody><tr><td><strong>kubelet</strong></td><td>이 노드에 배정된 파드를 런타임에 띄우고 상태를 보고</td><td>노드 <code>NotReady</code></td></tr><tr><td><strong>컨테이너 런타임</strong></td><td>실제 컨테이너 실행(containerd, CRI-O)</td><td>컨테이너 생성 실패</td></tr><tr><td><strong>kube-proxy</strong></td><td>Service 의 가상 IP → 파드 IP 규칙(iptables/IPVS)</td><td>서비스로 접속 안 됨</td></tr><tr><td><strong>CNI 플러그인</strong></td><td>파드에 IP 를 주고 노드 간 파드 통신 연결(Calico, Cilium, Flannel …)</td><td>파드가 <code>ContainerCreating</code> 에서 멈춤, 노드 NotReady</td></tr></tbody></table>
+<h2 id="파드-하나가-생기기까지">파드 하나가 생기기까지</h2>
+<p><code>kubectl create deployment web --image=nginx --replicas=2</code> 를 치면:</p>
+<ol>
+<li><strong>kubectl</strong> → API 서버에 Deployment 생성 요청.</li>
+<li><strong>API 서버</strong> → 인증·인가·검증 후 etcd 에 저장.</li>
+<li><strong>Deployment 컨트롤러</strong>(컨트롤러 매니저) → 이를 보고 ReplicaSet 을 만든다.</li>
+<li><strong>ReplicaSet 컨트롤러</strong> → 파드 오브젝트 2개를 만든다(아직 노드 없음 = Pending).</li>
+<li><strong>스케줄러</strong> → 노드 배정이 안 된 파드를 보고, 조건에 맞는 노드를 골라 <code>spec.nodeName</code> 을 적는다.</li>
+<li><strong>그 노드의 kubelet</strong> → 자기 노드에 배정된 파드를 보고 런타임에 컨테이너 생성을 요청한다. CNI 가 IP 를 준다.</li>
+<li>kubelet 이 상태를 API 서버에 보고 → <code>Running</code>.</li>
+</ol>
+<p>트러블슈팅은 이 사슬 중 <strong>어디서 끊겼는지</strong> 찾는 일입니다. 파드 오브젝트가 아예 없으면 3~4번(컨트롤러), nodeName 이 비어 있으면 5번(스케줄러), 노드는 정해졌는데 컨테이너가 안 뜨면 6번(kubelet·이미지·설정)입니다.</p>
+<h2 id="kubeadm-클러스터의-비밀-static-pod">kubeadm 클러스터의 비밀: static pod</h2>
+<p>kubeadm 으로 설치한 클러스터에서 컨트롤 플레인 부품들은 <strong>static pod</strong> 로 돕니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">ls</span><span style="color:#9ECBFF"> /etc/kubernetes/manifests/</span></span>
+<span class="line"><span style="color:#6A737D"># etcd.yaml  kube-apiserver.yaml  kube-controller-manager.yaml  kube-scheduler.yaml</span></span></code></pre>
+<p>kubelet 은 설정(<code>/var/lib/kubelet/config.yaml</code> 의 <code>staticPodPath</code>)에 적힌 이 폴더를 감시하다가, <strong>파일이 생기면 파드를 띄우고, 바뀌면 다시 띄우고, 지우면 내립니다.</strong> API 서버 없이도 kubelet 혼자 합니다. 그래서 API 서버 자체도 파드로 띄울 수 있습니다.</p>
+<ul>
+<li><code>kubectl get pods -n kube-system</code> 에 보이는 <code>kube-apiserver-controlplane</code> 은 <strong>거울 파드(mirror pod)</strong> 입니다. 여기서 지워도 파일이 있는 한 다시 생깁니다.</li>
+<li>컨트롤 플레인 설정을 바꾸려면 <strong>이 YAML 파일을 고칩니다.</strong> 저장하면 kubelet 이 알아서 다시 띄웁니다(1분쯤 걸릴 수 있음).</li>
+<li>파일을 고쳤는데 부품이 안 살아나면? API 서버가 죽었다면 <code>kubectl</code> 이 안 되므로 <strong><code>crictl ps -a</code> 와 <code>crictl logs</code></strong> 로 봅니다.</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">cat</span><span style="color:#9ECBFF"> /var/lib/kubelet/config.yaml</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> grep</span><span style="color:#9ECBFF"> staticPodPath</span></span>
+<span class="line"><span style="color:#6A737D"># staticPodPath: /etc/kubernetes/manifests</span></span></code></pre>
+<h2 id="중요한-파일-위치">중요한 파일 위치</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>경로</th><th>내용</th></tr></thead><tbody><tr><td><code>/etc/kubernetes/manifests/</code></td><td>컨트롤 플레인 static pod</td></tr><tr><td><code>/etc/kubernetes/pki/</code></td><td>클러스터 인증서(<code>etcd/</code> 아래는 etcd 용)</td></tr><tr><td><code>/etc/kubernetes/admin.conf</code></td><td>관리자 kubeconfig</td></tr><tr><td><code>/var/lib/kubelet/config.yaml</code></td><td>kubelet 설정</td></tr><tr><td><code>/usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf</code></td><td>kubelet 서비스 설정(drop-in)</td></tr><tr><td><code>/var/lib/etcd/</code></td><td>etcd 데이터</td></tr><tr><td><code>~/.kube/config</code></td><td>kubectl 이 쓰는 kubeconfig</td></tr></tbody></table></article>  <section class="quiz" id="quiz"> <h2>✅ 확인 문제</h2> <div id="quiz-box" data-quiz="[{&#34;q&#34;:&#34;클러스터의 모든 상태가 저장되는 곳은?&#34;,&#34;options&#34;:[&#34;kube-apiserver 메모리&#34;,&#34;etcd&#34;,&#34;각 노드의 kubelet&#34;,&#34;kube-scheduler&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;etcd 는 키-값 저장소로 클러스터의 모든 오브젝트를 저장한다. 그래서 etcd 백업이 곧 클러스터 백업이다.&#34;},{&#34;q&#34;:&#34;새 파드가 만들어졌는데 계속 Pending 이고 Events 가 하나도 없다. 가장 먼저 의심할 부품은?&#34;,&#34;options&#34;:[&#34;kube-proxy&#34;,&#34;kube-scheduler&#34;,&#34;CoreDNS&#34;,&#34;etcd&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;노드 배정은 스케줄러의 일이다. 스케줄러가 죽으면 파드는 nodeName 없이 Pending 으로 남고 FailedScheduling 이벤트조차 생기지 않는다.&#34;},{&#34;q&#34;:&#34;Deployment 의 레플리카를 3으로 했는데 파드가 하나도 안 생긴다. 스케줄러는 정상이다. 의심할 부품은?&#34;,&#34;options&#34;:[&#34;kube-controller-manager&#34;,&#34;kubelet&#34;,&#34;kube-proxy&#34;,&#34;containerd&#34;],&#34;answer&#34;:0,&#34;explain&#34;:&#34;Deployment→ReplicaSet→Pod 를 만드는 것은 컨트롤러 매니저 안의 컨트롤러들이다. 컨트롤러 매니저가 죽으면 파드 오브젝트 자체가 생기지 않는다.&#34;},{&#34;q&#34;:&#34;kubeadm 으로 설치한 클러스터에서 kube-apiserver 설정을 바꾸려면?&#34;,&#34;options&#34;:[&#34;kubectl edit deployment kube-apiserver -n kube-system&#34;,&#34;/etc/kubernetes/manifests/kube-apiserver.yaml 을 고친다&#34;,&#34;systemctl edit kube-apiserver&#34;,&#34;etcd 를 직접 수정&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;kubeadm 은 컨트롤 플레인을 static pod 로 띄운다. kubelet 이 /etc/kubernetes/manifests 를 감시하다가 파일이 바뀌면 파드를 다시 만든다.&#34;},{&#34;q&#34;:&#34;Service 의 가상 IP 로 온 트래픽을 실제 파드로 보내는 규칙을 노드마다 설정하는 것은?&#34;,&#34;options&#34;:[&#34;kubelet&#34;,&#34;kube-proxy(또는 이를 대신하는 CNI)&#34;,&#34;CoreDNS&#34;,&#34;kube-scheduler&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;kube-proxy 가 각 노드에 iptables/IPVS 규칙을 만든다. Cilium 처럼 kube-proxy 역할을 대신하는 CNI 도 있다.&#34;}]"></div> <p id="quiz-score" class="muted" hidden></p> </section> <div class="btns" style="margin-top:28px"> <button type="button" class="btn pri" id="done-btn">이 강의 완료 표시</button> <a class="btn" href="/academy/cka/">과정 목차</a> </div> <nav class="pager"> <a class="btn" href="/academy/cka/yaml-basics/"><span><small>← 이전</small>YAML 과 쿠버네티스 오브젝트</span></a> <a class="btn" href="/academy/cka/kubectl-essentials/" style="justify-content:flex-end;text-align:right"><span><small>다음 →</small>kubectl 손에 익히기</span></a> </nav> </main> <script type="module" src="/_astro/_slug_.astro_astro_type_script_index_0_lang.B_WkOVAD.js"></script>  </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>MeNew Soft</span> <div class="links" data-astro-cid-sz7xmlte> <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. --> <a href="/" data-astro-cid-sz7xmlte>홈</a> <a href="/shops/" data-astro-cid-sz7xmlte>등록 업체</a> <a href="/news/" data-astro-cid-sz7xmlte>업체 소식</a> <a href="/games/" data-astro-cid-sz7xmlte>놀이공간</a> <a href="/blog/" data-astro-cid-sz7xmlte>글</a> <a href="/glossary/" data-astro-cid-sz7xmlte>용어사전</a> <a href="/tools/" data-astro-cid-sz7xmlte>도구</a> <a href="/learn/" data-astro-cid-sz7xmlte>초등 1학년 학습</a> <a href="/academy/" data-astro-cid-sz7xmlte>자격증 학원</a> <a href="/about/" data-astro-cid-sz7xmlte>소개</a> <a href="/contact/" data-astro-cid-sz7xmlte>문의</a> <a href="/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 MeNew Soft · menewsoft.com (미뉴소프트) — AI로 만듭니다 — 가게 홈페이지·학습 게임·웹게임. 등록 내용이 틀렸다면 알려주세요.</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 오늘 <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · 전체 <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html>

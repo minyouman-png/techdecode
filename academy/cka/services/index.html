@@ -1,0 +1,114 @@
+<!DOCTYPE html><html lang="ko"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>서비스 — 파드 앞의 고정 주소 — CKA 합격반 — MeNew Soft</title><meta name="description" content="ClusterIP · NodePort · LoadBalancer · Headless, 셀렉터와 엔드포인트, port · targetPort · nodePort 의 관계."><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/academy/cka/services/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)"><meta property="og:type" content="website"><meta property="og:title" content="서비스 — 파드 앞의 고정 주소 — CKA 합격반 — MeNew Soft"><meta property="og:description" content="ClusterIP · NodePort · LoadBalancer · Headless, 셀렉터와 엔드포인트, port · targetPort · nodePort 의 관계."><meta property="og:url" content="https://menewsoft.com/academy/cka/services/"><meta property="og:site_name" content="MeNew Soft"><meta property="og:image" content="https://menewsoft.com/og/default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="서비스 — 파드 앞의 고정 주소 — CKA 합격반"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://menewsoft.com/og/default.png"><link rel="sitemap" href="/sitemap-index.xml"><!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. --><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MeNew Soft","alternateName":["menewsoft","menewsoft.com","미뉴소프트","메뉴소프트","Tech Decode"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/index.BD2eBubB.css">
+<link rel="stylesheet" href="/_astro/_slug_.DxXwq8uN.css"></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/">MeNew<span>Soft</span></a> <nav class="nav"> <a href="/">홈</a> <a href="/shops/">등록 업체</a> <a href="/news/">업체 소식</a> <a href="/games/">놀이공간</a> <a href="/blog/">글</a>  <a href="/learn/">초등 1학년 학습</a>  <a href="/academy/">자격증 학원</a>  <a href="/board/">게시판</a> <a href="/about/">소개</a> <a href="/contact/">문의</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul>  </ul> </div> </nav> </div> </header> <main>  <main class="acad lesson" data-slug="services"> <p class="crumbs"><a href="/academy/">자격증 학원</a> › <a href="/academy/cka/">CKA</a> › 서비스 · 네트워킹</p> <p class="kick">강의 19 / 28 · 약 25분</p> <h1>서비스 — 파드 앞의 고정 주소</h1> <p class="lead">ClusterIP · NodePort · LoadBalancer · Headless, 셀렉터와 엔드포인트, port · targetPort · nodePort 의 관계.</p> <div class="goals"> <h3>이 강의를 마치면</h3> <ul><li>서비스 타입별 용도와 접근 경로를 설명할 수 있다</li><li>port · targetPort · nodePort 를 정확히 구분해 쓸 수 있다</li><li>엔드포인트가 비어 있을 때 원인을 찾을 수 있다</li></ul> </div> <article class="body"><h2 id="왜-서비스가-필요한가">왜 서비스가 필요한가</h2>
+<p>파드 IP 는 파드가 다시 만들어질 때마다 바뀝니다. <strong>서비스</strong>는 레이블 셀렉터로 파드 묶음을 가리키는 <strong>고정된 가상 IP(ClusterIP)와 DNS 이름</strong>을 줍니다. 요청은 준비된(Ready) 파드들에 나뉘어 갑니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>클라이언트 → web-svc(10.96.12.34:80) ─┬→ 10.244.1.5:8080 (app=web, Ready)</span></span>
+<span class="line"><span>             (kube-proxy 규칙)         └→ 10.244.2.7:8080 (app=web, Ready)</span></span></code></pre>
+<h2 id="타입">타입</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>타입</th><th>접근</th><th>쓰임</th></tr></thead><tbody><tr><td><strong>ClusterIP</strong>(기본)</td><td>클러스터 안에서만 <code>서비스IP:port</code></td><td>내부 통신</td></tr><tr><td><strong>NodePort</strong></td><td>+ 모든 노드의 <code>노드IP:nodePort</code></td><td>간단한 외부 공개, 테스트</td></tr><tr><td><strong>LoadBalancer</strong></td><td>+ 클라우드 로드밸런서의 외부 IP</td><td>클라우드 외부 공개(온프레미스는 MetalLB 등이 필요, 없으면 EXTERNAL-IP <code>&#x3C;pending></code>)</td></tr><tr><td><strong>ExternalName</strong></td><td>DNS CNAME</td><td>외부 도메인에 내부 이름 붙이기</td></tr><tr><td>Headless(<code>clusterIP: None</code>)</td><td>가상 IP 없음, DNS 가 파드 IP 들을 반환</td><td>StatefulSet</td></tr></tbody></table>
+<h2 id="세-가지-포트">세 가지 포트</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">apiVersion</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">v1</span></span>
+<span class="line"><span style="color:#85E89D">kind</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Service</span></span>
+<span class="line"><span style="color:#85E89D">metadata</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">web-svc</span></span>
+<span class="line"><span style="color:#85E89D">spec</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  type</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">NodePort</span></span>
+<span class="line"><span style="color:#85E89D">  selector</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    app</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">web</span><span style="color:#6A737D">             # ← 이 레이블을 가진 파드로</span></span>
+<span class="line"><span style="color:#85E89D">  ports</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">http</span></span>
+<span class="line"><span style="color:#85E89D">    port</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">80</span><span style="color:#6A737D">             # 서비스가 받는 포트(서비스IP:80)</span></span>
+<span class="line"><span style="color:#85E89D">    targetPort</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">8080</span><span style="color:#6A737D">     # 파드가 듣는 포트 (이름도 가능: targetPort: http)</span></span>
+<span class="line"><span style="color:#85E89D">    nodePort</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">30100</span><span style="color:#6A737D">      # 노드가 여는 포트(NodePort/LoadBalancer, 생략하면 자동)</span></span>
+<span class="line"><span style="color:#85E89D">    protocol</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">TCP</span></span></code></pre>
+<p>포트가 둘 이상이면 각 포트에 <strong>name 이 필수</strong>입니다.</p>
+<h2 id="명령형으로-만들기">명령형으로 만들기</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> expose</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --name=web-svc</span><span style="color:#79B8FF"> --port=80</span><span style="color:#79B8FF"> --target-port=8080</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> expose</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --type=NodePort</span><span style="color:#79B8FF"> --port=80</span><span style="color:#6A737D">                 # nodePort 는 무작위</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> expose</span><span style="color:#9ECBFF"> pod</span><span style="color:#9ECBFF"> db</span><span style="color:#79B8FF"> --port=6379</span><span style="color:#6A737D">                                        # 파드 레이블을 셀렉터로</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> service</span><span style="color:#9ECBFF"> clusterip</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --tcp=80:8080</span><span style="color:#6A737D">                       # ⚠ 셀렉터가 app=web 으로 고정</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> service</span><span style="color:#9ECBFF"> nodeport</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --tcp=80:8080</span><span style="color:#79B8FF"> --node-port=30100</span></span></code></pre>
+<p><code>expose</code> 는 대상(디플로이먼트·파드)의 레이블을 <strong>자동으로 셀렉터로</strong> 씁니다. <code>create service</code> 는 셀렉터를 <code>app=&#x3C;이름></code> 으로 가정하니 레이블이 다르면 엔드포인트가 비어 있게 됩니다. nodePort 를 특정 값으로 정하려면 <code>--dry-run=client -o yaml</code> 로 뽑아 <code>nodePort:</code> 를 넣습니다.</p>
+<h2 id="엔드포인트--서비스가-실제로-가리키는-곳">엔드포인트 — 서비스가 실제로 가리키는 곳</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> endpoints</span><span style="color:#9ECBFF"> web-svc</span><span style="color:#6A737D">          # ENDPOINTS: 10.244.1.5:8080,10.244.2.7:8080</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> endpointslices</span><span style="color:#79B8FF"> -l</span><span style="color:#9ECBFF"> kubernetes.io/service-name=web-svc</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> describe</span><span style="color:#9ECBFF"> svc</span><span style="color:#9ECBFF"> web-svc</span><span style="color:#6A737D">           # Selector, TargetPort, Endpoints 를 한눈에</span></span></code></pre>
+<blockquote>
+<p>최근 버전은 엔드포인트를 <strong>EndpointSlice</strong> 로 관리하고, 옛 Endpoints API 는 폐지 예정 경고를 냅니다. 어느 쪽으로 보든 들어 있는 정보(파드 IP:포트)는 같습니다.</p>
+</blockquote>
+<h3 id="엔드포인트가-비어-있거나-접속이-안-될-때">엔드포인트가 비어 있거나 접속이 안 될 때</h3>
+<ol>
+<li><strong>셀렉터 ↔ 파드 레이블</strong> — <code>kubectl get pods --show-labels</code> vs <code>describe svc</code> 의 Selector. 오타 한 글자면 비어 있습니다.</li>
+<li><strong>파드가 Ready 인가</strong> — Ready 아닌 파드(readinessProbe 실패)는 엔드포인트에서 빠집니다.</li>
+<li><strong>targetPort 가 컨테이너가 듣는 포트인가</strong> — 엔드포인트는 있는데 <code>connection refused</code> 면 대개 이것.</li>
+<li><strong>네임스페이스</strong> — 서비스와 파드는 같은 네임스페이스여야 셀렉터가 닿습니다.</li>
+<li><strong>NetworkPolicy</strong> — 연결이 거부가 아니라 <strong>시간 초과</strong>로 끝나면 정책이 막고 있을 가능성.</li>
+</ol>
+<h2 id="접속-확인">접속 확인</h2>
+<p>노드 셸에서는 파드 네트워크에 직접 닿지 않을 수 있으니 <strong>클러스터 안의 임시 파드</strong>로 확인합니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> run</span><span style="color:#9ECBFF"> tmp</span><span style="color:#79B8FF"> --rm</span><span style="color:#79B8FF"> -it</span><span style="color:#79B8FF"> --image=busybox:1.37</span><span style="color:#79B8FF"> --restart=Never</span><span style="color:#79B8FF"> --</span><span style="color:#9ECBFF"> wget</span><span style="color:#79B8FF"> -qO-</span><span style="color:#79B8FF"> -T2</span><span style="color:#9ECBFF"> web-svc</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> run</span><span style="color:#9ECBFF"> tmp</span><span style="color:#79B8FF"> --rm</span><span style="color:#79B8FF"> -it</span><span style="color:#79B8FF"> --image=busybox:1.37</span><span style="color:#79B8FF"> --restart=Never</span><span style="color:#79B8FF"> --</span><span style="color:#9ECBFF"> wget</span><span style="color:#79B8FF"> -qO-</span><span style="color:#79B8FF"> -T2</span><span style="color:#9ECBFF"> web-svc.shop.svc.cluster.local</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> run</span><span style="color:#9ECBFF"> tmp</span><span style="color:#79B8FF"> --rm</span><span style="color:#79B8FF"> -it</span><span style="color:#79B8FF"> --image=busybox:1.37</span><span style="color:#79B8FF"> --restart=Never</span><span style="color:#79B8FF"> --</span><span style="color:#9ECBFF"> nc</span><span style="color:#79B8FF"> -zv</span><span style="color:#79B8FF"> -w2</span><span style="color:#9ECBFF"> db-svc</span><span style="color:#79B8FF"> 6379</span></span>
+<span class="line"><span style="color:#B392F0">curl</span><span style="color:#9ECBFF"> http://</span><span style="color:#F97583">&#x3C;</span><span style="color:#9ECBFF">노드I</span><span style="color:#E1E4E8">P</span><span style="color:#F97583">></span><span style="color:#9ECBFF">:30100</span><span style="color:#6A737D">            # NodePort 는 노드에서 바로</span></span></code></pre>
+<p>busybox 에는 <code>curl</code> 이 없고 <code>wget</code> 과 <code>nc</code> 가 있습니다. <code>curl</code> 이 필요하면 <code>curlimages/curl</code> 이미지를 씁니다.</p></article> <section> <h2>⌨️ 직접 해 보기</h2> <p class="muted small">브라우저 실습 터미널에서 풀고 자동 채점을 받습니다.</p> <div class="labs"> <a class="btn sm" href="/academy/cka/lab/?task=n1" data-lab="n1">NodePort 로 외부 공개 <span class="pill lab-st" hidden></span></a><a class="btn sm" href="/academy/cka/lab/?task=n2" data-lab="n2">엔드포인트가 비어 있는 서비스 <span class="pill lab-st" hidden></span></a> </div> </section> <section class="quiz" id="quiz"> <h2>✅ 확인 문제</h2> <div id="quiz-box" data-quiz="[{&#34;q&#34;:&#34;서비스 port 80, targetPort 8080 이면?&#34;,&#34;options&#34;:[&#34;서비스 IP:8080 으로 접속하면 파드 80 으로 간다&#34;,&#34;서비스 IP:80 으로 접속하면 파드의 8080 으로 간다&#34;,&#34;노드의 80 이 열린다&#34;,&#34;둘 다 80 이다&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;port 는 서비스가 받는 포트, targetPort 는 파드(컨테이너)가 실제로 듣는 포트다.&#34;},{&#34;q&#34;:&#34;서비스를 만들었는데 kubectl get endpoints 가 <none> 이다. 가장 먼저 볼 것은?&#34;,&#34;options&#34;:[&#34;kube-proxy 로그&#34;,&#34;서비스 selector 와 파드 레이블이 일치하는지, 파드가 Ready 인지&#34;,&#34;노드 방화벽&#34;,&#34;CoreDNS&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;엔드포인트는 셀렉터에 맞고 Ready 인 파드의 IP 로 채워진다. 레이블 오타나 준비성 실패가 가장 흔하다.&#34;},{&#34;q&#34;:&#34;NodePort 로 허용되는 기본 포트 범위는?&#34;,&#34;options&#34;:[&#34;1-1024&#34;,&#34;8000-9000&#34;,&#34;30000-32767&#34;,&#34;아무 포트&#34;],&#34;answer&#34;:2,&#34;explain&#34;:&#34;기본 --service-node-port-range 는 30000-32767 이다.&#34;},{&#34;q&#34;:&#34;clusterIP: None 인 서비스(Headless)의 특징은?&#34;,&#34;options&#34;:[&#34;외부에서만 접근 가능&#34;,&#34;가상 IP 없이 DNS 가 파드 IP 들을 바로 돌려준다&#34;,&#34;로드밸런서가 생긴다&#34;,&#34;사용할 수 없다&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;Headless 서비스는 가상 IP 를 만들지 않고 DNS 조회에 파드 IP 목록을 준다. StatefulSet 파드마다 고정 DNS 이름(web-0.svc…)을 줄 때 쓴다.&#34;}]"></div> <p id="quiz-score" class="muted" hidden></p> </section> <div class="btns" style="margin-top:28px"> <button type="button" class="btn pri" id="done-btn">이 강의 완료 표시</button> <a class="btn" href="/academy/cka/">과정 목차</a> </div> <nav class="pager"> <a class="btn" href="/academy/cka/extensions-crd/"><span><small>← 이전</small>확장 인터페이스와 CRD · 오퍼레이터</span></a> <a class="btn" href="/academy/cka/dns-coredns/" style="justify-content:flex-end;text-align:right"><span><small>다음 →</small>클러스터 DNS 와 CoreDNS</span></a> </nav> </main> <script type="module" src="/_astro/_slug_.astro_astro_type_script_index_0_lang.B_WkOVAD.js"></script>  </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>MeNew Soft</span> <div class="links" data-astro-cid-sz7xmlte> <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. --> <a href="/" data-astro-cid-sz7xmlte>홈</a> <a href="/shops/" data-astro-cid-sz7xmlte>등록 업체</a> <a href="/news/" data-astro-cid-sz7xmlte>업체 소식</a> <a href="/games/" data-astro-cid-sz7xmlte>놀이공간</a> <a href="/blog/" data-astro-cid-sz7xmlte>글</a> <a href="/glossary/" data-astro-cid-sz7xmlte>용어사전</a> <a href="/tools/" data-astro-cid-sz7xmlte>도구</a> <a href="/learn/" data-astro-cid-sz7xmlte>초등 1학년 학습</a> <a href="/academy/" data-astro-cid-sz7xmlte>자격증 학원</a> <a href="/about/" data-astro-cid-sz7xmlte>소개</a> <a href="/contact/" data-astro-cid-sz7xmlte>문의</a> <a href="/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 MeNew Soft · menewsoft.com (미뉴소프트) — AI로 만듭니다 — 가게 홈페이지·학습 게임·웹게임. 등록 내용이 틀렸다면 알려주세요.</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 오늘 <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · 전체 <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html>

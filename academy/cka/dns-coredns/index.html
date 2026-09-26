@@ -1,0 +1,107 @@
+<!DOCTYPE html><html lang="ko"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>클러스터 DNS 와 CoreDNS — CKA 합격반 — MeNew Soft</title><meta name="description" content="서비스·파드의 DNS 이름 규칙, 파드의 resolv.conf, CoreDNS 의 배치와 Corefile, 이름 해석이 안 될 때 확인 순서."><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/academy/cka/dns-coredns/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)"><meta property="og:type" content="website"><meta property="og:title" content="클러스터 DNS 와 CoreDNS — CKA 합격반 — MeNew Soft"><meta property="og:description" content="서비스·파드의 DNS 이름 규칙, 파드의 resolv.conf, CoreDNS 의 배치와 Corefile, 이름 해석이 안 될 때 확인 순서."><meta property="og:url" content="https://menewsoft.com/academy/cka/dns-coredns/"><meta property="og:site_name" content="MeNew Soft"><meta property="og:image" content="https://menewsoft.com/og/default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="클러스터 DNS 와 CoreDNS — CKA 합격반"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://menewsoft.com/og/default.png"><link rel="sitemap" href="/sitemap-index.xml"><!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. --><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MeNew Soft","alternateName":["menewsoft","menewsoft.com","미뉴소프트","메뉴소프트","Tech Decode"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/index.BD2eBubB.css">
+<link rel="stylesheet" href="/_astro/_slug_.DxXwq8uN.css"></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/">MeNew<span>Soft</span></a> <nav class="nav"> <a href="/">홈</a> <a href="/shops/">등록 업체</a> <a href="/news/">업체 소식</a> <a href="/games/">놀이공간</a> <a href="/blog/">글</a>  <a href="/learn/">초등 1학년 학습</a>  <a href="/academy/">자격증 학원</a>  <a href="/board/">게시판</a> <a href="/about/">소개</a> <a href="/contact/">문의</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul>  </ul> </div> </nav> </div> </header> <main>  <main class="acad lesson" data-slug="dns-coredns"> <p class="crumbs"><a href="/academy/">자격증 학원</a> › <a href="/academy/cka/">CKA</a> › 서비스 · 네트워킹</p> <p class="kick">강의 20 / 28 · 약 20분</p> <h1>클러스터 DNS 와 CoreDNS</h1> <p class="lead">서비스·파드의 DNS 이름 규칙, 파드의 resolv.conf, CoreDNS 의 배치와 Corefile, 이름 해석이 안 될 때 확인 순서.</p> <div class="goals"> <h3>이 강의를 마치면</h3> <ul><li>서비스 FQDN 과 짧은 이름이 어떻게 해석되는지 설명할 수 있다</li><li>CoreDNS 디플로이먼트·서비스·ConfigMap 을 찾아 상태를 확인할 수 있다</li><li>DNS 장애의 흔한 원인을 좁힐 수 있다</li></ul> </div> <article class="body"><h2 id="이름-규칙">이름 규칙</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>대상</th><th>DNS 이름</th></tr></thead><tbody><tr><td>서비스</td><td><code>&#x3C;서비스>.&#x3C;네임스페이스>.svc.cluster.local</code></td></tr><tr><td>Headless 서비스 뒤의 StatefulSet 파드</td><td><code>&#x3C;파드>.&#x3C;서비스>.&#x3C;네임스페이스>.svc.cluster.local</code> (예. <code>web-0.nginx.default.svc.cluster.local</code>)</td></tr><tr><td>파드(IP 기반)</td><td><code>10-244-1-5.&#x3C;네임스페이스>.pod.cluster.local</code></td></tr></tbody></table>
+<p>같은 네임스페이스면 <code>db-svc</code>, 다른 네임스페이스면 <code>db-svc.data</code> 만 써도 됩니다. 파드의 <code>/etc/resolv.conf</code> 를 보면 이유가 나옵니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> exec</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --</span><span style="color:#9ECBFF"> cat</span><span style="color:#9ECBFF"> /etc/resolv.conf</span></span>
+<span class="line"><span style="color:#6A737D"># search default.svc.cluster.local svc.cluster.local cluster.local</span></span>
+<span class="line"><span style="color:#6A737D"># nameserver 10.96.0.10          ← kube-dns 서비스 IP</span></span>
+<span class="line"><span style="color:#6A737D"># options ndots:5</span></span></code></pre>
+<p><code>search</code> 목록을 차례로 붙여 조회하기 때문에 짧은 이름이 됩니다. <code>nameserver</code> 는 <code>kube-system</code> 의 <strong>kube-dns 서비스</strong> IP 이고, 그 뒤에 <strong>CoreDNS 파드</strong>가 있습니다.</p>
+<h2 id="coredns-구성-요소">CoreDNS 구성 요소</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> deploy</span><span style="color:#9ECBFF"> coredns</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> kube-system</span><span style="color:#6A737D">        # 보통 레플리카 2</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> pods</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> kube-system</span><span style="color:#79B8FF"> -l</span><span style="color:#9ECBFF"> k8s-app=kube-dns</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> svc</span><span style="color:#9ECBFF"> kube-dns</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> kube-system</span><span style="color:#6A737D">           # 10.96.0.10, 53/UDP 53/TCP</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> ep</span><span style="color:#9ECBFF"> kube-dns</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> kube-system</span><span style="color:#6A737D">            # CoreDNS 파드 IP 가 있어야 한다</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> cm</span><span style="color:#9ECBFF"> coredns</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> kube-system</span><span style="color:#79B8FF"> -o</span><span style="color:#9ECBFF"> yaml</span><span style="color:#6A737D">     # Corefile</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>.:53 {</span></span>
+<span class="line"><span>    errors</span></span>
+<span class="line"><span>    health</span></span>
+<span class="line"><span>    ready</span></span>
+<span class="line"><span>    kubernetes cluster.local in-addr.arpa ip6.arpa {   ← 클러스터 도메인</span></span>
+<span class="line"><span>       pods insecure</span></span>
+<span class="line"><span>       fallthrough in-addr.arpa ip6.arpa</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    forward . /etc/resolv.conf                         ← 바깥 이름은 노드의 DNS 로</span></span>
+<span class="line"><span>    cache 30</span></span>
+<span class="line"><span>    loop</span></span>
+<span class="line"><span>    reload</span></span>
+<span class="line"><span>}</span></span></code></pre>
+<h2 id="확인하는-법">확인하는 법</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> run</span><span style="color:#9ECBFF"> tmp</span><span style="color:#79B8FF"> --rm</span><span style="color:#79B8FF"> -it</span><span style="color:#79B8FF"> --image=busybox:1.37</span><span style="color:#79B8FF"> --restart=Never</span><span style="color:#79B8FF"> --</span><span style="color:#9ECBFF"> nslookup</span><span style="color:#9ECBFF"> kubernetes.default</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> run</span><span style="color:#9ECBFF"> tmp</span><span style="color:#79B8FF"> --rm</span><span style="color:#79B8FF"> -it</span><span style="color:#79B8FF"> --image=busybox:1.37</span><span style="color:#79B8FF"> --restart=Never</span><span style="color:#79B8FF"> --</span><span style="color:#9ECBFF"> nslookup</span><span style="color:#9ECBFF"> db-svc.data.svc.cluster.local</span></span></code></pre>
+<p>정상이면 <code>Name: … Address: 10.96.x.x</code>, 실패하면 두 가지 중 하나입니다.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>출력</th><th>뜻</th></tr></thead><tbody><tr><td><code>** server can't find …: NXDOMAIN</code></td><td>DNS 서버는 응답했지만 그런 이름이 없다 → 서비스 이름·네임스페이스 오타</td></tr><tr><td><code>;; connection timed out; no servers could be reached</code></td><td>DNS 서버에 닿지 못했다 → CoreDNS 가 죽었거나, NetworkPolicy 가 53 번 egress 를 막았다</td></tr></tbody></table>
+<h2 id="dns-장애-점검-순서">DNS 장애 점검 순서</h2>
+<ol>
+<li>CoreDNS 파드가 Running·Ready 인가? (레플리카 0, CrashLoop, 이미지 오타, Pending)</li>
+<li><code>kube-dns</code> 서비스의 엔드포인트가 채워져 있나?</li>
+<li>CoreDNS 로그: <code>kubectl logs -n kube-system -l k8s-app=kube-dns</code></li>
+<li>Corefile 을 누가 고쳤나? (<code>cluster.local</code> 오타, <code>forward</code> 대상)</li>
+<li>그 파드에 <strong>egress NetworkPolicy</strong> 가 있다면 UDP·TCP 53 을 허용했나?</li>
+<li>파드의 <code>dnsPolicy</code> 가 <code>Default</code> 로 되어 있지 않나?(그러면 클러스터 DNS 를 안 씀. 기본값은 <code>ClusterFirst</code>)</li>
+</ol></article> <section> <h2>⌨️ 직접 해 보기</h2> <p class="muted small">브라우저 실습 터미널에서 풀고 자동 채점을 받습니다.</p> <div class="labs"> <a class="btn sm" href="/academy/cka/lab/?task=n8" data-lab="n8">서비스 DNS 이름 <span class="pill lab-st" hidden></span></a><a class="btn sm" href="/academy/cka/lab/?task=t9" data-lab="t9">이름 해석이 안 된다 <span class="pill lab-st" hidden></span></a> </div> </section> <section class="quiz" id="quiz"> <h2>✅ 확인 문제</h2> <div id="quiz-box" data-quiz="[{&#34;q&#34;:&#34;네임스페이스 data 의 서비스 db-svc 의 FQDN 은?&#34;,&#34;options&#34;:[&#34;db-svc.data&#34;,&#34;db-svc.data.svc.cluster.local&#34;,&#34;data.db-svc.cluster.local&#34;,&#34;db-svc.cluster.local&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;<서비스>.<네임스페이스>.svc.<클러스터 도메인>. 기본 클러스터 도메인은 cluster.local 이다.&#34;},{&#34;q&#34;:&#34;같은 네임스페이스의 파드에서 서비스 이름만(db-svc) 으로 접속되는 이유는?&#34;,&#34;options&#34;:[&#34;hosts 파일 때문&#34;,&#34;resolv.conf 의 search 도메인에 <네임스페이스>.svc.cluster.local 이 있어서&#34;,&#34;kube-proxy 가 이름을 바꿔서&#34;,&#34;우연&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;kubelet 이 파드의 /etc/resolv.conf 에 search 목록을 넣는다. 다른 네임스페이스는 db-svc.data 처럼 네임스페이스를 붙여야 한다.&#34;},{&#34;q&#34;:&#34;CoreDNS 설정(Corefile)이 저장된 곳은?&#34;,&#34;options&#34;:[&#34;/etc/coredns/Corefile (노드)&#34;,&#34;kube-system 의 ConfigMap coredns&#34;,&#34;etcd 의 dns 키&#34;,&#34;kubelet 설정&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;kubectl -n kube-system get cm coredns -o yaml 로 본다. 고친 뒤에는 reload 플러그인이 알아서 다시 읽거나 rollout restart 로 반영한다.&#34;},{&#34;q&#34;:&#34;모든 파드에서 이름 해석이 안 된다. kube-dns 서비스의 엔드포인트가 비어 있다. 원인은?&#34;,&#34;options&#34;:[&#34;CoreDNS 파드가 없거나 Ready 가 아니다&#34;,&#34;노드가 너무 많다&#34;,&#34;서비스 타입이 틀렸다&#34;,&#34;etcd 백업이 없다&#34;],&#34;answer&#34;:0,&#34;explain&#34;:&#34;kube-dns 서비스 뒤의 CoreDNS 파드가 없으면(레플리카 0, 크래시, 스케줄 실패) DNS 서버가 없는 것이다.&#34;}]"></div> <p id="quiz-score" class="muted" hidden></p> </section> <div class="btns" style="margin-top:28px"> <button type="button" class="btn pri" id="done-btn">이 강의 완료 표시</button> <a class="btn" href="/academy/cka/">과정 목차</a> </div> <nav class="pager"> <a class="btn" href="/academy/cka/services/"><span><small>← 이전</small>서비스 — 파드 앞의 고정 주소</span></a> <a class="btn" href="/academy/cka/network-policy/" style="justify-content:flex-end;text-align:right"><span><small>다음 →</small>NetworkPolicy — 파드 방화벽</span></a> </nav> </main> <script type="module" src="/_astro/_slug_.astro_astro_type_script_index_0_lang.B_WkOVAD.js"></script>  </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>MeNew Soft</span> <div class="links" data-astro-cid-sz7xmlte> <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. --> <a href="/" data-astro-cid-sz7xmlte>홈</a> <a href="/shops/" data-astro-cid-sz7xmlte>등록 업체</a> <a href="/news/" data-astro-cid-sz7xmlte>업체 소식</a> <a href="/games/" data-astro-cid-sz7xmlte>놀이공간</a> <a href="/blog/" data-astro-cid-sz7xmlte>글</a> <a href="/glossary/" data-astro-cid-sz7xmlte>용어사전</a> <a href="/tools/" data-astro-cid-sz7xmlte>도구</a> <a href="/learn/" data-astro-cid-sz7xmlte>초등 1학년 학습</a> <a href="/academy/" data-astro-cid-sz7xmlte>자격증 학원</a> <a href="/about/" data-astro-cid-sz7xmlte>소개</a> <a href="/contact/" data-astro-cid-sz7xmlte>문의</a> <a href="/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 MeNew Soft · menewsoft.com (미뉴소프트) — AI로 만듭니다 — 가게 홈페이지·학습 게임·웹게임. 등록 내용이 틀렸다면 알려주세요.</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 오늘 <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · 전체 <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html>

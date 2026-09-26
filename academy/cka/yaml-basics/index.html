@@ -1,0 +1,118 @@
+<!DOCTYPE html><html lang="ko"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>YAML 과 쿠버네티스 오브젝트 — CKA 합격반 — MeNew Soft</title><meta name="description" content="모든 쿠버네티스 리소스는 같은 네 칸(apiVersion·kind·metadata·spec)으로 되어 있다. 들여쓰기 규칙과 흔한 실수."><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/academy/cka/yaml-basics/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)"><meta property="og:type" content="website"><meta property="og:title" content="YAML 과 쿠버네티스 오브젝트 — CKA 합격반 — MeNew Soft"><meta property="og:description" content="모든 쿠버네티스 리소스는 같은 네 칸(apiVersion·kind·metadata·spec)으로 되어 있다. 들여쓰기 규칙과 흔한 실수."><meta property="og:url" content="https://menewsoft.com/academy/cka/yaml-basics/"><meta property="og:site_name" content="MeNew Soft"><meta property="og:image" content="https://menewsoft.com/og/default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="YAML 과 쿠버네티스 오브젝트 — CKA 합격반"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://menewsoft.com/og/default.png"><link rel="sitemap" href="/sitemap-index.xml"><!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. --><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MeNew Soft","alternateName":["menewsoft","menewsoft.com","미뉴소프트","메뉴소프트","Tech Decode"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/index.BD2eBubB.css">
+<link rel="stylesheet" href="/_astro/_slug_.DxXwq8uN.css"></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/">MeNew<span>Soft</span></a> <nav class="nav"> <a href="/">홈</a> <a href="/shops/">등록 업체</a> <a href="/news/">업체 소식</a> <a href="/games/">놀이공간</a> <a href="/blog/">글</a>  <a href="/learn/">초등 1학년 학습</a>  <a href="/academy/">자격증 학원</a>  <a href="/board/">게시판</a> <a href="/about/">소개</a> <a href="/contact/">문의</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul>  </ul> </div> </nav> </div> </header> <main>  <main class="acad lesson" data-slug="yaml-basics"> <p class="crumbs"><a href="/academy/">자격증 학원</a> › <a href="/academy/cka/">CKA</a> › 기초 체력</p> <p class="kick">강의 4 / 28 · 약 20분</p> <h1>YAML 과 쿠버네티스 오브젝트</h1> <p class="lead">모든 쿠버네티스 리소스는 같은 네 칸(apiVersion·kind·metadata·spec)으로 되어 있다. 들여쓰기 규칙과 흔한 실수.</p> <div class="goals"> <h3>이 강의를 마치면</h3> <ul><li>YAML 의 맵·목록·들여쓰기 규칙으로 매니페스트를 읽고 쓸 수 있다</li><li>apiVersion · kind · metadata · spec · status 의 역할을 안다</li><li>dry-run 으로 YAML 뼈대를 만들고 고쳐서 적용할 수 있다</li></ul> </div> <article class="body"><h2 id="yaml-은-세-가지만-알면-된다">YAML 은 세 가지만 알면 된다</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#6A737D"># 1) 맵(키: 값)</span></span>
+<span class="line"><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">web</span></span>
+<span class="line"><span style="color:#85E89D">replicas</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">3</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 2) 목록(- 로 시작)</span></span>
+<span class="line"><span style="color:#85E89D">ports</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">- </span><span style="color:#79B8FF">80</span></span>
+<span class="line"><span style="color:#E1E4E8">- </span><span style="color:#79B8FF">443</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 3) 들여쓰기로 소속을 나타낸다(스페이스만, 탭 금지)</span></span>
+<span class="line"><span style="color:#85E89D">metadata</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">web</span><span style="color:#6A737D">          # metadata 안의 name</span></span>
+<span class="line"><span style="color:#85E89D">  labels</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    app</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">web</span><span style="color:#6A737D">         # labels 안의 app</span></span></code></pre>
+<p>목록 안에 맵이 들어가는 모양이 가장 자주 나옵니다. 컨테이너 목록이 대표적입니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">containers</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">- </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">web</span><span style="color:#6A737D">          # 목록의 첫 항목(맵)이 시작</span></span>
+<span class="line"><span style="color:#85E89D">  image</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">nginx:1.27</span><span style="color:#6A737D">  # 같은 항목의 다른 키 — '- ' 다음 글자와 줄을 맞춘다</span></span>
+<span class="line"><span style="color:#E1E4E8">- </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">sidecar</span><span style="color:#6A737D">      # 두 번째 항목</span></span>
+<span class="line"><span style="color:#85E89D">  image</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">busybox:1.37</span></span></code></pre>
+<blockquote>
+<p><code>kubectl -o yaml</code> 출력은 목록을 부모 키와 <strong>같은 칸</strong>에서 시작합니다(<code>containers:</code> 바로 아래 <code>- name</code>). 문서 예제는 두 칸 들여 쓰기도 합니다. <strong>둘 다 맞습니다.</strong> 한 파일 안에서 일관되기만 하면 됩니다.</p>
+</blockquote>
+<p>문자열은 대부분 따옴표가 필요 없지만, <strong>숫자·참/거짓처럼 보이는 문자열</strong>은 따옴표로 감쌉니다. <code>"1.27"</code>, <code>"true"</code>, <code>"0 2 * * *"</code>(<code>*</code> 로 시작하면 YAML 기호로 읽힌다).</p>
+<h2 id="모든-리소스의-공통-모양">모든 리소스의 공통 모양</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">apiVersion</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">apps/v1</span><span style="color:#6A737D">      # 어느 API 그룹/버전인가</span></span>
+<span class="line"><span style="color:#85E89D">kind</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Deployment</span><span style="color:#6A737D">         # 무슨 종류인가</span></span>
+<span class="line"><span style="color:#85E89D">metadata</span><span style="color:#E1E4E8">:                </span><span style="color:#6A737D"># 이름표</span></span>
+<span class="line"><span style="color:#85E89D">  name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">web</span></span>
+<span class="line"><span style="color:#85E89D">  namespace</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">shop</span></span>
+<span class="line"><span style="color:#85E89D">  labels</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    app</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">web</span></span>
+<span class="line"><span style="color:#85E89D">spec</span><span style="color:#E1E4E8">:                    </span><span style="color:#6A737D"># 원하는 상태 — 내가 쓴다</span></span>
+<span class="line"><span style="color:#85E89D">  replicas</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">3</span></span>
+<span class="line"><span style="color:#79B8FF">  ...</span></span>
+<span class="line"><span style="color:#85E89D">status</span><span style="color:#E1E4E8">:                  </span><span style="color:#6A737D"># 현재 상태 — 쿠버네티스가 쓴다(적용할 때는 무시됨)</span></span>
+<span class="line"><span style="color:#85E89D">  readyReplicas</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">3</span></span></code></pre>
+<p><strong>선언형(declarative)</strong> 이 핵심입니다. “파드 세 개를 만들어라”는 명령을 내리는 게 아니라 “파드는 세 개여야 한다”는 상태를 적어 두면, 컨트롤러가 계속 현재 상태를 원하는 상태로 맞춥니다. 파드 하나를 지워도 곧 다시 생기는 이유입니다.</p>
+<p>어떤 리소스가 어느 apiVersion 인지 헷갈리면:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> api-resources</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> grep</span><span style="color:#79B8FF"> -i</span><span style="color:#9ECBFF"> deploy</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> explain</span><span style="color:#9ECBFF"> deployment</span><span style="color:#6A737D">             # 최상위 필드</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> explain</span><span style="color:#9ECBFF"> deployment.spec.strategy</span><span style="color:#79B8FF"> --recursive</span><span style="color:#6A737D">   # 하위 필드 전부</span></span></code></pre>
+<p><code>kubectl explain</code> 은 인터넷 없이 쓰는 문서입니다. 필드 이름 철자가 기억나지 않을 때 가장 빠릅니다.</p>
+<h2 id="dry-run-으로-뼈대-만들기">dry-run 으로 뼈대 만들기</h2>
+<p>시험에서 YAML 을 빈 화면부터 쓰는 사람은 거의 없습니다. <strong>명령형으로 뼈대를 뽑고, 필요한 것만 더합니다.</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> run</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --image=nginx:1.27</span><span style="color:#79B8FF"> --dry-run=client</span><span style="color:#79B8FF"> -o</span><span style="color:#9ECBFF"> yaml</span><span style="color:#F97583"> ></span><span style="color:#9ECBFF"> web.yaml</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --image=nginx:1.27</span><span style="color:#79B8FF"> --replicas=3</span><span style="color:#79B8FF"> --dry-run=client</span><span style="color:#79B8FF"> -o</span><span style="color:#9ECBFF"> yaml</span><span style="color:#F97583"> ></span><span style="color:#9ECBFF"> deploy.yaml</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> service</span><span style="color:#9ECBFF"> clusterip</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --tcp=80:8080</span><span style="color:#79B8FF"> --dry-run=client</span><span style="color:#79B8FF"> -o</span><span style="color:#9ECBFF"> yaml</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> configmap</span><span style="color:#9ECBFF"> cfg</span><span style="color:#79B8FF"> --from-literal=A=1</span><span style="color:#79B8FF"> --dry-run=client</span><span style="color:#79B8FF"> -o</span><span style="color:#9ECBFF"> yaml</span></span></code></pre>
+<p><code>--dry-run=client</code> 는 “실제로 만들지 말고 만들 내용만 보여 줘”입니다. 시험 시작하자마자 이렇게 줄여 두면 편합니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#F97583">export</span><span style="color:#E1E4E8"> do</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">"--dry-run=client -o yaml"</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> run</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --image=nginx</span><span style="color:#E1E4E8"> $do </span><span style="color:#F97583">></span><span style="color:#9ECBFF"> web.yaml</span></span></code></pre>
+<h2 id="적용하기-create--apply--replace">적용하기: create · apply · replace</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>명령</th><th>동작</th></tr></thead><tbody><tr><td><code>kubectl create -f x.yaml</code></td><td>새로 만든다. 이미 있으면 오류</td></tr><tr><td><code>kubectl apply -f x.yaml</code></td><td>없으면 만들고, 있으면 바뀐 부분을 반영</td></tr><tr><td><code>kubectl replace -f x.yaml</code></td><td>통째로 바꾼다</td></tr><tr><td><code>kubectl replace --force -f x.yaml</code></td><td>지우고 다시 만든다 — <strong>바꿀 수 없는 필드</strong>를 고칠 때</td></tr></tbody></table>
+<p>파드의 대부분 필드(환경변수, 볼륨, 명령 등)는 <strong>만든 뒤에 못 바꿉니다.</strong> 이미지 정도만 바뀝니다. 파드 설정을 고쳐야 하면 <code>kubectl get pod x -o yaml > x.yaml</code> 로 뽑아 고친 뒤 <code>kubectl replace --force -f x.yaml</code> 합니다.</p>
+<h2 id="흔한-실수">흔한 실수</h2>
+<ul>
+<li><strong>탭 문자</strong> → <code>error converting YAML to JSON</code>. 편집기 설정을 스페이스로.</li>
+<li><strong>필드 이름 오타</strong>(<code>imagee</code>, <code>contianers</code>) → 서버가 <code>strict decoding error: unknown field</code> 로 거절합니다. 오류 메시지가 오타 위치를 정확히 알려 줍니다.</li>
+<li><strong>숫자 자리에 문자열</strong>(<code>replicas: "3"</code>) → <code>cannot unmarshal string into … of type int32</code>.</li>
+<li><strong>selector 와 템플릿 레이블 불일치</strong>(Deployment) → <code>`selector` does not match template `labels`</code>.</li>
+<li><strong>apiVersion 틀림</strong>(Deployment 에 <code>v1</code>) → <code>no matches for kind "Deployment" in version "v1"</code>.</li>
+</ul>
+<p>실습 터미널은 이 오류들을 실제 문구 그대로 냅니다. 일부러 틀려 보고 메시지를 읽는 연습을 해 두면 시험장에서 당황하지 않습니다.</p></article> <section> <h2>⌨️ 직접 해 보기</h2> <p class="muted small">브라우저 실습 터미널에서 풀고 자동 채점을 받습니다.</p> <div class="labs"> <a class="btn sm" href="/academy/cka/lab/?task=b3" data-lab="b3">dry-run 으로 YAML 뼈대 만들기 <span class="pill lab-st" hidden></span></a> </div> </section> <section class="quiz" id="quiz"> <h2>✅ 확인 문제</h2> <div id="quiz-box" data-quiz="[{&#34;q&#34;:&#34;쿠버네티스 매니페스트에서 '원하는 상태'를 적는 칸은?&#34;,&#34;options&#34;:[&#34;metadata&#34;,&#34;spec&#34;,&#34;status&#34;,&#34;kind&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;spec 에 원하는 상태를 적고, 쿠버네티스가 현재 상태를 status 에 기록한다. 컨트롤러는 둘을 비교해 차이를 메운다.&#34;},{&#34;q&#34;:&#34;YAML 들여쓰기에 쓰면 안 되는 것은?&#34;,&#34;options&#34;:[&#34;스페이스 2칸&#34;,&#34;스페이스 4칸&#34;,&#34;탭 문자&#34;,&#34;들여쓰기 없음(최상위)&#34;],&#34;answer&#34;:2,&#34;explain&#34;:&#34;YAML 은 탭 문자를 들여쓰기로 허용하지 않는다. 같은 깊이는 같은 개수의 스페이스로 맞춘다.&#34;},{&#34;q&#34;:&#34;Deployment 의 apiVersion 은?&#34;,&#34;options&#34;:[&#34;v1&#34;,&#34;apps/v1&#34;,&#34;extensions/v1beta1&#34;,&#34;deployments/v1&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;Deployment·ReplicaSet·DaemonSet·StatefulSet 은 apps 그룹이라 apps/v1 이다. Pod·Service·ConfigMap 은 core 그룹이라 v1 이다. 헷갈리면 kubectl api-resources 로 확인한다.&#34;},{&#34;q&#34;:&#34;YAML 을 손으로 처음부터 쓰는 대신 시험에서 권장하는 방법은?&#34;,&#34;options&#34;:[&#34;인터넷 블로그 복사&#34;,&#34;kubectl ... --dry-run=client -o yaml 로 뼈대 생성&#34;,&#34;kubectl get all -o yaml&#34;,&#34;기억에 의존&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;명령형 생성 명령에 --dry-run=client -o yaml 을 붙이면 문법이 맞는 뼈대가 나온다. 거기에 필요한 필드만 더하면 빠르고 실수가 적다.&#34;}]"></div> <p id="quiz-score" class="muted" hidden></p> </section> <div class="btns" style="margin-top:28px"> <button type="button" class="btn pri" id="done-btn">이 강의 완료 표시</button> <a class="btn" href="/academy/cka/">과정 목차</a> </div> <nav class="pager"> <a class="btn" href="/academy/cka/linux-container-basics/"><span><small>← 이전</small>리눅스와 컨테이너 기초</span></a> <a class="btn" href="/academy/cka/k8s-architecture/" style="justify-content:flex-end;text-align:right"><span><small>다음 →</small>쿠버네티스 아키텍처</span></a> </nav> </main> <script type="module" src="/_astro/_slug_.astro_astro_type_script_index_0_lang.B_WkOVAD.js"></script>  </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>MeNew Soft</span> <div class="links" data-astro-cid-sz7xmlte> <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. --> <a href="/" data-astro-cid-sz7xmlte>홈</a> <a href="/shops/" data-astro-cid-sz7xmlte>등록 업체</a> <a href="/news/" data-astro-cid-sz7xmlte>업체 소식</a> <a href="/games/" data-astro-cid-sz7xmlte>놀이공간</a> <a href="/blog/" data-astro-cid-sz7xmlte>글</a> <a href="/glossary/" data-astro-cid-sz7xmlte>용어사전</a> <a href="/tools/" data-astro-cid-sz7xmlte>도구</a> <a href="/learn/" data-astro-cid-sz7xmlte>초등 1학년 학습</a> <a href="/academy/" data-astro-cid-sz7xmlte>자격증 학원</a> <a href="/about/" data-astro-cid-sz7xmlte>소개</a> <a href="/contact/" data-astro-cid-sz7xmlte>문의</a> <a href="/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 MeNew Soft · menewsoft.com (미뉴소프트) — AI로 만듭니다 — 가게 홈페이지·학습 게임·웹게임. 등록 내용이 틀렸다면 알려주세요.</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 오늘 <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · 전체 <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html>

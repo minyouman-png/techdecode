@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 검색 색인은 랜딩(/tools/<slug>/)이 담당한다. 같은 검색어로 두 URL 이 경쟁하면
+     (카니벌라이제이션) 구글이 어느 쪽도 밀어주지 않는다. follow 라 링크는 그대로 전달된다. -->
+<meta name="robots" content="noindex,follow">
+<title>MeNew PDF — Free browser PDF merge, split &amp; rotate, no upload</title>
+<meta name="description" content="Merge, split, rotate and delete PDF pages right in your browser. Nothing is uploaded — your file never leaves your computer. Free, no sign-up, no install.">
+<link rel="canonical" href="https://menewsoft.com/apps/pdf/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="MeNew PDF — Free browser PDF editor">
+<meta property="og:description" content="Merge, split and rotate PDFs in your browser. Nothing is uploaded — your file never leaves your computer.">
+<meta property="og:url" content="https://menewsoft.com/apps/pdf/">
+<meta property="og:image" content="https://menewsoft.com/og/apps/pdf.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://menewsoft.com/og/apps/pdf.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"MeNew PDF",
+"applicationCategory":"BusinessApplication","operatingSystem":"Web browser",
+"description":"Merge, split, rotate and delete PDF pages entirely in your browser. Files are never uploaded to a server.",
+"url":"https://menewsoft.com/apps/pdf/","isAccessibleForFree":true,
+"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
+<link rel="stylesheet" href="../apps.css">
+<style>
+  :root { --toolbar-h: 46px; }
+  body { background: #eceae4; overflow: hidden; }
+  .fmtbar {
+    position: fixed; top: var(--topbar-h); left: 0; right: 0; height: var(--toolbar-h); z-index: 490;
+    display: flex; align-items: center; gap: 6px; padding: 0 10px; overflow-x: auto;
+    background: #faf8f4; border-bottom: 1px solid var(--line);
+  }
+  .fmtbar button {
+    appearance: none; border: 1px solid var(--line); background: #fff; color: var(--ink);
+    border-radius: 7px; padding: 6px 11px; font-size: 13px; cursor: pointer; white-space: nowrap;
+  }
+  .fmtbar button:hover:not(:disabled) { background: #f1ece1; border-color: var(--gold-soft); }
+  .fmtbar button:disabled { opacity: .4; cursor: default; }
+  .fmtbar .sep { width: 1px; height: 22px; background: var(--line); margin: 0 4px; flex: none; }
+  .fmtbar .count { font-size: 12px; color: #6c6558; white-space: nowrap; margin-left: auto; padding-left: 10px; }
+
+  #stage {
+    position: fixed; top: calc(var(--topbar-h) + var(--toolbar-h)); left: 0; right: 0; bottom: 0;
+    overflow: auto; padding: 18px;
+  }
+  #grid { display: flex; flex-wrap: wrap; gap: 14px; align-content: flex-start; }
+
+  .pg {
+    position: relative; width: 150px; background: #fff; border: 1px solid var(--line);
+    border-radius: 8px; padding: 8px 8px 6px; box-shadow: 0 1px 3px rgba(0,0,0,.07); cursor: pointer;
+    user-select: none;
+  }
+  .pg.sel { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(184,134,11,.28); }
+  .pg .thumbwrap {
+    height: 170px; display: flex; align-items: center; justify-content: center; overflow: hidden;
+    background: #f6f4ef; border-radius: 4px;
+  }
+  .pg canvas { max-width: 100%; max-height: 100%; display: block; transition: transform .15s; }
+  .pg .lbl { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 11px; color: #6c6558; }
+  .pg .lbl .src { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .pg .mark {
+    position: absolute; top: 12px; left: 12px; width: 19px; height: 19px; border-radius: 50%;
+    background: rgba(255,255,255,.9); border: 1px solid var(--line); display: flex;
+    align-items: center; justify-content: center; font-size: 12px; color: transparent;
+  }
+  .pg.sel .mark { background: var(--gold); border-color: var(--gold); color: #fff; }
+
+  #drop {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 14px; color: #6c6558; text-align: center; padding: 20px;
+  }
+  #drop h2 { font-family: Georgia, serif; font-weight: 600; margin: 0; color: var(--ink); font-size: 20px; }
+  #drop p { margin: 0; font-size: 13px; max-width: 460px; line-height: 1.6; }
+  #drop .big { font-size: 42px; }
+  body.dragging #stage { background: #f7f1e2; outline: 2px dashed var(--gold-soft); outline-offset: -10px; }
+
+  #busy {
+    position: fixed; inset: 0; z-index: 900; display: none; align-items: center; justify-content: center;
+    background: rgba(250,248,244,.85); font-size: 14px; color: var(--ink);
+  }
+  body.busy #busy { display: flex; }
+  .privnote {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 480; padding: 5px 12px;
+    background: #f4efe2; border-top: 1px solid var(--line); font-size: 11px; color: #6c6558;
+  }
+  #stage { bottom: 26px; }
+</style>
+</head>
+<body>
+<header class="apptop">
+  <a class="back" id="backLink" href="/tools/" title="MeNew Docs">←</a>
+  <span class="brand">MeNew <em>PDF</em></span>
+  <span class="fname" id="fname"></span>
+  <span class="spacer"></span>
+  <input type="file" id="fileInput" accept="application/pdf,.pdf" multiple hidden>
+  <input type="file" id="imgInput" accept="image/png,image/jpeg,.png,.jpg,.jpeg" multiple hidden>
+  <button class="btn" id="btnOpen"></button>
+  <button class="btn" id="btnImg"></button>
+  <button class="btn primary" id="btnSave"></button>
+</header>
+
+<div class="fmtbar">
+  <button id="btnAll"></button>
+  <button id="btnNone"></button>
+  <span class="sep"></span>
+  <button id="btnLeft" disabled></button>
+  <button id="btnRight" disabled></button>
+  <button id="btnDel" disabled></button>
+  <span class="sep"></span>
+  <button id="btnExtract" disabled></button>
+  <button id="btnPng" disabled></button>
+  <span class="count" id="count"></span>
+</div>
+
+<div id="stage">
+  <div id="grid"></div>
+  <div id="drop">
+    <div class="big">📄</div>
+    <h2 id="dropTitle"></h2>
+    <p id="dropBody"></p>
+  </div>
+</div>
+
+<div id="busy"><span id="busyText"></span></div>
+<div class="privnote" id="privnote"></div>
+
+<script src="../vendor/pdf-lib.min.js"></script>
+<script src="../vendor/pdfjs.min.js"></script>
+<script src="../vendor/jszip.min.js"></script>
+<script src="pdf.js"></script>
+<!-- 방문자 집계(쿠키 없음). 페이지 주소만 기록하며 열어본 파일 내용은 전송하지 않는다. -->
+<script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html><html lang="ko"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>디플로이먼트 — 롤링 업데이트와 롤백 — CKA 합격반 — MeNew Soft</title><meta name="description" content="Deployment → ReplicaSet → Pod 의 사슬. 스케일, 이미지 업데이트, 롤아웃 상태·이력·롤백, 전략(RollingUpdate·Recreate)."><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/academy/cka/deployments/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)"><meta property="og:type" content="website"><meta property="og:title" content="디플로이먼트 — 롤링 업데이트와 롤백 — CKA 합격반 — MeNew Soft"><meta property="og:description" content="Deployment → ReplicaSet → Pod 의 사슬. 스케일, 이미지 업데이트, 롤아웃 상태·이력·롤백, 전략(RollingUpdate·Recreate)."><meta property="og:url" content="https://menewsoft.com/academy/cka/deployments/"><meta property="og:site_name" content="MeNew Soft"><meta property="og:image" content="https://menewsoft.com/og/default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="디플로이먼트 — 롤링 업데이트와 롤백 — CKA 합격반"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://menewsoft.com/og/default.png"><link rel="sitemap" href="/sitemap-index.xml"><!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. --><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MeNew Soft","alternateName":["menewsoft","menewsoft.com","미뉴소프트","메뉴소프트","Tech Decode"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/index.BD2eBubB.css">
+<link rel="stylesheet" href="/_astro/_slug_.DxXwq8uN.css"></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/">MeNew<span>Soft</span></a> <nav class="nav"> <a href="/">홈</a> <a href="/shops/">등록 업체</a> <a href="/news/">업체 소식</a> <a href="/games/">놀이공간</a> <a href="/blog/">글</a>  <a href="/learn/">초등 1학년 학습</a>  <a href="/academy/">자격증 학원</a>  <a href="/board/">게시판</a> <a href="/about/">소개</a> <a href="/contact/">문의</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul>  </ul> </div> </nav> </div> </header> <main>  <main class="acad lesson" data-slug="deployments"> <p class="crumbs"><a href="/academy/">자격증 학원</a> › <a href="/academy/cka/">CKA</a> › 워크로드 · 스케줄링</p> <p class="kick">강의 8 / 28 · 약 25분</p> <h1>디플로이먼트 — 롤링 업데이트와 롤백</h1> <p class="lead">Deployment → ReplicaSet → Pod 의 사슬. 스케일, 이미지 업데이트, 롤아웃 상태·이력·롤백, 전략(RollingUpdate·Recreate).</p> <div class="goals"> <h3>이 강의를 마치면</h3> <ul><li>Deployment 를 만들고 스케일·이미지 업데이트를 할 수 있다</li><li>롤아웃 상태·이력을 읽고 특정 리비전으로 롤백할 수 있다</li><li>maxSurge · maxUnavailable 이 업데이트에 어떤 영향을 주는지 안다</li></ul> </div> <article class="body"><h2 id="사슬-구조">사슬 구조</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Deployment  web            (원하는 상태: 템플릿 + 레플리카 3)</span></span>
+<span class="line"><span>  └─ ReplicaSet web-7c9f8d6b4   (이 템플릿으로 파드 3개 유지)</span></span>
+<span class="line"><span>       ├─ Pod web-7c9f8d6b4-2xk8q</span></span>
+<span class="line"><span>       ├─ Pod web-7c9f8d6b4-9mzp5</span></span>
+<span class="line"><span>       └─ Pod web-7c9f8d6b4-tq4lw</span></span></code></pre>
+<p>파드를 직접 만들지 않고 Deployment 를 쓰는 이유는 <strong>자가 치유</strong>와 <strong>무중단 업데이트</strong> 때문입니다. 파드를 지우면 ReplicaSet 이 곧 새로 만들고, 노드가 죽으면 다른 노드에 다시 만듭니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --image=nginx:1.26</span><span style="color:#79B8FF"> --replicas=3</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> deploy,rs,pods</span><span style="color:#79B8FF"> -l</span><span style="color:#9ECBFF"> app=web</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> scale</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --replicas=5</span></span></code></pre>
+<h2 id="이미지-업데이트와-롤아웃">이미지 업데이트와 롤아웃</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> set</span><span style="color:#9ECBFF"> image</span><span style="color:#9ECBFF"> deployment/web</span><span style="color:#9ECBFF"> nginx=nginx:1.27</span><span style="color:#6A737D">     # 컨테이너이름=새이미지</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> rollout</span><span style="color:#9ECBFF"> status</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span><span style="color:#6A737D">                 # 끝날 때까지 지켜보기</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> rollout</span><span style="color:#9ECBFF"> history</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span><span style="color:#6A737D">                # 리비전 목록</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> rollout</span><span style="color:#9ECBFF"> history</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --revision=2</span><span style="color:#6A737D">   # 그 리비전의 템플릿</span></span></code></pre>
+<p>컨테이너 이름을 모르면 <code>kubectl get deploy web -o jsonpath='{.spec.template.spec.containers[*].name}'</code>. <code>kubectl create deployment</code> 로 만들었다면 이미지 이름(<code>nginx</code>)이 컨테이너 이름입니다.</p>
+<h3 id="변경-사유change-cause-남기기">변경 사유(CHANGE-CAUSE) 남기기</h3>
+<p><code>rollout history</code> 의 CHANGE-CAUSE 는 <strong><code>kubernetes.io/change-cause</code> 어노테이션</strong>에서 옵니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> annotate</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span><span style="color:#9ECBFF"> kubernetes.io/change-cause="upgrade to 1.27"</span></span></code></pre>
+<p><code>--record</code> 플래그로도 남길 수 있었지만 폐지 예정(deprecated)이니 어노테이션 방식을 쓰세요.</p>
+<h2 id="롤백">롤백</h2>
+<p>새 이미지에 오타가 있으면 새 파드가 <code>ImagePullBackOff</code> 에 걸리고, 롤링 업데이트는 <strong>중간에서 멈춥니다</strong>(옛 파드는 대부분 살아 있음 — 이것이 RollingUpdate 의 안전장치).</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> rollout</span><span style="color:#9ECBFF"> status</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span></span>
+<span class="line"><span style="color:#6A737D"># Waiting for deployment "web" rollout to finish: 1 out of 3 new replicas have been updated...</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> rollout</span><span style="color:#9ECBFF"> undo</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span><span style="color:#6A737D">                    # 직전으로</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> rollout</span><span style="color:#9ECBFF"> undo</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --to-revision=1</span><span style="color:#6A737D">    # 특정 리비전으로</span></span></code></pre>
+<blockquote>
+<p>롤백하면 옛 템플릿이 <strong>새 리비전 번호</strong>를 받습니다. 리비전 1, 2 에서 1 로 롤백하면 이력은 2, 3 이 되고 현재는 3 입니다. “현재 리비전을 적어라” 같은 문제에서 자주 틀립니다.</p>
+</blockquote>
+<h2 id="업데이트-전략">업데이트 전략</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">spec</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  strategy</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    type</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">RollingUpdate</span><span style="color:#6A737D">          # 기본</span></span>
+<span class="line"><span style="color:#85E89D">    rollingUpdate</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      maxSurge</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">25%</span><span style="color:#6A737D">              # 원하는 개수보다 최대 몇 개 더(올림)</span></span>
+<span class="line"><span style="color:#85E89D">      maxUnavailable</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">25%</span><span style="color:#6A737D">        # 원하는 개수보다 최대 몇 개 모자라게(내림)</span></span>
+<span class="line"><span style="color:#6A737D">  # 또는</span></span>
+<span class="line"><span style="color:#85E89D">  strategy</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    type</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Recreate</span><span style="color:#6A737D">               # 전부 내리고 새로 올린다</span></span></code></pre>
+<ul>
+<li><code>maxSurge: 0, maxUnavailable: 1</code> → 하나씩 내리고 올린다(자원이 빠듯할 때)</li>
+<li><code>maxSurge: 1, maxUnavailable: 0</code> → 하나 더 띄운 뒤 하나 내린다(무중단 우선)</li>
+</ul>
+<h2 id="그-밖의-조작">그 밖의 조작</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> rollout</span><span style="color:#9ECBFF"> restart</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span><span style="color:#6A737D">    # 템플릿 그대로, 파드만 새로(설정 다시 읽기 등)</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> rollout</span><span style="color:#9ECBFF"> pause</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span><span style="color:#6A737D">      # 여러 변경을 모아서 한 번에 롤아웃</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> rollout</span><span style="color:#9ECBFF"> resume</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span></span></code></pre>
+<h2 id="replicaset--statefulset--daemonset-차이">ReplicaSet · StatefulSet · DaemonSet 차이</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>종류</th><th>용도</th></tr></thead><tbody><tr><td>Deployment</td><td>상태 없는 앱. 파드는 서로 바꿔 써도 됨</td></tr><tr><td>StatefulSet</td><td>순서·고정 이름(web-0, web-1)·파드마다 고유 볼륨이 필요한 DB 등</td></tr><tr><td>DaemonSet</td><td><strong>노드마다 하나씩</strong>(로그 수집기, 모니터링 에이전트, CNI) — <a href="/academy/cka/scheduling/">스케줄링</a> 강의</td></tr><tr><td>Job / CronJob</td><td>한 번 / 주기적으로 실행하고 끝나는 작업 — <a href="/academy/cka/autoscaling-jobs/">오토스케일링·Job</a> 강의</td></tr></tbody></table></article> <section> <h2>⌨️ 직접 해 보기</h2> <p class="muted small">브라우저 실습 터미널에서 풀고 자동 채점을 받습니다.</p> <div class="labs"> <a class="btn sm" href="/academy/cka/lab/?task=w1" data-lab="w1">디플로이먼트 만들고 늘리기 <span class="pill lab-st" hidden></span></a><a class="btn sm" href="/academy/cka/lab/?task=w2" data-lab="w2">롤링 업데이트와 변경 사유 <span class="pill lab-st" hidden></span></a><a class="btn sm" href="/academy/cka/lab/?task=w3" data-lab="w3">망가진 롤아웃 되돌리기 <span class="pill lab-st" hidden></span></a> </div> </section> <section class="quiz" id="quiz"> <h2>✅ 확인 문제</h2> <div id="quiz-box" data-quiz="[{&#34;q&#34;:&#34;디플로이먼트의 이미지를 바꾸면 내부에서 일어나는 일은?&#34;,&#34;options&#34;:[&#34;기존 파드의 이미지가 제자리에서 바뀐다&#34;,&#34;새 ReplicaSet 이 생기고 점진적으로 새 파드로 교체된다&#34;,&#34;디플로이먼트가 지워지고 다시 만들어진다&#34;,&#34;아무 일도 없다&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;파드 템플릿이 바뀌면 새 ReplicaSet 이 만들어진다. RollingUpdate 전략은 새 RS 를 늘리고 옛 RS 를 줄여 가며 교체한다. 옛 RS 는 롤백을 위해 0개로 남는다.&#34;},{&#34;q&#34;:&#34;직전 리비전으로 되돌리는 명령은?&#34;,&#34;options&#34;:[&#34;kubectl rollout undo deployment web&#34;,&#34;kubectl rollback web&#34;,&#34;kubectl rollout restart deployment web&#34;,&#34;kubectl apply --previous&#34;],&#34;answer&#34;:0,&#34;explain&#34;:&#34;rollout undo 는 직전 리비전으로, --to-revision=N 은 특정 리비전으로 되돌린다. restart 는 같은 템플릿으로 파드만 새로 만든다.&#34;},{&#34;q&#34;:&#34;레플리카 4, maxSurge 25%, maxUnavailable 25% 일 때 업데이트 중 파드 수 범위는?&#34;,&#34;options&#34;:[&#34;3~5개&#34;,&#34;4개 고정&#34;,&#34;0~8개&#34;,&#34;2~6개&#34;],&#34;answer&#34;:0,&#34;explain&#34;:&#34;maxSurge 25%(=1) 이므로 최대 5개까지, maxUnavailable 25%(=1) 이므로 최소 3개는 사용 가능해야 한다.&#34;},{&#34;q&#34;:&#34;모든 파드를 한꺼번에 내리고 새로 올리는 전략은?&#34;,&#34;options&#34;:[&#34;RollingUpdate&#34;,&#34;Recreate&#34;,&#34;BlueGreen&#34;,&#34;Canary&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;strategy.type Recreate 는 옛 파드를 모두 지운 뒤 새 파드를 만든다. 잠깐 중단이 생기지만 두 버전이 동시에 뜨면 안 되는 앱에 쓴다. BlueGreen·Canary 는 쿠버네티스 내장 전략이 아니다.&#34;}]"></div> <p id="quiz-score" class="muted" hidden></p> </section> <div class="btns" style="margin-top:28px"> <button type="button" class="btn pri" id="done-btn">이 강의 완료 표시</button> <a class="btn" href="/academy/cka/">과정 목차</a> </div> <nav class="pager"> <a class="btn" href="/academy/cka/pods/"><span><small>← 이전</small>파드 — 가장 작은 실행 단위</span></a> <a class="btn" href="/academy/cka/configmaps-secrets/" style="justify-content:flex-end;text-align:right"><span><small>다음 →</small>ConfigMap 과 Secret</span></a> </nav> </main> <script type="module" src="/_astro/_slug_.astro_astro_type_script_index_0_lang.B_WkOVAD.js"></script>  </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>MeNew Soft</span> <div class="links" data-astro-cid-sz7xmlte> <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. --> <a href="/" data-astro-cid-sz7xmlte>홈</a> <a href="/shops/" data-astro-cid-sz7xmlte>등록 업체</a> <a href="/news/" data-astro-cid-sz7xmlte>업체 소식</a> <a href="/games/" data-astro-cid-sz7xmlte>놀이공간</a> <a href="/blog/" data-astro-cid-sz7xmlte>글</a> <a href="/glossary/" data-astro-cid-sz7xmlte>용어사전</a> <a href="/tools/" data-astro-cid-sz7xmlte>도구</a> <a href="/learn/" data-astro-cid-sz7xmlte>초등 1학년 학습</a> <a href="/academy/" data-astro-cid-sz7xmlte>자격증 학원</a> <a href="/about/" data-astro-cid-sz7xmlte>소개</a> <a href="/contact/" data-astro-cid-sz7xmlte>문의</a> <a href="/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 MeNew Soft · menewsoft.com (미뉴소프트) — AI로 만듭니다 — 가게 홈페이지·학습 게임·웹게임. 등록 내용이 틀렸다면 알려주세요.</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 오늘 <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · 전체 <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html>

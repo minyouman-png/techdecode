@@ -1,0 +1,132 @@
+<!DOCTYPE html><html lang="ko"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>트러블슈팅 ① 애플리케이션 — CKA 합격반 — MeNew Soft</title><meta name="description" content="파드 STATUS 별 원인표와 조사 순서. get → describe(Events) → logs(--previous) → 고치기 → 확인. 디플로이먼트라면 ReplicaSet 이벤트까지."><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/academy/cka/troubleshoot-apps/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)"><meta property="og:type" content="website"><meta property="og:title" content="트러블슈팅 ① 애플리케이션 — CKA 합격반 — MeNew Soft"><meta property="og:description" content="파드 STATUS 별 원인표와 조사 순서. get → describe(Events) → logs(--previous) → 고치기 → 확인. 디플로이먼트라면 ReplicaSet 이벤트까지."><meta property="og:url" content="https://menewsoft.com/academy/cka/troubleshoot-apps/"><meta property="og:site_name" content="MeNew Soft"><meta property="og:image" content="https://menewsoft.com/og/default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="트러블슈팅 ① 애플리케이션 — CKA 합격반"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://menewsoft.com/og/default.png"><link rel="sitemap" href="/sitemap-index.xml"><!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. --><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MeNew Soft","alternateName":["menewsoft","menewsoft.com","미뉴소프트","메뉴소프트","Tech Decode"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/index.BD2eBubB.css">
+<link rel="stylesheet" href="/_astro/_slug_.DxXwq8uN.css"></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/">MeNew<span>Soft</span></a> <nav class="nav"> <a href="/">홈</a> <a href="/shops/">등록 업체</a> <a href="/news/">업체 소식</a> <a href="/games/">놀이공간</a> <a href="/blog/">글</a>  <a href="/learn/">초등 1학년 학습</a>  <a href="/academy/">자격증 학원</a>  <a href="/board/">게시판</a> <a href="/about/">소개</a> <a href="/contact/">문의</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul>  </ul> </div> </nav> </div> </header> <main>  <main class="acad lesson" data-slug="troubleshoot-apps"> <p class="crumbs"><a href="/academy/">자격증 학원</a> › <a href="/academy/cka/">CKA</a> › 트러블슈팅</p> <p class="kick">강의 24 / 28 · 약 30분</p> <h1>트러블슈팅 ① 애플리케이션</h1> <p class="lead">파드 STATUS 별 원인표와 조사 순서. get → describe(Events) → logs(--previous) → 고치기 → 확인. 디플로이먼트라면 ReplicaSet 이벤트까지.</p> <div class="goals"> <h3>이 강의를 마치면</h3> <ul><li>파드 상태만 보고 조사할 곳을 바로 고를 수 있다</li><li>describe 의 Events 와 logs --previous 로 원인을 찾을 수 있다</li><li>불변 필드 때문에 파드를 다시 만들어야 하는 경우를 처리할 수 있다</li></ul> </div> <article class="body"><h2 id="조사-순서--매번-같은-순서로">조사 순서 — 매번 같은 순서로</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> pods</span><span style="color:#79B8FF"> -n</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">n</span><span style="color:#E1E4E8">s</span><span style="color:#F97583">></span><span style="color:#79B8FF"> -o</span><span style="color:#9ECBFF"> wide</span><span style="color:#6A737D">              # ① 상태·재시작 수·노드</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> describe</span><span style="color:#9ECBFF"> pod</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">파</span><span style="color:#E1E4E8">드</span><span style="color:#F97583">></span><span style="color:#79B8FF"> -n</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">n</span><span style="color:#E1E4E8">s</span><span style="color:#F97583">></span><span style="color:#6A737D">            # ② 맨 아래 Events ★</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> logs</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">파</span><span style="color:#E1E4E8">드</span><span style="color:#F97583">></span><span style="color:#79B8FF"> -n</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">n</span><span style="color:#E1E4E8">s</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> [-c </span><span style="color:#9ECBFF">컨테이너]</span><span style="color:#6A737D">       # ③ 앱이 한 말</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> logs</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">파</span><span style="color:#E1E4E8">드</span><span style="color:#F97583">></span><span style="color:#79B8FF"> -n</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">n</span><span style="color:#E1E4E8">s</span><span style="color:#F97583">></span><span style="color:#79B8FF"> --previous</span><span style="color:#6A737D">         #    죽기 직전 로그(CrashLoop)</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> events</span><span style="color:#79B8FF"> -n</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">n</span><span style="color:#E1E4E8">s</span><span style="color:#F97583">></span><span style="color:#79B8FF"> --sort-by=.lastTimestamp</span><span style="color:#6A737D">   # 전체 흐름</span></span></code></pre>
+<p>디플로이먼트라면 한 층 위도 봅니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> describe</span><span style="color:#9ECBFF"> deploy</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">이</span><span style="color:#E1E4E8">름</span><span style="color:#F97583">></span><span style="color:#6A737D">     # Conditions, 새·옛 ReplicaSet</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> describe</span><span style="color:#9ECBFF"> rs</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">이</span><span style="color:#E1E4E8">름</span><span style="color:#F97583">></span><span style="color:#6A737D">         # FailedCreate — 파드가 아예 안 생기는 이유</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> rollout</span><span style="color:#9ECBFF"> history</span><span style="color:#9ECBFF"> deploy</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">이</span><span style="color:#E1E4E8">름</span><span style="color:#F97583">></span></span></code></pre>
+<h2 id="상태별-원인표">상태별 원인표</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>증상</th><th>대표 원인</th><th>확인</th><th>해결</th></tr></thead><tbody><tr><td><strong>Pending</strong>(노드 없음)</td><td>자원 부족, nodeSelector·affinity 불일치, taint, PVC 미바인딩, cordon</td><td>Events 의 <code>FailedScheduling</code> 문장</td><td>요청량 줄이기, 레이블·toleration 고치기, PVC 고치기</td></tr><tr><td><strong>Pending</strong>(Events 없음)</td><td>스케줄러 죽음</td><td><code>kubectl get pods -n kube-system</code></td><td><a href="/academy/cka/troubleshoot-cluster/">클러스터 트러블슈팅</a></td></tr><tr><td><strong>ContainerCreating</strong> 오래</td><td>볼륨 마운트 실패(ConfigMap·Secret·PVC 없음), CNI 문제</td><td>Events 의 <code>FailedMount</code></td><td>없는 것 만들기</td></tr><tr><td><strong>ErrImagePull / ImagePullBackOff</strong></td><td>이미지 이름·태그 오타, 비공개 레지스트리 인증</td><td>Events 의 <code>Failed to pull image</code></td><td><code>kubectl set image</code>, imagePullSecrets</td></tr><tr><td><strong>CreateContainerConfigError</strong></td><td>env 로 참조한 ConfigMap·Secret·키 없음</td><td>Events 의 <code>Error: configmap "…" not found</code></td><td>참조 대상 만들기</td></tr><tr><td><strong>CrashLoopBackOff</strong></td><td>앱 오류, 필수 설정(환경변수) 누락, 잘못된 command, liveness 실패</td><td><code>logs --previous</code>, describe 의 Last State</td><td>원인 수정</td></tr><tr><td><strong>OOMKilled</strong>(Last State)</td><td>메모리 limit 초과</td><td><code>Exit Code: 137</code></td><td>limit 늘리기</td></tr><tr><td><strong>Running 인데 READY 0/1</strong></td><td>readinessProbe 실패</td><td>Events 의 <code>Readiness probe failed</code></td><td>프로브(포트·경로) 수정</td></tr><tr><td><strong>Completed</strong> 반복</td><td>할 일 없이 끝나는 명령(busybox) + restartPolicy Always</td><td>command 확인</td><td><code>sleep</code> 등 장기 실행 명령</td></tr><tr><td>파드가 <strong>아예 없음</strong></td><td>쿼터 초과, 없는 ServiceAccount·PriorityClass, 컨트롤러 매니저 장애</td><td><code>describe rs</code></td><td>원인 수정</td></tr></tbody></table>
+<h2 id="고치는-방법-고르기">고치는 방법 고르기</h2>
+<ul>
+<li><strong>디플로이먼트의 템플릿</strong> 문제 → 디플로이먼트를 고칩니다(<code>set image</code>, <code>set resources</code>, <code>edit</code>, <code>patch</code>). 파드는 롤아웃으로 알아서 바뀝니다.</li>
+<li><strong>혼자 있는 파드</strong> 문제 → 대부분 필드는 못 고칩니다.</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> pod</span><span style="color:#9ECBFF"> mysql</span><span style="color:#79B8FF"> -o</span><span style="color:#9ECBFF"> yaml</span><span style="color:#F97583"> ></span><span style="color:#9ECBFF"> mysql.yaml</span><span style="color:#6A737D">     # (또는 edit 이 거절될 때 남긴 /tmp/kubectl-edit-….yaml)</span></span>
+<span class="line"><span style="color:#B392F0">vi</span><span style="color:#9ECBFF"> mysql.yaml</span><span style="color:#6A737D">                                   # status·uid 등은 그대로 둬도 된다</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> replace</span><span style="color:#79B8FF"> --force</span><span style="color:#79B8FF"> -f</span><span style="color:#9ECBFF"> mysql.yaml</span><span style="color:#6A737D">           # 지우고 다시 만든다</span></span></code></pre>
+<ul>
+<li><strong>참조 대상이 없는</strong> 문제(ConfigMap·Secret·PVC) → 문제에서 “파드 정의는 수정하지 말라”고 하면 <strong>없는 것을 만들어</strong> 줍니다. kubelet 이 곧 다시 시도합니다.</li>
+</ul>
+<h2 id="로그-다루기">로그 다루기</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> logs</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --tail=20</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> logs</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> -f</span><span style="color:#6A737D">                              # 따라가기(Ctrl+C)</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> logs</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --since=10m</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> logs</span><span style="color:#9ECBFF"> deploy/web</span><span style="color:#6A737D">                          # 디플로이먼트의 파드 하나</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> logs</span><span style="color:#79B8FF"> -l</span><span style="color:#9ECBFF"> app=web</span><span style="color:#79B8FF"> --prefix</span><span style="color:#6A737D">                 # 레이블로 여러 파드</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> logs</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --all-containers</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> logs</span><span style="color:#9ECBFF"> web</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> grep</span><span style="color:#9ECBFF"> ERROR</span><span style="color:#F97583"> ></span><span style="color:#9ECBFF"> /opt/errors.log</span><span style="color:#6A737D">  # 문제에서 자주 요구</span></span></code></pre>
+<h2 id="확인-없이-끝내지-않기">확인 없이 끝내지 않기</h2>
+<p>고친 뒤에는 <strong>문제가 요구한 최종 상태</strong>를 직접 확인합니다. 파드 <code>Running</code> 만 보지 말고 <code>READY 1/1</code>, 레플리카 수, 서비스 엔드포인트, 실제 응답(<code>wget</code>)까지. 채점은 최종 상태로 합니다.</p></article> <section> <h2>⌨️ 직접 해 보기</h2> <p class="muted small">브라우저 실습 터미널에서 풀고 자동 채점을 받습니다.</p> <div class="labs"> <a class="btn sm" href="/academy/cka/lab/?task=t1" data-lab="t1">뜨지 않는 디플로이먼트 ① <span class="pill lab-st" hidden></span></a><a class="btn sm" href="/academy/cka/lab/?task=t2" data-lab="t2">계속 재시작하는 DB <span class="pill lab-st" hidden></span></a><a class="btn sm" href="/academy/cka/lab/?task=t3" data-lab="t3">Pending 에서 멈춘 파드 <span class="pill lab-st" hidden></span></a><a class="btn sm" href="/academy/cka/lab/?task=t10" data-lab="t10">OOMKilled <span class="pill lab-st" hidden></span></a><a class="btn sm" href="/academy/cka/lab/?task=t13" data-lab="t13">CreateContainerConfigError <span class="pill lab-st" hidden></span></a> </div> </section> <section class="quiz" id="quiz"> <h2>✅ 확인 문제</h2> <div id="quiz-box" data-quiz="[{&#34;q&#34;:&#34;CrashLoopBackOff 인 파드의 '죽기 직전' 로그를 보는 명령은?&#34;,&#34;options&#34;:[&#34;kubectl logs pod&#34;,&#34;kubectl logs pod --previous&#34;,&#34;kubectl describe pod&#34;,&#34;kubectl get events&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;재시작 뒤의 새 컨테이너는 로그가 거의 없을 수 있다. --previous(-p)는 직전에 죽은 컨테이너의 로그를 보여 준다.&#34;},{&#34;q&#34;:&#34;디플로이먼트의 레플리카는 3인데 파드가 하나도 없다. 파드가 없으니 describe pod 도 못 한다. 어디를 보나?&#34;,&#34;options&#34;:[&#34;노드&#34;,&#34;ReplicaSet 의 describe(Events 의 FailedCreate)&#34;,&#34;서비스&#34;,&#34;kube-proxy&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;파드 생성이 거부되면(쿼터, 없는 ServiceAccount, PriorityClass 등) 이유가 ReplicaSet 이벤트에 남는다.&#34;},{&#34;q&#34;:&#34;Last State: Terminated, Reason: OOMKilled, Exit Code: 137 의 해결은?&#34;,&#34;options&#34;:[&#34;이미지 교체&#34;,&#34;메모리 limit 을 늘리거나 앱의 메모리 사용을 줄인다&#34;,&#34;CPU limit 을 늘린다&#34;,&#34;노드를 재부팅한다&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;137 = 128 + 9(SIGKILL). 메모리 한도 초과로 커널이 죽인 것이다.&#34;},{&#34;q&#34;:&#34;파드 STATUS 가 Pending 이고 describe 에 'didn't match Pod's node affinity/selector' 가 있다. 원인은?&#34;,&#34;options&#34;:[&#34;이미지 오타&#34;,&#34;nodeSelector/affinity 에 맞는 노드가 없다(레이블 오타 등)&#34;,&#34;메모리 부족&#34;,&#34;DNS 장애&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;파드가 요구하는 노드 레이블과 실제 노드 레이블을 비교한다(kubectl get nodes --show-labels).&#34;}]"></div> <p id="quiz-score" class="muted" hidden></p> </section> <div class="btns" style="margin-top:28px"> <button type="button" class="btn pri" id="done-btn">이 강의 완료 표시</button> <a class="btn" href="/academy/cka/">과정 목차</a> </div> <nav class="pager"> <a class="btn" href="/academy/cka/volumes-pv-pvc/"><span><small>← 이전</small>볼륨 · PV · PVC · StorageClass</span></a> <a class="btn" href="/academy/cka/troubleshoot-cluster/" style="justify-content:flex-end;text-align:right"><span><small>다음 →</small>트러블슈팅 ② 클러스터와 노드</span></a> </nav> </main> <script type="module" src="/_astro/_slug_.astro_astro_type_script_index_0_lang.B_WkOVAD.js"></script>  </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>MeNew Soft</span> <div class="links" data-astro-cid-sz7xmlte> <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. --> <a href="/" data-astro-cid-sz7xmlte>홈</a> <a href="/shops/" data-astro-cid-sz7xmlte>등록 업체</a> <a href="/news/" data-astro-cid-sz7xmlte>업체 소식</a> <a href="/games/" data-astro-cid-sz7xmlte>놀이공간</a> <a href="/blog/" data-astro-cid-sz7xmlte>글</a> <a href="/glossary/" data-astro-cid-sz7xmlte>용어사전</a> <a href="/tools/" data-astro-cid-sz7xmlte>도구</a> <a href="/learn/" data-astro-cid-sz7xmlte>초등 1학년 학습</a> <a href="/academy/" data-astro-cid-sz7xmlte>자격증 학원</a> <a href="/about/" data-astro-cid-sz7xmlte>소개</a> <a href="/contact/" data-astro-cid-sz7xmlte>문의</a> <a href="/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 MeNew Soft · menewsoft.com (미뉴소프트) — AI로 만듭니다 — 가게 홈페이지·학습 게임·웹게임. 등록 내용이 틀렸다면 알려주세요.</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 오늘 <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · 전체 <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html>

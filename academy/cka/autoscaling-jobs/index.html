@@ -1,0 +1,136 @@
+<!DOCTYPE html><html lang="ko"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>오토스케일링 · Job · CronJob — CKA 합격반 — MeNew Soft</title><meta name="description" content="HorizontalPodAutoscaler 로 부하에 따라 파드 수 조절, metrics-server, 한 번 도는 Job 과 주기적인 CronJob."><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/academy/cka/autoscaling-jobs/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)"><meta property="og:type" content="website"><meta property="og:title" content="오토스케일링 · Job · CronJob — CKA 합격반 — MeNew Soft"><meta property="og:description" content="HorizontalPodAutoscaler 로 부하에 따라 파드 수 조절, metrics-server, 한 번 도는 Job 과 주기적인 CronJob."><meta property="og:url" content="https://menewsoft.com/academy/cka/autoscaling-jobs/"><meta property="og:site_name" content="MeNew Soft"><meta property="og:image" content="https://menewsoft.com/og/default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="오토스케일링 · Job · CronJob — CKA 합격반"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://menewsoft.com/og/default.png"><link rel="sitemap" href="/sitemap-index.xml"><!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. --><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MeNew Soft","alternateName":["menewsoft","menewsoft.com","미뉴소프트","메뉴소프트","Tech Decode"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/index.BD2eBubB.css">
+<link rel="stylesheet" href="/_astro/_slug_.DxXwq8uN.css"></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/">MeNew<span>Soft</span></a> <nav class="nav"> <a href="/">홈</a> <a href="/shops/">등록 업체</a> <a href="/news/">업체 소식</a> <a href="/games/">놀이공간</a> <a href="/blog/">글</a>  <a href="/learn/">초등 1학년 학습</a>  <a href="/academy/">자격증 학원</a>  <a href="/board/">게시판</a> <a href="/about/">소개</a> <a href="/contact/">문의</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul>  </ul> </div> </nav> </div> </header> <main>  <main class="acad lesson" data-slug="autoscaling-jobs"> <p class="crumbs"><a href="/academy/">자격증 학원</a> › <a href="/academy/cka/">CKA</a> › 워크로드 · 스케줄링</p> <p class="kick">강의 12 / 28 · 약 20분</p> <h1>오토스케일링 · Job · CronJob</h1> <p class="lead">HorizontalPodAutoscaler 로 부하에 따라 파드 수 조절, metrics-server, 한 번 도는 Job 과 주기적인 CronJob.</p> <div class="goals"> <h3>이 강의를 마치면</h3> <ul><li>HPA 를 명령형·선언형으로 만들 수 있다</li><li>HPA 가 동작하려면 무엇(metrics-server, requests)이 필요한지 안다</li><li>Job 의 completions · parallelism · backoffLimit 과 CronJob 스케줄을 쓸 수 있다</li></ul> </div> <article class="body"><h2 id="horizontalpodautoscalerhpa">HorizontalPodAutoscaler(HPA)</h2>
+<p>부하에 따라 <strong>파드 개수</strong>를 자동으로 늘리고 줄입니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> autoscale</span><span style="color:#9ECBFF"> deployment</span><span style="color:#9ECBFF"> web</span><span style="color:#79B8FF"> --min=2</span><span style="color:#79B8FF"> --max=6</span><span style="color:#79B8FF"> --cpu-percent=70</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> hpa</span></span>
+<span class="line"><span style="color:#6A737D"># NAME  REFERENCE        TARGETS       MINPODS  MAXPODS  REPLICAS</span></span>
+<span class="line"><span style="color:#6A737D"># web   Deployment/web   cpu: 12%/70%  2        6        2</span></span></code></pre>
+<p>선언형(autoscaling/v2):</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">apiVersion</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">autoscaling/v2</span></span>
+<span class="line"><span style="color:#85E89D">kind</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">HorizontalPodAutoscaler</span></span>
+<span class="line"><span style="color:#85E89D">metadata</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">web</span></span>
+<span class="line"><span style="color:#85E89D">spec</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  scaleTargetRef</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    apiVersion</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">apps/v1</span></span>
+<span class="line"><span style="color:#85E89D">    kind</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Deployment</span></span>
+<span class="line"><span style="color:#85E89D">    name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">web</span></span>
+<span class="line"><span style="color:#85E89D">  minReplicas</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">2</span></span>
+<span class="line"><span style="color:#85E89D">  maxReplicas</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">6</span></span>
+<span class="line"><span style="color:#85E89D">  metrics</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#85E89D">type</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Resource</span></span>
+<span class="line"><span style="color:#85E89D">    resource</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">cpu</span></span>
+<span class="line"><span style="color:#85E89D">      target</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        type</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Utilization</span></span>
+<span class="line"><span style="color:#85E89D">        averageUtilization</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">70</span></span>
+<span class="line"><span style="color:#85E89D">  behavior</span><span style="color:#E1E4E8">:                         </span><span style="color:#6A737D"># 선택: 줄일 때 천천히</span></span>
+<span class="line"><span style="color:#85E89D">    scaleDown</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      stabilizationWindowSeconds</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">300</span></span></code></pre>
+<p>HPA 가 동작하려면 <strong>두 가지</strong>가 필요합니다.</p>
+<ol>
+<li><strong>metrics-server</strong> — 노드·파드의 CPU·메모리 사용량을 모아 Metrics API 로 제공. <code>kubectl top</code> 도 이것을 씁니다.</li>
+<li>대상 파드의 <strong>resources.requests</strong> — 사용률(%)은 requests 대비로 계산합니다. 없으면 TARGETS 가 <code>&#x3C;unknown></code>.</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> top</span><span style="color:#9ECBFF"> nodes</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> top</span><span style="color:#9ECBFF"> pods</span><span style="color:#79B8FF"> -A</span><span style="color:#79B8FF"> --sort-by=cpu</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> top</span><span style="color:#9ECBFF"> pods</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> batch</span><span style="color:#79B8FF"> -l</span><span style="color:#9ECBFF"> app=worker</span><span style="color:#79B8FF"> --sort-by=memory</span></span></code></pre>
+<blockquote>
+<p>파드 <strong>크기</strong>를 바꾸는 VerticalPodAutoscaler(VPA)는 별도 설치가 필요한 부가 기능입니다. 교과과정의 “workload autoscaling”은 HPA 를 중심으로 준비하면 됩니다.</p>
+</blockquote>
+<h2 id="job--한-번-실행하고-끝나는-작업">Job — 한 번 실행하고 끝나는 작업</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> job</span><span style="color:#9ECBFF"> pi</span><span style="color:#79B8FF"> --image=perl:5.40</span><span style="color:#79B8FF"> --</span><span style="color:#9ECBFF"> perl</span><span style="color:#79B8FF"> -Mbignum=bpi</span><span style="color:#79B8FF"> -wle</span><span style="color:#9ECBFF"> 'print bpi(100)'</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> jobs</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> logs</span><span style="color:#9ECBFF"> job/pi</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">apiVersion</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">batch/v1</span></span>
+<span class="line"><span style="color:#85E89D">kind</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Job</span></span>
+<span class="line"><span style="color:#85E89D">metadata</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">batch-work</span></span>
+<span class="line"><span style="color:#85E89D">spec</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  completions</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">5</span><span style="color:#6A737D">          # 성공해야 하는 총 횟수</span></span>
+<span class="line"><span style="color:#85E89D">  parallelism</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">2</span><span style="color:#6A737D">          # 동시에 돌 파드 수</span></span>
+<span class="line"><span style="color:#85E89D">  backoffLimit</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">4</span><span style="color:#6A737D">         # 실패 재시도 한도</span></span>
+<span class="line"><span style="color:#85E89D">  activeDeadlineSeconds</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">600</span><span style="color:#6A737D">   # 전체 제한 시간</span></span>
+<span class="line"><span style="color:#85E89D">  ttlSecondsAfterFinished</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">3600</span><span style="color:#6A737D"> # 끝나고 이만큼 뒤 자동 삭제</span></span>
+<span class="line"><span style="color:#85E89D">  template</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    spec</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      restartPolicy</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Never</span><span style="color:#6A737D">      # Never 또는 OnFailure (Always 불가)</span></span>
+<span class="line"><span style="color:#85E89D">      containers</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">work</span></span>
+<span class="line"><span style="color:#85E89D">        image</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">busybox:1.37</span></span>
+<span class="line"><span style="color:#85E89D">        command</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"sh"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"-c"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"echo working; sleep 5"</span><span style="color:#E1E4E8">]</span></span></code></pre>
+<h2 id="cronjob--주기적으로">CronJob — 주기적으로</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> cronjob</span><span style="color:#9ECBFF"> backup</span><span style="color:#79B8FF"> --image=busybox:1.37</span><span style="color:#79B8FF"> --schedule=</span><span style="color:#9ECBFF">"*/30 * * * *"</span><span style="color:#79B8FF"> --</span><span style="color:#9ECBFF"> sh</span><span style="color:#79B8FF"> -c</span><span style="color:#9ECBFF"> "echo backup done"</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> job</span><span style="color:#9ECBFF"> backup-manual</span><span style="color:#79B8FF"> --from=cronjob/backup</span><span style="color:#6A737D">     # 지금 한 번 실행</span></span></code></pre>
+<p>크론 형식: <code>분 시 일 월 요일</code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>식</th><th>뜻</th></tr></thead><tbody><tr><td><code>*/5 * * * *</code></td><td>5분마다</td></tr><tr><td><code>0 2 * * *</code></td><td>매일 02:00</td></tr><tr><td><code>0 9 * * 1-5</code></td><td>평일 09:00</td></tr><tr><td><code>30 0 1 * *</code></td><td>매월 1일 00:30</td></tr></tbody></table>
+<p>명령형 플래그가 없는 필드는 dry-run YAML 에서 넣습니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">spec</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  schedule</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"*/30 * * * *"</span></span>
+<span class="line"><span style="color:#85E89D">  successfulJobsHistoryLimit</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">2</span><span style="color:#6A737D">     # 성공한 Job 기록 개수</span></span>
+<span class="line"><span style="color:#85E89D">  failedJobsHistoryLimit</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">1</span></span>
+<span class="line"><span style="color:#85E89D">  concurrencyPolicy</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Forbid</span><span style="color:#6A737D">         # 앞 Job 이 안 끝났으면 건너뛰기(Allow·Replace)</span></span>
+<span class="line"><span style="color:#85E89D">  startingDeadlineSeconds</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">60</span></span>
+<span class="line"><span style="color:#85E89D">  suspend</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">false</span></span>
+<span class="line"><span style="color:#85E89D">  timeZone</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Asia/Seoul</span><span style="color:#6A737D">              # 선택</span></span>
+<span class="line"><span style="color:#85E89D">  jobTemplate</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    spec</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      template</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        spec</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">          restartPolicy</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">OnFailure</span></span>
+<span class="line"><span style="color:#85E89D">          containers</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">…</span></span></code></pre>
+<blockquote>
+<p>스케줄 문자열은 <code>*</code> 로 시작하므로 YAML 에서 <strong>따옴표</strong>로 감싸야 합니다.</p>
+</blockquote></article> <section> <h2>⌨️ 직접 해 보기</h2> <p class="muted small">브라우저 실습 터미널에서 풀고 자동 채점을 받습니다.</p> <div class="labs"> <a class="btn sm" href="/academy/cka/lab/?task=w7" data-lab="w7">HPA 로 자동 확장 <span class="pill lab-st" hidden></span></a><a class="btn sm" href="/academy/cka/lab/?task=w11" data-lab="w11">CronJob 과 수동 실행 <span class="pill lab-st" hidden></span></a> </div> </section> <section class="quiz" id="quiz"> <h2>✅ 확인 문제</h2> <div id="quiz-box" data-quiz="[{&#34;q&#34;:&#34;HPA 가 CPU 사용률을 계산하는 기준은?&#34;,&#34;options&#34;:[&#34;limits 대비&#34;,&#34;requests 대비&#34;,&#34;노드 전체 CPU 대비&#34;,&#34;절대값(밀리코어)&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;averageUtilization 은 파드 requests 대비 비율이다. requests 가 없으면 사용률을 계산하지 못해 TARGETS 가 <unknown> 이 된다.&#34;},{&#34;q&#34;:&#34;`kubectl top pods` 가 `Metrics API not available` 을 낸다. 원인은?&#34;,&#34;options&#34;:[&#34;kubelet 이 죽었다&#34;,&#34;metrics-server 가 없거나 동작하지 않는다&#34;,&#34;HPA 가 없다&#34;,&#34;네임스페이스가 틀렸다&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;kubectl top 과 HPA 의 자원 지표는 metrics-server 가 제공하는 Metrics API 를 쓴다.&#34;},{&#34;q&#34;:&#34;CronJob 스케줄 `*/15 * * * *` 의 뜻은?&#34;,&#34;options&#34;:[&#34;15시에 한 번&#34;,&#34;15분마다&#34;,&#34;매월 15일&#34;,&#34;15초마다&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;크론 형식은 분 시 일 월 요일. 첫 칸의 */15 는 15분마다다.&#34;},{&#34;q&#34;:&#34;Job 의 파드 템플릿에 허용되는 restartPolicy 는?&#34;,&#34;options&#34;:[&#34;Always&#34;,&#34;Never 또는 OnFailure&#34;,&#34;아무거나&#34;,&#34;Always 만&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;Job 은 끝나야 하는 작업이라 Always 는 허용되지 않는다. kubectl create job 은 Never 를 쓴다.&#34;}]"></div> <p id="quiz-score" class="muted" hidden></p> </section> <div class="btns" style="margin-top:28px"> <button type="button" class="btn pri" id="done-btn">이 강의 완료 표시</button> <a class="btn" href="/academy/cka/">과정 목차</a> </div> <nav class="pager"> <a class="btn" href="/academy/cka/scheduling/"><span><small>← 이전</small>스케줄링 — 파드를 원하는 노드에</span></a> <a class="btn" href="/academy/cka/kubeadm-install/" style="justify-content:flex-end;text-align:right"><span><small>다음 →</small>kubeadm 으로 클러스터 만들기</span></a> </nav> </main> <script type="module" src="/_astro/_slug_.astro_astro_type_script_index_0_lang.B_WkOVAD.js"></script>  </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>MeNew Soft</span> <div class="links" data-astro-cid-sz7xmlte> <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. --> <a href="/" data-astro-cid-sz7xmlte>홈</a> <a href="/shops/" data-astro-cid-sz7xmlte>등록 업체</a> <a href="/news/" data-astro-cid-sz7xmlte>업체 소식</a> <a href="/games/" data-astro-cid-sz7xmlte>놀이공간</a> <a href="/blog/" data-astro-cid-sz7xmlte>글</a> <a href="/glossary/" data-astro-cid-sz7xmlte>용어사전</a> <a href="/tools/" data-astro-cid-sz7xmlte>도구</a> <a href="/learn/" data-astro-cid-sz7xmlte>초등 1학년 학습</a> <a href="/academy/" data-astro-cid-sz7xmlte>자격증 학원</a> <a href="/about/" data-astro-cid-sz7xmlte>소개</a> <a href="/contact/" data-astro-cid-sz7xmlte>문의</a> <a href="/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 MeNew Soft · menewsoft.com (미뉴소프트) — AI로 만듭니다 — 가게 홈페이지·학습 게임·웹게임. 등록 내용이 틀렸다면 알려주세요.</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 오늘 <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · 전체 <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html>

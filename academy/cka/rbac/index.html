@@ -1,0 +1,111 @@
+<!DOCTYPE html><html lang="ko"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RBAC — 누가 무엇을 할 수 있나 — CKA 합격반 — MeNew Soft</title><meta name="description" content="Role · ClusterRole · RoleBinding · ClusterRoleBinding · ServiceAccount 의 조합과 kubectl auth can-i 로 검증하기."><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/academy/cka/rbac/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)"><meta property="og:type" content="website"><meta property="og:title" content="RBAC — 누가 무엇을 할 수 있나 — CKA 합격반 — MeNew Soft"><meta property="og:description" content="Role · ClusterRole · RoleBinding · ClusterRoleBinding · ServiceAccount 의 조합과 kubectl auth can-i 로 검증하기."><meta property="og:url" content="https://menewsoft.com/academy/cka/rbac/"><meta property="og:site_name" content="MeNew Soft"><meta property="og:image" content="https://menewsoft.com/og/default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="RBAC — 누가 무엇을 할 수 있나 — CKA 합격반"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://menewsoft.com/og/default.png"><link rel="sitemap" href="/sitemap-index.xml"><!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. --><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MeNew Soft","alternateName":["menewsoft","menewsoft.com","미뉴소프트","메뉴소프트","Tech Decode"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/index.BD2eBubB.css">
+<link rel="stylesheet" href="/_astro/_slug_.DxXwq8uN.css"></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/">MeNew<span>Soft</span></a> <nav class="nav"> <a href="/">홈</a> <a href="/shops/">등록 업체</a> <a href="/news/">업체 소식</a> <a href="/games/">놀이공간</a> <a href="/blog/">글</a>  <a href="/learn/">초등 1학년 학습</a>  <a href="/academy/">자격증 학원</a>  <a href="/board/">게시판</a> <a href="/about/">소개</a> <a href="/contact/">문의</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul>  </ul> </div> </nav> </div> </header> <main>  <main class="acad lesson" data-slug="rbac"> <p class="crumbs"><a href="/academy/">자격증 학원</a> › <a href="/academy/cka/">CKA</a> › 아키텍처 · 설치 · 구성</p> <p class="kick">강의 16 / 28 · 약 25분</p> <h1>RBAC — 누가 무엇을 할 수 있나</h1> <p class="lead">Role · ClusterRole · RoleBinding · ClusterRoleBinding · ServiceAccount 의 조합과 kubectl auth can-i 로 검증하기.</p> <div class="goals"> <h3>이 강의를 마치면</h3> <ul><li>Role 과 ClusterRole, RoleBinding 과 ClusterRoleBinding 의 범위 차이를 설명할 수 있다</li><li>사용자와 ServiceAccount 에 최소 권한을 명령형으로 줄 수 있다</li><li>kubectl auth can-i --as 로 권한을 검증할 수 있다</li></ul> </div> <article class="body"><h2 id="네-가지-오브젝트">네 가지 오브젝트</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>      규칙(무엇을)                        연결(누구에게)</span></span>
+<span class="line"><span>  Role        (네임스페이스 안)    ←─  RoleBinding        (네임스페이스 안)</span></span>
+<span class="line"><span>  ClusterRole (클러스터 전체)      ←─  ClusterRoleBinding (클러스터 전체)</span></span>
+<span class="line"><span>                                    ↑ RoleBinding 은 ClusterRole 도 참조할 수 있다(그 네임스페이스에만 적용)</span></span></code></pre>
+<p><strong>누구에게</strong>(subject)는 세 종류입니다.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>종류</th><th>예</th><th><code>--as</code> 로 흉내 낼 때</th></tr></thead><tbody><tr><td>User</td><td><code>jane</code>, <code>auditor</code></td><td><code>--as=jane</code></td></tr><tr><td>Group</td><td><code>developers</code></td><td><code>--as=x --as-group=developers</code></td></tr><tr><td>ServiceAccount</td><td>파드가 쓰는 계정 <code>dev/deployer</code></td><td><code>--as=system:serviceaccount:dev:deployer</code></td></tr></tbody></table>
+<blockquote>
+<p>쿠버네티스에는 “사용자 오브젝트”가 없습니다. 사용자는 인증서의 CN(이름)과 O(그룹) 등 외부 인증으로 결정되고, RBAC 는 그 <strong>이름 문자열</strong>에 권한을 줄 뿐입니다.</p>
+</blockquote>
+<h2 id="규칙의-모양">규칙의 모양</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">apiVersion</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">rbac.authorization.k8s.io/v1</span></span>
+<span class="line"><span style="color:#85E89D">kind</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Role</span></span>
+<span class="line"><span style="color:#85E89D">metadata</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">deploy-manager</span></span>
+<span class="line"><span style="color:#85E89D">  namespace</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">dev</span></span>
+<span class="line"><span style="color:#85E89D">rules</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">- </span><span style="color:#85E89D">apiGroups</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"apps"</span><span style="color:#E1E4E8">]                  </span><span style="color:#6A737D"># Deployment 는 apps 그룹</span></span>
+<span class="line"><span style="color:#85E89D">  resources</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"deployments"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#85E89D">  verbs</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"get"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"list"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"create"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"update"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"delete"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#E1E4E8">- </span><span style="color:#85E89D">apiGroups</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8">]                      </span><span style="color:#6A737D"># core 그룹(파드·서비스·시크릿 …)</span></span>
+<span class="line"><span style="color:#85E89D">  resources</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"pods"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"pods/log"</span><span style="color:#E1E4E8">]      </span><span style="color:#6A737D"># 하위 리소스: pods/log, pods/exec, deployments/scale</span></span>
+<span class="line"><span style="color:#85E89D">  verbs</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"get"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"list"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#85E89D">  resourceNames</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"web-1"</span><span style="color:#E1E4E8">]             </span><span style="color:#6A737D"># (선택) 특정 이름만</span></span></code></pre>
+<p>동사(verbs): <code>get list watch create update patch delete deletecollection</code>, 그리고 <code>*</code>. 어느 그룹인지 모르면 <code>kubectl api-resources</code> 의 APIVERSION 열을 봅니다.</p>
+<h2 id="명령형으로-빠르게">명령형으로 빠르게</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># 네임스페이스 권한 — ServiceAccount</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> serviceaccount</span><span style="color:#9ECBFF"> deployer</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> dev</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> role</span><span style="color:#9ECBFF"> deploy-manager</span><span style="color:#79B8FF"> --verb=get,list,create,update,delete</span><span style="color:#79B8FF"> --resource=deployments</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> dev</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> rolebinding</span><span style="color:#9ECBFF"> deployer-binding</span><span style="color:#79B8FF"> --role=deploy-manager</span><span style="color:#79B8FF"> --serviceaccount=dev:deployer</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> dev</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 클러스터 권한 — 사용자</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> clusterrole</span><span style="color:#9ECBFF"> node-pv-reader</span><span style="color:#79B8FF"> --verb=get,list,watch</span><span style="color:#79B8FF"> --resource=nodes,persistentvolumes</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> clusterrolebinding</span><span style="color:#9ECBFF"> auditor-binding</span><span style="color:#79B8FF"> --clusterrole=node-pv-reader</span><span style="color:#79B8FF"> --user=auditor</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 기존 ClusterRole 을 한 네임스페이스에만</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> rolebinding</span><span style="color:#9ECBFF"> jane-edit</span><span style="color:#79B8FF"> --clusterrole=edit</span><span style="color:#79B8FF"> --user=jane</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> dev</span></span></code></pre>
+<h2 id="검증은-반드시-auth-can-i">검증은 반드시 auth can-i</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> auth</span><span style="color:#9ECBFF"> can-i</span><span style="color:#9ECBFF"> create</span><span style="color:#9ECBFF"> deployments</span><span style="color:#79B8FF"> --as=system:serviceaccount:dev:deployer</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> dev</span><span style="color:#6A737D">   # yes</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> auth</span><span style="color:#9ECBFF"> can-i</span><span style="color:#9ECBFF"> delete</span><span style="color:#9ECBFF"> pods</span><span style="color:#79B8FF">        --as=system:serviceaccount:dev:deployer</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> dev</span><span style="color:#6A737D">   # no</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> auth</span><span style="color:#9ECBFF"> can-i</span><span style="color:#9ECBFF"> list</span><span style="color:#9ECBFF"> nodes</span><span style="color:#79B8FF"> --as=auditor</span><span style="color:#6A737D">                                             # yes</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> auth</span><span style="color:#9ECBFF"> can-i</span><span style="color:#9ECBFF"> '*'</span><span style="color:#9ECBFF"> '*'</span><span style="color:#79B8FF"> --as=jane</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> dev</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> auth</span><span style="color:#9ECBFF"> can-i</span><span style="color:#79B8FF"> --list</span><span style="color:#79B8FF"> --as=jane</span><span style="color:#79B8FF"> -n</span><span style="color:#9ECBFF"> dev</span><span style="color:#6A737D">       # 가진 권한 전체</span></span></code></pre>
+<p>문제에서 “~만 할 수 있어야 한다”라고 하면 <strong>되는 것과 안 되는 것 둘 다</strong> 확인하세요. 채점도 그렇게 합니다.</p>
+<h2 id="serviceaccount-를-파드에-연결">ServiceAccount 를 파드에 연결</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">spec</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  serviceAccountName</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">deployer</span></span>
+<span class="line"><span style="color:#85E89D">  automountServiceAccountToken</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">false</span><span style="color:#6A737D">    # (선택) API 토큰이 필요 없으면 끈다</span></span></code></pre>
+<p>디플로이먼트라면 <code>kubectl set serviceaccount deployment web deployer</code>. 파드는 <strong>없는 ServiceAccount 를 지정하면 생성이 거부</strong>됩니다(디플로이먼트라면 ReplicaSet 이벤트에 FailedCreate).</p>
+<p>토큰이 필요하면: <code>kubectl create token deployer -n dev</code> (유효기간 있는 토큰 발급).</p>
+<h2 id="자주-틀리는-곳">자주 틀리는 곳</h2>
+<ul>
+<li>ClusterRoleBinding 에 <code>--role=</code> 을 쓴다 → ClusterRoleBinding 은 ClusterRole 만.</li>
+<li>Deployment 권한을 <code>apiGroups: [""]</code> 로 준다 → <code>apps</code>.</li>
+<li>RoleBinding 의 네임스페이스를 빼먹어 default 에 만든다 → 권한이 엉뚱한 곳에 생김.</li>
+<li><code>--serviceaccount=deployer</code>(네임스페이스 빠짐) → <code>dev:deployer</code> 형식.</li>
+<li>바인딩의 roleRef 는 <strong>못 바꿉니다.</strong> 틀렸으면 지우고 다시 만드세요.</li>
+</ul></article> <section> <h2>⌨️ 직접 해 보기</h2> <p class="muted small">브라우저 실습 터미널에서 풀고 자동 채점을 받습니다.</p> <div class="labs"> <a class="btn sm" href="/academy/cka/lab/?task=a1" data-lab="a1">ServiceAccount 에 네임스페이스 권한 <span class="pill lab-st" hidden></span></a><a class="btn sm" href="/academy/cka/lab/?task=a2" data-lab="a2">클러스터 전체 읽기 권한(사용자) <span class="pill lab-st" hidden></span></a> </div> </section> <section class="quiz" id="quiz"> <h2>✅ 확인 문제</h2> <div id="quiz-box" data-quiz="[{&#34;q&#34;:&#34;노드 목록을 볼 권한을 주려면 어떤 조합이 필요한가?&#34;,&#34;options&#34;:[&#34;Role + RoleBinding&#34;,&#34;ClusterRole + ClusterRoleBinding&#34;,&#34;Role + ClusterRoleBinding&#34;,&#34;ServiceAccount 만&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;노드·PV·네임스페이스 같은 클러스터 범위 리소스는 ClusterRole 로만 정의할 수 있고, 클러스터 전체 적용은 ClusterRoleBinding 이다. ClusterRoleBinding 은 Role 을 참조할 수 없다.&#34;},{&#34;q&#34;:&#34;ClusterRole 을 RoleBinding 으로 묶으면?&#34;,&#34;options&#34;:[&#34;오류&#34;,&#34;그 RoleBinding 의 네임스페이스 안에서만 그 권한이 생긴다&#34;,&#34;클러스터 전체 권한이 생긴다&#34;,&#34;아무 효과 없음&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;자주 쓰는 패턴이다. 공통 ClusterRole(예. edit)을 만들어 두고 네임스페이스마다 RoleBinding 으로 부분 적용한다.&#34;},{&#34;q&#34;:&#34;ServiceAccount dev/deployer 로 권한을 확인하는 --as 값은?&#34;,&#34;options&#34;:[&#34;--as=deployer&#34;,&#34;--as=dev:deployer&#34;,&#34;--as=system:serviceaccount:dev:deployer&#34;,&#34;--as=sa/deployer&#34;],&#34;answer&#34;:2,&#34;explain&#34;:&#34;ServiceAccount 의 사용자 이름은 system:serviceaccount:<네임스페이스>:<이름> 이다. rolebinding 을 만들 때는 --serviceaccount=dev:deployer 형식을 쓴다.&#34;},{&#34;q&#34;:&#34;Deployment 에 대한 Role 규칙의 apiGroups 는?&#34;,&#34;options&#34;:[&#34;[\&#34;\&#34;]&#34;,&#34;[\&#34;apps\&#34;]&#34;,&#34;[\&#34;extensions\&#34;]&#34;,&#34;[\&#34;deployments\&#34;]&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;Deployment 는 apps 그룹이다. core 그룹(파드·서비스 등)은 빈 문자열 \&#34;\&#34;. kubectl create role --resource=deployments 는 그룹을 알아서 채운다.&#34;}]"></div> <p id="quiz-score" class="muted" hidden></p> </section> <div class="btns" style="margin-top:28px"> <button type="button" class="btn pri" id="done-btn">이 강의 완료 표시</button> <a class="btn" href="/academy/cka/">과정 목차</a> </div> <nav class="pager"> <a class="btn" href="/academy/cka/etcd-backup/"><span><small>← 이전</small>etcd 백업과 복구</span></a> <a class="btn" href="/academy/cka/helm-kustomize/" style="justify-content:flex-end;text-align:right"><span><small>다음 →</small>Helm 과 Kustomize</span></a> </nav> </main> <script type="module" src="/_astro/_slug_.astro_astro_type_script_index_0_lang.B_WkOVAD.js"></script>  </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>MeNew Soft</span> <div class="links" data-astro-cid-sz7xmlte> <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. --> <a href="/" data-astro-cid-sz7xmlte>홈</a> <a href="/shops/" data-astro-cid-sz7xmlte>등록 업체</a> <a href="/news/" data-astro-cid-sz7xmlte>업체 소식</a> <a href="/games/" data-astro-cid-sz7xmlte>놀이공간</a> <a href="/blog/" data-astro-cid-sz7xmlte>글</a> <a href="/glossary/" data-astro-cid-sz7xmlte>용어사전</a> <a href="/tools/" data-astro-cid-sz7xmlte>도구</a> <a href="/learn/" data-astro-cid-sz7xmlte>초등 1학년 학습</a> <a href="/academy/" data-astro-cid-sz7xmlte>자격증 학원</a> <a href="/about/" data-astro-cid-sz7xmlte>소개</a> <a href="/contact/" data-astro-cid-sz7xmlte>문의</a> <a href="/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 MeNew Soft · menewsoft.com (미뉴소프트) — AI로 만듭니다 — 가게 홈페이지·학습 게임·웹게임. 등록 내용이 틀렸다면 알려주세요.</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 오늘 <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · 전체 <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html>

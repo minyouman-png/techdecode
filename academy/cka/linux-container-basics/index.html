@@ -1,0 +1,109 @@
+<!DOCTYPE html><html lang="ko"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>리눅스와 컨테이너 기초 — CKA 합격반 — MeNew Soft</title><meta name="description" content="쿠버네티스가 실제로 다루는 것 — 프로세스, 컨테이너 이미지, 런타임, systemd. 시험장 셸에서 길을 잃지 않기 위한 최소한."><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/academy/cka/linux-container-basics/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)"><meta property="og:type" content="website"><meta property="og:title" content="리눅스와 컨테이너 기초 — CKA 합격반 — MeNew Soft"><meta property="og:description" content="쿠버네티스가 실제로 다루는 것 — 프로세스, 컨테이너 이미지, 런타임, systemd. 시험장 셸에서 길을 잃지 않기 위한 최소한."><meta property="og:url" content="https://menewsoft.com/academy/cka/linux-container-basics/"><meta property="og:site_name" content="MeNew Soft"><meta property="og:image" content="https://menewsoft.com/og/default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="리눅스와 컨테이너 기초 — CKA 합격반"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://menewsoft.com/og/default.png"><link rel="sitemap" href="/sitemap-index.xml"><!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. --><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MeNew Soft","alternateName":["menewsoft","menewsoft.com","미뉴소프트","메뉴소프트","Tech Decode"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/index.BD2eBubB.css">
+<link rel="stylesheet" href="/_astro/_slug_.DxXwq8uN.css"></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/">MeNew<span>Soft</span></a> <nav class="nav"> <a href="/">홈</a> <a href="/shops/">등록 업체</a> <a href="/news/">업체 소식</a> <a href="/games/">놀이공간</a> <a href="/blog/">글</a>  <a href="/learn/">초등 1학년 학습</a>  <a href="/academy/">자격증 학원</a>  <a href="/board/">게시판</a> <a href="/about/">소개</a> <a href="/contact/">문의</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul>  </ul> </div> </nav> </div> </header> <main>  <main class="acad lesson" data-slug="linux-container-basics"> <p class="crumbs"><a href="/academy/">자격증 학원</a> › <a href="/academy/cka/">CKA</a> › 기초 체력</p> <p class="kick">강의 3 / 28 · 약 25분</p> <h1>리눅스와 컨테이너 기초</h1> <p class="lead">쿠버네티스가 실제로 다루는 것 — 프로세스, 컨테이너 이미지, 런타임, systemd. 시험장 셸에서 길을 잃지 않기 위한 최소한.</p> <div class="goals"> <h3>이 강의를 마치면</h3> <ul><li>컨테이너가 &#39;격리된 리눅스 프로세스&#39;라는 것을 설명할 수 있다</li><li>이미지·레지스트리·태그의 관계와 이미지 오타가 어떤 오류가 되는지 안다</li><li>systemctl · journalctl · vi 의 기본 사용법을 안다</li></ul> </div> <article class="body"><h2 id="컨테이너--격리된-프로세스">컨테이너 = 격리된 프로세스</h2>
+<p>가상머신은 운영체제 전체를 하나 더 띄웁니다. 컨테이너는 그렇지 않습니다. <strong>호스트의 커널을 그대로 쓰는 평범한 리눅스 프로세스</strong>인데, 두 가지 장치로 격리합니다.</p>
+<ul>
+<li><strong>네임스페이스(namespace)</strong> — 프로세스가 <strong>볼 수 있는 범위</strong>를 나눕니다. PID(자기만의 1번 프로세스), 네트워크(자기만의 IP·포트), 마운트(자기만의 파일시스템) 등.</li>
+<li><strong>cgroup</strong> — 프로세스가 <strong>쓸 수 있는 양</strong>을 제한합니다. CPU, 메모리. 쿠버네티스의 <code>resources.limits</code> 가 결국 cgroup 설정이 됩니다. 메모리 제한을 넘으면 커널이 프로세스를 죽이는데, 이것이 <strong>OOMKilled</strong>(종료 코드 137)입니다.</li>
+</ul>
+<blockquote>
+<p>쿠버네티스의 “네임스페이스”(<code>kubectl get ns</code>)는 리눅스 네임스페이스와 이름만 같고 <strong>전혀 다른 것</strong>입니다. 쿠버네티스 네임스페이스는 리소스 이름을 묶는 논리적인 칸입니다.</p>
+</blockquote>
+<h2 id="이미지--레지스트리--태그">이미지 · 레지스트리 · 태그</h2>
+<p>컨테이너는 <strong>이미지</strong>에서 시작합니다. 이미지 이름은 다음 구조입니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>registry.k8s.io/kube-apiserver:v1.35.2</span></span>
+<span class="line"><span>└── 레지스트리 ─┘└─── 저장소 ──┘└ 태그 ┘</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>nginx:1.27        → docker.io/library/nginx:1.27 (레지스트리 생략 = Docker Hub)</span></span>
+<span class="line"><span>nginx             → nginx:latest (태그 생략 = latest)</span></span></code></pre>
+<p>이미지 이름이나 태그에 오타가 있으면 노드가 이미지를 받지 못해 파드가 <strong><code>ErrImagePull</code> → <code>ImagePullBackOff</code></strong> 상태가 됩니다. 트러블슈팅 문제에서 가장 흔한 원인 중 하나입니다.</p>
+<h2 id="컨테이너-런타임과-cri">컨테이너 런타임과 CRI</h2>
+<p>노드에서 실제로 컨테이너를 띄우는 프로그램이 <strong>컨테이너 런타임</strong>입니다. 요즘은 대부분 <strong>containerd</strong>(또는 CRI-O)입니다. kubelet 은 <strong>CRI(Container Runtime Interface)</strong> 라는 약속된 방식으로 런타임에 “이 파드를 띄워 줘”라고 요청합니다.</p>
+<p>노드에서 컨테이너를 직접 볼 때는 <code>docker</code> 가 아니라 <strong><code>crictl</code></strong> 을 씁니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">crictl</span><span style="color:#9ECBFF"> ps</span><span style="color:#6A737D">            # 실행 중인 컨테이너</span></span>
+<span class="line"><span style="color:#B392F0">crictl</span><span style="color:#9ECBFF"> ps</span><span style="color:#79B8FF"> -a</span><span style="color:#6A737D">         # 죽은 것까지 — 컨트롤 플레인 장애 때 핵심</span></span>
+<span class="line"><span style="color:#B392F0">crictl</span><span style="color:#9ECBFF"> logs</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">I</span><span style="color:#E1E4E8">D</span><span style="color:#F97583">></span><span style="color:#6A737D">     # 컨테이너 로그(API 서버가 죽어서 kubectl 이 안 될 때)</span></span>
+<span class="line"><span style="color:#B392F0">crictl</span><span style="color:#9ECBFF"> pods</span><span style="color:#6A737D">          # 파드 샌드박스</span></span></code></pre>
+<h2 id="systemd--노드의-서비스-관리자">systemd — 노드의 서비스 관리자</h2>
+<p>kubelet 과 containerd 는 파드가 아니라 <strong>리눅스 서비스</strong>입니다. systemd 가 관리합니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">systemctl</span><span style="color:#9ECBFF"> status</span><span style="color:#9ECBFF"> kubelet</span><span style="color:#6A737D">        # 상태: active(running)? inactive? failed?</span></span>
+<span class="line"><span style="color:#B392F0">systemctl</span><span style="color:#9ECBFF"> start</span><span style="color:#F97583">|</span><span style="color:#B392F0">stop</span><span style="color:#F97583">|</span><span style="color:#B392F0">restart</span><span style="color:#9ECBFF"> kubelet</span></span>
+<span class="line"><span style="color:#B392F0">systemctl</span><span style="color:#9ECBFF"> enable</span><span style="color:#9ECBFF"> kubelet</span><span style="color:#6A737D">        # 부팅할 때 자동 시작</span></span>
+<span class="line"><span style="color:#B392F0">systemctl</span><span style="color:#9ECBFF"> enable</span><span style="color:#79B8FF"> --now</span><span style="color:#9ECBFF"> kubelet</span><span style="color:#6A737D">  # 자동 시작 등록 + 지금 시작</span></span>
+<span class="line"><span style="color:#B392F0">systemctl</span><span style="color:#9ECBFF"> daemon-reload</span><span style="color:#6A737D">         # 서비스 설정 파일을 고친 뒤 '다시 읽기'</span></span>
+<span class="line"><span style="color:#B392F0">journalctl</span><span style="color:#79B8FF"> -u</span><span style="color:#9ECBFF"> kubelet</span><span style="color:#6A737D">           # 서비스 로그</span></span>
+<span class="line"><span style="color:#B392F0">journalctl</span><span style="color:#79B8FF"> -u</span><span style="color:#9ECBFF"> kubelet</span><span style="color:#79B8FF"> -n</span><span style="color:#79B8FF"> 50</span><span style="color:#79B8FF"> --no-pager</span><span style="color:#6A737D">   # 마지막 50줄</span></span></code></pre>
+<blockquote>
+<p><strong>daemon-reload 를 잊지 마세요.</strong> <code>/usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf</code> 같은 서비스 설정 파일을 고쳤다면, <code>systemctl daemon-reload</code> 를 해야 systemd 가 새 내용을 읽습니다. 안 하고 restart 만 하면 <strong>옛 설정으로 다시 뜹니다.</strong></p>
+</blockquote>
+<h2 id="시험장에서-꼭-필요한-셸-기술">시험장에서 꼭 필요한 셸 기술</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">ssh</span><span style="color:#9ECBFF"> node01</span><span style="color:#6A737D">                  # 다른 노드로 이동 — 끝나면 exit 로 돌아오기</span></span>
+<span class="line"><span style="color:#B392F0">sudo</span><span style="color:#79B8FF"> -i</span><span style="color:#6A737D">                     # root 로 전환(시험장에서 자주 필요)</span></span>
+<span class="line"><span style="color:#B392F0">cat</span><span style="color:#9ECBFF"> 파일</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> grep</span><span style="color:#79B8FF"> -i</span><span style="color:#9ECBFF"> error</span><span style="color:#6A737D">     # 찾기</span></span>
+<span class="line"><span style="color:#B392F0">kubectl</span><span style="color:#9ECBFF"> get</span><span style="color:#9ECBFF"> pods</span><span style="color:#F97583"> ></span><span style="color:#9ECBFF"> /opt/out.txt</span><span style="color:#6A737D">   # 결과를 파일로(문제에서 자주 요구)</span></span>
+<span class="line"><span style="color:#79B8FF">echo</span><span style="color:#9ECBFF"> "값"</span><span style="color:#F97583"> ></span><span style="color:#9ECBFF"> 파일</span><span style="color:#6A737D">              # 덮어쓰기</span></span>
+<span class="line"><span style="color:#79B8FF">echo</span><span style="color:#9ECBFF"> "값"</span><span style="color:#F97583"> >></span><span style="color:#9ECBFF"> 파일</span><span style="color:#6A737D">             # 이어 쓰기</span></span></code></pre>
+<p><strong>vi(vim) 최소 사용법</strong> — 시험장 편집기는 vi 입니다.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>할 일</th><th>키</th></tr></thead><tbody><tr><td>입력 시작 / 끝</td><td><code>i</code> / <code>Esc</code></td></tr><tr><td>저장하고 나가기</td><td><code>:wq</code> (또는 <code>ZZ</code>)</td></tr><tr><td>저장 안 하고 나가기</td><td><code>:q!</code></td></tr><tr><td>한 줄 삭제 · 복사 · 붙여넣기</td><td><code>dd</code> · <code>yy</code> · <code>p</code></td></tr><tr><td>찾기</td><td><code>/단어</code> 후 <code>n</code></td></tr><tr><td>되돌리기</td><td><code>u</code></td></tr></tbody></table>
+<p>YAML 은 들여쓰기가 생명이라 붙여넣을 때 들여쓰기가 계단처럼 밀릴 수 있습니다. 시험 시작하자마자 <code>~/.vimrc</code> 에 다음 한 줄을 넣어 두는 사람이 많습니다.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="vim"><code><span class="line"><span style="color:#F97583">set</span><span style="color:#79B8FF"> expandtab</span><span style="color:#79B8FF"> tabstop</span><span style="color:#F97583">=</span><span style="color:#79B8FF">2</span><span style="color:#79B8FF"> shiftwidth</span><span style="color:#F97583">=</span><span style="color:#79B8FF">2</span></span></code></pre>
+<p>붙여넣기 전에 <code>:set paste</code> 를 하면 자동 들여쓰기가 꺼집니다.</p></article>  <section class="quiz" id="quiz"> <h2>✅ 확인 문제</h2> <div id="quiz-box" data-quiz="[{&#34;q&#34;:&#34;컨테이너를 가장 정확하게 설명한 것은?&#34;,&#34;options&#34;:[&#34;작은 가상머신&#34;,&#34;네임스페이스와 cgroup 으로 격리·제한된 리눅스 프로세스&#34;,&#34;도커 전용 파일 형식&#34;,&#34;쿠버네티스가 만든 가상 CPU&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;컨테이너는 커널을 공유하는 일반 프로세스다. 리눅스 네임스페이스로 보이는 범위를 나누고 cgroup 으로 CPU·메모리를 제한한다.&#34;},{&#34;q&#34;:&#34;`nginx:1.27` 에서 `1.27` 은?&#34;,&#34;options&#34;:[&#34;레지스트리 주소&#34;,&#34;태그&#34;,&#34;네임스페이스&#34;,&#34;포트&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;이미지 이름은 [레지스트리/]저장소[:태그] 이다. 태그를 생략하면 latest 가 쓰인다.&#34;},{&#34;q&#34;:&#34;현재 쿠버네티스 노드에서 컨테이너를 실제로 실행하는 것은 보통 무엇인가?&#34;,&#34;options&#34;:[&#34;dockershim&#34;,&#34;containerd 같은 CRI 런타임&#34;,&#34;kube-proxy&#34;,&#34;etcd&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;쿠버네티스 1.24 부터 dockershim 이 제거됐다. kubelet 은 CRI 로 containerd·CRI-O 같은 런타임에 요청한다. 노드에서 컨테이너를 직접 볼 때는 crictl 을 쓴다.&#34;},{&#34;q&#34;:&#34;kubelet 이 왜 멈췄는지 로그를 볼 때 쓰는 명령은?&#34;,&#34;options&#34;:[&#34;kubectl logs kubelet&#34;,&#34;journalctl -u kubelet&#34;,&#34;cat /var/log/kube.log&#34;,&#34;crictl logs kubelet&#34;],&#34;answer&#34;:1,&#34;explain&#34;:&#34;kubelet 은 파드가 아니라 systemd 서비스다. 서비스 로그는 journalctl -u 서비스이름 으로 본다.&#34;}]"></div> <p id="quiz-score" class="muted" hidden></p> </section> <div class="btns" style="margin-top:28px"> <button type="button" class="btn pri" id="done-btn">이 강의 완료 표시</button> <a class="btn" href="/academy/cka/">과정 목차</a> </div> <nav class="pager"> <a class="btn" href="/academy/cka/lab-setup/"><span><small>← 이전</small>실습환경 만들기</span></a> <a class="btn" href="/academy/cka/yaml-basics/" style="justify-content:flex-end;text-align:right"><span><small>다음 →</small>YAML 과 쿠버네티스 오브젝트</span></a> </nav> </main> <script type="module" src="/_astro/_slug_.astro_astro_type_script_index_0_lang.B_WkOVAD.js"></script>  </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>MeNew Soft</span> <div class="links" data-astro-cid-sz7xmlte> <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. --> <a href="/" data-astro-cid-sz7xmlte>홈</a> <a href="/shops/" data-astro-cid-sz7xmlte>등록 업체</a> <a href="/news/" data-astro-cid-sz7xmlte>업체 소식</a> <a href="/games/" data-astro-cid-sz7xmlte>놀이공간</a> <a href="/blog/" data-astro-cid-sz7xmlte>글</a> <a href="/glossary/" data-astro-cid-sz7xmlte>용어사전</a> <a href="/tools/" data-astro-cid-sz7xmlte>도구</a> <a href="/learn/" data-astro-cid-sz7xmlte>초등 1학년 학습</a> <a href="/academy/" data-astro-cid-sz7xmlte>자격증 학원</a> <a href="/about/" data-astro-cid-sz7xmlte>소개</a> <a href="/contact/" data-astro-cid-sz7xmlte>문의</a> <a href="/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 MeNew Soft · menewsoft.com (미뉴소프트) — AI로 만듭니다 — 가게 홈페이지·학습 게임·웹게임. 등록 내용이 틀렸다면 알려주세요.</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 오늘 <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · 전체 <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html>
