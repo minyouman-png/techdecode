@@ -17,7 +17,8 @@ export class Terminal {
       <form class="term-in" autocomplete="off">
         <span class="term-ps"></span>
         <input class="term-input" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" aria-label="명령 입력" enterkeyhint="send">
-        <button type="button" class="term-tab" title="자동완성(Tab)">⇥</button>
+        <button type="button" class="term-hist" title="이전 명령(↑)" aria-label="이전 명령">↑</button>
+        <button type="button" class="term-tab" title="자동완성(Tab)" aria-label="자동완성">⇥</button>
       </form>
       <div class="term-ed" hidden>
         <div class="term-ed-bar"><span class="term-ed-name"></span>
@@ -33,6 +34,8 @@ export class Terminal {
     this.edName = root.querySelector('.term-ed-name');
     root.querySelector('.term-in').addEventListener('submit', (e) => { e.preventDefault(); this.submit(); });
     root.querySelector('.term-tab').addEventListener('click', () => { this.complete(); this.input.focus(); });
+    // 태블릿 가상 키보드엔 ↑ 키가 없다 — 이전 명령 부르기를 버튼으로도
+    root.querySelector('.term-hist').addEventListener('click', () => { if (this.hi > 0) { this.hi--; this.input.value = this.hist[this.hi]; } this.input.focus(); });
     this.input.addEventListener('keydown', (e) => this.key(e));
     this.input.addEventListener('paste', (e) => {
       const t = (e.clipboardData || window.clipboardData).getData('text');
@@ -53,7 +56,7 @@ export class Terminal {
     this.out.innerHTML = '';
     if (banner) this.print(banner, 'dim');
     this.prompt();
-    this.edClose(false);
+    this.edClose(null); // ⚠️null = 포커스 옮기지 않음 — 태블릿에서 페이지를 열자마자 가상 키보드가 튀어나왔다
   }
   prompt() { this.ps.textContent = this.s ? this.s.prompt() : '$ '; }
   print(text, cls = '') {
@@ -133,7 +136,7 @@ export class Terminal {
     this.edit = null;
     this.ed.hidden = true;
     this.prompt();
-    if (cancelled !== null) this.focus();
+    if (cancelled !== null && !matchMedia('(pointer: coarse)').matches) this.focus();
   }
   insertAtCursor(t) {
     const el = this.edText, s = el.selectionStart, e = el.selectionEnd;
@@ -150,7 +153,9 @@ export const TERM_CSS = `
 .term-in{display:flex;align-items:center;gap:6px;padding:6px 10px 10px 14px;border-top:1px solid #1b2230}
 .term-ps{color:#7ee787;white-space:nowrap;max-width:45%;overflow:hidden;text-overflow:ellipsis}
 .term-input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#e6edf3;font:inherit;caret-color:#7ee787;padding:4px 0}
-.term-tab{background:#1b2230;color:#9fb0c3;border:1px solid #2b3445;border-radius:6px;padding:2px 9px;font:inherit;cursor:pointer}
+.term-tab,.term-hist{background:#1b2230;color:#9fb0c3;border:1px solid #2b3445;border-radius:6px;padding:2px 9px;font:inherit;cursor:pointer}
+/* ⚠️터치 기기: iOS 사파리는 16px 미만 입력칸을 누르면 화면을 확대한다 → 입력칸·편집기는 16px, 누를 곳은 손가락 크기로 */
+@media (pointer: coarse){.term-input,.term-ed-text{font-size:16px}.term-tab,.term-hist{min-width:44px;min-height:40px;font-size:16px}.term-ed-bar button{min-height:40px;padding:6px 16px;font-size:15px}.term-ed-keys{display:none}}
 .term-ed{position:absolute;inset:0;display:flex;flex-direction:column;background:#0b0f15;z-index:3}
 .term-ed[hidden]{display:none}
 .term-ed-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;background:#161b22;border-bottom:1px solid #232a36;color:#c9d1d9}

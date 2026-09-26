@@ -81,6 +81,8 @@ def main() -> int:
         # 자격증 학원 — 시뮬레이터 과제 전부(준비≠만점, 답안=만점) + 페이지(UI 로 답안 입력·모의고사·강의 퀴즈)
         jobs.append(('자격증 학원 시뮬레이터 과제', ['node', 'tools/cka-sim-test.mjs']))
         jobs.append(('자격증 학원 /academy/ 자가검증', [PY, 'tools/cka-selftest.py']))
+        # 태블릿(iPad 세로·가로, 갤럭시 탭) 크기 + 터치 입력 — 손가락 탭으로 풀고 채점까지
+        jobs.append(('자격증 학원 태블릿·터치', [PY, 'tools/cka-selftest.py', '--tablet']))
         # dist 가 필요하다 — 게임만 돌릴 때(--games)는 빌드를 건너뛰므로 같이 뺀다
         jobs.append(('놀이공간 놀이방 목록(좌측 분류)', [PY, 'tools/games-index-selftest.py']))
         # ★게시판이 여기 빠져 있었다 — 그래서 2026-09-05 로그인 문의 때 통합 검증은

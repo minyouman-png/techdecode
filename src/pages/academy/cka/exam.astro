@@ -122,7 +122,7 @@ const pool = TASKS.filter((t) => t.domain !== 'basics').length;
       if ($('q').querySelector('#qnext')) $('qnext').onclick = () => show(i + 1);
       if ($('q').querySelector('#qend')) $('qend').onclick = () => ask();
       paintNav();
-      if (!matchMedia('(max-width: 900px)').matches) term!.focus();
+      if (!matchMedia('(max-width: 900px), (pointer: coarse)').matches) term!.focus();
     }
     function paintNav() {
       document.querySelectorAll<HTMLButtonElement>('#qnav button').forEach((b, k) => {

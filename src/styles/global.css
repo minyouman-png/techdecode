@@ -70,7 +70,13 @@ img { max-width: 100%; height: auto; }
 }
 .brand span { color: var(--accent); }
 .nav { display: flex; align-items: center; gap: 22px; }
-.nav > a { color: var(--muted); font-size: 15px; }
+.nav > a { color: var(--muted); font-size: 15px; white-space: nowrap; }
+/* ⚠️2026-09-26: 761~1100px(태블릿)에서 메뉴가 안 접히고 글자가 찌그러져 '등록/업체', '초등/1학년/학습'처럼
+   낱말 중간에서 줄이 바뀌었다(모바일 규칙은 760px 이하에만 있었다). 메뉴 항목은 통째로 두고, 모자라면 항목 단위로 다음 줄로. */
+@media (max-width: 1100px) {
+  .header-inner { flex-wrap: wrap; height: auto; min-height: 64px; padding-top: 12px; padding-bottom: 10px; row-gap: 4px; }
+  .nav { flex-wrap: wrap; gap: 4px 18px; flex: 1; justify-content: flex-end; }
+}
 .nav > a:hover { color: var(--fg-strong); }
 
 /* language switcher */

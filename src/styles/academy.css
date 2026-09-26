@@ -99,7 +99,7 @@
 .acad.wide { max-width: 1320px; }
 .acad .lab { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 16px; align-items: start; }
 .acad .lab .side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-.acad .lab .termbox { position: sticky; top: 12px; height: max(440px, calc(100vh - 290px)); display: flex; flex-direction: column; }
+.acad .lab .termbox { position: sticky; top: 12px; height: max(440px, calc(100vh - 290px)); height: max(440px, calc(100dvh - 290px)); display: flex; flex-direction: column; }
 /* ↑ 첫 화면에서 입력줄까지 보이게(페이지 머리 약 270px 을 뺀 높이). 창 높이 전부로 잡으면 입력줄이 화면 밖으로 밀린다 */
 .acad .lab .termbox .term { flex: 1; }
 .acad .task h3 { font-size: 1.1rem; }
@@ -129,6 +129,13 @@
 .acad .qnav button.seen { color: var(--k8s); }
 .acad .score-big { font-size: 3rem; font-weight: 800; color: var(--fg-strong); line-height: 1; }
 
+/* 터치 기기(태블릿·폰): 누를 곳을 손가락 크기(40px 이상)로 */
+@media (pointer: coarse) {
+  .acad .btn.sm { min-height: 40px; padding: 8px 14px; }
+  .acad .qnav button { width: 44px; height: 42px; }
+  .acad .picker { min-height: 44px; font-size: 16px; }
+  .acad .quiz .opt { min-height: 46px; }
+}
 @media (max-width: 900px) {
   .acad .lab { grid-template-columns: minmax(0, 1fr); }
   .acad .lab .termbox { position: static; height: 72vh; min-height: 380px; }

@@ -110,7 +110,7 @@ const groups = Object.entries(DOMAINS).map(([k, v]) => ({ key: k, ko: v.ko, pct:
       if (id) u.searchParams.set('task', id); else u.searchParams.delete('task');
       history.replaceState(null, '', u);
       open(id);
-      if (!matchMedia('(max-width: 900px)').matches) term.focus();
+      if (!matchMedia('(max-width: 900px), (pointer: coarse)').matches) term.focus();
     }
     function grade() {
       const r = score(cur, cluster, session);
