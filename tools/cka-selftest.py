@@ -214,7 +214,9 @@ def main():
             print(f"  {'OK  ' if ok else 'FAIL'} {label:<44} {'' if ok else str(out)[:400]}")
 
         if args.tablet:
-            return tablet(cdp, go, shot, report, base) or (1 if bad else 0)
+            tablet(cdp, go, shot, report, base)
+            print("\n✅ 전부 통과" if not bad else f"\n⛔ {bad}건 실패")
+            return 1 if bad else 0
         for w in (360, 768, 1280):
             go("/academy/cka/lab/?test=cka", w, wait=1.0)
             for _ in range(40):
