@@ -48,7 +48,7 @@ C&K LAB에서 가장 먼저 써 볼 만한 것은 **[도구](https://candklab.co
 블로그는 **기술 노트 · IT·생활 꿀팁 · 리뷰·추천** 세 갈래로 나뉩니다. 최근 글 몇 편을 골랐습니다.
 
 - **[TrueNAS 25.10 + Immich + Tailscale로 폰 사진 자동 백업 서버 구축기](https://candklab.com/blog/truenas-immich-photo-backup/)** — 남는 PC로 폰 2대의 사진·영상을 자동 백업한 기록. 인바운드 포트를 열지 않는 구성, 방화벽 DMZ 분리, 스냅샷과 **복원 테스트까지** 해 본 점이 이 사이트다운 글입니다.
-- **[내 PC에 로컬 AI 설치하기: Ollama 설치부터 VRAM별 모델 선택까지](https://candklab.com/blog/ollama-installation-and-optimization/)** — 모델이 C드라이브를 채우거나 속도가 안 나는 문제를 환경 변수와 GPU 설정으로 푸는 법. 맥미니에서 로컬 LLM을 돌리는 이야기는 미뉴소프트의 [맥미니 로컬 LLM 글](/ko/blog/mac-mini-local-llm-2026/)과 함께 읽으면 윈도우·맥 양쪽 그림이 그려집니다.
+- **[내 PC에 로컬 AI 설치하기: Ollama 설치부터 VRAM별 모델 선택까지](https://candklab.com/blog/ollama-installation-and-optimization/)** — 모델이 C드라이브를 채우거나 속도가 안 나는 문제를 환경 변수와 GPU 설정으로 푸는 법. 맥미니에서 로컬 LLM을 돌리는 이야기는 미뉴소프트의 [맥미니 로컬 LLM 글](/blog/mac-mini-local-llm-2026/)과 함께 읽으면 윈도우·맥 양쪽 그림이 그려집니다.
 - **[윈도우 10 보안 업데이트 2027년까지 연장, 지금 확인할 것 3가지](https://candklab.com/blog/windows10-esu-extension-guide/)** — 개인용 ESU 등록 절차와 윈도우 11 업그레이드 가능 여부 확인.
 - **[갤럭시 폰 해킹이 의심될 때 직접 점검하는 법](https://candklab.com/blog/galaxy-hacking-self-check/)** — Play 프로텍트부터 권한·기기 관리자·계정까지, 설정 화면만으로 하는 8단계 점검.
 - **[탐색기 미리 보기에 다운로드한 PDF가 안 보일 때](https://candklab.com/blog/windows11-explorer-preview-downloaded-files/)** — 2026년 10월 업데이트 뒤 달라진 동작과, 믿을 수 있는 파일만 차단 해제하는 방법.
