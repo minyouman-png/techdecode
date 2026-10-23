@@ -115,6 +115,11 @@ export const CATS = [
   { key: 'notice', label: '공지', admin: true },
   { key: 'free', label: '자유' },
   { key: 'qna', label: '질문' },
+  // 게임 공략 커뮤니티(`/guide/`) — 게임마다 한 칸. 공략 페이지의 '최신 글' 상자가 이 값으로 거른다.
+  // ⚠️firestore.rules 의 catOk() 목록과 **같이** 고쳐야 한다(여기만 고치면 글쓰기가 거부된다).
+  { key: 'yuja', label: '유자의 전설' },
+  { key: 'khan', label: '칸의 궁수' },
+  { key: 'ansi', label: '안시성의 궁신' },
 ];
 export const DEFAULT_CAT = 'free';
 export const catLabel = (k) => CATS.find((c) => c.key === k)?.label ?? '자유';

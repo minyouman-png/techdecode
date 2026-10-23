@@ -1,0 +1,77 @@
+---
+// 게임 공략 페이지의 '커뮤니티' 상자 — 게시판(`/board/`)의 해당 게임 분류 최신 글을 보여 준다.
+// ⚠️글은 Firestore 에서 브라우저가 직접 받는다(정적 사이트). 분류 키는 board.js CATS 의 key 와 같아야 한다.
+// cats 를 여러 개 주면(공략 첫 화면) 분류마다 따로 받아 시각순으로 합친다 — '전체' 질의는 자유·질문 글까지 섞인다.
+interface Props {
+  cats: string[];
+  limit?: number;
+  title?: string;
+}
+const { cats, limit = 6, title = '커뮤니티 최신 글' } = Astro.props;
+const writeCat = cats.length === 1 ? cats[0] : '';
+---
+<section class="gc" data-cats={cats.join(',')} data-limit={limit}>
+  <div class="gc-head">
+    <h2>{title}</h2>
+    <div class="gc-actions">
+      <a class="gc-more" href={writeCat ? `/board/?cat=${writeCat}` : '/board/'}>게시판 전체 보기 →</a>
+      <a class="gc-write" href={writeCat ? `/board/write/?cat=${writeCat}` : '/board/write/'}>✏️ 글쓰기</a>
+    </div>
+  </div>
+  <ol class="gc-list"><li class="gc-empty">불러오는 중…</li></ol>
+  <p class="gc-note">공략·질문·버그 제보 모두 환영합니다. 구글 계정으로 로그인하면 바로 글을 쓸 수 있습니다.</p>
+</section>
+
+<script>
+  import { listPosts, catLabel, esc, when } from '../scripts/board.js';
+
+  for (const box of document.querySelectorAll<HTMLElement>('.gc')) {
+    const cats = (box.dataset.cats || '').split(',').filter(Boolean);
+    const n = Number(box.dataset.limit) || 6;
+    const list = box.querySelector('.gc-list')!;
+    const ms = (p: any) => p.createdAt?.toMillis?.() ?? 0;
+    Promise.all(cats.map((c) => listPosts(c, null).then((r: any) => r.posts)))
+      .then((groups) => {
+        const posts = groups.flat().sort((a: any, b: any) => ms(b) - ms(a)).slice(0, n);
+        list.innerHTML = posts.length
+          ? posts.map((p: any) => `
+            <li><a href="/board/post/?id=${encodeURIComponent(p.id)}">
+              <em class="bd-tag bd-tag-${esc(p.cat)}">${esc(catLabel(p.cat))}</em>
+              <span class="gc-title">${esc(p.title)}</span>
+              ${p.commentCount ? `<span class="gc-cc">[${Number(p.commentCount)}]</span>` : ''}
+              <span class="gc-meta">${esc(p.authorName || '')} · ${esc(when(p.createdAt))}</span>
+            </a></li>`).join('')
+          : '<li class="gc-empty">아직 글이 없습니다. 첫 공략이나 질문을 남겨 보세요!</li>';
+      })
+      .catch(() => {
+        // ★'글이 없다'와 '못 받았다'는 다르다(board.js listPosts 주석) — 실패는 실패로 보여 준다.
+        list.innerHTML = '<li class="gc-empty">글 목록을 불러오지 못했습니다. <a href="/board/">게시판</a>에서 직접 확인해 주세요.</li>';
+      });
+  }
+</script>
+
+<style>
+  .gc {
+    border: 1px solid var(--border); border-radius: 14px; padding: 22px 24px 18px;
+    background: color-mix(in srgb, var(--fg-strong) 3%, transparent);
+  }
+  .gc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .gc-head h2 { margin: 0; font-size: 1.25rem; color: var(--fg-strong); }
+  .gc-actions { display: flex; gap: 14px; align-items: center; }
+  .gc-more { color: var(--muted); font-size: 14px; }
+  .gc-more:hover { color: var(--fg-strong); }
+  .gc-write {
+    font-weight: 700; font-size: 14px; color: var(--accent-ink); background: var(--accent);
+    border-radius: 999px; padding: 7px 14px;
+  }
+  .gc-list { list-style: none; margin: 0; padding: 0; }
+  .gc-list li { border-top: 1px solid var(--border-soft); }
+  .gc-list li:first-child { border-top: 0; }
+  .gc-list a { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; padding: 10px 2px; color: var(--fg); }
+  .gc-list a:hover .gc-title { color: var(--accent); }
+  .gc-title { font-weight: 600; color: var(--fg-strong); }
+  .gc-cc { color: var(--accent); font-size: 13px; font-weight: 700; }
+  .gc-meta { margin-left: auto; color: var(--faint); font-size: 12.5px; }
+  .gc-empty { padding: 14px 2px; color: var(--muted); }
+  .gc-note { margin: 10px 0 0; color: var(--faint); font-size: 13px; }
+</style>

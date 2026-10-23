@@ -32,6 +32,9 @@ import BoardWatchdog from '../../components/BoardWatchdog.astro';
       <a href="/board/?cat=notice" data-cat="notice">공지</a>
       <a href="/board/?cat=free" data-cat="free">자유</a>
       <a href="/board/?cat=qna" data-cat="qna">질문</a>
+      <a href="/board/?cat=yuja" data-cat="yuja">유자의 전설</a>
+      <a href="/board/?cat=khan" data-cat="khan">칸의 궁수</a>
+      <a href="/board/?cat=ansi" data-cat="ansi">안시성의 궁신</a>
     </nav>
 
     <ol class="bd-list" id="pinned" hidden></ol>
@@ -190,6 +193,9 @@ import BoardWatchdog from '../../components/BoardWatchdog.astro';
     notice: '아직 공지가 없습니다.',
     free: '아직 자유게시판 글이 없습니다. 첫 글을 남겨 보세요.',
     qna: '아직 질문이 없습니다. 궁금한 것을 물어보세요.',
+    yuja: '아직 유자의 전설 글이 없습니다. 공략·질문·버그 제보를 남겨 보세요.',
+    khan: '아직 칸의 궁수 글이 없습니다. 공략·질문·버그 제보를 남겨 보세요.',
+    ansi: '아직 안시성의 궁신 글이 없습니다. 공략·질문·버그 제보를 남겨 보세요.',
   };
 
   async function load(reset) {

@@ -92,6 +92,9 @@ await check('닉네임은 누구나 읽는다', () => assertSucceeds(getDoc(doc(
 console.log('\n■ 카테고리 — 공지는 운영자만');
 await check('자유 글쓰기', () => assertSucceeds(addDoc(collection(alice, 'posts'), post('alice', NICK.alice, { cat: 'free' }))));
 await check('질문 글쓰기', () => assertSucceeds(addDoc(collection(alice, 'posts'), post('alice', NICK.alice, { cat: 'qna' }))));
+await check('게임 공략 분류(yuja·khan·ansi) 글쓰기', async () => {
+  for (const c of ['yuja', 'khan', 'ansi']) await assertSucceeds(addDoc(collection(alice, 'posts'), post('alice', NICK.alice, { cat: c })));
+});
 await check('일반 사용자의 공지 작성은 차단', () => assertFails(addDoc(collection(alice, 'posts'), post('alice', NICK.alice, { cat: 'notice' }))));
 await check('운영자는 공지를 쓴다', () => assertSucceeds(addDoc(collection(admin, 'posts'), post(ADMIN_UID, '미뉴소프트', { cat: 'notice' }))));
 await check('★이메일만 같고 UID 가 다르면 운영자가 아니다', () => assertFails(addDoc(collection(fakeAdmin, 'posts'), post('impostor', '사칭', { cat: 'notice' }))));

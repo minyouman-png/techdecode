@@ -22,11 +22,12 @@ service cloud.firestore {
       return signedIn() && request.auth.uid in ['wj7sXdNgssea8DqOSYK23XgX0Pq1'];
     }
 
-    // 카테고리는 셋뿐이고, **공지는 운영자만** 쓸 수 있다.
+    // 카테고리는 공지·자유·질문 + 게임 공략 커뮤니티 셋(yuja·khan·ansi, 2026-10-23), **공지는 운영자만** 쓸 수 있다.
+    // ⚠️src/scripts/board.js 의 CATS 와 같은 목록이어야 한다.
     // ⚠️이 판정이 규칙에 없으면 아무나 글을 공지로 올려 목록 맨 위에 고정시킬 수 있다
     //   (화면의 '공지' 선택지를 운영자에게만 보여주는 것은 보호가 아니다 — F12 로 뚫린다).
     function catOk(c) {
-      return c is string && (c in ['free', 'qna'] || (c == 'notice' && isAdmin()));
+      return c is string && (c in ['free', 'qna', 'yuja', 'khan', 'ansi'] || (c == 'notice' && isAdmin()));
     }
 
     // 이 사람이 설정한 닉네임. 없으면 get() 이 실패해 글쓰기가 막힌다 —

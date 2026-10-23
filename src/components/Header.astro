@@ -32,6 +32,8 @@ const [brandA, brandB] = SITE_NAME.split(' ');
       {lang === 'ko' && <a href="/learn/">{t('nav_learn')}</a>}
       {/* 자격증 학원(`/academy/`)도 한국어 강의라 한국어에서만 노출한다(학습 코너와 같은 이유). */}
       {lang === 'ko' && <a href="/academy/">{t('nav_academy')}</a>}
+      {/* 게임 공략(`/guide/`) — 우리 모바일 게임 셋의 소개·공략·커뮤니티. 공략문·게시판 모두 한국어라 한국어 전용. */}
+      {lang === 'ko' && <a href="/guide/">{t('nav_guide')}</a>}
       {/* ⚠️게시판도 한국어 전용이다 — 글은 방문자가 쓰는 것이라 번역판이 존재할 수 없다.
           다른 언어에 링크를 걸면 한국어 글만 잔뜩 나오는 페이지로 보내게 된다. */}
       {lang === 'ko' && <a href="/board/">{t('nav_board')}</a>}

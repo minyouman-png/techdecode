@@ -724,6 +724,10 @@ a.bd-tag:hover { border-color: var(--accent); color: var(--accent); }
 /* 공지는 눈에 띄어야 하고, 질문은 '아직 답이 필요한 글'로 구분되면 충분하다. */
 .bd-tag-notice { border-color: var(--accent); color: var(--accent-ink); background: var(--accent); }
 .bd-tag-qna { border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--accent); background: transparent; }
+/* 게임 공략 분류 — 게임마다 대표색(공략 페이지 /guide/ 의 색과 같다). */
+.bd-tag-yuja { border-color: #e0a526; color: #b07a0c; background: transparent; }
+.bd-tag-khan { border-color: #3b82c4; color: #2f6fa8; background: transparent; }
+.bd-tag-ansi { border-color: #c2413b; color: #b3352f; background: transparent; }
 /* 상단 고정된 공지는 목록과 살짝 구분해 둔다. */
 .bd-item-pin { background: color-mix(in srgb, var(--accent) 6%, transparent); }
 .bd-post-cat { margin-bottom: 12px; }

@@ -1,0 +1,92 @@
+---
+// 게임 공략 첫 화면(`/guide/`) — 우리 모바일 게임 셋의 소개·공략·커뮤니티 입구. 한국어 전용.
+// ⚠️게임 목록의 원본은 `src/i18n/guides.ts` 의 `guides` 하나뿐이다.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GuideCommunity from './GuideCommunity.astro';
+import { guides, guideUrl } from '../i18n/guides';
+
+const title = '게임 공략 · 커뮤니티';
+const desc = `미뉴소프트가 만든 모바일 게임 ${guides.map((g) => g.title).join('·')}의 게임 소개, 조작법, 시스템 해설, 초보자 공략, 자주 묻는 질문과 플레이어 커뮤니티.`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: title,
+  description: desc,
+  numberOfItems: guides.length,
+  itemListElement: guides.map((g, i) => ({
+    '@type': 'ListItem', position: i + 1, name: g.title, url: new URL(guideUrl(g.slug), Astro.site).href,
+  })),
+};
+---
+<BaseLayout lang="ko" titleFull={`게임 공략 · 커뮤니티 — ${guides.map((g) => g.title).join(' · ')} | 미뉴소프트`} description={desc} image={guides[0].hero} jsonLd={jsonLd}>
+  <section class="gi-hero">
+    <div class="wrap">
+      <p class="gi-kick">MENEW SOFT GAMES</p>
+      <h1>게임 공략 · 커뮤니티</h1>
+      <p class="gi-lead">
+        미뉴소프트가 직접 만든 모바일 게임 {guides.length}편의 소개와 공략을 모았습니다.
+        개발팀이 게임 데이터를 보고 정리한 <b>정확한 수치</b>, 막히는 곳을 넘는 <b>초보자 공략</b>,
+        그리고 플레이어끼리 묻고 답하는 <b>커뮤니티</b>까지 한곳에서.
+      </p>
+    </div>
+  </section>
+
+  <section class="wrap gi-list">
+    {guides.map((g) => (
+      <a class="gi-card" href={guideUrl(g.slug)} style={`--gc:${g.color}`}>
+        <div class="gi-cover">
+          <img src={g.cover} alt={`${g.title} 대표 이미지`} loading="lazy" />
+          <img class="gi-icon" src={g.icon} alt="" width="64" height="64" loading="lazy" />
+        </div>
+        <div class="gi-body">
+          <p class="gi-genre">{g.genre}</p>
+          <h2>{g.title}</h2>
+          <p class="gi-sub">{g.subtitle}</p>
+          <p class="gi-tag">{g.tagline}</p>
+          <ul class="gi-pills">{g.pills.map((p) => <li>{p}</li>)}</ul>
+          <span class="gi-go">소개 · 공략 보기 →</span>
+        </div>
+      </a>
+    ))}
+  </section>
+
+  <section class="wrap gi-comm">
+    <GuideCommunity cats={guides.map((g) => g.cat)} limit={8} title="세 게임 커뮤니티 최신 글" />
+  </section>
+
+  <section class="wrap gi-foot">
+    <div class="gi-how">
+      <div><h3>🧪 지금은 테스트 중</h3><p>세 게임 모두 구글 플레이 테스트로 먼저 공개했습니다. 각 공략 페이지의 '테스트 참여' 단추로 설치할 수 있습니다.</p></div>
+      <div><h3>🐞 버그·건의</h3><p>게시판에 글을 남겨 주시면 개발팀이 직접 읽고 다음 업데이트에 반영합니다.</p></div>
+      <div><h3>📝 공략 기여</h3><p>나만 아는 요령이 있다면 게시판에 공략 글로 공유해 주세요. 좋은 공략은 이 페이지에 소개합니다.</p></div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .gi-hero { padding: 64px 0 16px; }
+  .gi-kick { font-size: 11px; letter-spacing: .14em; font-weight: 700; color: var(--accent); margin: 0 0 12px; }
+  .gi-hero h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(2rem, 4.5vw, 3rem); color: var(--fg-strong); margin: 0 0 16px; }
+  .gi-lead { max-width: var(--readw); color: var(--muted); font-size: 1.06rem; line-height: 1.75; margin: 0; }
+  .gi-lead b { color: var(--fg-strong); }
+  .gi-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 22px; padding-top: 28px; padding-bottom: 40px; }
+  .gi-card { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; color: var(--fg); background: color-mix(in srgb, var(--fg-strong) 3%, transparent); transition: transform .15s ease, border-color .15s ease; }
+  .gi-card:hover { transform: translateY(-3px); border-color: var(--gc); }
+  .gi-cover { position: relative; aspect-ratio: 1024 / 500; background: #10141c; }
+  .gi-cover > img:first-child { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gi-icon { position: absolute; left: 16px; bottom: -26px; border-radius: 16px; border: 3px solid var(--bg); box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+  .gi-body { padding: 36px 20px 20px; display: flex; flex-direction: column; flex: 1; }
+  .gi-genre { margin: 0 0 4px; font-size: 12px; font-weight: 700; color: var(--gc); }
+  .gi-body h2 { margin: 0; font-family: var(--serif); font-size: 1.5rem; color: var(--fg-strong); }
+  .gi-sub { margin: 2px 0 10px; color: var(--muted); font-size: .92rem; }
+  .gi-tag { margin: 0 0 12px; line-height: 1.65; font-size: .95rem; flex: 1; }
+  .gi-pills { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .gi-pills li { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--gc) 50%, var(--border)); color: var(--fg-strong); }
+  .gi-go { font-weight: 700; color: var(--gc); }
+  .gi-comm { padding-bottom: 30px; }
+  .gi-foot { padding-bottom: 80px; }
+  .gi-how { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .gi-how > div { border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+  .gi-how h3 { margin: 0 0 6px; font-size: 1rem; color: var(--fg-strong); }
+  .gi-how p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.65; }
+</style>
