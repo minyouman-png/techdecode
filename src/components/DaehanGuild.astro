@@ -2,7 +2,7 @@
 // 임진왜란 상단 [WIZ]대한제국 홈페이지(`/imjin/daehan/…`) — 탭 넷을 한 컴포넌트로. 한국어 전용.
 // 자료 원본은 `src/i18n/imjin.ts` 하나뿐이다(상단원·성·일정·영상).
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { guild, members, castles, timeline, videos, RANKS, DAEHAN_TABS, fmt, short, type Rank } from '../i18n/imjin';
+import { guild, members, castles, timeline, videos, awards, RANKS, DAEHAN_TABS, fmt, short, type Rank } from '../i18n/imjin';
 
 interface Props { tab: 'history' | 'members' | 'schedule' | 'videos' }
 const { tab } = Astro.props;
@@ -43,6 +43,19 @@ const ranking = [...members].sort((a, b) => b.power - a.power);
   <div class="wrap dh-body">
     {tab === 'history' && (
       <>
+        <h2>상단의 영광</h2>
+        {awards.map((a) => (
+          <figure class="dh-award">
+            <img src={a.img} alt={a.title} loading="lazy" width="1600" height="1115" />
+            <figcaption>
+              <time>{a.date}</time>
+              <strong>{a.title}</strong>
+              <p>{a.body}</p>
+              <small>{a.credit}</small>
+            </figcaption>
+          </figure>
+        ))}
+
         <h2>대행수 · 행수</h2>
         <p class="dh-note">{guild.asOf} 게임 안 상단 창 기준. 대행수·행수는 상단 포인트 2배.</p>
         <div class="dh-leaders">
@@ -170,6 +183,13 @@ const ranking = [...members].sort((a, b) => b.power - a.power);
   .dh-lcard.is-top { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
   .dh-lcard strong { font-size: 1.2rem; color: var(--fg-strong); }
   .dh-lv, .dh-pw { color: var(--muted); font-size: 14px; }
+  .dh-award { margin: 0; display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 22px; align-items: center; padding: 18px; border: 1px solid #b8862b; border-radius: 16px; background: color-mix(in srgb, #b8862b 7%, transparent); }
+  .dh-award img { width: 100%; height: auto; border-radius: 10px; display: block; }
+  .dh-award time { font-size: 13px; font-weight: 700; color: var(--accent); }
+  .dh-award strong { display: block; font-family: var(--serif); font-size: 1.35rem; color: var(--fg-strong); margin: 4px 0 8px; }
+  .dh-award p { margin: 0 0 8px; color: var(--fg); line-height: 1.7; }
+  .dh-award small { color: var(--muted); }
+  @media (max-width: 760px) { .dh-award { grid-template-columns: 1fr; } }
   .dh-map { margin: 0 0 18px; }
   .dh-map img, .dh-castle img { width: 100%; height: auto; display: block; border-radius: 12px; border: 1px solid var(--border); }
   .dh-map figcaption { color: var(--muted); font-size: 13px; margin-top: 6px; }

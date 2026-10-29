@@ -123,11 +123,23 @@ export const castles: Castle[] = [
   { slug: 'hiroshima', name: '히로시마', troops: 49_446, img: '/imjin/daehan/castle-hiroshima.jpg' },
 ];
 
+/** 상단의 영광 — 실물 증빙(사진)이 있는 것만. date 는 증빙으로 확인한 날짜. */
+export const awards: { date: string; title: string; body: string; img: string; credit: string }[] = [
+  {
+    date: '2026-10-08',
+    title: '전주 서버 1위 달성 — 서버 1등 달성 표창장',
+    body: '대한제국이 전주 서버 1위를 달성해 개발사(레드징코게임즈)로부터 받은 표창장. "지금의 영광은 혼자가 아닌, 함께한 모든 상단원들의 노력과 헌신이 있었기에 가능했습니다." 표창장에는 상단원 37명의 이름이 함께 새겨져 있습니다.',
+    img: '/imjin/daehan/award-server1.jpg',
+    credit: '표창장 실물 사진, 2026-10-08 촬영',
+  },
+];
+
 /** 상단 일정 연혁 — 날짜가 확인된 것만 적는다. 새 일이 생기면 위에 추가. */
 export const timeline: { date: string; title: string; body: string }[] = [
   { date: '2026-10-29', title: '상단 대전 신수 진행', body: '상단 창 공지: "금일 상단대전 신수 진행합니다." 선전포고 포인트 1/5.' },
   { date: '2026-10-29', title: '일본 서부 성 5곳 보유', body: '수도 히메지를 중심으로 히젠나고야·구마모토·우와지마·히로시마까지 성 보유 5/5(최대).' },
   { date: '2026-10-29', title: '상단 레벨 10 (MAX) · 상단원 52/60', body: '상단 전투력 3,652,460,381. 대행수 울라리, 행수 5명.' },
+  { date: '2026-10-08', title: '전주 서버 1위 · 표창장 수령', body: '전주 서버 1위 달성으로 개발사 레드징코게임즈가 보낸 "서버 1등 달성 표창장"이 도착. 상단원 37명의 이름이 새겨졌다. (날짜는 표창장 실물 사진 촬영일 기준)' },
 ];
 
 /** 히스토리마스터 × 임진왜란 '사냥터 인물 열전' — 유튜브 jabhakboy 채널 */
