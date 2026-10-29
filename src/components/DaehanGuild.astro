@@ -1,0 +1,212 @@
+---
+// 임진왜란 상단 [WIZ]대한제국 홈페이지(`/imjin/daehan/…`) — 탭 넷을 한 컴포넌트로. 한국어 전용.
+// 자료 원본은 `src/i18n/imjin.ts` 하나뿐이다(상단원·성·일정·영상).
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { guild, members, castles, timeline, videos, RANKS, DAEHAN_TABS, fmt, short, type Rank } from '../i18n/imjin';
+
+interface Props { tab: 'history' | 'members' | 'schedule' | 'videos' }
+const { tab } = Astro.props;
+const here = DAEHAN_TABS[['history', 'members', 'schedule', 'videos'].indexOf(tab)];
+const title = `[${guild.tag}]${guild.name} 상단 — ${here.label}`;
+const desc = `임진왜란: 조선의 반격 상단 [${guild.tag}]${guild.name} — 상단 레벨 ${guild.level}, 상단원 ${guild.members}명, 성 ${guild.castlesHeld}곳 보유. ${here.label}.`;
+
+const byRank = (r: Rank) => members.filter((x) => x.rank === r).sort((a, b) => b.power - a.power);
+const leaders = [...byRank('대행수'), ...byRank('행수')];
+const stat = RANKS.map(({ rank, perk }) => {
+  const xs = byRank(rank);
+  return { rank, perk, n: xs.length, top: xs[0], avg: xs.length ? xs.reduce((s, x) => s + x.power, 0) / xs.length : 0 };
+});
+const totalMemberPower = members.reduce((s, x) => s + x.power, 0);
+const ranking = [...members].sort((a, b) => b.power - a.power);
+---
+<BaseLayout lang="ko" titleFull={`${title} | 미뉴소프트`} description={desc} image={guild.mark}>
+  <section class="dh-hero">
+    <div class="wrap dh-head">
+      <img class="dh-mark" src={guild.mark} alt={`${guild.name} 상단 깃발`} width="294" height="165" />
+      <div>
+        <p class="dh-kick"><a href="/imjin/">임진왜란 상단</a> · {guild.server}</p>
+        <h1><span>[{guild.tag}]</span>{guild.name}</h1>
+        <ul class="dh-stats">
+          <li><b>Lv.{guild.level}</b> MAX</li>
+          <li>전투력 <b>{fmt(guild.power)}</b></li>
+          <li>대행수 <b>{guild.leader}</b></li>
+          <li>상단원 <b>{guild.members}/{guild.capacity}</b></li>
+          <li>보유 성 <b>{guild.castlesHeld}/5</b></li>
+        </ul>
+      </div>
+    </div>
+    <nav class="wrap dh-tabs" aria-label="상단 메뉴">
+      {DAEHAN_TABS.map((t) => <a href={t.href} aria-current={t === here ? 'page' : undefined}>{t.label}</a>)}
+    </nav>
+  </section>
+
+  <div class="wrap dh-body">
+    {tab === 'history' && (
+      <>
+        <h2>대행수 · 행수</h2>
+        <p class="dh-note">{guild.asOf} 게임 안 상단 창 기준. 대행수·행수는 상단 포인트 2배.</p>
+        <div class="dh-leaders">
+          {leaders.map((x) => (
+            <div class={`dh-lcard ${x.rank === '대행수' ? 'is-top' : ''}`}>
+              <span class="dh-rank">{x.rank}</span>
+              <strong>{x.name}</strong>
+              <span class="dh-lv">Lv.{x.lv}</span>
+              <span class="dh-pw">⚔ {fmt(x.power)}</span>
+            </div>
+          ))}
+        </div>
+
+        <h2>보유 성</h2>
+        <p class="dh-note">일본 서부 다섯 성을 모두 쥐고 있습니다(보유 한도 5/5). 지도에서 밝은 베이지색이 대한제국 영토, 왕관 표시가 수도 히메지입니다.</p>
+        <figure class="dh-map">
+          <img src={guild.territory} alt="대한제국 영토 지도 — 규슈·시코쿠·혼슈 서부" loading="lazy" />
+          <figcaption>대한제국 영토 (게임 전체 지도, 세력 정보 보기)</figcaption>
+        </figure>
+        <div class="dh-castles">
+          {castles.map((c) => (
+            <figure class="dh-castle">
+              <img src={c.img} alt={`${c.name} 성 주변 지도`} loading="lazy" width="420" height="300" />
+              <figcaption>
+                <strong>{c.name}</strong>{c.capital && <span class="dh-cap">수도</span>}
+                <span>주둔 병력 {fmt(c.troops)}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </>
+    )}
+
+    {tab === 'members' && (
+      <>
+        <h2>직급별 현황</h2>
+        <p class="dh-note">{guild.asOf} 구성원 탭 기준 상단원 {members.length}명 · 상단원 전투력 합계 {fmt(totalMemberPower)}. '기여'는 상단 포인트 기여 비율입니다.</p>
+        <div class="dh-rankstat">
+          {stat.map((s) => (
+            <div>
+              <span class="dh-rank">{s.rank}</span>
+              <b>{s.n}명</b>
+              {s.n > 0 ? <small>평균 ⚔ {short(s.avg)} · 최고 {s.top!.name} {short(s.top!.power)}</small> : <small>없음</small>}
+            </div>
+          ))}
+        </div>
+
+        {stat.filter((s) => s.n > 0).map((s) => (
+          <>
+            <h2>{s.rank} <small>{s.n}명{s.perk && ` · ${s.perk}`}</small></h2>
+            <div class="dh-tablewrap">
+              <table class="dh-table">
+                <thead><tr><th>#</th><th>이름</th><th>레벨</th><th class="num">전투력</th><th class="num">기여</th></tr></thead>
+                <tbody>
+                  {byRank(s.rank).map((x, i) => (
+                    <tr><td>{i + 1}</td><td>{x.name}</td><td>{x.lv}</td><td class="num">{fmt(x.power)}</td><td class="num">{x.share.toFixed(2)}%</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ))}
+
+        <h2>전투력 순위 TOP 10</h2>
+        <ol class="dh-top">
+          {ranking.slice(0, 10).map((x) => (
+            <li><span>{x.name}</span><em>{x.rank} · Lv.{x.lv}</em><b>{fmt(x.power)}</b></li>
+          ))}
+        </ol>
+      </>
+    )}
+
+    {tab === 'schedule' && (
+      <>
+        <h2>상단 일정 연혁</h2>
+        <p class="dh-note">날짜가 확인된 일만 적습니다. 상단전·공성 결과가 생기면 맨 위에 더해 갑니다.</p>
+        <ol class="dh-timeline">
+          {timeline.map((e) => (
+            <li><time>{e.date}</time><strong>{e.title}</strong><p>{e.body}</p></li>
+          ))}
+        </ol>
+      </>
+    )}
+
+    {tab === 'videos' && (
+      <>
+        <h2>임진왜란 공략영상</h2>
+        <p class="dh-note">유튜브 히스토리마스터 채널의 「사냥터 인물 열전」 — 사냥터 보스의 실제 역사와 게임 속 전리품·효율을 직접 사냥하며 정리했습니다.</p>
+        <div class="dh-videos">
+          {videos.map((v) => (
+            <a class="dh-video" href={`https://youtu.be/${v.id}`} target="_blank" rel="noopener">
+              <img src={`/imjin/daehan/v-${v.id}.jpg`} alt="" loading="lazy" width="640" height="360" />
+              <span class="dh-boss">{v.boss}</span>
+              <strong>{v.title}</strong>
+              <small>{v.note}</small>
+            </a>
+          ))}
+        </div>
+      </>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .dh-hero { padding: 48px 0 0; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, color-mix(in srgb, #b8862b 10%, transparent), transparent); }
+  .dh-head { display: flex; gap: 28px; align-items: center; flex-wrap: wrap; }
+  .dh-mark { width: 260px; max-width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 10px 28px rgba(0,0,0,.25); }
+  .dh-kick { margin: 0 0 8px; font-size: 13px; font-weight: 700; color: var(--accent); }
+  .dh-kick a { color: inherit; }
+  .dh-head h1 { margin: 0 0 14px; font-family: var(--serif); font-size: clamp(2rem, 5vw, 3rem); color: var(--fg-strong); }
+  .dh-head h1 span { color: var(--accent); margin-right: 4px; }
+  .dh-stats { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .dh-stats li { font-size: 14px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+  .dh-stats b { color: var(--fg-strong); }
+  .dh-tabs { display: flex; gap: 4px; margin-top: 28px; overflow-x: auto; }
+  .dh-tabs a { padding: 12px 16px; font-weight: 700; color: var(--muted); border-bottom: 3px solid transparent; white-space: nowrap; }
+  .dh-tabs a[aria-current='page'] { color: var(--fg-strong); border-bottom-color: var(--accent); }
+  .dh-body { padding-top: 12px; padding-bottom: 80px; }
+  .dh-body h2 { font-family: var(--serif); color: var(--fg-strong); margin: 40px 0 8px; font-size: 1.5rem; }
+  .dh-body h2 small { font-family: inherit; font-size: .9rem; color: var(--muted); font-weight: 500; }
+  .dh-note { color: var(--muted); margin: 0 0 18px; line-height: 1.7; }
+  .dh-rank { justify-self: start; display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+  .dh-leaders { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .dh-lcard { display: grid; gap: 4px; padding: 16px 18px; border: 1px solid var(--border); border-radius: 14px; }
+  .dh-lcard.is-top { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .dh-lcard strong { font-size: 1.2rem; color: var(--fg-strong); }
+  .dh-lv, .dh-pw { color: var(--muted); font-size: 14px; }
+  .dh-map { margin: 0 0 18px; }
+  .dh-map img, .dh-castle img { width: 100%; height: auto; display: block; border-radius: 12px; border: 1px solid var(--border); }
+  .dh-map figcaption { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .dh-castles { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+  .dh-castle { margin: 0; }
+  .dh-castle figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-top: 8px; }
+  .dh-castle strong { color: var(--fg-strong); font-size: 1.05rem; }
+  .dh-castle figcaption span:last-child { flex-basis: 100%; color: var(--muted); font-size: 13px; }
+  .dh-cap { font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: #b8862b; color: #fff; }
+  .dh-rankstat { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+  .dh-rankstat > div { display: grid; gap: 4px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; }
+  .dh-rankstat b { font-size: 1.3rem; color: var(--fg-strong); }
+  .dh-rankstat small { color: var(--muted); }
+  .dh-tablewrap { overflow-x: auto; }
+  .dh-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .dh-table th, .dh-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+  .dh-table th { color: var(--muted); font-size: 13px; font-weight: 600; }
+  .dh-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .dh-table td:nth-child(2) { color: var(--fg-strong); font-weight: 600; }
+  .dh-top { margin: 0; padding: 0; list-style: none; counter-reset: k; }
+  .dh-top li { counter-increment: k; display: grid; grid-template-columns: 2.2em 1fr auto; grid-template-rows: auto auto; column-gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .dh-top li::before { content: counter(k); grid-row: span 2; font-weight: 800; color: var(--accent); font-size: 1.2rem; align-self: center; }
+  .dh-top span { color: var(--fg-strong); font-weight: 700; }
+  .dh-top em { font-style: normal; color: var(--muted); font-size: 13px; grid-column: 2; }
+  .dh-top b { grid-row: 1 / span 2; grid-column: 3; align-self: center; font-variant-numeric: tabular-nums; }
+  .dh-timeline { list-style: none; margin: 0; padding: 0 0 0 18px; border-left: 2px solid var(--border); }
+  .dh-timeline li { position: relative; padding: 0 0 22px 14px; }
+  .dh-timeline li::before { content: ''; position: absolute; left: -25px; top: 5px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); }
+  .dh-timeline time { font-size: 13px; color: var(--muted); font-weight: 700; }
+  .dh-timeline strong { display: block; color: var(--fg-strong); margin: 2px 0 4px; }
+  .dh-timeline p { margin: 0; color: var(--muted); line-height: 1.65; }
+  .dh-videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+  .dh-video { display: grid; gap: 6px; color: var(--fg); }
+  .dh-video img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px; border: 1px solid var(--border); transition: transform .15s ease; }
+  .dh-video:hover img { transform: translateY(-3px); }
+  .dh-boss { font-size: 12px; font-weight: 700; color: var(--accent); }
+  .dh-video strong { color: var(--fg-strong); line-height: 1.45; }
+  .dh-video small { color: var(--muted); }
+  @media (max-width: 640px) { .dh-mark { width: 100%; } .dh-hero { padding-top: 28px; } }
+</style>

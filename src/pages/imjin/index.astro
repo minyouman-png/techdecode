@@ -1,0 +1,34 @@
+---
+// 임진왜란 상단(`/imjin/`) — 우리가 속한 상단 홈페이지 입구. 한국어 전용.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { guild, fmt } from '../../i18n/imjin';
+const desc = `임진왜란: 조선의 반격 상단 [${guild.tag}]${guild.name} 홈페이지 — 상단 연혁, 상단원 소개, 일정, 공략 영상.`;
+---
+<BaseLayout lang="ko" titleFull="임진왜란 상단 | 미뉴소프트" description={desc} image={guild.mark}>
+  <section class="wrap ij">
+    <p class="ij-kick">임진왜란: 조선의 반격</p>
+    <h1>임진왜란 상단</h1>
+    <p class="ij-lead">우리가 함께하는 상단의 홈페이지입니다. 깃발을 누르면 들어갑니다.</p>
+    <a class="ij-card" href="/imjin/daehan/">
+      <img src={guild.mark} alt={`${guild.name} 상단 깃발`} width="294" height="165" />
+      <div>
+        <strong><span>[{guild.tag}]</span>{guild.name}</strong>
+        <p>Lv.{guild.level} MAX · 상단원 {guild.members}/{guild.capacity} · 성 {guild.castlesHeld}곳 · 전투력 {fmt(guild.power)}</p>
+        <em>상단 홈페이지 들어가기 →</em>
+      </div>
+    </a>
+  </section>
+</BaseLayout>
+<style>
+  .ij { padding-top: 60px; padding-bottom: 90px; }
+  .ij-kick { margin: 0 0 10px; font-size: 13px; font-weight: 700; color: var(--accent); }
+  .ij h1 { font-family: var(--serif); font-size: clamp(2rem, 4.5vw, 3rem); color: var(--fg-strong); margin: 0 0 12px; }
+  .ij-lead { color: var(--muted); margin: 0 0 28px; }
+  .ij-card { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; padding: 20px; border: 1px solid var(--border); border-radius: 18px; color: var(--fg); max-width: 760px; transition: border-color .15s ease, transform .15s ease; }
+  .ij-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .ij-card img { width: 260px; max-width: 100%; height: auto; border-radius: 12px; }
+  .ij-card strong { font-family: var(--serif); font-size: 1.8rem; color: var(--fg-strong); }
+  .ij-card strong span { color: var(--accent); margin-right: 4px; }
+  .ij-card p { margin: 6px 0 10px; color: var(--muted); }
+  .ij-card em { font-style: normal; font-weight: 700; color: var(--accent); }
+</style>
