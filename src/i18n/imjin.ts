@@ -130,7 +130,7 @@ export const awards: { date: string; title: string; body: string; img: string; c
     title: '전주 서버 1위 달성 — 서버 1등 달성 표창장',
     body: '대한제국이 전주 서버 1위를 달성해 개발사(레드징코게임즈)로부터 받은 표창장. "지금의 영광은 혼자가 아닌, 함께한 모든 상단원들의 노력과 헌신이 있었기에 가능했습니다." 표창장에는 상단원 37명의 이름이 함께 새겨져 있습니다.',
     img: '/imjin/daehan/award-server1.jpg',
-    credit: '표창장 실물 사진, 2026-10-08 촬영',
+    credit: '표창장 실물 사진(2026-10-08 촬영)을 반듯하게 펴 액자 테두리를 씌움',
   },
 ];
 
