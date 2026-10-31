@@ -1,0 +1,364 @@
+<!DOCTYPE html><html lang="ja"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Claude vs ChatGPT vs Gemini、2026年10月の成績表：ベンチマーク・実測・価格で見る3強の構図と今後 — MeNew Soft</title><meta name="description" content="Claude Opus 5.5、GPT-6 Astra・Sol・6.1 Terra、Gemini 4 Argonを並べて比較。メーカー発表と独立測定（Vals.ai・Artificial Analysis・LMArena）、開発者の実測テスト、価格から、いま誰がどこで先行しているのか、次に何を見るべきかを整理する。"><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/ja/blog/ai-model-race-2026-10/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)"><meta name="robots" content="noindex, follow"><link rel="alternate" hreflang="ko" href="https://menewsoft.com/blog/ai-model-race-2026-10/"><link rel="alternate" hreflang="en" href="https://menewsoft.com/en/blog/ai-model-race-2026-10/"><link rel="alternate" hreflang="ja" href="https://menewsoft.com/ja/blog/ai-model-race-2026-10/"><link rel="alternate" hreflang="es" href="https://menewsoft.com/es/blog/ai-model-race-2026-10/"><link rel="alternate" hreflang="zh" href="https://menewsoft.com/zh/blog/ai-model-race-2026-10/"><link rel="alternate" hreflang="x-default" href="https://menewsoft.com/blog/ai-model-race-2026-10/"><meta property="og:type" content="website"><meta property="og:title" content="Claude vs ChatGPT vs Gemini、2026年10月の成績表：ベンチマーク・実測・価格で見る3強の構図と今後 — MeNew Soft"><meta property="og:description" content="Claude Opus 5.5、GPT-6 Astra・Sol・6.1 Terra、Gemini 4 Argonを並べて比較。メーカー発表と独立測定（Vals.ai・Artificial Analysis・LMArena）、開発者の実測テスト、価格から、いま誰がどこで先行しているのか、次に何を見るべきかを整理する。"><meta property="og:url" content="https://menewsoft.com/ja/blog/ai-model-race-2026-10/"><meta property="og:site_name" content="MeNew Soft"><meta property="og:image" content="https://menewsoft.com/og/blog/ai-model-race-2026-10.ja.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Claude vs ChatGPT vs Gemini、2026年10月の成績表：ベンチマーク・実測・価格で見る3強の構図と今後"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://menewsoft.com/og/blog/ai-model-race-2026-10.ja.png"><link rel="sitemap" href="/sitemap-index.xml"><!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. --><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MeNew Soft","alternateName":["menewsoft","menewsoft.com","미뉴소프트","메뉴소프트","Tech Decode"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/index.BbgHLZFc.css">
+<style>.related[data-astro-cid-y2nmntto]{max-width:var(--readw);margin:48px auto 0;padding-top:8px}.game-break[data-astro-cid-y2nmntto]{max-width:var(--readw);margin:34px auto 0;display:flex;align-items:center;gap:20px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--bg-elev)}.gb-cover[data-astro-cid-y2nmntto]{flex:none;width:190px;aspect-ratio:16 / 10;display:block;background:#1a2433}.gb-cover[data-astro-cid-y2nmntto] img[data-astro-cid-y2nmntto]{width:100%;height:100%;object-fit:cover;display:block}.gb-body[data-astro-cid-y2nmntto]{padding:14px 18px 14px 0;min-width:0}.gb-label[data-astro-cid-y2nmntto]{margin:0 0 4px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600}.gb-body[data-astro-cid-y2nmntto] h3[data-astro-cid-y2nmntto]{margin:0 0 8px;font-family:var(--serif);font-size:1.15rem;color:var(--fg-strong)}.gb-play[data-astro-cid-y2nmntto]{color:var(--accent);font-weight:600;font-size:14.5px}@media(max-width:560px){.game-break[data-astro-cid-y2nmntto]{flex-direction:column;align-items:stretch;gap:0}.gb-cover[data-astro-cid-y2nmntto]{width:100%}.gb-body[data-astro-cid-y2nmntto]{padding:14px 18px 16px}}
+</style></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/ja/">MeNew<span>Soft</span></a> <nav class="nav"> <a href="/ja/">ホーム</a> <a href="/ja/shops/">ローカル店</a> <a href="/ja/news/">店舗ニュース</a> <a href="/ja/games/">あそび場</a> <a href="/ja/blog/">記事</a>           <a href="/ja/about/">概要</a> <a href="/ja/contact/">お問い合わせ</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul> <li> <a href="/blog/ai-model-race-2026-10/" class hreflang="ko">한국어</a> </li><li> <a href="/en/blog/ai-model-race-2026-10/" class hreflang="en">English</a> </li><li> <a href="/ja/blog/ai-model-race-2026-10/" class="active" hreflang="ja">日本語</a> </li><li> <a href="/es/blog/ai-model-race-2026-10/" class hreflang="es">Español</a> </li><li> <a href="/zh/blog/ai-model-race-2026-10/" class hreflang="zh">中文</a> </li> </ul> </div> </nav> </div> </header> <main> <article class="article"><div class="wrap"><div class="article-head"><a class="cat" href="/ja/category/ai/">AI</a><h1>Claude vs ChatGPT vs Gemini、2026年10月の成績表：ベンチマーク・実測・価格で見る3強の構図と今後</h1><p class="post-meta">menew · 2026年10月27日</p></div><div class="ad-slot" data-ad-slot="article-top"></div><div class="post-body"><p>7月に<a href="/ja/blog/gpt-5-6-vs-claude-fable-5-2026/">GPT-5.6とClaude Fable 5を比較</a>してから3か月あまり。その間に勢力図はすっかり変わった。9月22日、Anthropicは<strong>Claude Opus 5.5</strong>を、同じ日にOpenAIは<strong>GPT-6 Sol・Luna</strong>を発表した。9月30日にはGoogleが<strong>Gemini 4 Argon</strong>を発表し、10月26日にはOpenAIが<strong>GPT-6.1 Terra</strong>をChatGPTとCodexに投入した。</p>
+<p>この記事は2026年10月27日時点の資料をもとに、3社の現行主力モデルを4つの物差しで比べる。メーカーが発表したベンチマーク、第三者による独立測定、開発者やメディアが実際に動かした実測テスト、そして価格だ。最後に今後の展望をまとめた。</p>
+<blockquote>
+<p>先にお断り：このサイトとサイトのゲームの大半は<strong>Claude Code</strong>で作っている。毎日使う道具なので実感はあるが、そのぶんClaude寄りになりうる点を差し引いて読んでほしい。以下の数値にはすべて出典を付けた。</p>
+</blockquote>
+<h2 id="ひと目でわかる結論">ひと目でわかる結論</h2>
+<ul>
+<li><strong>総合ベンチマークとユーザー投票ではGemini 4 Argonが先行。</strong> Googleが公開した18のベンチマークのうち12で単独1位、LMArenaのテキスト順位でも1位（1532点、暫定）だ。</li>
+<li><strong>実戦のコーディング、特にターミナルで長時間働くエージェント型コーディングではClaude Opus 5.5が先行。</strong> 第三者が測ったTerminal-Bench 4.0で1・2位をClaudeが占めた（Opus 5.5、Sonnet 5.5）。</li>
+<li><strong>OpenAIは「一発で完成品」と価格で勝負する。</strong> GPT-6 Astraは一度の依頼ですぐ動くアプリを最も安定して作り、SolとTerraは安い。</li>
+<li><strong>「Geminiが追いかけている」はもう当てはまらない。</strong> ベンチマーク表だけ見ればむしろGeminiが先頭だ。ただし開発者がコーディングエージェントとして使うと、まだClaudeの評価が高い。</li>
+</ul>
+<h2 id="各社の現行主力モデル">各社の現行主力モデル</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>会社</th><th>モデル</th><th>公開</th><th>API価格（入力/出力、100万トークンあたり）</th></tr></thead><tbody><tr><td>Anthropic</td><td>Claude Opus 5.5</td><td>9月22日</td><td>$4 / $20</td></tr><tr><td>Anthropic</td><td>Claude Fable 5.1（前最上位）</td><td>9月（Opus 5.5の数週間前）</td><td>$10 / $50</td></tr><tr><td>Anthropic</td><td>Claude Sonnet 5.5 · Haiku 5.5</td><td>9月28日 · 10月7日</td><td>Haiku $0.10 / $0.50（10万トークン以下）</td></tr><tr><td>OpenAI</td><td>GPT-6 Astra（最上位）</td><td>9月初め</td><td>$10 / $50</td></tr><tr><td>OpenAI</td><td>GPT-6 Sol → 6.1 Sol</td><td>9月22日 → 9月29日（DevDay）</td><td>$2 / $10</td></tr><tr><td>OpenAI</td><td>GPT-6.1 Terra（中型）</td><td>10月26日</td><td>GPT-5.6 Terraより50%安い</td></tr><tr><td>Google</td><td>Gemini 4 Argon</td><td>9月30日発表、10月13日一般公開</td><td>$2 / $10（11月30日まで）→ $4 / $20</td></tr></tbody></table>
+<p>目を引く点がいくつかある。</p>
+<ul>
+<li><strong>Anthropicは上位モデルを安く出した。</strong> Opus 5.5は前の最上位Fable 5.1よりAPI価格が60%安い。同じ作業を終えるのに使うトークンも少なく、実際のコストは約40%下がるとAnthropicは説明している。</li>
+<li><strong>OpenAIはラインアップを4つに分けた。</strong> 安い順にLuna、Terra、Sol、Astra。ただし10月予定だったGPT-6.1 Astraは、社内の安全性試験の後に中止されたとウォール・ストリート・ジャーナルが報じた。最上位ラインの次の版はまだ日程がない。</li>
+<li><strong>Googleは価格で攻めてきた。</strong> Argonの導入価格はOpus 5.5の半額だ。ただし12月1日から2倍になり、Opus 5.5と同じになる。</li>
+</ul>
+<h2 id="1-メーカー発表のベンチマークgeminiの圧勝に見える">1. メーカー発表のベンチマーク：Geminiの圧勝に見える</h2>
+<p>GoogleはArgonの発表と同時に、競合と並べた18項目のベンチマーク表を公開した。VentureBeatの集計では、Argonが12項目で単独1位、1項目で同率1位。GPT-6 Astraは単独1位が3つ、Opus 5.5は2つだった。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>ベンチマーク（何を測るか）</th><th>Gemini 4 Argon</th><th>GPT-6 Astra</th><th>Claude Opus 5.5</th></tr></thead><tbody><tr><td>DeepSWE v1.1（実際のソフトウェア修正）</td><td><strong>77.9%</strong></td><td>74.1%</td><td>74.2%</td></tr><tr><td>GraphWalks（非常に長い文脈の推論）</td><td><strong>84.2%</strong></td><td>71.8%</td><td>66.8%</td></tr><tr><td>LVBench（長い動画の理解）</td><td><strong>91.7%</strong></td><td>87.5%</td><td>83.7%</td></tr><tr><td>AutomationBench（業務自動化）</td><td><strong>51.3%</strong></td><td>41.4%</td><td>42.5%</td></tr><tr><td>Vals Finance Agent v2（金融業務）</td><td><strong>65.4%</strong></td><td>53.5%</td><td>58.6%</td></tr><tr><td>FrontierSWE v2（高難度コーディング）</td><td>55.0%</td><td><strong>65.5%</strong></td><td>62.3%</td></tr><tr><td>Terminal-Bench 4.0（ターミナルエージェント）</td><td>57.4%</td><td>58.2%</td><td><strong>66.4%</strong></td></tr><tr><td>PostTrainBench</td><td>45.3%</td><td>—</td><td><strong>49.3%</strong></td></tr></tbody></table>
+<p><em>出典：Googleの公開表（VentureBeat・DataCampによる整理）。Opus 5.5のFrontierSWE v2とAstraのTerminal-Bench 4.0はDataCamp・shattered.ioなど二次資料の値。</em></p>
+<p>傾向ははっきりしている。<strong>長い文書、長い動画、法律・金融のように大量の資料を読んで判断する仕事はGeminiが強い。</strong> 逆に<strong>ターミナルでコマンドを打ちながら長時間働くコーディングはClaude、高難度の単発コーディング問題はGPTが強い。</strong></p>
+<p>ただし、この表を作ったのはGoogleで、比較相手の設定もGoogleが決めた。たとえば動画ベンチマークでは、Argonは動画全体を毎秒1枚で受け取ったが、Astraは800枚、Opus 5.5はAPIの上限で600枚しか受け取っていない。</p>
+<h2 id="2-独立測定差は縮まり順位が入れ替わる">2. 独立測定：差は縮まり、順位が入れ替わる</h2>
+<p>メーカーの数値はそれぞれ最も有利な条件で測ったものだ。第三者が同じ条件で測るとどうなるか。</p>
+<h3 id="terminal-bench-40--valsaiの独立測定10月26日時点">Terminal-Bench 4.0 — Vals.aiの独立測定（10月26日時点）</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>順位</th><th>モデル</th><th>スコア</th></tr></thead><tbody><tr><td>1</td><td>Claude Opus 5.5</td><td>65.15%</td></tr><tr><td>2</td><td>Claude Sonnet 5.5</td><td>64.14%</td></tr><tr><td>3</td><td>Kimi K3.1 Pro（中国Moonshot、オープンウェイト）</td><td>63.64%</td></tr><tr><td>4</td><td>GPT-6 Astra</td><td>59.60%</td></tr><tr><td>5</td><td>Claude Fable 5.1</td><td>58.08%</td></tr><tr><td>7</td><td>Gemini 4 Argon</td><td>57.58%</td></tr><tr><td>8</td><td>GPT-6.1 Sol</td><td>55.05%</td></tr><tr><td>10</td><td>GPT-6.1 Terra</td><td>49.49%</td></tr></tbody></table>
+<p>全モデルが同じエージェント枠組み（Mini-SWE-agent）で測られた。Opus 5.5の自社発表66.4%と独立測定65.15%はほぼ同じで、メーカーの数値は誇張されていなかったことになる。Artificial Analysisが別に測った値は59.6%と低いが、枠組みが違えばこの程度の差はよくある。</p>
+<p>注目すべきは<strong>3位のKimi K3.1 Pro</strong>だ。誰でもダウンロードして使えるオープンウェイトモデルが、GPT-6 AstraとGemini 4 Argonを上回った。</p>
+<h3 id="ユーザー投票--lmarenaテキスト順位10月20日">ユーザー投票 — LMArenaテキスト順位（10月20日）</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>順位</th><th>モデル</th><th>スコア</th></tr></thead><tbody><tr><td>1</td><td>Gemini 4 Argon (High)</td><td>1532（暫定）</td></tr><tr><td>2</td><td>Claude Opus 5.5 (High)</td><td>1516</td></tr><tr><td>3</td><td>Claude Fable 5.1 (Max)</td><td>1512</td></tr><tr><td>4</td><td>Claude Opus 5 (Max)</td><td>1509</td></tr></tbody></table>
+<p>人が2つの回答を見比べて良いほうに投票する方式だ。Argonが1位だが、票数はまだ約4,900で暫定順位にとどまる。2〜5位をClaudeが占め、GPT-6系は上位5位に入っていない。</p>
+<h3 id="総合知能指数--artificial-analysis">総合知能指数 — Artificial Analysis</h3>
+<p>Artificial Analysisの指数（複数のベンチマークをまとめた点数）は資料によって少しずつ違うが、おおむね<strong>Opus 5.5が56〜58点で首位</strong>、<strong>ArgonとGPT-6 Astraは52〜53点台で横並び</strong>だ。10月26日に追加されたGPT-6.1 Terraは最高設定で48点と、中型モデルとしては高い。Artificial Analysisは10月末の指数v5への改定を予告しており、順位はもう一度動く可能性がある。</p>
+<h2 id="3-開発者メディアの実測仕事の種類で勝者が変わる">3. 開発者・メディアの実測：仕事の種類で勝者が変わる</h2>
+<p>ベンチマークの次に気になるのは「実際に使うとどうか」だ。YouTubeや開発者コミュニティには、同じ課題を3モデルにやらせる比較があふれている。その中から結果を数値で公開したテストだけを選んだ。</p>
+<p><strong>① 3Dレースゲームとスーパーカー（開発者Anass Kartit、10月14日）</strong>
+各モデルを自社のコーディングツール（Opus 5.5はClaude Code、AstraはCodex、Argonはopencode）につないで同じ課題をやらせた。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>課題</th><th>Gemini 4 Argon</th><th>GPT-6 Astra</th><th>Claude Opus 5.5</th></tr></thead><tbody><tr><td>一発で3Dカートゲーム</td><td>220秒 · $0.31 · 9.5/10</td><td>323秒 · $0.70 · <strong>10/10</strong></td><td>308秒 · $0.64 · 出力上限で中断</td></tr><tr><td>ネオン高速道路のスーパーカー</td><td>約24分 · 2,540行 · $2.45</td><td><strong>9分</strong> · 193行 · 約$3.30</td><td>14分39秒 · 1,166行 · 約$14.14</td></tr><tr><td>短答式82問</td><td>82/82</td><td>82/82</td><td>81/82（形式ミス1つ）</td></tr></tbody></table>
+<p>作者の結論はこうだ。見た目が最も良かったのは<strong>Argon</strong>、一度で完成したアプリを最も確実に出したのは<strong>Astra</strong>。<strong>Opus 5.5はClaude Codeで設定を変えずにそのまま動いた。</strong> 一方Argonはツールの設定を2つ直す必要があった。</p>
+<p><strong>② ロボットアームの障害物回避（DataCamp、10月14日）</strong>
+「どんな場合も障害物に触れてはならない」という条件を最後まで守れるかを見た試験だ。<strong>Opus 5.5は一度も触れず4.7点</strong>、<strong>Argonは途中で障害物をすり抜けて3.7点</strong>だった。コストはArgonが$0.72でOpus（$1.09）より安かったが、高い思考量設定では出力上限を使い切ってもファイルを作れなかった。</p>
+<p><strong>③ 重力反転テトリス（DataCamp、9月23日）</strong>
+重力が反転するテトリスをファイル1つで作らせた。<strong>GPT-6 Solが5.0点でOpus 5.5（4.3点）を上回った。</strong> コストもSolが$0.26でOpus（$0.87）の約3分の1だった。</p>
+<p><strong>④ 3Dシーンのコーディング（韓国AIタイムズ報道、9月23日）</strong>
+魚の群れ、渦潮、嵐の中の船といった場面を一発で描かせた試験だ。<strong>Opus 5.5は自分でエラーを直しながら細部で勝った</strong>が、総コストは$4.37で<strong>GPT-6 Sol（$0.34）の約13倍</strong>だった。記事の結論は、速い骨組みと安い基礎コードにはGPT、実サービス水準の仕上げにはOpus 5.5が向く、というものだ。</p>
+<p>実測をまとめるとパターンが見える。</p>
+<ul>
+<li><strong>Claude</strong>：高めで遅め。そのかわり条件を最後まで守り、自分で直しながら仕上げる力が最も強い。長時間任せるエージェント作業での信頼が高い。</li>
+<li><strong>GPT</strong>：一発で動く結果物を安く速く出す。「最初の完成品」としては最も安定している。</li>
+<li><strong>Gemini</strong>：見た目の結果物と長い資料の処理に強く、導入価格で安い。ただしコーディングツールとの相性はまだ粗い。</li>
+</ul>
+<p>これらのテストはほとんどが1回ずつの結果だ。同じ課題をやり直せば順位が変わりうるので、あくまで「傾向」として見てほしい。</p>
+<h2 id="4-では何を使うべきか">4. では何を使うべきか</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>こんな仕事なら</th><th>おすすめ</th></tr></thead><tbody><tr><td>大きなコードベースを長時間任せるエージェント型コーディング</td><td>Claude Opus 5.5（Claude Code）</td></tr><tr><td>一発で動くプロトタイプ、大量・低コストの処理</td><td>GPT-6 Sol / 6.1 Terra</td></tr><tr><td>数百ページの文書、長い動画、法律・金融の分析</td><td>Gemini 4 Argon</td></tr><tr><td>コストが最優先の単純な繰り返し作業</td><td>Claude Haiku 5.5、GPT-6.1 Terra、オープンウェイト（Kimiなど）</td></tr></tbody></table>
+<p>Geminiは11月30日まで半額なので、試すなら今が好機だ。12月1日からはOpus 5.5と同じ価格になる。</p>
+<h2 id="今後の展望注目すべき5つのポイント">今後の展望：注目すべき5つのポイント</h2>
+<p><strong>1)「誰が1位か」より「何で1位か」の時代へ。</strong>
+3か月前までは、1つのモデルがほとんどの表を総なめにすることが多かった。いまは3社がそれぞれの得意分野を分け合っている。Claudeは長時間働くコーディングエージェント、GPTは一発の完成品と価格、Geminiは長い資料とマルチモーダルだ。今後は1つに絞るより、仕事に応じてモデルを使い分ける形が増えるだろう。Claude Code、Codex、GitHub Copilotといったツールもすでに複数社のモデルを選べる方向に変わりつつある。</p>
+<p><strong>2) 価格競争はもう始まっている。</strong>
+Opus 5.5は前の最上位より60%安く登場し、GPT-6.1 Terraは前作より50%安い。Argonは導入価格でOpusの半額から入ってきた。同じ性能を出すコストが数か月ごとに半分になる流れだ。最初の試金石は12月1日。Argonの価格が本当に2倍になるのか、それとも導入価格が事実上固定されるのか。</p>
+<p><strong>3) 最上位モデルは「即公開」ではなく「段階的公開」へ。</strong>
+Argonは最初にサイバー防御組織だけに先行提供された。Claude Mythos 5.1も承認されたユーザーにしか提供されていない。GPT-6.1 Astraは安全性試験の後に公開が中止されたと報じられた。強いモデルほど安全検証を経て遅く、狭く公開される流れが定着しつつある。一般ユーザーが使う「最新モデル」と実際の最前線との間に時間差が生まれるということだ。</p>
+<p><strong>4) オープンウェイトがすぐ後ろまで来た。</strong>
+Kimi K3.1 Proは独立測定のTerminal-Bench 4.0で3位に入り、GPT-6 AstraとGemini 4 Argonを上回った。全重みの公開は11月4日の予定だ。DeepSeek、MiniMax、MetaのMuse Spark Openも10月に相次いで登場した。高価な最上位モデルと「そこそこ良い無料モデル」の差が縮まれば、3社の価格戦略にも圧力がかかる。</p>
+<p><strong>5) ベンチマークそのものが揺らいでいる。</strong>
+同じTerminal-Bench 4.0でも、Opus 5.5のスコアは測る場所によって59.6%から66.4%まで分かれる。枠組みや思考量の設定が違うからだ。SWE-bench Verifiedは事実上引退し、Artificial Analysisは指数v5への改定を控えている。これからの発表数値は「誰が、どの設定で測ったか」とセットで見てこそ意味がある。結局、最も信頼できるベンチマークは<strong>自分の仕事で直接試した結果</strong>だ。</p>
+<h2 id="まとめ">まとめ</h2>
+<p>「ClaudeとChatGPTをGeminiが追う」という構図は10月で終わった。表の上ではGeminiが前に出た。しかし毎日コーディングエージェントを動かしている立場からの実感は、まだClaude Opus 5.5のほうにある。任せておけば最後までやり遂げるモデルだからだ。その差がどれだけ続くかは、12月の価格、オープンウェイトの追い上げ、そしてOpenAIの次の最上位モデルが決めるだろう。</p>
+<p><em>この記事は2026年10月27日時点の公開資料をまとめたものです。ベンチマークの数値は測定主体と設定によって異なり、メーカー発表値は独立検証前の値です。</em></p>
+<h3 id="出典">出典</h3>
+<ul>
+<li><a href="https://venturebeat.com/technology/google-unveils-gemini-4-argon-retaking-benchmark-lead-over-openai-and-anthropic-but-in-limited-release">VentureBeat — Google unveils Gemini 4 Argon, retaking benchmark lead</a></li>
+<li><a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/">Google — Gemini 4 Argon: our next era of frontier intelligence</a></li>
+<li><a href="https://venturebeat.com/technology/anthropic-releases-claude-opus-5-5-beating-fable-5-1-on-key-agentic-benchmarks-at-60-cheaper-api-price">VentureBeat — Anthropic releases Claude Opus 5.5</a></li>
+<li><a href="https://www.anthropic.com/claude-haiku-5-5">Anthropic — Introducing Claude Haiku 5.5</a></li>
+<li><a href="https://9to5mac.com/2026/10/26/openai-upgrades-chatgpt-and-codex-with-new-gpt-6-1-terra-model/">9to5Mac — OpenAI upgrades ChatGPT and Codex with new GPT-6.1 Terra</a></li>
+<li><a href="https://www.vals.ai/benchmarks/terminal-bench-4">Vals.ai — Terminal-Bench 4.0 Leaderboard</a></li>
+<li><a href="https://artificialanalysis.ai/changelog">Artificial Analysis — Changelog</a></li>
+<li><a href="https://www.versusapps.com/blog/lmarena-leaderboard-september-2026">VersusApps — LMArena Leaderboard October 2026</a></li>
+<li><a href="https://www.datacamp.com/blog/gemini-4-argon-vs-claude-opus-5-5">DataCamp — Gemini 4 Argon vs Claude Opus 5.5</a></li>
+<li><a href="https://www.datacamp.com/blog/gpt-6-sol-vs-claude-opus-5-5">DataCamp — GPT-6 Sol vs Claude Opus 5.5</a></li>
+<li><a href="https://www.kartit.net/blog/gemini-4-argon-review/">Anass Kartit — Gemini 4 Argon vs Opus 5.5 vs GPT-6 Astra: Same Prompt, Real Bills</a></li>
+<li><a href="https://www.aitimes.com/news/articleView.html?idxno=215618">AIタイムス（韓国語）— 3Dコーディング対決：Claude Opus 5.5 vs GPT</a></li>
+<li><a href="https://local-ai-zone.github.io/blog/October_2026_AI_Model_Updates.html">October 2026 AI Model Updates（モデル公開ログ）</a></li>
+</ul></div><p class="disclosure">本記事にはアフィリエイトリンクが含まれる場合があります。本記事の内容は金融・投資助言ではありません。</p><aside class="related" data-astro-cid-y2nmntto><p class="section-label" data-astro-cid-y2nmntto>続けて読む</p><ul class="post-list compact" data-astro-cid-y2nmntto><li data-astro-cid-y2nmntto><a class="post-row" href="/ja/blog/galaxy-z-fold8-ai/" data-astro-cid-y2nmntto><span class="cat" data-astro-cid-y2nmntto>AI</span><h3 data-astro-cid-y2nmntto>Galaxy Z Fold8 — フォルダブルがAIの作業台になるとき、そしてFoldユーザーがすでに知っている落とし穴</h3></a></li><li data-astro-cid-y2nmntto><a class="post-row" href="/ja/blog/browser-office-editors-guide/" data-astro-cid-y2nmntto><span class="cat" data-astro-cid-y2nmntto>AI</span><h3 data-astro-cid-y2nmntto>インストールも登録も不要でExcel・Word・PowerPointファイルを開く方法 — 無料ブラウザオフィス3種の使い方ガイド</h3></a></li><li data-astro-cid-y2nmntto><a class="post-row" href="/ja/blog/kimi-k3-gpu-crunch-2026/" data-astro-cid-y2nmntto><span class="cat" data-astro-cid-y2nmntto>AI</span><h3 data-astro-cid-y2nmntto>Kimi K3は48時間でGPUを使い果たした——ベンチマークより、この出来事のほうが多くを語る</h3></a></li></ul></aside><aside class="game-break" data-astro-cid-y2nmntto> <a class="gb-cover" href="/play/yuja-knight/?lang=ja" target="_blank" rel="noopener" title="新しいタブで開きます" data-astro-cid-y2nmntto> <img src="/games/yknight/cover.jpg" alt="ユジャの騎士 I" loading="lazy" data-astro-cid-y2nmntto> </a> <div class="gb-body" data-astro-cid-y2nmntto> <p class="gb-label" data-astro-cid-y2nmntto>ひと休み — AIが作ったゲームをどうぞ</p> <h3 data-astro-cid-y2nmntto>ユジャの騎士 I</h3> <a class="gb-play" href="/play/yuja-knight/?lang=ja" target="_blank" rel="noopener" data-astro-cid-y2nmntto>▶ 今すぐプレイ</a> </div> </aside> </div></article><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Claude vs ChatGPT vs Gemini、2026年10月の成績表：ベンチマーク・実測・価格で見る3強の構図と今後","description":"Claude Opus 5.5、GPT-6 Astra・Sol・6.1 Terra、Gemini 4 Argonを並べて比較。メーカー発表と独立測定（Vals.ai・Artificial Analysis・LMArena）、開発者の実測テスト、価格から、いま誰がどこで先行しているのか、次に何を見るべきかを整理する。","inLanguage":"ja","datePublished":"2026-10-27T10:00:00.000Z","author":{"@type":"Person","name":"menew"},"publisher":{"@type":"Organization","name":"Tech Decode"},"image":"https://menewsoft.com/og/blog/ai-model-race-2026-10.ja.png","mainEntityOfPage":"https://menewsoft.com/ja/blog/ai-model-race-2026-10/","articleSection":"ai"}</script> </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>MeNew Soft</span> <div class="links" data-astro-cid-sz7xmlte> <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. --> <a href="/ja/" data-astro-cid-sz7xmlte>ホーム</a> <a href="/ja/shops/" data-astro-cid-sz7xmlte>ローカル店</a> <a href="/ja/news/" data-astro-cid-sz7xmlte>店舗ニュース</a> <a href="/ja/games/" data-astro-cid-sz7xmlte>あそび場</a> <a href="/ja/blog/" data-astro-cid-sz7xmlte>記事</a> <a href="/ja/glossary/" data-astro-cid-sz7xmlte>用語集</a> <a href="/ja/tools/" data-astro-cid-sz7xmlte>ツール</a>     <a href="/ja/about/" data-astro-cid-sz7xmlte>概要</a> <a href="/ja/contact/" data-astro-cid-sz7xmlte>お問い合わせ</a> <a href="/ja/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 MeNew Soft · menewsoft.com — 街のお店のホームページを作ります。掲載内容の誤りはお知らせください。</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 今日 <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · 累計 <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html>

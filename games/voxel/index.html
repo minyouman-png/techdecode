@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>MENEW CRAFT — Voxel World</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000;
+    font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Hiragino Sans', sans-serif; user-select: none; }
+  canvas { display: block; }
+
+  /* HUD */
+  #cross { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -52%);
+    color: #fff; font-size: 26px; font-weight: 200; mix-blend-mode: difference;
+    pointer-events: none; z-index: 5; }
+  #info { position: fixed; left: 10px; top: 8px; color: #fff; font-size: 12px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,.8); pointer-events: none; z-index: 5;
+    font-family: Menlo, monospace; }
+  #itemname { position: fixed; left: 50%; bottom: 112px; transform: translateX(-50%);
+    color: #fff; font-size: 15px; font-weight: bold; text-shadow: 1px 1px 0 rgba(0,0,0,.85);
+    opacity: 0; transition: opacity .4s; pointer-events: none; z-index: 5; }
+  #hotbar { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 4px; z-index: 5; pointer-events: none; }
+  .slot { width: 52px; height: 52px; background: rgba(0,0,0,.45);
+    border: 3px solid rgba(120,120,120,.85); border-radius: 3px; position: relative;
+    display: flex; align-items: center; justify-content: center; }
+  .slot.on { border-color: #fff; background: rgba(0,0,0,.6); }
+  .slot canvas { width: 40px; height: 40px; image-rendering: pixelated; }
+  .slot span { position: absolute; left: 3px; top: 1px; color: #ddd; font-size: 10px;
+    text-shadow: 1px 1px 0 #000; }
+
+  /* 시작 화면 */
+  #overlay { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 20px; cursor: pointer;
+    background: rgba(10, 12, 20, .55); backdrop-filter: blur(2px); }
+  #overlay h1 { color: #fff; font-size: 50px; letter-spacing: 6px; font-weight: 900;
+    text-shadow: 3px 3px 0 #3a3a3a, 6px 6px 0 rgba(0,0,0,.5); text-align: center; }
+  #overlay h1 span { display: block; font-size: 13px; letter-spacing: 8px; color: #ffe957;
+    transform: rotate(-3deg); margin-top: 6px; text-shadow: 1px 1px 0 rgba(0,0,0,.6); }
+  #overlay .btns { display: flex; gap: 12px; }
+  #overlay button { padding: 13px 30px; font-size: 16px; font-weight: bold; cursor: pointer;
+    color: #fff; background: #3d8527; border: 2px solid #1e4712; border-bottom-width: 5px;
+    border-radius: 4px; font-family: inherit; }
+  #overlay button:hover { background: #4aa030; }
+  #overlay button#newBtn { background: #6b6b6b; border-color: #333; }
+  #overlay button#newBtn:hover { background: #808080; }
+  #overlay .btns2 button { padding: 9px 18px; font-size: 13px; background: #35507a;
+    border-color: #1c2d4a; }
+  #overlay .btns2 button:hover { background: #41639a; }
+  #overlay .help { color: #e8e8e8; font-size: 14px; line-height: 2;
+    background: rgba(0,0,0,.45); padding: 13px 26px; border-radius: 8px; max-width: 86vw; }
+  #overlay .help b { color: #ffe957; }
+  #overlay .tip { color: #9aa; font-size: 12px; }
+  #overlay .credit { color: #cfd6dd; font-size: 12px; background: rgba(0,0,0,.4);
+    padding: 6px 14px; border-radius: 20px; }
+  #overlay .credit a { color: #ffe957; text-decoration: none; }
+
+  #err { display: none; position: fixed; left: 10px; bottom: 10px; z-index: 99;
+    color: #fff; background: #b32; padding: 8px 12px; border-radius: 6px; font-size: 13px; }
+
+  /* 서바이벌 HUD */
+  #hearts { position: fixed; left: 50%; bottom: 72px; transform: translateX(-50%);
+    z-index: 5; pointer-events: none; font-size: 17px; letter-spacing: 1px;
+    text-shadow: 0 0 3px #000; }
+  #bossbar { display: none; position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+    width: min(520px, 70vw); z-index: 6; text-align: center; pointer-events: none; }
+  #bossbar .bname { color: #ff6b6b; font-weight: 900; letter-spacing: 4px; font-size: 15px;
+    text-shadow: 1px 1px 0 #000; }
+  #bossbar .btrack { height: 10px; border: 2px solid rgba(0,0,0,.7); border-radius: 6px;
+    background: rgba(0,0,0,.5); margin-top: 4px; overflow: hidden; }
+  #bossfill { height: 100%; width: 100%; background: linear-gradient(#ff5050, #a01020); }
+  #vignette { position: fixed; inset: 0; pointer-events: none; z-index: 8; opacity: 0;
+    transition: opacity .25s; box-shadow: inset 0 0 130px rgba(255,0,0,.75); }
+  #toasts { position: fixed; top: 16px; right: 16px; z-index: 9; display: flex;
+    flex-direction: column; gap: 8px; pointer-events: none; align-items: flex-end; }
+  .toastmsg { background: rgba(0,0,0,.75); color: #ffe957; border: 1px solid #ffe957;
+    padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: bold;
+    animation: tin .3s ease; }
+  @keyframes tin { from { transform: translateX(40px); opacity: 0; } }
+  #quests { display: none; position: fixed; right: 14px; top: 60px; z-index: 7;
+    background: rgba(0,0,0,.72); color: #eee; padding: 14px 18px; border-radius: 10px;
+    font-size: 13px; line-height: 1.9; min-width: 250px; }
+  #quests h3 { color: #ffe957; font-size: 14px; margin-bottom: 6px; }
+  #quests .qrow em { color: #9ac; font-style: normal; }
+  #quests .qdone { color: #8f8; }
+  #quests .qtitle { color: #ffd24a; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,.2);
+    padding-bottom: 7px; margin-bottom: 7px; }
+  #quests .qsec { color: #aab; font-size: 11px; letter-spacing: 1px; margin-top: 8px;
+    text-transform: uppercase; }
+
+  /* 무기 툴바 */
+  #toolbar { position: fixed; left: calc(50% - 262px); bottom: 14px;
+    transform: translateX(-100%); display: flex; gap: 4px; z-index: 5; pointer-events: none; }
+  #toolbar .tslot { width: 40px; height: 52px; background: rgba(0,0,0,.45);
+    border: 3px solid rgba(120,120,120,.85); border-radius: 3px;
+    display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  #toolbar .tslot.on { border-color: #ffe957; background: rgba(0,0,0,.6); }
+  #toolbar .tkey { position: absolute; margin-top: -66px; color: #ddd; font-size: 10px;
+    text-shadow: 1px 1px 0 #000; }
+  #death { display: none; position: fixed; inset: 0; z-index: 30; background: rgba(90,0,0,.62);
+    flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
+  #death h2 { color: #fff; font-size: 44px; letter-spacing: 4px;
+    text-shadow: 3px 3px 0 rgba(0,0,0,.6); }
+  #death button { padding: 14px 34px; font-size: 17px; font-weight: bold; cursor: pointer;
+    color: #fff; background: #3d8527; border: 2px solid #1e4712; border-bottom-width: 5px;
+    border-radius: 4px; font-family: inherit; }
+
+  /* ===== 모바일 터치 컨트롤 ===== */
+  canvas { touch-action: none; }
+  #touch { display: none; }
+  body.touch.playing #touch { display: block; }
+  #touch .tbtn { position: fixed; z-index: 6; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.35); background: rgba(0,0,0,.38); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    touch-action: none; -webkit-user-select: none; user-select: none;
+    -webkit-tap-highlight-color: transparent; }
+  #touch .tbtn.on { background: rgba(255,255,255,.28); }
+  #joy { position: fixed; left: 16px; bottom: 100px; width: 116px; height: 116px;
+    border-radius: 50%; background: rgba(255,255,255,.08);
+    border: 2px solid rgba(255,255,255,.25); z-index: 6; touch-action: none; }
+  #joyKnob { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px;
+    border-radius: 50%; background: rgba(255,255,255,.35);
+    transform: translate(-50%,-50%); pointer-events: none; }
+  #tJump  { right: 18px; bottom: 96px;  width: 68px; height: 68px; font-size: 26px; }
+  #tBreak { right: 32px; bottom: 186px; width: 58px; height: 58px; font-size: 24px; }
+  #tPlace { right: 100px; bottom: 126px; width: 58px; height: 58px; font-size: 24px; }
+  #tUtil { position: fixed; top: 8px; left: 12px; display: flex; gap: 8px; z-index: 6; }
+  body.touch #info { display: none; } /* 모바일: 디버그 정보 대신 유틸 버튼 */
+  #tUtil .tbtn { position: static; width: 42px; height: 42px; font-size: 18px;
+    border-radius: 10px; }
+  /* 터치 모드: 핫바·툴바 탭 선택 가능 + 재배치 */
+  body.touch #hotbar { pointer-events: auto; }
+  body.touch .slot { width: 44px; height: 44px; }
+  body.touch .slot canvas { width: 34px; height: 34px; }
+  body.touch #toolbar { pointer-events: auto; left: 12px; right: auto; top: 60px;
+    bottom: auto; transform: none; flex-direction: column; }
+  body.touch #toolbar .tkey { display: none; }
+  body.touch #toasts { top: 64px; }
+  @media (max-width: 480px) {
+    body.touch .slot { width: 36px; height: 36px; border-width: 2px; }
+    body.touch .slot canvas { width: 28px; height: 28px; }
+    body.touch .slot span { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div id="cross">+</div>
+  <div id="info"></div>
+  <div id="itemname"></div>
+  <div id="hearts"></div>
+  <div id="hotbar"></div>
+  <div id="toolbar"></div>
+  <div id="bossbar"><div class="bname">MENEW</div><div class="btrack"><div id="bossfill"></div></div></div>
+  <div id="vignette"></div>
+  <div id="toasts"></div>
+  <div id="quests"></div>
+  <div id="death"><h2 id="deathTitle"></h2><button id="respawnBtn"></button></div>
+
+  <div id="overlay">
+    <h1>MENEW CRAFT<span>VOXEL WORLD</span></h1>
+    <div class="btns">
+      <button id="playBtn"></button>
+      <button id="newBtn"></button>
+    </div>
+    <div class="btns btns2">
+      <button id="exportBtn"></button>
+      <button id="importBtn"></button>
+    </div>
+    <div class="help" id="help"></div>
+    <div class="tip" id="tip"></div>
+    <div class="credit" id="credit"></div>
+  </div>
+  <!-- 모바일 터치 컨트롤 -->
+  <div id="touch">
+    <div id="joy"><div id="joyKnob"></div></div>
+    <div class="tbtn" id="tJump">⤒</div>
+    <div class="tbtn" id="tBreak">⛏️</div>
+    <div class="tbtn" id="tPlace">🧱</div>
+    <div id="tUtil">
+      <div class="tbtn" id="tFly">🕊️</div>
+      <div class="tbtn" id="tDown">⬇️</div>
+      <div class="tbtn" id="tQuest">📜</div>
+      <div class="tbtn" id="tPause">⏸</div>
+    </div>
+  </div>
+
+  <div id="err"></div>
+  <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+
+  <script src="three.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
