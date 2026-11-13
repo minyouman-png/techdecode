@@ -1,0 +1,61 @@
+/* MeNew Docs — 공용 앱 셸 스타일 (menewsoft.com 에디토리얼 톤: 차콜+골드) */
+:root {
+  --topbar-h: 52px;
+  --ink: #1c1a16;
+  --paper: #faf8f4;
+  --gold: #b8860b;
+  --gold-soft: #d8b04a;
+  --line: #e3ddd2;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  background: var(--paper); color: var(--ink);
+}
+.apptop {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h); z-index: 500;
+  display: flex; align-items: center; gap: 8px; padding: 0 12px;
+  background: #211e19; color: #f4efe6; box-shadow: 0 1px 6px rgba(0,0,0,.25);
+}
+.apptop .back {
+  color: #f4efe6; text-decoration: none; font-size: 18px; padding: 4px 8px; border-radius: 6px;
+}
+.apptop .back:hover { background: rgba(255,255,255,.12); }
+.apptop .brand {
+  font-family: Georgia, "Times New Roman", serif; font-size: 17px; font-weight: 600;
+  letter-spacing: .02em; white-space: nowrap;
+}
+.apptop .brand em { font-style: normal; color: var(--gold-soft); }
+.apptop .fname {
+  font-size: 12px; color: #b9b19f; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; max-width: 26vw;
+}
+.apptop .spacer { flex: 1; }
+.btn {
+  appearance: none; border: 1px solid rgba(255,255,255,.25); background: transparent;
+  color: #f4efe6; border-radius: 8px; padding: 7px 12px; font-size: 13px; cursor: pointer;
+  white-space: nowrap;
+}
+.btn:hover { background: rgba(255,255,255,.1); }
+.btn.primary { background: var(--gold); border-color: var(--gold); color: #fff; font-weight: 600; }
+.btn.primary:hover { background: #a0750a; }
+.btn:disabled { opacity: .45; cursor: default; }
+.privnote {
+  position: fixed; bottom: 8px; right: 12px; z-index: 400;
+  font-size: 11px; color: #8a8271; background: rgba(250,248,244,.9);
+  padding: 3px 8px; border-radius: 6px; pointer-events: none;
+}
+select.btn { padding: 6px 8px; }
+select.btn option { color: #1c1a16; }
+input[type="color"].swatch {
+  width: 30px; height: 30px; border: 1px solid rgba(255,255,255,.25); border-radius: 6px;
+  background: transparent; padding: 2px; cursor: pointer;
+}
+@media (max-width: 640px) {
+  .apptop { gap: 5px; padding: 0 8px; }
+  .apptop .brand { font-size: 14px; }
+  .apptop .fname { display: none; }
+  .btn { padding: 6px 8px; font-size: 12px; }
+  .privnote { display: none; }
+}
