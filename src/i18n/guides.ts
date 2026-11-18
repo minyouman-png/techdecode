@@ -5,10 +5,11 @@
 import { yuja } from './guides/yuja';
 import { khan } from './guides/khan';
 import { ansi } from './guides/ansi';
+import { gear } from './guides/gear';
 
 export interface Guide {
   slug: string;
-  cat: 'yuja' | 'khan' | 'ansi';
+  cat: 'yuja' | 'khan' | 'ansi' | 'gear';
   title: string;
   fullTitle: string;
   subtitle: string;
@@ -35,6 +36,7 @@ export interface Guide {
   chaptersTitle?: string;
   chapters?: { name: string; desc: string }[];
   spoiler?: string[];
+  spoilerTitle?: string;
   controls: { title: string; rows: [string, string][] }[];
   systems: { icon?: string; title: string; body: string; points?: string[] }[];
   tables?: { title: string; head: string[]; rows: string[][]; note?: string }[];
@@ -44,7 +46,7 @@ export interface Guide {
   faq: { q: string; a: string }[];
 }
 
-export const guides: Guide[] = [yuja, khan, ansi];
+export const guides: Guide[] = [yuja, khan, ansi, gear];
 
 // 세 게임 모두 Google Play 비공개 테스트(Alpha)의 테스터 = 이 Google 그룹 회원이다.
 // 그룹에 먼저 가입해야 테스트 참여 링크의 '테스터 되기'가 열린다.

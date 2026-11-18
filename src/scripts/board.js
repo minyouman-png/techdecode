@@ -120,6 +120,7 @@ export const CATS = [
   { key: 'yuja', label: '유자의 전설' },
   { key: 'khan', label: '칸의 궁수' },
   { key: 'ansi', label: '안시성의 궁신' },
+  { key: 'gear', label: 'Gear Squadron' },
 ];
 export const DEFAULT_CAT = 'free';
 export const catLabel = (k) => CATS.find((c) => c.key === k)?.label ?? '자유';

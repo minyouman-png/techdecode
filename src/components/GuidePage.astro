@@ -134,7 +134,7 @@ const jsonLd = [
         )}
         {g.spoiler && (
           <details class="gd-spoiler">
-            <summary>⚠️ 결말 스포일러 펼치기</summary>
+            <summary>{g.spoilerTitle ?? '⚠️ 결말 스포일러 펼치기'}</summary>
             {g.spoiler.map((p) => <p set:html={p} />)}
           </details>
         )}
