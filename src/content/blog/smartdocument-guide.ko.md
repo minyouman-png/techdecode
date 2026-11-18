@@ -18,6 +18,7 @@ category: ai
 - **읽기·고치기·저장**: 앱 하나로 한글(HWP·HWPX), 워드, 엑셀, 파워포인트를 열고 바로 수정한다. 고친 내용은 원래 형식 그대로 저장한다.
 - **옛 문서·특이한 형식도**: 한글 97 이전(HWP 3.0) 문서, 한셀·한쇼, 엑셀 바이너리(.xlsb), Apple Pages·Numbers·Keynote, 전자책(EPUB), XPS까지 열린다.
 - **보내기**: 원본·PDF·압축(ZIP) 중 골라 카카오톡·메일·드라이브로 보낸다.
+- **비밀번호 문서 열기**: PDF·한글·워드·엑셀·파워포인트에 걸린 비밀번호를 넣으면 보기 전용으로 열린다. 원본의 비밀번호는 그대로 둔다.
 - **AI에게 분석 맡기기**: 요약, 핵심 정리, 표·숫자 분석, 검토·교정, 쉽게 설명을 골라 Gemini·ChatGPT·Claude 앱으로 바로 넘긴다.
 
 | 종류 | 여는 형식 |
@@ -30,13 +31,16 @@ category: ai
 
 ## 1. 처음 실행: 문서를 알아서 찾아 준다
 
-처음 켜면 '모든 파일 접근' 권한을 묻는다. 허용하면 폰 전체를 훑어 문서를 모아 온다. 허용하지 않고 특정 폴더만 골라도 된다.
+처음 켜면 **'문서를 어디서 찾을까요?'** 를 한 번만 묻는다. **폰 전체에서 찾기**(추천)를 누르고, 다음 화면에서 '권한 허용'을 켠 뒤 뒤로 가면 바로 문서를 모아 온다. 특정 폴더만 골라도 된다. 다만 안드로이드는 Download 폴더 자체를 고르지 못하게 막아 두어서, 다운로드한 문서까지 보려면 '폰 전체에서 찾기'가 편하다. 이어서 사용 방법 안내 4장이 나오고, 설정에서 다시 볼 수 있다.
 
-<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/1_home.jpg" alt="스마트도큐먼트 홈 화면: 위쪽에 전체·최근·즐겨찾기·워드·엑셀 아이콘, 아래에 PDF·한글·엑셀·파워포인트 문서 목록" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/0_setup.jpg" alt="처음 설정 화면: 문서를 어디서 찾을까요? 추천 폰 전체에서 찾기와 허용하러 가기 단추, 아래에 내가 고른 폴더만 찾기" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
 
-- 맨 위 아이콘 줄에서 **전체·최근·즐겨찾기·워드·엑셀·파워포인트·한글·PDF** 를 바로 고른다. 빨간 숫자는 새로 들어온 문서 수다.
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/1_home.jpg" alt="스마트도큐먼트 홈 화면: 위에 검색창, 아래에 전체·한글·워드·엑셀·파워포인트·PDF·최근·즐겨찾기·텍스트·전자책 버튼과 문서 수" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+
+- 홈의 **전체·한글·워드·엑셀·파워포인트·PDF** 버튼을 누르면 폰 안의 그 종류 문서가 한 번에 나온다. 최근·즐겨찾기도 버튼 하나로 연다.
 - 검색창은 **파일 이름뿐 아니라 본문 내용, 초성(ㅅㅇㄱㅎ)** 까지 찾는다.
-- 수정일·이름·크기·종류·**출처(카카오톡·다운로드 등)** 로 정렬한다.
+- 목록의 **정렬** 단추로 수정일·이름·크기·종류·**출처(카카오톡·다운로드 등)** 별로 보고, 기간·크기로 거를 수 있다.
+- 문서 줄 끝 **⋮** 를 누르면 편집·공유·이름 바꾸기·삭제 같은 메뉴가 나온다.
 
 ## 2. 문서 읽고 고치기
 
@@ -82,9 +86,10 @@ category: ai
 
 ## 5. 설정
 
-<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/6_settings.jpg" alt="설정 화면: 문서 찾기(폴더 추가·전체 문서 찾기·숨김 파일), 문서를 누르면(물어보기·바로 보기·바로 편집), 공유 즐겨찾기, 본문 내용 검색, 이전 버전 보관 개수" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/6_settings.jpg" alt="설정 화면: 언어, 문서 찾기(폴더 추가·폰 전체에서 찾기·숨김 파일·지금 다시 찾기), 사용 방법, 문서를 누르면(물어보기·바로 보기·바로 편집)" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
 
-- **문서를 누르면**: 물어보기 / 바로 보기 / 바로 편집 중에서 고른다.
+- **문서를 누르면**: 물어보기 / 바로 보기 / 바로 편집 중에서 고른다(처음엔 바로 보기).
+- **사용 방법**: 처음 실행 때 본 안내 4장을 다시 본다.
 - **이전 버전 보관**: 저장할 때마다 이전 내용을 폰 안에 보관해서, '정보·버전 기록'에서 되돌릴 수 있다(5~50개).
 - **본문 내용 검색**: 켜 두면 문서 속 글자로도 찾는다.
 
@@ -94,7 +99,11 @@ category: ai
 
 **문서가 밖으로 나가나요?** 읽기·고치기·검색은 모두 폰 안에서만 처리한다. 문서가 밖으로 나가는 건 내가 직접 공유하거나 'AI에게 분석 맡기기'로 AI 앱에 보낼 때뿐이다.
 
-**안 열리는 문서도 있나요?** 작성자가 보호해 둔 배포용 한글 문서는 볼 수만 있고 고치거나 AI로 보낼 수 없다. 암호가 걸린 문서는 "암호가 걸린 문서"라고 알려 준다.
+**비밀번호가 걸린 문서도 열리나요?** 열린다. 카드·급여 명세서 같은 PDF, 한글(HWP·HWPX·HWP 3.0), 워드·엑셀·파워포인트, 오픈오피스 문서에 걸린 비밀번호를 넣으면 보기 전용으로 열린다. 원래 파일의 비밀번호는 그대로이고, 비밀번호 없는 사본이 필요하면 '더 보기 → 다른 이름으로 저장'을 쓰면 된다.
+
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/password.jpg" alt="비밀번호가 걸린 PDF를 열 때 뜨는 비밀번호 입력 창: 취소·열기 단추" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+
+**안 열리는 문서도 있나요?** 작성자가 보호해 둔 배포용 한글 문서는 볼 수만 있고 고치거나 AI로 보낼 수 없다. 옛 워드(.doc)나 Apple 문서에 걸린 암호는 아직 열지 못한다.
 
 ## 테스터로 참여하기
 

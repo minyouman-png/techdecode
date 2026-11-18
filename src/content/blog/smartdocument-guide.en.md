@@ -18,6 +18,7 @@ It's currently in **closed testing** on Google Play. This post walks through how
 - **Read, edit, save**: open and edit Hangul (HWP, HWPX), Word, Excel and PowerPoint files in one app, and save them back in their original format.
 - **Old and unusual formats**: Hangul 97-era HWP 3.0 files, Hancom Cell/Show, Excel binary (.xlsb), Apple Pages/Numbers/Keynote, EPUB e-books and XPS.
 - **Send**: share as the original, as a PDF or as a ZIP to messengers, email or cloud drives.
+- **Password-protected files**: enter the password to open protected PDF, Hangul, Word, Excel and PowerPoint files read-only. The original keeps its password.
 - **Ask AI to analyze**: pick Summarize, Key points & to-dos, Analyze tables & numbers, Proofread & review or Explain simply, and send the document straight to Gemini, ChatGPT or Claude.
 
 | Type | Formats |
@@ -30,13 +31,16 @@ It's currently in **closed testing** on Google Play. This post walks through how
 
 ## 1. First launch: it finds your documents for you
 
-On first launch the app asks for "All files access". Allow it and the app scans the whole phone; or skip it and pick specific folders instead.
+On first launch the app asks one question: **where should it look for documents?** Tap **Search the whole phone** (recommended), turn on "Allow permission" on the next screen and press Back — the scan starts right away. You can also pick specific folders instead. Android doesn't let apps pick the Download folder itself, so "Search the whole phone" is the easy way to include your downloads. A four-page how-to follows, and you can replay it from Settings.
 
-<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/1_home.jpg" alt="SmartDocument home screen: All, Recent, Favorites, Word and Excel icons at the top, and a list of PDF, Hangul, Excel and PowerPoint documents below" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/0_setup.jpg" alt="First-run setup screen: where should we look for documents, with the recommended Search the whole phone card and an Allow access button, and Only search folders I choose below" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
 
-- The icon row at the top jumps straight to **All, Recent, Favorites, Word, Excel, PowerPoint, Hangul and PDF**. Red badges count new documents.
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/1_home.jpg" alt="SmartDocument home screen: search bar at the top and buttons for All, Hangul, Word, Excel, PowerPoint, PDF, Recent, Favorites, Text and eBooks with document counts" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+
+- Tap **All, Hangul, Word, Excel, PowerPoint or PDF** on the home screen to see every document of that kind on your phone. Recent and Favorites are one tap away too.
 - Search covers **file names and the text inside documents**, and even Korean initial consonants.
-- Sort by modified date, name, size, type or **source** (messenger, Downloads and so on).
+- The **Sort** button in the list sorts by modified date, name, size, type or **source** (messenger, Downloads and so on), and filters by date and size.
+- Tap **⋮** at the end of a row for edit, share, rename, delete and more.
 
 ## 2. Reading and editing
 
@@ -82,9 +86,10 @@ Here's where SmartDocument helps: **AI apps like Gemini can't take Hangul (HWP, 
 
 ## 5. Settings
 
-<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/6_settings.jpg" alt="Settings screen: document discovery (add folder, find all documents, hidden files), what happens when you tap a document (ask, view, edit), share favorites, full-text search and number of previous versions to keep" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/6_settings.jpg" alt="Settings screen: language, document discovery (add folder, search the whole phone, hidden files, search now), how to use, and what happens when you tap a document (ask, view, edit)" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
 
-- **When you tap a document**: ask, open for viewing, or open for editing.
+- **When you tap a document**: ask, open for viewing, or open for editing (viewing by default).
+- **How to use**: replay the four-page guide from first launch.
 - **Previous versions**: every save keeps the previous content on the phone, so you can roll back from "Info & versions" (5 to 50 versions).
 - **Full-text search**: find documents by the words inside them.
 
@@ -94,7 +99,11 @@ Here's where SmartDocument helps: **AI apps like Gemini can't take Hangul (HWP, 
 
 **Do my documents leave the phone?** Reading, editing and search all happen on the phone. A document only leaves when you share it yourself or send it to an AI app with "Ask AI to analyze".
 
-**Is there anything it can't open?** Distribution-only Hangul files protected by their author can be viewed but not edited or sent to AI. Password-protected files are reported as such.
+**Can it open password-protected files?** Yes. Enter the password for protected PDFs (bank or pay statements, for example), Hangul (HWP, HWPX, HWP 3.0), Word, Excel, PowerPoint and OpenDocument files, and they open read-only. The original file keeps its password; to keep a copy without it, use More → Save as.
+
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/password.jpg" alt="Password prompt shown when opening a protected PDF, with Cancel and Open buttons" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+
+**Is there anything it can't open?** Distribution-only Hangul files protected by their author can be viewed but not edited or sent to AI. Passwords on old Word (.doc) files and Apple documents can't be opened yet.
 
 ## Join the beta
 
