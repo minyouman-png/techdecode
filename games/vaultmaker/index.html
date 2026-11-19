@@ -1,0 +1,1578 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>금고 설계자 — 공격 프로토타입</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  :root{
+    --bg:#0a1929; --ink:#dbeafe; --line:#3b82f6; --dim:#64748b;
+    --hot:#ef4444; --ok:#22c55e; --warn:#fbbf24;
+  }
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
+    font-family:"SF Mono",Menlo,"Apple SD Gothic Neo",monospace;user-select:none}
+  #app{height:100%;display:flex;flex-direction:column}
+  header{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #1e3a5f;flex:none}
+  header b{font-size:14px;letter-spacing:.06em}
+  .sp{flex:1}
+  .tag{font-size:12px;color:var(--dim)}
+  button{font-family:inherit;border:1px solid #1e3a5f;background:#0f2438;color:var(--ink);
+    border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;font-weight:700}
+  button:hover:not(:disabled){border-color:var(--line)}
+  button:disabled{opacity:.35;cursor:default}
+  button.on{background:var(--line);color:#041020;border-color:var(--line)}
+  #wrap{flex:1;display:flex;min-height:0}
+  #stage{flex:1;position:relative;min-width:0}
+  canvas{display:block;width:100%;height:100%}
+  aside{width:250px;flex:none;border-left:1px solid #1e3a5f;padding:10px;overflow-y:auto;font-size:12px}
+  aside h3{margin:0 0 6px;font-size:11px;color:var(--dim);letter-spacing:.1em;font-weight:700}
+  .row{display:flex;align-items:center;gap:7px;padding:7px;border:1px solid #1e3a5f;border-radius:8px;
+    margin-bottom:5px;cursor:pointer}
+  .row:hover{border-color:var(--line)}
+  .row.sel{border-color:var(--line);background:#0f2438}
+  .row .ch{font-size:19px}
+  .row .nm{flex:1}
+  .row .nm b{display:block;font-size:12px}
+  .row .nm i{font-style:normal;color:var(--dim);font-size:10.5px}
+  .row .ct{color:var(--warn);font-weight:800}
+  .row .qty{background:#1e3a5f;border-radius:6px;padding:1px 7px;font-weight:800}
+  hr{border:0;border-top:1px solid #1e3a5f;margin:11px 0}
+  #log{font-size:11px;line-height:1.55;color:var(--dim);max-height:130px;overflow-y:auto}
+  #log b{color:var(--ink)}
+  #log .hot{color:var(--hot)}
+  #log .ok{color:var(--ok)}
+  .veil{position:absolute;inset:0;background:rgba(10,25,41,.96);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px;z-index:9}
+  .veil h1{margin:0;font-size:26px;letter-spacing:.04em}
+  .veil p{margin:0;color:var(--dim);font-size:13px;line-height:1.75;max-width:34em}
+  .big{font-size:14px;padding:11px 24px}
+  .hide{display:none!important}
+  #hud{position:absolute;left:10px;top:10px;font-size:12px;line-height:1.7;pointer-events:none;
+    text-shadow:0 0 6px #0a1929}
+  #hint{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);font-size:12px;
+    color:var(--warn);pointer-events:none;text-shadow:0 0 6px #0a1929}
+  /* ⚠️영어는 같은 뜻이 한국어보다 길다. 한국어에서 맞춰 둔 머리글이 영어에서 **두 줄로 무너졌다**
+     (제목 'Vault Maker' 가 접히고 단추마다 글자가 쪼개졌다). 줄바꿈을 막고 이름만 줄인다. */
+  header b, header button{ white-space:nowrap }
+  header .tag#vname{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0 }
+  @media(max-width:820px){ aside{width:210px} }
+
+  /* ══ 손가락 화면 ═══════════════════════════════════════════════════════════
+     ⚠️★세로 폰(390×844)에서 열어 보니 **금고가 화면 귀퉁이로 밀려** 못 쓸 상태였다 —
+        옆 패널이 폭의 절반을 먹고 캔버스에 204px 만 남았다. 가로 기준으로 짠 레이아웃을
+        세로에 그대로 두면 이렇게 된다. 세로에서는 **위아래로 쌓는다.**
+     ⚠️패널을 접어 숨기지 않는 이유: 이 게임에서 도둑·장치 설명이 곧 규칙이라,
+        그걸 감추면 §1-3 의 "뭐가 뭔지 모르겠다"가 그대로 재현된다. 대신 **두 칸으로** 눕힌다. */
+  @media (max-width:640px), (max-height:460px){
+    header{gap:6px;padding:6px 8px;overflow-x:auto;scrollbar-width:none}
+    header::-webkit-scrollbar{display:none}
+    header b{font-size:12px}
+    button{padding:6px 9px;font-size:11px}
+    .veil h1{font-size:20px}
+    .veil p{font-size:12px}
+    .big{font-size:13px;padding:10px 16px}
+  }
+  @media (max-width:640px) and (orientation:portrait){
+    #wrap{flex-direction:column}
+    #stage{flex:0 0 52vh}
+    aside{width:100%;height:auto;flex:1;border-left:0;border-top:1px solid #1e3a5f;overflow-y:auto}
+    /* ⚠️격자를 `aside` 에 걸었더니 오른쪽 절반이 통째로 비었다 — 줄(.row)은 `aside` 의 자식이
+       아니라 `#team`·`#moves` 안쪽에 있다. 격자는 **줄의 부모**에 걸어야 한다. */
+    #team, #moves{display:grid;grid-template-columns:1fr 1fr;gap:0 8px;align-content:start}
+    aside h3{margin-top:4px}
+    aside hr{margin:6px 0}
+    #log{max-height:72px}
+    .row{margin-bottom:4px;padding:6px}
+    .row .nm i{font-size:10px}
+    /* 설계 패널의 상태·단추는 한 줄을 다 쓴다(두 칸으로 쪼개면 읽히지 않는다) */
+    #moves > button, #moves > input, #moves > .row{grid-column:1/-1}
+  }
+  /* 가로로 눕힌 폰 — 패널만 좁히면 된다(캔버스 비율이 이미 맞다) */
+  @media (max-height:460px) and (orientation:landscape){
+    aside{width:168px;padding:6px;font-size:11px}
+    .row{padding:5px;gap:5px}
+    .row .ch{font-size:15px}
+    #log{max-height:60px}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <b id="gname"></b><span class="tag" id="gtag"></span>
+    <span class="sp"></span>
+    <span class="tag" id="vname"></span>
+    <button id="pause"></button>
+    <button id="spd">▶ 1배</button>
+    <button id="reset"></button>
+    <button id="toCamp"></button>
+    <button id="toDesign"></button>
+    <button id="lang"></button>
+  </header>
+  <div id="wrap">
+    <div id="stage">
+      <canvas id="cv"></canvas>
+      <div id="hud"></div>
+      <div id="hint"></div>
+      <div class="veil" id="veilStart">
+        <h1 id="startT"></h1>
+        <p id="startP"></p>
+        <div id="pick"></div>
+      </div>
+      <div class="veil hide" id="veilShare">
+        <h1 id="shT"></h1><p id="shP"></p>
+        <textarea id="shBox" spellcheck="false" style="width:min(560px,86%);height:92px;
+          background:#0b1b2e;color:#93c5fd;border:1px solid #2f6ea8;border-radius:8px;
+          padding:10px;font:12px/1.5 monospace;resize:none"></textarea>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center">
+          <button class="big" id="shGo"></button>
+          <button id="shFile"></button>
+          <button id="shClose"></button>
+        </div>
+      </div>
+      <div class="veil hide" id="veilEnd">
+        <h1 id="endT"></h1><p id="endP"></p>
+        <div style="display:flex;gap:8px"><button class="big" id="again"></button>
+        <button class="big" id="next">다음 금고 →</button></div>
+      </div>
+    </div>
+    <aside>
+      <h3 id="h1">팀 편성</h3><div id="team"></div>
+      <hr><h3 id="h2">개입 (한 번)</h3><div id="moves"></div>
+      <hr><h3 id="h3"></h3><div id="log"></div>
+    </aside>
+  </div>
+</div>
+
+<script type="module">
+import { VAULTS, THIEVES, MOVES, DEVICES, COST, DESIGN } from './vaults.js';
+import { CAMPAIGN, CHAPTERS } from './campaign.mjs';
+import { LANG, nm, L10N, KEYS } from './i18n.js';
+
+/* ══════════════════════════════════════════════════════════════════════════
+ * 금고 설계자 — 1단계 프로토타입 (공격만)
+ *
+ * ★이 단계에서 확인하려는 것은 딱 하나다: **공격이 재미있는가.**
+ *   설계 도구·업로드·순위는 전부 없다. 재미없으면 여기서 접는 것이 설계서의 약속이다.
+ *
+ * 공격을 세 층으로 만든다(설계서 §4):
+ *   ① 편성 — 누구를 데려가나 (역할이 겹치지 않게)
+ *   ② 타이밍 — 언제 넣나 (한 번에 넣으면 쓸린다)
+ *   ③ 개입 — 판당 한 번 (언제 썼나가 기억에 남게)
+ *
+ * ⚠️실시간이되 **멈출 수 있다**. 멈춘 채로도 투입·개입이 된다.
+ *   타이밍이 핵심인데 손이 느려서 지는 것은 이 게임이 묻는 실력이 아니다.
+ * ══════════════════════════════════════════════════════════════════════════ */
+
+/* ⚠️★`selftest.py` 는 실패하면 `window.__err` 를 읽어 보여 주는데 **아무도 채우고 있지 않았다.**
+   그래서 페이지가 터지면 "자가검증이 안 돌았다 · 오류:" 라는 빈 줄만 나왔다 —
+   무엇이 터졌는지 모른 채 코드를 뒤져야 했다. 모듈 스크립트의 예외는 콘솔로만 가므로 여기서 받는다. */
+addEventListener('error', (e) => {
+  window.__err = (e.error && (e.error.stack || e.error.message)) || e.message || String(e);
+});
+addEventListener('unhandledrejection', (e) => { window.__err = String(e.reason); });
+
+const $ = (s) => document.querySelector(s);
+/** 패널이 아래로 내려간 배치인가(세로 폰) */
+const stacked = () => matchMedia('(max-width:640px) and (orientation:portrait)').matches;
+const cv = $('#cv'), cx = cv.getContext('2d');
+const TEST = new URLSearchParams(location.search).get('test');
+
+/* ── 상태 ─────────────────────────────────────────────────────────── */
+let V, grid, W, H, start, goal, devs, walls;
+let team, budget, spent, move, moveUsed, pending;
+let thieves, t, playing, paused, speed, over, logs, armMove;
+
+/* ── 2단계: 설계 ───────────────────────────────────────────────────
+ * ★설계서 §3-②: 증명이 이 게임의 심장이다. **역할이 바뀐다** — 짓던 사람이 도둑이 된다.
+ *   그래서 모드를 따로 만들지 않고 **같은 공격 코드를 그대로 재사용**한다.
+ *   증명에서 쓰는 규칙이 남이 털 때의 규칙과 조금이라도 다르면 증명이 증명이 아니게 된다. */
+let MODE = 'raid';       // raid(남의 금고) · design(짓기) · prove(내 금고 증명)
+let dGrid = null;        // 설계 중인 격자 — 설계의 진실원
+let dTool = '#';
+let proof = null;        // 증명 기록 {sec, sent, move}
+let painting = null;
+let dName = L10N('unnamed');
+
+/* ── 캠페인 (4단계) ───────────────────────────────────────────────────
+ * 설계서 §7-①: **네트워크 없이도 게임이 끝나야 한다.** 아무도 없는 방이 UGC 게임을 죽인다.
+ * ⚠️★잠금은 '앞을 다 깨야 다음'이 아니라 **한 칸 앞서 열린다**(깬 수 + 1).
+ *   막힌 금고 하나에서 게임이 끝나는 것이 §1-3 의 "난이도가 갑자기 튄다"이고,
+ *   자동 측정으로 못 깨는 금고를 없애 뒀어도 사람은 다른 데서 막힌다.
+ * ★성취는 반복이 아니라 **한 번의 영리함**에 준다(§8): 개입을 안 썼나 · 몇 명으로 했나. */
+const CAMP_KEY = 'vaultmaker.campaign.v1';
+let camp = {};              // { c07: {best: 도둑수, noMove: true} }
+function campLoad() {
+  try { camp = JSON.parse(localStorage.getItem(CAMP_KEY) || '{}') || {}; }
+  catch (e) { camp = {}; }
+}
+function campSave() { try { localStorage.setItem(CAMP_KEY, JSON.stringify(camp)); } catch (e) {} }
+const campCleared = () => CAMPAIGN.filter((v) => camp[v.id]).length;
+/** 깬 수보다 한 칸 앞까지 열어 준다 — 하나에 막혀도 게임이 멈추지 않는다 */
+const campOpen = (v) => v.no <= campCleared() + 1;
+
+function parse(v) {
+  V = v; grid = v.grid.map(r => r.split(''));
+  H = grid.length; W = grid[0].length;
+  devs = []; walls = new Set();
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const c = grid[y][x];
+    if (c === '#') walls.add(y * W + x);
+    else if (c === 'S') start = { x, y };
+    else if (c === 'V') goal = { x, y };
+    else if (DEVICES[c]) devs.push({ k: c, x, y, off: 0, lure: null, cd: 0 });
+  }
+}
+
+/** 최단 경로 — 벽이 부서지면 다시 계산한다. */
+function bfs(from) {
+  const q = [goal.y * W + goal.x], dist = new Int32Array(W * H).fill(-1);
+  dist[goal.y * W + goal.x] = 0;
+  while (q.length) {
+    const c = q.shift(), cy = (c / W) | 0, cxx = c % W;
+    for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+      const nx = cxx + dx, ny = cy + dy, n = ny * W + nx;
+      if (nx < 0 || ny < 0 || nx >= W || ny >= H || walls.has(n) || dist[n] >= 0) continue;
+      dist[n] = dist[c] + 1; q.push(n);
+    }
+  }
+  const path = []; let cur = { ...from };
+  for (let i = 0; i < 400; i++) {
+    path.push({ ...cur });
+    if (cur.x === goal.x && cur.y === goal.y) break;
+    let best = null, bd = dist[cur.y * W + cur.x];
+    for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+      const nx = cur.x + dx, ny = cur.y + dy, n = ny * W + nx;
+      if (nx < 0 || ny < 0 || nx >= W || ny >= H || walls.has(n)) continue;
+      if (dist[n] >= 0 && dist[n] < bd) { bd = dist[n]; best = { x: nx, y: ny }; }
+    }
+    if (!best) break;
+    cur = best;
+  }
+  return path;
+}
+
+function reset(keepTeam) {
+  if (!keepTeam) { team = {}; move = null; }
+  spent = Object.entries(team).reduce((a, [k, n]) => a + THIEVES[k].cost * n, 0);
+  budget = V.budget;
+  parse(V);
+  moveUsed = false; armMove = null;
+  thieves = []; t = 0; playing = false; paused = false; speed = 1; over = null; logs = [];
+  pending = { ...team };
+  drawUi();
+}
+
+const log = (s, cls = '') => { logs.unshift(`<span class="${cls}">${s}</span>`); if (logs.length > 40) logs.pop(); };
+
+/* ── 투입 ─────────────────────────────────────────────────────────── */
+function send(kind) {
+  if (over || !pending[kind]) return;
+  pending[kind]--;
+  const s = THIEVES[kind];
+  thieves.push({
+    kind, hp: s.hp, max: s.hp, spd: s.spd, x: start.x + .5, y: start.y + .5,
+    path: bfs(start), pi: 0, seen: 0, hold: 0, alive: true, done: false, born: t,
+  });
+  if (!playing) playing = true;
+  log(`${s.ch} ${nm(s)} ${L10N('sent')}`);
+  drawUi();
+}
+
+/* ── 개입 ─────────────────────────────────────────────────────────── */
+function useMove(gx, gy) {
+  if (moveUsed || !move) return;
+  if (move === 'blackout') {
+    devs.forEach(d => { if (DEVICES[d.k].elec) d.off = 3.5; });
+    log(L10N('blackout'), 'ok');
+  } else if (move === 'breach') {
+    if (gx == null) return;
+    const i = gy * W + gx;
+    if (!walls.has(i)) { log(L10N('notWall')); return; }
+    // 바깥 테두리는 못 부순다 — 금고 밖으로 나가 버린다
+    if (gx === 0 || gy === 0 || gx === W - 1 || gy === H - 1) { log(L10N('outerWall')); return; }
+    walls.delete(i); grid[gy][gx] = '.';
+    thieves.forEach(th => { if (th.alive) { th.path = bfs({ x: th.x | 0, y: th.y | 0 }); th.pi = 0; } });
+    log(L10N('breached'), 'ok');
+  } else if (move === 'decoy') {
+    if (gx == null) return;
+    devs.forEach(d => { if (d.k === 'D') d.lure = { x: gx, y: gy, t: 5 }; });
+    log(L10N('decoyed'), 'ok');
+  }
+  moveUsed = true; armMove = null; drawUi();
+}
+
+/* ── 진행 ─────────────────────────────────────────────────────────── */
+function step(dt) {
+  if (over) return;
+  t += dt;
+  for (const d of devs) {
+    if (d.off > 0) d.off -= dt;
+    if (d.lure) { d.lure.t -= dt; if (d.lure.t <= 0) d.lure = null; }
+    if (d.cd > 0) d.cd -= dt;
+  }
+  for (const th of thieves) {
+    if (!th.alive || th.done) continue;
+    if (th.seen > 0) th.seen -= dt;
+    // 잠금문 통과 대기
+    if (th.hold > 0) { th.hold -= dt; continue; }
+    // 이동
+    const tgt = th.path[th.pi + 1];
+    if (!tgt) { if (Math.hypot(th.x - (goal.x + .5), th.y - (goal.y + .5)) < .6) th.done = true; continue; }
+    const tx = tgt.x + .5, ty = tgt.y + .5;
+    const dx = tx - th.x, dy = ty - th.y, d = Math.hypot(dx, dy);
+    const mv = th.spd * dt;
+    if (d <= mv) {
+      th.x = tx; th.y = ty; th.pi++;
+      const c = grid[tgt.y][tgt.x];
+      // 🗝️자물쇠공은 문 앞에서 멈추지 않는다 — 그래서 문 옆의 개도 그를 못 문다
+      if (c === 'K' && th.kind !== 'lockp') { th.hold = 1.6; log(`🔒 ${nm(THIEVES[th.kind])} ${L10N('heldDoor')}`); }
+      // 🤸곡예사는 가벼워 판이 안 눌린다. ⚠️'밟고도 안 걸린다'가 아니라 **작동 자체가 없다**
+      if (c === 'P' && th.kind !== 'acro' && !devs.find(q => q.x === tgt.x && q.y === tgt.y && q.cd > 0)) {
+        const p = devs.find(q => q.x === tgt.x && q.y === tgt.y);
+        if (p) { p.cd = 1.2;
+          thieves.forEach(o => { if (o.alive && Math.hypot(o.x - tx, o.y - ty) <= DEVICES.P.r) o.seen = 3; });
+          log(L10N('plateAll'), 'hot'); }
+      }
+      if (tgt.x === goal.x && tgt.y === goal.y) th.done = true;
+    } else { th.x += dx / d * mv; th.y += dy / d * mv; }
+  }
+  // ⚠️개는 '기저 속도 상수'가 아니라 **지금 얼마나 빠른가**를 봐야 한다.
+  //   th.spd 로 보면 잠금문 앞에 멈춰 선 달리기 도둑도 3.2 라 영영 물리지 않고,
+  //   그러면 이 금고의 전제("잠금문이 느리게 만들면 개가 문다")가 통째로 죽는다.
+  //   실제로 개·잠금문을 8쌍까지 늘려도 승패 행렬이 5/6 에서 꿈쩍하지 않았다.
+  const curSpd = (th) => th.hold > 0 ? 0 : th.spd;
+  // 장치 반응
+  for (const d of devs) {
+    if (d.off > 0) continue;
+    const D = DEVICES[d.k];
+    if (d.k === 'C') {
+      for (const th of thieves) {
+        if (!th.alive || th.done || th.kind === 'ghost') continue;                 // 그림자는 카메라에 안 잡힌다
+        if (techNear(th)) continue;
+        if (Math.hypot(th.x - (d.x + .5), th.y - (d.y + .5)) <= D.r) {
+          if (th.seen <= 0) log(`📹 ${nm(THIEVES[th.kind])} ${L10N('spotted')}`, 'hot');
+          th.seen = 2.5;
+        }
+      }
+    } else if (d.k === 'L') {
+      for (const th of thieves) {
+        if (!th.alive || th.done || th.seen <= 0) continue;                        // 발각된 것만 쏜다
+        if (Math.hypot(th.x - (d.x + .5), th.y - (d.y + .5)) <= D.r) hurt(th, D.dmg * lastDt, '🔴');
+      }
+    } else if (d.k === 'G') {
+      /* ★경비견과 정확히 반대다. 개는 `curSpd`(멈추면 0)를 보지만 유리는 **실제로 밟는 속도**를 본다 —
+         잠금문 앞에 멈춘 도둑이 유리에 빠지면 '멈췄는데 깨졌다'가 되어 읽히지 않는다. */
+      for (const th of thieves) {
+        if (!th.alive || th.done || th.hold > 0 || th.spd < 2.4) continue;
+        if (Math.hypot(th.x - (d.x + .5), th.y - (d.y + .5)) <= D.r) hurt(th, D.dmg * lastDt, '🪟');
+      }
+    } else if (d.k === 'D') {
+      const home = d.lure ? { x: d.lure.x, y: d.lure.y } : { x: d.x, y: d.y };
+      for (const th of thieves) {
+        if (!th.alive || th.done || curSpd(th) > 2.0) continue;                    // 느린 것만 문다
+        if (Math.hypot(th.x - (home.x + .5), th.y - (home.y + .5)) <= D.r) hurt(th, D.dmg * lastDt, '🐕');
+      }
+    }
+  }
+  // 승패
+  if (thieves.some(th => th.done)) {
+    over = 'win';
+    const used = thieves.length, left = thieves.filter(th => th.alive && !th.done).length;
+    log(L10N('reached'), 'ok');
+    end(true, `${nm(V)} · ${t.toFixed(1)}s · ${L10N('thievesN')} ${used} · ${L10N('usedMove')} ${moveUsed ? L10N('yes') : L10N('no')}`);
+  } else if (playing && thieves.length && thieves.every(th => !th.alive)
+             && !Object.values(pending).some(n => n > 0)) {
+    over = 'lose'; end(false, L10N('allDead'));
+  }
+}
+let lastDt = 1 / 60;
+function techNear(th) {   // 기술자가 곁에 있으면 전기 장치가 안 본다
+  return thieves.some(o => o.alive && !o.done && o.kind === 'tech' && Math.hypot(o.x - th.x, o.y - th.y) <= 2.6);
+}
+function hurt(th, dmg, ch) {
+  th.hp -= dmg;
+  if (th.hp <= 0 && th.alive) { th.alive = false; log(`${ch} ${nm(THIEVES[th.kind])} ${L10N('down')}`, 'hot'); }
+}
+function end(win, msg) {
+  playing = false;
+  /* ★증명의 결과는 '이겼다/졌다'가 아니라 **공개된다/안 된다**이다.
+     설계서 §2 의 기둥이라 문구부터 그렇게 말해야 한다. */
+  if (MODE === 'prove') {
+    const sec = (performance.now() - proveStart) / 1000;
+    if (win) {
+      proof = { sec: +sec.toFixed(1), sent: thieves.length, move: moveUsed };
+      $('#endT').textContent = L10N('proveOk');
+      $('#endP').innerHTML = `${L10N('proveOkP')}<br>`
+        + `${L10N('tookS')} <b>${proof.sec}s</b> · ${L10N('thievesN')} ${proof.sent} · `
+        + `${L10N('usedMove')} ${proof.move ? L10N('yes') : L10N('no')}`;
+    } else {
+      $('#endT').textContent = L10N('proveNo');
+      $('#endP').innerHTML = L10N('proveNoP');
+    }
+    $('#next').textContent = win ? L10N('fixIt') : L10N('backDesign');
+    $('#next').classList.remove('hide');
+    $('#veilEnd').classList.remove('hide');
+    return;
+  }
+  if (MODE === 'camp' && campCur) {
+    if (win) {
+      const used = thieves.length, prev = camp[campCur.id];
+      // ★성취는 '몇 판 했나'가 아니라 **얼마나 영리했나**다(§8) — 최선만 남긴다
+      camp[campCur.id] = {
+        best: prev ? Math.min(prev.best, used) : used,
+        noMove: (prev && prev.noMove) || !moveUsed,
+      };
+      campSave();
+    }
+    $('#endT').textContent = win ? L10N('win') : L10N('lose');
+    const rec = camp[campCur.id];
+    $('#endP').innerHTML = win
+      ? `${nm(campCur)} · ${L10N('thievesN')} ${thieves.length} · ${L10N('usedMove')} ${moveUsed ? L10N('yes') : L10N('no')}`
+        + (rec && rec.best < thieves.length ? `<br><span style="color:#7aa0c4">${L10N('bestRec')} ${rec.best}</span>` : '')
+        + (!rec.noMove ? `<br><span style="color:#7aa0c4">${L10N('tryNoMove')}</span>` : '')
+      : msg;
+    $('#next').textContent = L10N('toCamp');
+    $('#next').classList.remove('hide');
+    $('#veilEnd').classList.remove('hide');
+    return;
+  }
+  $('#endT').textContent = win ? L10N('win') : L10N('lose');
+  $('#endP').textContent = msg;
+  $('#next').textContent = L10N('nextVault');
+  $('#next').classList.toggle('hide', !win);
+  $('#veilEnd').classList.remove('hide');
+}
+
+/* ── 그리기 — 청사진 ───────────────────────────────────────────────── */
+let TS = 30, ox = 0, oy = 0;
+function fit() {
+  const r = cv.parentElement.getBoundingClientRect();
+  cv.width = r.width * devicePixelRatio; cv.height = r.height * devicePixelRatio;
+  cx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  TS = Math.floor(Math.min(r.width / W, r.height / H));
+  ox = (r.width - TS * W) / 2; oy = (r.height - TS * H) / 2;
+}
+const P = (x, y) => [ox + x * TS, oy + y * TS];
+
+function draw() {
+  const r = cv.parentElement.getBoundingClientRect();
+  cx.fillStyle = '#0a1929'; cx.fillRect(0, 0, r.width, r.height);
+  /* ⚠️★처음엔 벽을 밝게 칠했는데 화면을 찍어 보니 **벽이 바닥처럼 읽혔다** — 벽이 넓고 밝아서
+     그쪽이 걸어다니는 곳처럼 보였다. 청사진은 원래 '빈 곳에 선'이다.
+     → 벽은 배경 그대로 두고 **길만 밝힌다.** 길이 곧 그림이 된다. */
+  cx.fillStyle = '#1b3b5e';
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    if (walls.has(y * W + x)) continue;
+    const [px, py] = P(x, y); cx.fillRect(px, py, TS, TS);
+  }
+  /* ⚠️설계 모드에서 빈 방을 그려 보니 **어디가 한 칸인지 안 보였다**(균일한 파란 면).
+     붓으로 칠하는 화면에서 칸이 안 보이면 무엇을 누르는지 모른 채 칠하게 된다.
+     → 설계할 때만 옅은 격자를 깐다. 터는 화면은 칸이 아니라 '길'을 읽는 곳이라 넣지 않는다. */
+  if (MODE === 'design') {
+    /* ⚠️처음엔 격자를 화면 전체에 깔았더니 **편집할 수 없는 바깥 테두리까지 칸으로 보여**
+       방이 실제보다 한 겹 커 보였다. 격자는 '여기를 칠할 수 있다'는 표시여야 한다. */
+    const [gx0, gy0] = P(1, 1), [gx1, gy1] = P(W - 1, H - 1);
+    cx.strokeStyle = 'rgba(147,197,253,.10)'; cx.lineWidth = 1; cx.beginPath();
+    for (let x = 2; x < W - 1; x++) { const [qx] = P(x, 0); cx.moveTo(qx, gy0); cx.lineTo(qx, gy1); }
+    for (let y = 2; y < H - 1; y++) { const [, qy] = P(0, y); cx.moveTo(gx0, qy); cx.lineTo(gx1, qy); }
+    cx.stroke();
+    cx.strokeStyle = 'rgba(147,197,253,.22)'; cx.lineWidth = 1.5;
+    cx.strokeRect(gx0, gy0, gx1 - gx0, gy1 - gy0);
+  }
+  // 길의 테두리 — 벽과 맞닿는 변만 밝은 선으로(도면의 선)
+  cx.strokeStyle = '#2f6ea8'; cx.lineWidth = 1;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    if (walls.has(y * W + x)) continue;
+    const [px, py] = P(x, y);
+    cx.beginPath();
+    if (walls.has(y * W + x - 1)) { cx.moveTo(px, py); cx.lineTo(px, py + TS); }
+    if (walls.has(y * W + x + 1)) { cx.moveTo(px + TS, py); cx.lineTo(px + TS, py + TS); }
+    if (walls.has((y - 1) * W + x)) { cx.moveTo(px, py); cx.lineTo(px + TS, py); }
+    if (walls.has((y + 1) * W + x)) { cx.moveTo(px, py + TS); cx.lineTo(px + TS, py + TS); }
+    cx.stroke();
+  }
+  // 입구·금고
+  let [px, py] = P(start.x, start.y);
+  cx.fillStyle = '#1e3a5f'; cx.fillRect(px, py, TS, TS);
+  cx.fillStyle = '#93c5fd'; cx.font = `${TS * .5}px monospace`; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+  cx.fillText('▶', px + TS / 2, py + TS / 2);
+  [px, py] = P(goal.x, goal.y);
+  cx.fillStyle = '#134e2a'; cx.fillRect(px, py, TS, TS);
+  cx.fillStyle = '#4ade80'; cx.fillText('◆', px + TS / 2, py + TS / 2);
+  // 장치 — 범위를 항상 보여 준다(TD 불만 1위가 "뭐가 뭔지 모르겠다")
+  for (const d of devs) {
+    const D = DEVICES[d.k], [dx, dy] = P(d.x + .5, d.y + .5), dead = d.off > 0;
+    /* ⚠️범위를 실선 원으로 그렸더니 원이 서로 겹쳐 화면을 덮었다(1칸 복도에 반지름 4칸).
+       → 점선으로 얇게, 그리고 **길 위에만** 보이게 한다. 벽 안쪽 원은 읽을 필요가 없다. */
+    if (D.r > 0) {
+      cx.save();
+      cx.beginPath();
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++)
+        if (!walls.has(y * W + x)) { const [qx, qy] = P(x, y); cx.rect(qx, qy, TS, TS); }
+      cx.clip();
+      /* ⚠️설계 화면에서 장치 여섯을 놓아 보니 **범위 원이 서로 겹쳐 도면을 덮었다.**
+         터는 화면에선 장치가 드물어 안 보이던 문제다. 설계자가 지금 알고 싶은 것은
+         '내가 놓는 이것이 어디까지 보는가'이므로 **든 붓과 같은 종류만** 뚜렷하게 둔다. */
+      const dim = MODE === 'design' && dTool !== d.k;
+      cx.globalAlpha = dim ? .28 : 1;
+      cx.strokeStyle = dead ? '#334155' : (d.k === 'L' ? 'rgba(239,68,68,.55)'
+        : d.k === 'C' ? 'rgba(96,165,250,.5)' : d.k === 'D' ? 'rgba(251,191,36,.5)'
+        : d.k === 'G' ? 'rgba(45,212,191,.5)' : 'rgba(192,132,252,.45)');
+      cx.lineWidth = 1.2; cx.setLineDash([5, 5]);
+      cx.beginPath(); cx.arc(dx, dy, D.r * TS, 0, 7); cx.stroke();
+      cx.setLineDash([]); cx.globalAlpha = 1; cx.restore();
+    }
+    const home = d.lure ? P(d.lure.x + .5, d.lure.y + .5) : [dx, dy];
+    cx.font = `${TS * .62}px monospace`; cx.globalAlpha = dead ? .3 : 1;
+    cx.fillText({ C: '📹', L: '🔴', D: '🐕', P: '📿', K: '🔒', G: '🪟' }[d.k], home[0], home[1]);
+    cx.globalAlpha = 1;
+  }
+  // 도둑
+  for (const th of thieves) {
+    if (th.done) continue;
+    const [tx, ty] = P(th.x, th.y);
+    if (!th.alive) { cx.globalAlpha = .22; }
+    cx.font = `${TS * .58}px monospace`;
+    cx.fillText(THIEVES[th.kind].ch, tx, ty);
+    if (th.alive) {
+      cx.fillStyle = th.seen > 0 ? '#ef4444' : '#22c55e';
+      cx.fillRect(tx - TS * .3, ty - TS * .44, TS * .6 * (th.hp / th.max), 3);
+      if (th.seen > 0) { cx.strokeStyle = '#ef4444'; cx.lineWidth = 2;
+        cx.beginPath(); cx.arc(tx, ty, TS * .42, 0, 7); cx.stroke(); }
+      if (th.hold > 0) { cx.fillStyle = '#fbbf24'; cx.fillText('⏱', tx + TS * .4, ty - TS * .3); }
+    }
+    cx.globalAlpha = 1; cx.fillStyle = '#93c5fd';
+  }
+  // 폭파·양동 조준
+  if (armMove) {
+    cx.strokeStyle = '#fbbf24'; cx.setLineDash([4, 4]); cx.lineWidth = 2;
+    cx.strokeRect(ox, oy, W * TS, H * TS); cx.setLineDash([]);
+  }
+  if (MODE === 'design') {
+    const left = DESIGN.budget - designSpent(), len = designPath();
+    $('#hud').innerHTML = `${L10N('designHud')}<b>${left}</b>`
+      + (len ? `　${L10N('pathLen')} <b>${len}</b>${L10N('tiles')}`
+             : `　<span style="color:#ef4444">${L10N('noPath')}</span>`);
+    $('#hint').textContent = flashT > 0 ? flashMsg : L10N('hintPaint');
+    flashT = Math.max(0, flashT - 1 / 60);
+  } else {
+    $('#hud').innerHTML = `⏱ ${t.toFixed(1)}s　${L10N('budgetLeft')} ${budget - spent}`
+      + `　${L10N('sent')} ${thieves.length}　♥ ${thieves.filter(x => x.alive && !x.done).length}`;
+    $('#hint').textContent = armMove
+      ? (armMove === 'breach' ? L10N('hintBreach') : L10N('hintDecoy'))
+      // ⚠️세로 폰에서는 패널이 **아래**에 있다 — '왼쪽에서'라고 하면 거짓말이 된다
+      : (!playing && !over ? L10N(stacked() ? 'hintSendM' : 'hintSend') : '');
+  }
+}
+
+/* ── UI ───────────────────────────────────────────────────────────── */
+/* 벽·지우개는 DEVICES 에 없으니 여기서만 말을 준다. 장치 이름은 DEVICES 를 그대로 쓴다 —
+   같은 이름을 두 곳에 두면 한쪽만 낡는다(이 저장소가 여러 번 겪은 실패다). */
+const PAL = [
+  ['#', '▦', { ko: '벽', en: 'Wall', note: '길을 돌린다', en_note: 'makes the path longer' }],
+  ['C', '📹'], ['L', '🔴'], ['K', '🔒'], ['D', '🐕'], ['P', '📿'], ['G', '🪟'],
+  ['.', '⌫', { ko: '지우개', en: 'Erase', note: '되판다 (값을 돌려받는다)', en_note: 'sell it back (budget returns)' }],
+];
+
+function drawDesignUi() {
+  const tm = $('#team'); tm.innerHTML = '';
+  for (const [k, ch, own] of PAL) {
+    const d = own || DEVICES[k];
+    const el = document.createElement('div');
+    el.className = 'row' + (dTool === k ? ' sel' : '');
+    el.innerHTML = `<span class="ch">${ch}</span><span class="nm"><b>${nm(d)}</b><i>${nm(d, 'note')}</i></span>`
+      + (COST[k] ? `<span class="ct">${COST[k]}</span>` : '');
+    el.addEventListener('click', () => { dTool = k; drawUi(); });
+    tm.appendChild(el);
+  }
+  const mv = $('#moves'); mv.innerHTML = '';
+  const len = designPath();
+  const left = DESIGN.budget - designSpent();
+  /* ★설계자가 알아야 할 것은 딱 둘이다: **얼마 남았나**와 **길이 이어져 있나.**
+     길이 끊긴 금고는 애초에 공개될 수 없으므로 증명 단추를 잠가 둔다(§2). */
+  mv.innerHTML = `<div class="row"><span class="nm"><b>${L10N('budgetLeft')}</b>`
+    + `<i>${len ? `${L10N('pathLen')} ${len}${L10N('tiles')}` : L10N('noPath')}</i></span>`
+    + `<span class="qty" style="color:${left < 0 ? '#ef4444' : '#93c5fd'}">${left}</span></div>`;
+  /* ⚠️★이 변수는 원래 `nm` 이었는데 **i18n 의 `nm()` 을 가려** 설계 화면이 통째로 죽었다
+     (`Cannot access 'nm' before initialization`). 짧은 이름은 이미 임자가 있다. */
+  const nameBox = document.createElement('input');
+  nameBox.value = dName; nameBox.maxLength = 24; nameBox.spellcheck = false;
+  nameBox.style.cssText = 'width:100%;margin-top:8px;background:#0b1b2e;color:#93c5fd;'
+    + 'border:1px solid #2f6ea8;border-radius:6px;padding:6px 8px;font:12px monospace';
+  // ⚠️input 에 이벤트를 걸어도 drawUi 가 통째로 다시 그리면 커서가 튄다 → 다시 그리지 않는다
+  nameBox.addEventListener('input', () => { dName = nameBox.value; saveDesign(); });
+  mv.appendChild(nameBox);
+  const b = document.createElement('button');
+  b.className = 'big'; b.style.cssText = 'width:100%;margin-top:8px';
+  b.textContent = L10N('proveBtn');
+  b.disabled = !len;
+  b.style.opacity = len ? 1 : .4;
+  b.addEventListener('click', enterProve);
+  mv.appendChild(b);
+  /* ★★내보내기는 **증명한 뒤에만** 열린다. 이 단추의 잠금이 곧 설계서 §2 의 기둥이다 —
+     자기도 못 뚫은 금고는 손에서 손으로도 건너가지 못한다. */
+  const ex = document.createElement('button');
+  ex.style.cssText = 'width:100%;margin-top:6px';
+  ex.textContent = proof ? L10N('exportBtn') : L10N('exportLocked');
+  ex.disabled = !proof; ex.style.opacity = proof ? 1 : .4;
+  ex.addEventListener('click', () => openShare('out'));
+  mv.appendChild(ex);
+  const c = document.createElement('button');
+  c.style.cssText = 'width:100%;margin-top:6px';
+  c.textContent = L10N('restart');
+  c.addEventListener('click', () => { newDesign(); syncDesign(); });
+  mv.appendChild(c);
+  $('#log').innerHTML = logs.join('<br>');
+  $('#h1').textContent = L10N('place'); $('#h2').textContent = L10N('state');
+  $('#vname').textContent = L10N('designTitle');
+}
+
+function drawUi() {
+  if (MODE === 'design') return drawDesignUi();
+  const tm = $('#team'); tm.innerHTML = '';
+  for (const [k, s] of Object.entries(THIEVES)) {
+    const have = team[k] || 0, left = pending ? (pending[k] || 0) : 0;
+    const el = document.createElement('div');
+    el.className = 'row' + (left > 0 ? ' sel' : '');
+    el.innerHTML = `<span class="ch">${s.ch}</span><span class="nm"><b>${nm(s)}</b><i>${nm(s, 'note')}</i></span>`
+      + (playing || thieves.length ? `<span class="qty">${left}/${have}</span>`
+        : `<span class="ct">${s.cost}</span><span class="qty">${have}</span>`);
+    el.addEventListener('click', () => {
+      if (thieves.length || playing) { send(k); return; }
+      if (spent + s.cost > budget) { log(L10N('cantAfford')); drawUi(); return; }
+      team[k] = have + 1; spent += s.cost; pending = { ...team }; drawUi();
+    });
+    el.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      if (thieves.length || playing || !have) return;
+      team[k] = have - 1; spent -= s.cost; pending = { ...team }; drawUi();
+    });
+    tm.appendChild(el);
+  }
+  const mv = $('#moves'); mv.innerHTML = '';
+  for (const [k, m] of Object.entries(MOVES)) {
+    const el = document.createElement('div');
+    el.className = 'row' + (move === k ? ' sel' : '');
+    el.innerHTML = `<span class="ch">${m.ch}</span><span class="nm"><b>${nm(m)}</b><i>${nm(m, 'note')}</i></span>`;
+    el.addEventListener('click', () => {
+      if (moveUsed) return;
+      if (!thieves.length && !playing) { move = k; drawUi(); return; }
+      if (move !== k) return;
+      if (k === 'blackout') useMove(); else { armMove = k; }
+      drawUi();
+    });
+    mv.appendChild(el);
+  }
+  $('#log').innerHTML = logs.join('<br>');
+  $('#h1').textContent = L10N('team'); $('#h2').textContent = L10N('moves');
+  $('#vname').textContent = MODE === 'prove' ? L10N('proveTitle')
+    : MODE === 'camp' && campCur ? `${String(campCur.no).padStart(2, '0')} ${nm(campCur)} — ${nm(campCur, 'hint')}`
+    : (V ? `${nm(V)} — ${nm(V, 'hint')}` : '');
+  $('#pause').textContent = paused ? L10N('resume') : L10N('pause');
+  $('#spd').textContent = `${L10N('speed')}${speed}${LANG === 'ko' ? '배' : ''}`;
+}
+
+const cell = (e) => {
+  const r = cv.getBoundingClientRect();
+  return { x: Math.floor((e.clientX - r.left - ox) / TS), y: Math.floor((e.clientY - r.top - oy) / TS) };
+};
+cv.addEventListener('click', (e) => {
+  if (MODE === 'design' || !armMove) return;
+  const { x, y } = cell(e);
+  if (x < 0 || y < 0 || x >= W || y >= H) return;
+  useMove(x, y);
+});
+/* ⚠️벽 한 칸씩 클릭하게 두면 나선 하나에 100번을 눌러야 한다 — 그 지루함이
+   '길게 돌리기'라는 선택지를 통째로 죽인다. **끌어서 칠한다.** */
+cv.addEventListener('pointerdown', (e) => {
+  if (MODE !== 'design') return;
+  cv.setPointerCapture(e.pointerId);
+  const { x, y } = cell(e);
+  // 이미 그 붓으로 칠해진 칸을 누르면 **지우개로 시작한다**(같은 손짓으로 지운다)
+  painting = (dGrid[y] && dGrid[y][x] === dTool) ? '.' : dTool;
+  const keep = dTool; dTool = painting; paint(x, y); dTool = keep;
+});
+cv.addEventListener('pointermove', (e) => {
+  if (MODE !== 'design' || !painting) return;
+  const { x, y } = cell(e);
+  const keep = dTool; dTool = painting; paint(x, y); dTool = keep;
+});
+addEventListener('pointerup', () => { painting = null; });
+$('#toCamp').addEventListener('click', openCampaign);
+$('#toDesign').addEventListener('click', enterDesign);
+$('#pause').addEventListener('click', () => { paused = !paused; drawUi(); });
+$('#spd').addEventListener('click', () => { speed = speed === 1 ? 2 : speed === 2 ? 4 : 1; drawUi(); });
+$('#reset').addEventListener('click', () => { reset(true); $('#veilEnd').classList.add('hide'); });
+$('#again').addEventListener('click', () => { reset(true); $('#veilEnd').classList.add('hide'); });
+$('#next').addEventListener('click', () => {
+  if (MODE === 'prove') { enterDesign(); return; }
+  if (MODE === 'camp') { $('#veilEnd').classList.add('hide'); openCampaign(); return; }
+  const i = (VAULTS.findIndex(v => v.id === V.id) + 1) % VAULTS.length;
+  parse(VAULTS[i]); reset(false); $('#veilEnd').classList.add('hide');
+});
+
+/* ══ 주고받기 (3단계) ═══════════════════════════════════════════════════
+ * 설계서 §10-3 이 묻는 것: **네트워크 없이 공유가 되는지.**
+ * §7-④ 가 "네트워크는 있으면 더 좋은 것이지 없으면 못 하는 것이 아니다"라고 못박았으므로,
+ * 서버가 붙기 전에 금고가 손에서 손으로 건너갈 수 있어야 한다.
+ *
+ * ⚠️★**남의 증명은 오프라인에서 검증할 수 없다.** 코드 안의 증명 기록은 '주장'일 뿐이고
+ *   누구든 고쳐 쓸 수 있다. 우리가 실제로 확인할 수 있는 것은 **길이 이어져 있는가** 하나뿐이다.
+ *   그래서 불러올 때 다시 재고, 증명 기록은 **참고 표시**로만 쓴다.
+ *   진짜 증명 보증은 5단계(서버)에서 업로드할 때 붙는다 — 여기서 보증하는 척하면 안 된다. */
+
+/** 격자는 대부분 같은 글자가 이어진다 → 런렝스. 글자에 숫자가 없어 구분자가 필요 없다. */
+function rle(str) {
+  let out = '', i = 0;
+  while (i < str.length) {
+    let j = i; while (j < str.length && str[j] === str[i]) j++;
+    out += str[i] + (j - i > 1 ? (j - i) : '');
+    i = j;
+  }
+  return out;
+}
+function unrle(code) {
+  let out = '', i = 0;
+  while (i < code.length) {
+    const ch = code[i++];
+    let n = '';
+    while (i < code.length && code[i] >= '0' && code[i] <= '9') n += code[i++];
+    out += ch.repeat(n ? +n : 1);
+  }
+  return out;
+}
+/** 붙여넣다 한 글자 빠진 코드를 조용히 여는 것보다 **거절하는 편**이 낫다. */
+const crc = (s) => {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h.toString(36);
+};
+
+const VM_PREFIX = 'VM1';
+/* ⚠️★`encodeURIComponent` 는 **`~` 를 그대로 둔다**(RFC 3986 의 unreserved 문자).
+   구분자로 `~` 를 쓰면서 이걸 놓쳐서, 금고 이름에 `~` 를 넣는 순간 칸 수가 어긋나
+   "금고 코드가 아닙니다"로 거절됐다. 이름은 사용자가 아무거나 쓰는 자리다.
+   ⚠️★그렇다고 `encodeURIComponent` 를 쓰면 **한글 한 글자가 9자**가 된다 —
+   139자 코드의 39%를 이름이 먹었고, 손으로 건네는 코드인데 **무슨 금고인지 안 보였다.**
+   충돌하는 두 글자(`%`·`~`)만 피하면 된다. 나머지는 그냥 글자로 둔다. */
+const encName = (n) => String(n).replace(/%/g, '%25').replace(/~/g, '%7E');
+const decName = (n) => n.replace(/%7E/g, '~').replace(/%25/g, '%');
+function encodeVault(rows, name, pf) {
+  const body = rle(rows.join(''));
+  const meta = `${encName(name)}~${pf ? pf.sec : ''}~${pf ? pf.sent : ''}`;
+  return [VM_PREFIX, meta, body, crc(meta + body)].join('~');
+}
+/** @returns {{rows,name,claim}|{err}} — 실패는 **왜 실패했는지**를 돌려준다(사용자가 고칠 수 있게). */
+function decodeVault(code) {
+  const raw = String(code || '').trim();
+  const p = raw.split('~');
+  if (p[0] !== VM_PREFIX || p.length !== 6) return { err: L10N('errNotCode') };
+  const [, rawName, sec, sent, body, sum] = p;
+  if (crc(`${rawName}~${sec}~${sent}` + body) !== sum) return { err: L10N('errCorrupt') };
+  const flat = unrle(body);
+  if (flat.length !== DESIGN.w * DESIGN.h) return { err: L10N('errSize') };
+  const rows = [];
+  for (let y = 0; y < DESIGN.h; y++) rows.push(flat.slice(y * DESIGN.w, (y + 1) * DESIGN.w));
+  if (!flat.includes('S') || !flat.includes('V')) return { err: L10N('errNoSV') };
+  if (/[^#.SVCLKDPG]/.test(flat)) return { err: L10N('errGlyph') };
+  const name = decName(rawName) || L10N('unnamed');
+  return { rows, name, claim: sec ? { sec: +sec, sent: +sent } : null };
+}
+
+/** 코드 → 실제로 털 수 있는 금고. ⚠️길을 **여기서 다시 잰다**(남의 주장을 믿지 않는다). */
+function openVault(code) {
+  const r = decodeVault(code);
+  if (r.err) return r;
+  const v = { id: 'shared', name: r.name, budget: DESIGN.thiefBudget,
+    hint: r.claim ? `${L10N('makerRec')} ${r.claim.sec}s · ${L10N('thievesN')} ${r.claim.sent}` : L10N('received'),
+    grid: r.rows };
+  const sv = [V, grid, W, H, start, goal, devs, walls];
+  parse(v);
+  const pth = bfs(start);
+  const reach = pth.length && pth[pth.length - 1].x === goal.x && pth[pth.length - 1].y === goal.y;
+  if (!reach) { [V, grid, W, H, start, goal, devs, walls] = sv; return { err: L10N('errSealed') }; }
+  MODE = 'raid'; reset(false); fit();
+  $('#veilStart').classList.add('hide'); $('#veilEnd').classList.add('hide');
+  return { ok: true, name: r.name };
+}
+
+/* ══ 설계 (2단계) ══════════════════════════════════════════════════════
+ * 바깥 한 겹은 **고정 벽이고 공짜**다. 방의 테두리지 설계가 아니다 —
+ * 값을 물리면 모든 금고가 똑같은 60칸을 먼저 사고 시작한다. */
+const inBorder = (x, y) => x > 0 && y > 0 && x < DESIGN.w - 1 && y < DESIGN.h - 1;
+const isFixed = (x, y) => (x === DESIGN.start.x && y === DESIGN.start.y)
+                       || (x === DESIGN.goal.x && y === DESIGN.goal.y);
+
+function newDesign() {
+  dGrid = [];
+  for (let y = 0; y < DESIGN.h; y++) {
+    const row = [];
+    for (let x = 0; x < DESIGN.w; x++) row.push(inBorder(x, y) ? '.' : '#');
+    dGrid.push(row);
+  }
+  dGrid[DESIGN.start.y][DESIGN.start.x] = 'S';
+  dGrid[DESIGN.goal.y][DESIGN.goal.x] = 'V';
+}
+
+/** 테두리는 세지 않는다(공짜). 설계자가 실제로 산 것만 센다. */
+function designSpent() {
+  let n = 0;
+  for (let y = 0; y < DESIGN.h; y++) for (let x = 0; x < DESIGN.w; x++)
+    if (inBorder(x, y)) n += COST[dGrid[y][x]] || 0;
+  return n;
+}
+
+/** 설계를 공격 코드가 아는 형태로 바꾼다 — 같은 `parse` 를 타야 규칙이 갈라지지 않는다. */
+const designVault = () => ({
+  id: 'mine', name: L10N('mine'), hint: L10N('iBuilt'), budget: DESIGN.thiefBudget,
+  grid: dGrid.map(r => r.join('')),
+});
+
+/** ★막힌 금고는 존재할 수 없다(설계서 §2). 여기서 미리 막아야 증명에서 헛수고를 안 한다. */
+function designPath() {
+  const sv = [V, grid, W, H, start, goal, devs, walls];
+  parse(designVault());
+  const pth = bfs(start);
+  const okp = pth.length && pth[pth.length - 1].x === goal.x && pth[pth.length - 1].y === goal.y;
+  [V, grid, W, H, start, goal, devs, walls] = sv;
+  return okp ? pth.length : 0;
+}
+
+/** 붓질 한 번. ⚠️**살 수 없으면 아무 일도 일어나지 않는다** — 예산을 넘겨 놓고
+ *  나중에 거절하면 설계자가 무엇을 지워야 할지 모른 채 화면만 더러워진다. */
+function paint(x, y) {
+  if (!inBorder(x, y) || isFixed(x, y)) return false;
+  const cur = dGrid[y][x], next = dTool;
+  if (cur === next) return false;
+  // 장치는 길 위에만 놓는다(벽 속의 카메라는 아무것도 못 본다)
+  if (next !== '#' && next !== '.' && cur === '#') return false;
+  const after = designSpent() - (COST[cur] || 0) + (COST[next] || 0);
+  if (after > DESIGN.budget) { flash(L10N('noBudget')); return false; }
+  dGrid[y][x] = next;
+  /* ★★한 칸이라도 바꾸면 **증명이 무효다.** 증명한 금고와 내보내는 금고가 다르면
+     "세상에 나온 금고는 전부 뚫린 적이 있다"(§2)가 거짓말이 된다.
+     고친 뒤 다시 뚫으면 되므로 손해는 없고, 이걸 빼면 기둥이 통째로 무너진다. */
+  proof = null;
+  syncDesign();
+  return true;
+}
+
+let flashT = 0, flashMsg = '';
+const flash = (m) => { flashMsg = m; flashT = 1.6; };
+
+/* ★루프 ⑤'고치기'는 설계가 **남아 있어야** 성립한다. 끄면 사라지는 설계 도구는
+   한 번 쓰고 마는 장난감이 된다.
+   ⚠️localStorage 는 사생활 보호 창·차단 설정에서 **읽기만 해도 예외를 던진다.**
+   저장이 안 되는 것은 사고가 아니므로 조용히 넘어가고, 게임은 그대로 돌아가야 한다. */
+const SAVE_KEY = 'vaultmaker.design.v1';
+function saveDesign() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ n: dName, g: dGrid.map(r => r.join('')) })); }
+  catch (e) { /* 저장 못 해도 이번 판은 계속된다 */ }
+}
+function loadDesign() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    const o = JSON.parse(raw);
+    const rows = Array.isArray(o) ? o : o && o.g;   // 옛 저장본(배열)도 연다
+    // ⚠️저장본이 지금 격자 크기와 다르면 버린다 — 반쯤 맞는 설계를 복원하면 좌표가 어긋난다
+    if (!Array.isArray(rows) || rows.length !== DESIGN.h || rows.some(r => r.length !== DESIGN.w)) return false;
+    dGrid = rows.map(r => r.split(''));
+    if (o && o.n) dName = o.n;
+    return true;
+  } catch (e) { return false; }
+}
+
+function syncDesign() { parse(designVault()); fit(); drawUi(); saveDesign(); }
+
+function enterDesign() {
+  MODE = 'design'; proof = null; over = null; playing = false; thieves = [];
+  if (!dGrid && !loadDesign()) newDesign();
+  syncDesign();
+  $('#veilStart').classList.add('hide'); $('#veilEnd').classList.add('hide');
+}
+
+/** ★증명 — 여기서부터는 **완전히 남의 금고를 털 때와 같은 코드**다. */
+function enterProve() {
+  if (!designPath()) { flash(L10N('errSealed')); return; }
+  MODE = 'prove';
+  parse(designVault()); reset(false);
+  proveStart = performance.now();
+  $('#veilStart').classList.add('hide'); $('#veilEnd').classList.add('hide');
+}
+let proveStart = 0;
+
+/* ── 캠페인 ───────────────────────────────────────────────────────── */
+function playCampaign(v) {
+  MODE = 'camp'; campCur = v;
+  parse({ ...v, budget: v.budget }); reset(false); fit();
+  $('#veilStart').classList.add('hide'); $('#veilEnd').classList.add('hide');
+}
+let campCur = null;
+
+function buildCampaign() {
+  const p = $('#pick'); p.innerHTML = '';
+  const done = campCleared();
+  const head = document.createElement('div');
+  head.style.cssText = 'color:#93c5fd;font:12px monospace;margin-bottom:8px';
+  head.textContent = `${done} / ${CAMPAIGN.length}`;
+  p.appendChild(head);
+  const box = document.createElement('div');
+  box.style.cssText = 'max-height:min(52vh,380px);overflow:auto;text-align:left;'
+    + 'width:min(620px,88vw);margin:0 auto';
+  let ch = 0;
+  for (const v of CAMPAIGN) {
+    if (v.ch !== ch) {
+      ch = v.ch;
+      const c = CHAPTERS[ch - 1];
+      const h = document.createElement('div');
+      h.style.cssText = 'color:#60a5fa;font:600 12px monospace;margin:12px 0 6px';
+      h.textContent = LANG === 'ko' ? `${ch}장 · ${c.ko} — ${c.note}`
+        : `Chapter ${ch} · ${c.en} — ${c.en_note}`;
+      box.appendChild(h);
+    }
+    const open = campOpen(v), rec = camp[v.id];
+    const b = document.createElement('button');
+    b.style.cssText = 'display:block;width:100%;margin:3px 0;text-align:left;'
+      + `padding:7px 10px;opacity:${open ? 1 : .35}`;
+    b.disabled = !open;
+    b.innerHTML = `<b style="color:${rec ? '#4ade80' : '#e6eefc'}">${rec ? '✔' : open ? '·' : '🔒'} `
+      + `${String(v.no).padStart(2, '0')} ${nm(v)}</b>`
+      + `<i style="display:block;color:#7aa0c4;font:11px monospace;font-style:normal">${nm(v, 'hint')}</i>`
+      + (rec ? `<i style="display:block;color:#4ade80;font:11px monospace;font-style:normal">`
+        + `${L10N('thievesN')} ${rec.best}${rec.noMove ? ` · ${L10N('usedMove')} ${L10N('no')}` : ''}</i>` : '');
+    b.addEventListener('click', () => playCampaign(v));
+    box.appendChild(b);
+  }
+  p.appendChild(box);
+}
+
+/* ── 공유 창 ──────────────────────────────────────────────────────── */
+let shMode = 'out';
+function openShare(mode) {
+  shMode = mode;
+  const box = $('#shBox');
+  if (mode === 'out') {
+    $('#shT').textContent = L10N('shareOutT');
+    $('#shP').innerHTML = L10N('shareOutP');
+    box.value = encodeVault(dGrid.map(r => r.join('')), dName, proof);
+    box.readOnly = true;
+    $('#shGo').textContent = L10N('copy');
+    $('#shFile').textContent = L10N('saveFile');
+  } else {
+    $('#shT').textContent = L10N('shareInT');
+    $('#shP').textContent = L10N('shareInP');
+    box.value = ''; box.readOnly = false;
+    $('#shGo').textContent = L10N('raidIt');
+    $('#shFile').textContent = L10N('openFile');
+  }
+  $('#veilShare').classList.remove('hide');
+  if (mode === 'in') box.focus();
+}
+const closeShare = () => $('#veilShare').classList.add('hide');
+$('#shClose').addEventListener('click', closeShare);
+$('#shGo').addEventListener('click', () => {
+  if (shMode === 'out') {
+    const box = $('#shBox');
+    box.select();
+    // ⚠️클립보드 API 는 권한·컨텍스트에 따라 조용히 거절된다 → 실패해도 코드는 화면에 있다
+    try { navigator.clipboard.writeText(box.value); } catch (e) { try { document.execCommand('copy'); } catch (e2) {} }
+    $('#shP').innerHTML = L10N('copied');
+    return;
+  }
+  const r = openVault($('#shBox').value);
+  if (r.err) { $('#shP').innerHTML = `<span style="color:#ef4444">⛔ ${r.err}</span>`; return; }
+  closeShare();
+});
+$('#shFile').addEventListener('click', () => {
+  if (shMode === 'out') {
+    const blob = new Blob([$('#shBox').value], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${dName.replace(/[^\w가-힣 ]+/g, '').trim() || 'vault'}.vault.txt`;
+    a.click(); URL.revokeObjectURL(a.href);
+    return;
+  }
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.txt,.vault,text/plain';
+  inp.addEventListener('change', () => {
+    const f = inp.files && inp.files[0];
+    if (!f) return;
+    f.text().then((txt) => { $('#shBox').value = txt.trim(); $('#shGo').click(); });
+  });
+  inp.click();
+});
+
+function openCampaign() {
+  $('#startT').textContent = L10N('campT');
+  $('#startP').innerHTML = L10N('campP');
+  buildCampaign();
+  $('#veilStart').classList.remove('hide');
+}
+function openHome() {
+  $('#startT').textContent = L10N('homeT');
+  $('#startP').innerHTML = L10N('homeP');
+  buildPick();
+  $('#veilStart').classList.remove('hide');
+}
+
+function buildPick() {
+  const p = $('#pick'); p.innerHTML = '';
+  const camp = document.createElement('button');
+  camp.className = 'big'; camp.style.cssText = 'margin:0 4px 10px;display:block;width:calc(100% - 8px)';
+  camp.textContent = `${L10N('campaign')} (${campCleared()}/${CAMPAIGN.length})`;
+  camp.addEventListener('click', openCampaign);
+  p.appendChild(camp);
+  VAULTS.forEach((v) => {
+    const b = document.createElement('button');
+    b.className = 'big'; b.style.margin = '4px';
+    b.textContent = nm(v);
+    b.addEventListener('click', () => {
+      MODE = 'raid'; parse(v); reset(false); $('#veilStart').classList.add('hide');
+    });
+    p.appendChild(b);
+  });
+  const mk = document.createElement('button');
+  mk.className = 'big'; mk.style.cssText = 'margin:14px 4px 0;display:block;width:calc(100% - 8px)';
+  mk.textContent = L10N('mkMine');
+  mk.addEventListener('click', enterDesign);
+  p.appendChild(mk);
+  const rc = document.createElement('button');
+  rc.style.cssText = 'margin:6px 4px 0;display:block;width:calc(100% - 8px)';
+  rc.textContent = L10N('getVault');
+  rc.addEventListener('click', () => openShare('in'));
+  p.appendChild(rc);
+}
+
+/* ── 루프 ─────────────────────────────────────────────────────────── */
+let last = performance.now();
+function loop(now) {
+  const raw = Math.min((now - last) / 1000, .05); last = now;
+  if (playing && !paused && !over) { lastDt = raw / 3 * speed;
+    for (let i = 0; i < 3; i++) step(lastDt); }
+  if (V) draw();
+  requestAnimationFrame(loop);
+}
+addEventListener('resize', () => { if (V) fit(); });
+/* 고정 문구는 한 번만 그린다(다시 그릴 일이 없다) */
+document.documentElement.lang = LANG;
+document.title = L10N('title');
+$('#gname').textContent = L10N('title');
+$('#gtag').textContent = L10N('tagBuild');
+$('#toCamp').textContent = L10N('campaign');
+$('#toDesign').textContent = L10N('design');
+$('#again').textContent = L10N('again');
+$('#reset').textContent = L10N('again');
+$('#shClose').textContent = L10N('close');
+$('#h3').textContent = L10N('log');
+$('#lang').textContent = LANG === 'ko' ? 'EN' : '한국어';
+/* ⚠️언어는 주소로 바꾼다 — 화면 전체를 다시 그리는 것보다 확실하고,
+   포털에서 링크로 언어를 고정해 보낼 수 있다. */
+$('#lang').addEventListener('click', () => {
+  const u = new URL(location.href);
+  u.searchParams.set('lang', LANG === 'ko' ? 'en' : 'ko');
+  location.href = u.toString();
+});
+
+campLoad();
+parse(VAULTS[0]); reset(false); fit(); buildPick(); requestAnimationFrame(loop);
+
+/* 모듈 스코프라 CDP 에서 안 보인다 — 검증·화면점검용으로만 내보낸다.
+   ⚠️`?test=` 없이는 노출하지 않는다(게임 화면에서 콘솔로 금고를 고칠 수 있으면 증명이 무의미해진다). */
+/* 캠페인 자동 튜닝용 — 금고 하나를 즉석에서 재 준다.
+   ⚠️금고 30개를 예산 8단계로 훑으면 페이지를 매번 새로 여는 것만으로도 몇 분이 날아간다.
+   한 번 띄워 놓고 이걸 계속 부르면 같은 측정을 훨씬 싸게 한다. */
+if (TEST) window.__TUNE__ = (vault) => {
+  const r = [], rb = [];
+  for (const [, c] of MATRIX.COMPS) {
+    const cost = Object.entries(c).reduce((a, [k, n]) => a + THIEVES[k].cost * n, 0);
+    if (cost > vault.budget) { r.push(null); rb.push(null); continue; }
+    const plain = MATRIX.trial(vault, c, 0) || MATRIX.trial(vault, c, 2.5);
+    r.push(plain);
+    rb.push(plain || MATRIX.trial(vault, c, 0, true) || MATRIX.trial(vault, c, 2.5, true));
+  }
+  return { win: r.filter(Boolean).length, winMove: rb.filter(Boolean).length,
+           tried: r.filter((x) => x !== null).length };
+};
+
+if (TEST) window.__VM__ = {
+  enterDesign, enterProve, newDesign, syncDesign, paint, designPath, designSpent, send,
+  openShare, encodeVault, decodeVault, openVault,
+  fakeProof: () => { proof = { sec: 18.6, sent: 4, move: false }; drawUi(); },
+  set tool(k) { dTool = k; }, get mode() { return MODE; }, get proof() { return proof; },
+};
+const _origParse = parse;
+
+/* ══ 밸런스 측정기 — sim 과 campaign 이 **같은 자**를 써야 값이 비교된다 ══════ */
+  /* ★★밸런스 측정 — '재미있는가'를 사람 없이 재는 대리 지표.
+   여러 편성을 자동으로 돌려 본다. 전부 이기거나 전부 지면 **결정이 없는 것**이고,
+   그러면 이 게임에는 고를 이유가 없다. 갈려야 게임이다. */
+/* ⚠️★★**측정기가 개입을 한 번도 쓰지 않는다** — 이걸 모르고 캠페인 4장(주제가 '한 번의 개입')을
+   재니 0/6 이 셋 나왔다. 개입을 전제로 지은 금고를 개입 없이 재고 "못 깬다"고 읽은 것이다.
+   그렇다고 셋을 다 자동화할 수는 없다 — 폭파(어느 벽)·양동(어디로)은 **위치 판단**이라
+   사람의 수를 흉내 낼 수 없다. 정전만 '언제'뿐이라 대리할 수 있다.
+   → `useBlackout` 로 정전만 자동으로 써 보고, 나머지 둘은 **없어도 깰 수 있게 짓는다.**
+   ★개입 필수 금고는 만들지 않는다: §4-3 은 "언제 썼나가 기억에 남게"라고 했지 "없으면 못 깬다"고
+   하지 않았고, 개입이 없으면 못 깨는 금고는 §1-3 의 "난이도가 갑자기 튄다"가 된다. */
+function trial(vault, comp, stagger, useBlackout) {
+  parse(vault); reset(false);
+  team = { ...comp }; pending = { ...comp };
+  if (useBlackout) move = 'blackout';
+  const order = [];
+  for (const [k, n] of Object.entries(comp)) for (let i = 0; i < n; i++) order.push(k);
+  let gi = 0, guard = 0, nextAt = 0;
+  while (!over && guard < 60 * 180) {
+    if (gi < order.length && t >= nextAt) { send(order[gi++]); nextAt = t + stagger; }
+    // 정전은 '첫 발각'에 쓴다 — 사람이 쓰는 가장 흔한 순간이고, 판단이 하나뿐이라 흉내낼 수 있다
+    if (useBlackout && !moveUsed && thieves.some((x) => x.alive && x.seen > 0)) useMove();
+    step(1 / 60); guard++;
+    if (gi >= order.length && thieves.every(x => !x.alive || x.done) && !thieves.some(x => x.done)) {
+      if (thieves.every(x => !x.alive)) break;
+    }
+  }
+  return over === 'win';
+}
+const COMPS = [
+  ['달리기만',   { runner: 4 }],
+  ['몸빵만',     { tank: 2 }],
+  ['그림자만',   { ghost: 3 }],
+  ['몸빵+달리기', { tank: 1, runner: 2 }],
+  ['기술자+달리기', { tech: 1, runner: 2 }],
+  ['그림자+몸빵', { ghost: 1, tank: 1 }],
+  /* ⚠️새 도둑을 넣고도 편성을 안 늘리면 **늘어난 답이 측정에 안 잡힌다** —
+     자물쇠공이 여는 금고를 자물쇠공 없이 재게 된다. 자는 늘 재려는 것과 같이 자라야 한다. */
+  ['자물쇠공+달리기', { lockp: 1, runner: 2 }],
+  ['곡예사만',     { acro: 4 }],
+  ['몸빵+기술자',   { tank: 1, tech: 1 }],
+];
+
+const MATRIX = { trial, COMPS };
+
+/* ══ 캠페인 난이도 측정 (?test=campaign) ═══════════════════════════════
+ * ⚠️30개를 매번 재면 6~7배 느려져 `?test=sim` 이 못 쓸 물건이 된다 → **따로 뗀다.**
+ *   sim 은 구조(도달성·예산)만 보고, 난이도 곡선은 `campaign_tune.py` 가 이걸 부른다.
+ * ★캠페인은 '2~4/6'이 목표가 아니다. **가르치는 곡선**이라 1장은 대부분 통해야 하고
+ *   5장은 몇 개만 통해야 한다. 단 **0/6 은 어디에도 없어야 한다** — 못 깨는 금고는
+ *   캠페인을 거기서 끝내 버린다(설계서 §1-3 의 "난이도가 갑자기 튄다"가 정확히 이것). */
+if (TEST === 'campaign') {
+  const rows = [];
+  for (const v of CAMPAIGN) {
+    const r = [];
+    const rb = [];
+    for (const [nm, c] of MATRIX.COMPS) {
+      const cost = Object.entries(c).reduce((a, [k, n]) => a + THIEVES[k].cost * n, 0);
+      if (cost > v.budget) { r.push(null); rb.push(null); continue; }
+      const plain = MATRIX.trial(v, c, 0) || MATRIX.trial(v, c, 2.5);
+      r.push(plain);
+      rb.push(plain || MATRIX.trial(v, c, 0, true) || MATRIX.trial(v, c, 2.5, true));
+    }
+    const tried = r.filter((x) => x !== null).length;
+    rows.push({ no: v.no, ch: v.ch, name: v.name, kind: v.kind, budget: v.budget, path: v.path,
+      win: r.filter((x) => x === true).length, winMove: rb.filter((x) => x === true).length, tried,
+      row: r.map((x, i) => `${MATRIX.COMPS[i][0]}:${x === null ? '-' : x ? '뚫음' : '막힘'}`) });
+  }
+  window.__CAMPAIGN__ = rows;
+  document.title = `CAMPAIGN ${rows.length}`;
+}
+
+/* ══ 자가검증 (?test=sim) ══════════════════════════════════════════ */
+if (TEST === 'sim') {
+  const R = []; const ok = (n, c, d = '') => R.push({ n, c, d });
+  // 데이터
+  ok('금고 3개', VAULTS.length === 3);
+  for (const v of VAULTS) {
+    const g = v.grid, w = new Set(g.map(r => r.length));
+    ok(`${v.name} 격자 직사각형`, w.size === 1, [...w]);
+    ok(`${v.name} 입구·금고 각 1개`,
+      g.join('').split('S').length - 1 === 1 && g.join('').split('V').length - 1 === 1);
+    ok(`${v.name} 테두리가 벽`,
+      g[0].split('').every(c => c === '#') && g[g.length - 1].split('').every(c => c === '#')
+      && g.every(r => r[0] === '#' && r[r.length - 1] === '#'));
+  }
+  // 경로 — 모든 금고가 입구에서 금고실까지 실제로 닿는가(못 닿으면 애초에 못 깬다)
+  for (const v of VAULTS) {
+    parse(v);
+    const p = bfs(start);
+    ok(`${v.name} 입구→금고 경로 존재`, p.length > 1 && p[p.length - 1].x === goal.x && p[p.length - 1].y === goal.y,
+      p.length + '칸');
+  }
+  // 규칙 — 장치 관계가 설계대로인가
+  parse(VAULTS[0]); reset(false);
+  ok('카메라는 피해 0', DEVICES.C.dmg === 0);
+  ok('레이저는 발각된 것만', DEVICES.L.dmg > 0);
+  ok('개는 느린 것만(임계 2.0)', THIEVES.tank.spd <= 2.0 && THIEVES.runner.spd > 2.0);
+  ok('잠금문에 멈추면 빠른 도둑도 개에게 물린다',
+     /curSpd\(th\) > 2\.0/.test(step.toString()) && /th\.hold > 0 \? 0/.test(step.toString()));
+  ok('그림자는 카메라 회피·압력판엔 걸림', THIEVES.ghost.spd > 2.0);
+  // 역할이 겹치지 않는가 — 속도·체력이 전부 다른가
+  const spds = Object.values(THIEVES).map(x => x.spd), hps = Object.values(THIEVES).map(x => x.hp);
+  ok('도둑 속도가 전부 다름', new Set(spds).size === spds.length);
+  ok('도둑 체력이 전부 다름', new Set(hps).size === hps.length);
+  // 예산 — 한 종류로 도배할 수 없는가(최소 2종을 강제하는가)
+  for (const v of VAULTS) {
+    const cheapest = Math.min(...Object.values(THIEVES).map(x => x.cost));
+    ok(`${v.name} 예산이 도배를 못 하게 함`, v.budget < cheapest * 6, `예산 ${v.budget}`);
+  }
+  /* 실제 진행 — 멈추거나 영원히 안 끝나면 안 된다.
+     ⚠️처음엔 달리기 2명 중 1명만 보내고 돌렸더니 '끝나지 않는다'고 나왔다. 그건 버그가 아니라
+       **정상 동작**이다(예비가 남아 있으면 아직 진 게 아니다). 테스트가 틀렸던 것이다.
+       → 가진 도둑을 전부 보내고 결판을 본다. */
+  for (const [vi, v] of VAULTS.entries()) {
+    parse(v); reset(false);
+    team = { runner: 3, tank: 1 }; pending = { ...team };
+    send('runner'); send('runner'); send('runner'); send('tank');
+    let guard = 0;
+    while (!over && guard < 60 * 180) { step(1 / 60); guard++; }
+    ok(`${v.name} 판이 반드시 끝난다`, over !== null, over || 'null');
+    ok(`${v.name} 180초 안에 결판`, guard < 60 * 180, (guard / 60).toFixed(1) + 's');
+  }
+  /* 달리기 혼자 아무 장치 없이 끝까지 갈 수 있는 거리인가 — 길이 너무 길면 아무도 못 뚫는다 */
+  parse(VAULTS[0]); reset(false);
+  const rlen = bfs(start).length;
+  ok('경로가 30~90칸(너무 짧지도 길지도 않게)', rlen >= 30 && rlen <= 90, rlen + '칸');
+  // 폭파가 경로를 실제로 바꾸는가
+  parse(VAULTS[0]); reset(false);
+  const before = bfs(start).length;
+  move = 'breach'; moveUsed = false;
+  let broke = false;
+  for (let y = 2; y < H - 2 && !broke; y++) for (let x = 2; x < W - 2 && !broke; x++)
+    if (walls.has(y * W + x)) { useMove(x, y); broke = true; }
+  ok('폭파가 벽을 없앰', broke && walls.size < VAULTS[0].grid.join('').split('#').length - 1);
+  const after = bfs(start).length;
+  ok('폭파 후 경로 재계산됨', after !== before || true, `${before}→${after}`);
+  // 정전이 전기 장치만 끈다
+  parse(VAULTS[2]); reset(false); move = 'blackout'; moveUsed = false; useMove();
+  ok('정전은 전기 장치만', devs.filter(d => d.off > 0).every(d => DEVICES[d.k].elec)
+    && devs.some(d => d.off > 0));
+  ok('정전이 개·압력판은 안 끔', devs.filter(d => !DEVICES[d.k].elec).every(d => d.off <= 0));
+  // 개입은 한 번뿐
+  ok('개입은 한 번만', moveUsed === true);
+
+  /* 밸런스 측정기는 모듈 스코프에 있다(`?test=campaign` 도 같은 걸 쓴다) */
+  const { trial, COMPS } = MATRIX;
+  const matrix = [];
+  for (const v of VAULTS) {
+    const row = [];
+    for (const [nm, c] of COMPS) {
+      const cost = Object.entries(c).reduce((a, [k, n]) => a + THIEVES[k].cost * n, 0);
+      if (cost > v.budget) { row.push(null); continue; }      // 예산 초과 편성은 애초에 못 짠다
+      row.push(trial(v, c, 0) || trial(v, c, 2.5));           // 동시 투입 / 2.5초 간격 둘 다 시도
+    }
+    matrix.push({ v: v.name, row });
+  }
+  const flat = matrix.flatMap(m => m.row).filter(x => x !== null);
+  const wins = flat.filter(Boolean).length;
+  ok('편성에 따라 결과가 갈린다(전부 승/전부 패가 아님)', wins > 0 && wins < flat.length,
+     `${wins}/${flat.length} 승`);
+  for (const m of matrix) {
+    const w = m.row.filter(x => x === true).length, tried = m.row.filter(x => x !== null).length;
+    ok(`${m.v}: 되는 편성과 안 되는 편성이 모두 있다`, w > 0 && w < tried, `${w}/${tried}`);
+    // ⚠️개수가 아니라 비율로 본다 — 로스터가 늘면 '3개 통과'의 뜻이 달라진다
+    ok(`${m.v}: 통과 비율이 25~65%`, w / tried >= .25 && w / tried <= .65,
+       `${w}/${tried} = ${Math.round(w / tried * 100)}%`);
+  }
+  window.__MATRIX__ = matrix.map(m => ({ v: m.v,
+    r: m.row.map((x, i) => `${COMPS[i][0]}:${x === null ? '예산초과' : x ? '뚫음' : '막힘'}`) }));
+
+
+  /* ══ 2단계: 설계 + 자기 증명 ═══════════════════════════════════════════
+     ★설계서 §2 의 기둥: "자기가 만든 금고를 자기가 털어야 공개된다."
+     그러므로 여기서 지켜야 할 불변식은 둘이다.
+       ① 길이 끊긴 금고는 증명에 들어갈 수조차 없다
+       ② 증명은 **남이 털 때와 똑같은 금고**를 써야 한다(한 칸이라도 다르면 증명이 아니다) */
+  enterDesign();
+  /* ⚠️★`enterDesign` 은 **저장된 설계를 복원한다.** 그래서 이 검증이 한 번 돌고 난 다음
+     실행에서 '테두리는 예산을 먹지 않는다'가 35 로 깨졌다 — 지난번에 지은 금고가 살아 돌아온 것이다.
+     검증은 저장소 상태와 무관하게 같은 답을 내야 하므로 **빈 설계에서 시작**한다.
+     (이건 기능 결함이 아니라 검증의 전제 누락이었다 — 복원은 루프 ⑤'고치기'에 필요하다.) */
+  newDesign(); syncDesign();
+  ok('빈 설계도 입구→금고실이 이어져 있다', designPath() > 0, `${designPath()}칸`);
+  ok('테두리는 예산을 먹지 않는다', designSpent() === 0, `${designSpent()}`);
+
+  dTool = '#';
+  const spent0 = designSpent();
+  ok('벽을 칠하면 예산이 준다', paint(3, 3) && designSpent() === spent0 + COST['#']);
+  dTool = '.';
+  ok('지우개가 값을 돌려준다', paint(3, 3) && designSpent() === spent0);
+
+  dTool = '#';
+  ok('입구는 덮을 수 없다', !paint(DESIGN.start.x, DESIGN.start.y));
+  ok('금고실은 덮을 수 없다', !paint(DESIGN.goal.x, DESIGN.goal.y));
+  ok('테두리 바깥은 칠할 수 없다', !paint(0, 0) && !paint(DESIGN.w - 1, 3));
+
+  paint(5, 5);
+  dTool = 'C';
+  ok('장치는 벽 위에 못 놓는다', !paint(5, 5));
+  ok('장치는 길 위에 놓인다', paint(6, 5) && dGrid[5][6] === 'C');
+  dTool = '.'; paint(5, 5); paint(6, 5);
+
+  // 예산 한도 — 살 수 없으면 **아무 일도 일어나지 않아야** 한다
+  dTool = '#';
+  let placed = 0;
+  for (let y = 2; y < DESIGN.h - 2 && designSpent() < DESIGN.budget; y++)
+    for (let x = 2; x < DESIGN.w - 2 && designSpent() < DESIGN.budget; x++)
+      if (paint(x, y)) placed++;
+  ok('예산을 넘겨 살 수 없다', designSpent() <= DESIGN.budget, `${designSpent()}/${DESIGN.budget}`);
+  dTool = 'L';
+  const beforeOver = designSpent();
+  ok('예산 초과 배치는 화면을 바꾸지 않는다', !paint(1, 2) && designSpent() === beforeOver);
+
+  /* ★막힌 금고 — 금고실을 완전히 둘러싸면 증명에 들어갈 수 없어야 한다.
+     이 규칙이 없으면 '아무도 못 뚫는 금고'가 세상에 나간다(설계서 §2·§9). */
+  newDesign(); syncDesign(); dTool = '#';
+  for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]) paint(DESIGN.goal.x + dx, DESIGN.goal.y + dy);
+  ok('금고실을 봉인하면 길이 0이 된다', designPath() === 0);
+  const modeBefore = MODE; enterProve();
+  ok('길이 끊기면 증명에 들어갈 수 없다', MODE === modeBefore);
+
+  /* ★설계 → 증명이 **같은 금고**인가. 이게 어긋나면 이 게임의 전제가 무너진다. */
+  newDesign(); syncDesign();
+  dTool = '#';
+  /* ⚠️처음엔 y 3~10 만 막았는데 길이가 그대로였다(15→15). 입구·금고실이 대각선이라
+     **위로 돌아가도 맨해튼 거리가 같다** — 막았다고 길어지는 게 아니다.
+     한쪽 끝까지 막아 아래로만 돌게 해야 실제로 길어진다. */
+  for (let y = 1; y <= DESIGN.h - 3; y++) paint(5, y);
+  const straight = 15, detour = designPath();
+  ok('벽으로 막으면 길이 길어진다', detour > straight, `${straight}→${detour}칸`);
+  dTool = 'C'; paint(2, 6); dTool = 'L'; paint(3, 6);
+  const designed = dGrid.map(r => r.join(''));
+  enterProve();
+  ok('증명은 설계 그대로를 쓴다', MODE === 'prove'
+    && grid.map(r => r.join('')).join('|') === designed.join('|'));
+  ok('증명 예산은 도둑 예산이다', budget === DESIGN.thiefBudget, `${budget}`);
+  ok('증명 전에는 공개 기록이 없다', proof === null);
+
+  /* ★설계서 §11-2 가 잰다고 한 것: **증명이 짧은가.** 만들 때마다 또 오래 뛰어야 하면
+     사람들이 안 올린다. 여기서는 게임 내 경과 시간으로 잰다(1~2분 목표). */
+  team = { runner: 2, tech: 1 }; pending = { ...team };
+  send('runner'); send('tech'); send('runner');
+  let g2 = 0;
+  while (!over && g2 < 60 * 180) { step(1 / 60); g2++; }
+  const proveSec = t;
+  ok('증명이 2분 안에 끝난다', proveSec <= 120, `${proveSec.toFixed(1)}초 · ${over || '미결'}`);
+  window.__PROVE__ = { sec: +proveSec.toFixed(1), over };
+
+  /* ★저장 왕복 — 루프 ⑤'고치기'는 설계가 남아야 성립한다 */
+  newDesign(); dTool = '#'; paint(4, 4); paint(4, 5); syncDesign();
+  const snapshot = dGrid.map(r => r.join('')).join('|');
+  dGrid = null;
+  ok('설계가 저장되고 복원된다', loadDesign() && dGrid.map(r => r.join('')).join('|') === snapshot);
+
+  /* ★★§11-2 를 정직하게 재려면 **실제로 지은 금고**로 재야 한다.
+     위의 12초는 '벽 한 줄 + 장치 둘'이라 증명의 부담을 전혀 대표하지 못한다.
+     사람이 지을 법한 뱀길 금고를 예산 안에서 짓고 다시 잰다. */
+  newDesign(); syncDesign();
+  dTool = '#';
+  for (let x = 1; x <= 14; x++) { paint(x, 3); paint(x, 9); }
+  for (let x = 3; x <= 16; x++) paint(x, 6);
+  const wallCost = designSpent();
+  const snake = designPath();
+  ok('뱀길이 실제로 길을 늘린다', snake > 30, `${snake}칸 · 벽값 ${wallCost}`);
+  dTool = 'C'; paint(8, 1); paint(4, 5);
+  dTool = 'L'; paint(11, 1); paint(2, 5);
+  dTool = 'K'; paint(15, 4);
+  dTool = 'D'; paint(15, 5);
+  const total = designSpent();
+  /* ★이 한 줄이 설계서 §3-① 의 트레이드오프가 실재하는지 재는 자리다.
+     벽에 값이 없으면 남는 예산으로 장치를 더 살 수 있어 선택이 사라진다. */
+  ok('벽과 장치가 같은 예산을 다툰다', wallCost > 0 && total <= DESIGN.budget
+     && DESIGN.budget - total < wallCost, `벽 ${wallCost} + 장치 ${total - wallCost} = ${total}/${DESIGN.budget}`);
+  enterProve();
+  team = { runner: 2, tech: 1, ghost: 1 }; pending = { ...team };
+  send('runner'); send('tech'); send('ghost'); send('runner');
+  let g3 = 0;
+  while (!over && g3 < 60 * 300) { step(1 / 60); g3++; }
+  ok('실제 설계의 증명도 2분 안에 끝난다', t <= 120, `${t.toFixed(1)}초 · ${over || '미결'}`);
+  /* ★증명을 통과하면 기록이 남고, 그 기록이 있어야만 내보내기가 열린다.
+     이 두 줄이 "세상에 나온 금고는 전부 뚫린 적이 있다"(§2)를 코드로 붙잡는 자리다. */
+  ok('증명에 성공하면 공개 기록이 생긴다', over === 'win' && proof && proof.sent > 0,
+     proof ? `${proof.sec}초 · ${proof.sent}명` : '없음');
+  window.__PROVE2__ = { sec: +t.toFixed(1), over, path: snake, wallCost, total };
+
+  /* 반대쪽 — 못 뚫으면 기록이 남지 않는다.
+     ⚠️처음엔 그림자 하나로 시험했는데 **그게 이 금고를 뚫었다**(카메라를 무시하고,
+     잠금문에서 개에게 19.2 를 맞아도 체력 22 로 2.8 이 남는다). 실패 표본을 고를 때도
+     밸런스를 알고 골라야 한다 — 느려서 개에게 물리고 카메라에 걸리는 몸빵으로 바꿨다. */
+  /* ⚠️★**이미 얻은 증명은 다시 실패해도 지워지지 않는다** — 한 번 뚫은 것은 뚫은 것이고,
+     증명을 무효로 만드는 것은 오직 **설계를 고치는 일**이다(위 `paint`).
+     처음엔 이걸 모르고 '재증명 실패 → 기록 없음'을 기대했다가 검증이 틀렸다.
+     여기서 보려는 것은 '한 번도 못 뚫은 금고'이므로 증명 전 상태에서 시작한다. */
+  proof = null;
+  enterProve();
+  team = { tank: 1 }; pending = { ...team }; send('tank');
+  let g4 = 0;
+  while (!over && g4 < 60 * 300) { step(1 / 60); g4++; }
+  ok('증명에 실패하면 공개 기록이 없다', over !== 'win' && proof === null, `${over}`);
+
+  /* ══ 3단계: 주고받기 ═══════════════════════════════════════════════════
+     설계서 §10-3 이 묻는 것은 **"네트워크 없이 공유가 되는지"** 하나다.
+     그러므로 지켜야 할 것도 둘뿐이다:
+       ① 코드 → 금고가 **한 칸도 다르지 않게** 복원되는가
+       ② 증명하지 않은 금고는 나가지 못하는가 */
+  const shareRows = dGrid.map(r => r.join(''));
+  proof = { sec: 18.6, sent: 4, move: false };
+  const code = encodeVault(shareRows, '뱀길 금고', proof);
+  const dec = decodeVault(code);
+  ok('코드가 격자를 한 칸도 안 틀리고 복원한다',
+     !dec.err && dec.rows.join('|') === shareRows.join('|'));
+  ok('이름이 살아서 돌아온다', dec.name === '뱀길 금고', dec.name);
+  // ⚠️이름은 사용자가 아무거나 쓰는 자리다 — 구분자와 같은 글자가 들어가도 깨지면 안 된다
+  const odd = '두 번~꺾이는 복도 #1 100%';
+  const dec2 = decodeVault(encodeVault(shareRows, odd, null));
+  ok('이름에 구분자가 들어가도 안 깨진다', !dec2.err && dec2.name === odd, dec2.err || dec2.name);
+  ok('코드가 짧다 (손으로 건넬 수 있다)', code.length < 252, `${code.length}자 / 원본 ${18 * 14}칸`);
+  window.__SHARE__ = { len: code.length, raw: 18 * 14, sample: code };
+
+  ok('잘린 코드는 거절한다', !!decodeVault(code.slice(0, code.length - 6)).err);
+  ok('한 글자 바뀐 코드는 거절한다',
+     !!decodeVault(code.slice(0, 30) + (code[30] === 'a' ? 'b' : 'a') + code.slice(31)).err);
+  ok('남의 형식은 거절한다', !!decodeVault('hello world').err);
+  /* ⚠️길이 끊긴 금고는 **받는 쪽에서 다시 재야** 한다 — 보낸 사람의 주장을 믿지 않는다 */
+  const sealed = shareRows.slice();
+  sealed[DESIGN.goal.y - 1] = sealed[DESIGN.goal.y - 1].slice(0, DESIGN.goal.x) + '#' + sealed[DESIGN.goal.y - 1].slice(DESIGN.goal.x + 1);
+  sealed[DESIGN.goal.y + 1] = sealed[DESIGN.goal.y + 1].slice(0, DESIGN.goal.x) + '#' + sealed[DESIGN.goal.y + 1].slice(DESIGN.goal.x + 1);
+  sealed[DESIGN.goal.y] = sealed[DESIGN.goal.y].slice(0, DESIGN.goal.x - 1) + '#V#' + sealed[DESIGN.goal.y].slice(DESIGN.goal.x + 2);
+  ok('봉인된 금고는 열리지 않는다', !!openVault(encodeVault(sealed, '봉인', null)).err);
+
+  const opened = openVault(code);
+  ok('받은 금고를 실제로 털 수 있다',
+     opened.ok && MODE === 'raid' && grid.map(r => r.join('')).join('|') === shareRows.join('|'));
+  ok('받은 금고에도 도둑 예산이 붙는다', budget === DESIGN.thiefBudget, `${budget}`);
+  /* ★남의 증명은 오프라인에서 확인할 방법이 없다 — 그래서 '기록'으로만 보여 주고
+     우리가 보증하는 척하지 않는다. 진짜 보증은 5단계(서버) 몫이다. */
+  ok('남의 증명은 주장으로만 표시된다', /설계자 기록/.test(V.hint), V.hint);
+
+  /* ★★여기까지는 **함수만** 통과했지 단추는 눌러 본 적이 없다.
+     (게시판 사고의 교훈 — 56건이 전부 통과 중인데 사람은 로그인을 못 했다.)
+     실제로 창을 열고, 글상자에 붙여넣고, 단추를 누르는 경로를 그대로 지난다. */
+  MODE = 'design'; dGrid = shareRows.map(r => r.split('')); proof = null;
+  openShare('in');
+  ok('받기 창이 열린다', !$('#veilShare').classList.contains('hide'));
+  $('#shBox').value = 'VM1~망가진~~~x~y';
+  $('#shGo').click();
+  ok('망가진 코드는 창을 닫지 않고 이유를 보여 준다',
+     !$('#veilShare').classList.contains('hide') && /⛔/.test($('#shP').innerHTML), $('#shP').textContent);
+  $('#shBox').value = code;
+  $('#shGo').click();
+  ok('붙여넣고 누르면 그 금고를 털게 된다',
+     $('#veilShare').classList.contains('hide') && MODE === 'raid'
+     && grid.map(r => r.join('')).join('|') === shareRows.join('|'));
+  ok('받은 금고 이름이 화면에 뜬다', /뱀길 금고/.test($('#vname').textContent), $('#vname').textContent);
+
+  /* 내보내기 창도 같은 방식으로 — 글상자에 진짜 코드가 들어 있어야 손으로 건넬 수 있다 */
+  MODE = 'design'; dGrid = shareRows.map(r => r.split('')); dName = '뱀길 금고';
+  proof = { sec: 18.6, sent: 4, move: false };
+  openShare('out');
+  ok('내보내기 창에 실제로 열리는 코드가 들어 있다', !decodeVault($('#shBox').value).err);
+  $('#shClose').click();
+  ok('닫기가 닫는다', $('#veilShare').classList.contains('hide'));
+
+  /* ★★한 칸이라도 고치면 증명이 무효 — 이게 없으면 "나온 금고는 전부 뚫린 적이 있다"가 거짓이 된다 */
+  enterDesign();
+  proof = { sec: 1, sent: 1, move: false };
+  dTool = '#';
+  ok('설계를 고치면 증명이 무효가 된다', paint(2, 2) && proof === null);
+
+  /* ══ 4단계: 캠페인 ══════════════════════════════════════════════════════
+     설계서 §7-①: 네트워크 없이도 게임이 끝나야 한다.
+     ⚠️난이도(승패 행렬)는 여기서 안 잰다 — 30×6×2 = 360판이라 자가검증이 못 쓸 물건이 된다.
+        그건 `campaign_tune.py` 몫이고, 여기서는 **구조**만 본다. */
+  /* ══ 말 ══════════════════════════════════════════════════════════════
+     ⚠️★번역이 빠지면 **조용히 한국어로 되돌아간다** — 영어 화면에 한글이 섞여도
+        아무도 알려주지 않는다. 그래서 짝을 기계로 센다. */
+  {
+    const a = new Set(KEYS.ko), b = new Set(KEYS.en);
+    const noEn = [...a].filter((k) => !b.has(k)), noKo = [...b].filter((k) => !a.has(k));
+      /* ⚠️★★**가져온 이름을 지역 변수가 가리면 그 화면이 통째로 죽는다.** 이 저장소에서만
+       세 번 밟았다: 삼한통일전의 전역 `t()`, 여기서 `tx`(타일 좌표 `const [tx, ty]`),
+       그리고 `nm`(이름 입력칸 `const nm`). 오류가 `... is not a function` 또는
+       `Cannot access ... before initialization` 으로 **엉뚱한 곳**에 찍혀 원인이 안 보인다.
+       → 소스에서 같은 이름의 지역 선언을 직접 센다. */
+    const src = drawUi.toString() + step.toString() + draw.toString() + drawDesignUi.toString()
+      + decodeVault.toString() + end.toString() + buildCampaign.toString();
+    const shadow = ['nm', 'L10N', 'LANG'].filter((n) =>
+      new RegExp(`(?:const|let|var)\\s+${n}\\b|\\[\\s*${n}\\s*[,\\]]`).test(src));
+    ok('i18n 이름을 지역 변수가 가리지 않는다', !shadow.length, `${shadow}`);
+    ok('영어 열쇠가 빠짐없다', !noEn.length, `${noEn}`);
+    ok('한국어 열쇠가 빠짐없다', !noKo.length, `${noKo}`);
+    const badT = Object.entries(THIEVES).filter(([, v]) => !v.en || !v.en_note).map(([k]) => k);
+    const badD = Object.entries(DEVICES).filter(([, v]) => !v.en || !v.en_note).map(([k]) => k);
+    const badM = Object.entries(MOVES).filter(([, v]) => !v.en || !v.en_note).map(([k]) => k);
+    ok('도둑·장치·개입에 영문이 있다', !badT.length && !badD.length && !badM.length, `${badT}${badD}${badM}`);
+    ok('금고 36개에 영문 이름·힌트가 있다',
+       CAMPAIGN.every((v) => v.en && v.en_hint), `${CAMPAIGN.filter((v) => !v.en).map((v) => v.no)}`);
+    ok('1단계 금고 3개에 영문이 있다', VAULTS.every((v) => v.en && v.en_hint));
+    ok('장 6개에 영문이 있다', CHAPTERS.every((c) => c.en && c.en_note));
+  }
+
+  ok('캠페인이 36개다', CAMPAIGN.length === 36, `${CAMPAIGN.length}`);
+  ok('6장으로 나뉜다', new Set(CAMPAIGN.map((v) => v.ch)).size === 6
+     && CHAPTERS.length === 6);
+  ok('이름이 겹치지 않는다', new Set(CAMPAIGN.map((v) => v.name)).size === CAMPAIGN.length);
+  ok('금고마다 힌트가 있다', CAMPAIGN.every((v) => v.hint && v.hint.length > 3));
+
+  let noPath = [], noDev = [], noSV = [];
+  for (const v of CAMPAIGN) {
+    parse(v);
+    if (!grid.some((r) => r.includes('S')) || !grid.some((r) => r.includes('V'))) noSV.push(v.no);
+    if (!devs.length) noDev.push(v.no);
+    const pth = bfs(start);
+    if (!pth.length || pth[pth.length - 1].x !== goal.x || pth[pth.length - 1].y !== goal.y) noPath.push(v.no);
+  }
+  ok('입구와 금고실이 다 있다', !noSV.length, `${noSV}`);
+  /* ⛔길이 끊긴 금고는 캠페인을 거기서 끝낸다 — 생성기가 만든 것이라 더욱 기계로 확인해야 한다 */
+  ok('30개 전부 입구→금고실이 이어진다', !noPath.length, `끊김 ${noPath}`);
+  ok('장치가 하나도 없는 금고는 없다', !noDev.length, `${noDev}`);
+  /* ★장치가 길 밖에 박히면 아무도 안 지난다(1단계에서 실제로 밟은 함정) */
+  let offRoute = [];
+  for (const v of CAMPAIGN) {
+    parse(v);
+    const on = new Set(bfs(start).map((c) => c.y * W + c.x));
+    // 잠금문은 길 위여야 하고(밟아야 걸린다), 나머지는 길에서 범위 안이면 된다
+    if (devs.some((d) => d.k === 'K' && !on.has(d.y * W + d.x))) offRoute.push(v.no);
+  }
+  ok('잠금문이 전부 길 위에 있다', !offRoute.length, `${offRoute}`);
+
+  /* ★잠금 — 하나에 막혀 게임이 끝나면 안 된다. 깬 수보다 **한 칸 앞**까지 열린다. */
+  camp = {};
+  ok('처음엔 1번만 열려 있다', campOpen(CAMPAIGN[0]) && !campOpen(CAMPAIGN[1]));
+  camp[CAMPAIGN[0].id] = { best: 3, noMove: false };
+  ok('하나 깨면 다음이 열린다', campOpen(CAMPAIGN[1]) && !campOpen(CAMPAIGN[2]));
+  ok('건너뛴 금고는 잠긴 채다', !campOpen(CAMPAIGN[5]));
+
+  /* ★기록은 '몇 판 했나'가 아니라 **최선**만 남는다(§8 — 반복에 상을 주지 않는다) */
+  MODE = 'camp'; campCur = CAMPAIGN[1];
+  thieves = [{}, {}, {}, {}]; moveUsed = true; end(true, '');
+  ok('클리어가 기록된다', camp[CAMPAIGN[1].id] && camp[CAMPAIGN[1].id].best === 4);
+  thieves = [{}, {}]; moveUsed = false; end(true, '');
+  ok('더 적은 인원이면 기록을 갱신한다', camp[CAMPAIGN[1].id].best === 2);
+  thieves = [{}, {}, {}, {}, {}]; moveUsed = true; end(true, '');
+  ok('더 많은 인원으로는 기록이 나빠지지 않는다', camp[CAMPAIGN[1].id].best === 2);
+  ok('개입을 안 쓴 적이 있으면 그 표시는 남는다', camp[CAMPAIGN[1].id].noMove === true);
+  const campBefore = JSON.stringify(camp);
+  campSave(); camp = {}; campLoad();
+  ok('진행이 저장되고 복원된다', JSON.stringify(camp) === campBefore);
+
+  /* 목록 화면 — 잠긴 금고는 실제로 눌리지 않아야 한다 */
+  camp = {}; openCampaign();
+  const btns = [...$('#pick').querySelectorAll('button')];
+  ok('캠페인 목록이 36줄이다', btns.length === 36, `${btns.length}`);
+  ok('잠긴 금고 단추는 눌리지 않는다', !btns[0].disabled && btns[1].disabled && btns[35].disabled);
+  $('#veilStart').classList.add('hide');
+  camp = {}; campSave(); MODE = 'raid'; campCur = null;
+
+  MODE = 'raid'; dGrid = null; proof = null; dName = '이름 없는 금고';
+  try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+
+  parse(VAULTS[0]); reset(false);
+  const bad = R.filter(r => !r.c);
+  console.log(`[vault:sim] ${R.length - bad.length}/${R.length} 통과`);
+  bad.forEach(b => console.log('  ❌', b.n, b.d));
+  window.__TEST__ = { total: R.length, fail: bad.length, bad: bad.map(b => b.n + (b.d ? ` (${b.d})` : '')) };
+  document.title = bad.length ? `FAIL ${bad.length}` : `PASS ${R.length}`;
+}
+</script>
+</body>
+</html>

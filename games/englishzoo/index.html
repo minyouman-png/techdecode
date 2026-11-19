@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>영어 동물원 — 듣고 찾는 영어 낱말</title>
+<meta name="description" content="영어 발음을 듣고 맞는 그림을 찾는 초등 1학년 영어 낱말 게임. 85개 낱말, 실제 발음.">
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  /* ⚠️어른용 다크 테마로 처음 만들었다가 폰 폭(390px)에서 찍어 보고 바꿨다 —
+     초1 아이가 쓰는 화면에서 어두운 배경은 '공부하는 곳'처럼 보이고, 무엇을 눌러야 할지도
+     드러나지 않았다. 밝은 하늘색 바탕에 큰 요소로 간다. */
+  :root{
+    --bg:#e0f2fe; --bg2:#bae6fd; --panel:#ffffff; --ink:#0f172a; --dim:#64748b;
+    --good:#16a34a; --warn:#f97316; --accent:#0284c7;
+    --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+  }
+  html,body{margin:0;height:100%;overflow:hidden;color:var(--ink);
+    background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);
+    font-family:"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;user-select:none}
+  #app{height:100%;display:flex;flex-direction:column;padding:var(--safe-t) 10px var(--safe-b)}
+
+  /* ── 상단 막대 ── */
+  .top{display:flex;align-items:center;gap:8px;padding:8px 2px;flex:none}
+  .pill{background:var(--panel);border-radius:999px;padding:7px 14px;font-size:15px;font-weight:800;
+    white-space:nowrap;box-shadow:0 2px 6px rgba(2,132,199,.15)}
+  .grow{flex:1}
+  button{font-family:inherit;border:0;cursor:pointer;color:var(--ink)}
+  .icon{background:var(--panel);border-radius:14px;width:46px;height:46px;font-size:22px;display:grid;
+    place-items:center;box-shadow:0 2px 6px rgba(2,132,199,.15)}
+  .icon:active{transform:scale(.92)}
+
+  /* ── 진행 막대 ── */
+  #bar{height:10px;background:#ffffff;border-radius:999px;overflow:hidden;flex:none;margin:0 2px;
+    box-shadow:inset 0 1px 3px rgba(2,132,199,.2)}
+  #barIn{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--good));transition:width .3s}
+
+  /* ── 가운데 ── */
+  #stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    gap:6px;min-height:0;position:relative;padding-top:4px}
+  #prompt{text-align:center;flex:none}
+  /* ★🔊 는 '다시 듣기' 단추다. 아이가 그걸 알아보게 크고, 답을 기다리는 동안 계속 살짝 흔든다.
+     처음 찍어 보니 작고 가만히 있어서 **누르는 것인지 아닌지가 드러나지 않았다.** */
+  #speak{font-size:clamp(56px,17vw,96px);background:none;padding:4px 16px;line-height:1;
+    transition:transform .12s;filter:drop-shadow(0 4px 10px rgba(2,132,199,.35))}
+  #speak:active{transform:scale(.88)}
+  #speak.wait{animation:wob 1.6s ease-in-out infinite}
+  @keyframes wob{0%,100%{transform:rotate(-6deg) scale(1)}50%{transform:rotate(6deg) scale(1.07)}}
+  #hint{font-size:clamp(15px,4.4vw,20px);color:var(--dim);font-weight:800;min-height:1.4em;padding:0 8px}
+  #word{font-size:clamp(28px,9vw,48px);font-weight:900;letter-spacing:.02em;min-height:1.1em;color:var(--accent)}
+
+  /* ── 보기 ── */
+  /* 카드는 남은 공간을 전부 쓴다(aspect-ratio 로 고정하면 폰에서 위아래가 텅 빈다) */
+  #grid{display:grid;gap:10px;width:100%;max-width:560px;padding:0 2px;flex:1;min-height:0}
+  /* ⚠️그림 크기는 화면 폭이 아니라 **카드 높이**를 따라가야 한다. vw 로만 잡았더니 카드가
+     커진 폰 세로 화면에서 그림만 작게 남아 허전했다(390px 실측). cqh 로 카드 안을 채운다. */
+  .card{background:var(--panel);border-radius:22px;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:0;min-height:0;container-type:size;
+    border:4px solid transparent;transition:transform .12s,border-color .15s,background .15s;
+    position:relative;box-shadow:0 3px 10px rgba(2,132,199,.16)}
+  /* 실측(390px 폰): 카드가 178x259 로 **세로로 길다**. 52cqh/46cqw 로는 72px 이 나와
+     넓은 카드 한가운데 그림만 작게 떠 보였다 → 좁은 쪽의 66% 로 채운다. */
+  .card>span{font-size:min(66cqh,66cqw);line-height:1}
+  .card small{font-size:min(13cqh,11cqw);color:var(--accent);font-weight:900;letter-spacing:.01em;
+    position:absolute;bottom:6%}
+  .card:active{transform:scale(.94)}
+  .card.ok{border-color:var(--good);background:#dcfce7;animation:pop .45s}
+  .card.no{border-color:var(--warn);animation:shake .4s}
+  @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.16)}100%{transform:scale(1)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+  /* ── 동물원(수집) ── */
+  #zoo{flex:none;display:flex;flex-wrap:wrap;gap:3px;justify-content:center;padding:5px 2px;
+    max-height:52px;overflow:hidden;min-height:30px}
+  #zoo span{font-size:21px;animation:drop .5s}
+  @keyframes drop{from{transform:translateY(-14px) scale(.4);opacity:0}to{transform:none;opacity:1}}
+
+  /* ── 덮개(시작·결과) ── */
+  /* ⚠️★덮개는 `#stage` 안이 아니라 **화면 전체**를 덮어야 한다. 처음에 `absolute`(=stage 기준)로
+     두었더니 360x640 에서 주제 단추 8개가 위로 넘쳐 제목이 상단 막대와 겹쳤다(실측).
+     fixed 로 전체를 덮고, 넘치면 스크롤되게 한다. */
+  .veil{position:fixed;inset:0;background:linear-gradient(180deg,#e0f2fe,#bae6fd);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:14px;text-align:center;z-index:20;overflow-y:auto;
+    padding:calc(18px + var(--safe-t)) 18px calc(18px + var(--safe-b))}
+  .veil h1{font-size:clamp(24px,7vw,40px);margin:0;flex:none}
+  .veil>*{flex:none}
+  .veil p{color:var(--dim);margin:0;font-size:clamp(14px,3.8vw,17px);line-height:1.6;max-width:30em}
+  .big{background:var(--accent);color:#fff;font-size:clamp(17px,4.6vw,21px);font-weight:900;
+    border-radius:999px;padding:15px 32px;box-shadow:0 4px 12px rgba(2,132,199,.35)}
+  .big:active{transform:scale(.95)}
+  .menu{display:grid;gap:8px;width:100%;max-width:340px}
+  .menu button{background:var(--panel);border-radius:18px;padding:15px;font-size:17px;font-weight:800;
+    display:flex;align-items:center;gap:12px;text-align:left;box-shadow:0 3px 8px rgba(2,132,199,.16)}
+  .menu button:active{transform:scale(.97)}
+  .menu button b{font-size:22px}
+  .menu button span{flex:1}
+  .menu button i{font-style:normal;color:var(--dim);font-size:12px;font-weight:700}
+  .hide{display:none!important}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <div class="pill" id="score">⭐ 0</div>
+    <div class="pill" id="theme">동물</div>
+    <div class="grow"></div>
+    <button class="icon" id="btnSlow" title="천천히 듣기">🐢</button>
+    <button class="icon" id="btnHome" title="처음으로">🏠</button>
+  </div>
+  <div id="bar"><div id="barIn"></div></div>
+
+  <div id="stage">
+    <div id="prompt">
+      <button id="speak" title="다시 듣기">🔊</button>
+      <div id="word"></div>
+      <div id="hint">그림을 고르세요</div>
+    </div>
+    <div id="grid"></div>
+
+    <!-- 시작 화면 -->
+    <div class="veil" id="veilStart">
+      <h1>🦁 영어 동물원</h1>
+      <p>영어를 <b>듣고</b> 맞는 그림을 찾으세요.<br>틀려도 괜찮아요. 다시 들려줄게요.</p>
+      <div class="menu" id="themeMenu"></div>
+    </div>
+
+    <!-- 결과 화면 -->
+    <div class="veil hide" id="veilEnd">
+      <h1 id="endTitle">잘했어요!</h1>
+      <p id="endText"></p>
+      <div id="endZoo" style="font-size:26px;line-height:1.5;max-width:20em"></div>
+      <button class="big" id="btnAgain">한 번 더 🔁</button>
+      <button class="big" id="btnBack" style="background:var(--panel);color:var(--ink)">다른 주제 고르기</button>
+    </div>
+  </div>
+
+  <div id="zoo"></div>
+</div>
+
+<script type="module">
+import { THEMES, WORDS, byTheme, byId, PAIRS } from './words.js';
+
+/* ══════════════════════════════════════════════════════════════════
+ * 영어 동물원 — 초등 1학년 영어 낱말 게임 (2026-09-23)
+ *
+ * 설계 원칙(이 사이트의 다른 학습 게임과 같은 원칙이다):
+ *   ① 틀려도 벌하지 않는다. 목숨도 시간 제한도 없다.
+ *      학습 게임에서 실수를 벌하면 아이는 생각하기가 아니라 찍기와 회피를 배운다.
+ *      틀리면 정답을 알려 주고 발음을 한 번 더 들려준 뒤, 그 낱말을 **다시 낸다**.
+ *   ② 아는 것에서 시작한다. `known` 표시가 붙은 낱말(코끼리·선생님·상어…)이 먼저 나온다.
+ *      첫 문제를 맞히는 경험이 그다음을 하게 만든다.
+ *   ③ 헷갈리는 짝은 **일부러 같이** 낸다. tiger 를 낼 때 보기에 lion 을 넣는다.
+ *      따로 배우면 각각은 알아도 둘을 나란히 두면 못 고른다.
+ *   ④ 철자를 묻지 않는다. 1학년 영어는 듣고 말하기가 전부다.
+ *      글자는 소리를 들은 **뒤에** 보조로만 보여 준다.
+ * ══════════════════════════════════════════════════════════════════ */
+
+const $ = (s) => document.querySelector(s);
+const SAVE = 'englishzoo.v1';
+const TEST = new URLSearchParams(location.search).get('test');
+
+/* ── 소리 ───────────────────────────────────────────────────────── */
+const cache = new Map();
+function audio(id, slow) {
+  const key = id + (slow ? '_slow' : '');
+  if (!cache.has(key)) {
+    const a = new Audio(`audio/${key}.mp3`);
+    a.preload = 'auto';
+    cache.set(key, a);
+  }
+  return cache.get(key);
+}
+/** mp3 를 먼저 쓰고, 실패하면 브라우저 내장 음성으로 떨어진다.
+ *  ⚠️내장 음성은 기기에 영어 목소리가 없으면 아무 소리도 안 난다 → 어디까지나 보조다. */
+function say(id, slow = false) {
+  const w = byId[id]; if (!w) return;
+  try {
+    const a = audio(id, slow);
+    a.currentTime = 0;
+    const p = a.play();
+    if (p && p.catch) p.catch(() => speak(w.en));
+  } catch { speak(w.en); }
+}
+function speak(text) {
+  try {
+    if (!window.speechSynthesis) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US'; u.rate = 0.85;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch {}
+}
+/* 효과음 — 파일 없이 Web Audio 로 만든다(받을 것이 없다). */
+let ac = null;
+function tone(freq, dur = 0.12, type = 'sine', gain = 0.16) {
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    if (ac.state === 'suspended') ac.resume();
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(gain, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+    o.connect(g).connect(ac.destination); o.start(); o.stop(ac.currentTime + dur);
+  } catch {}
+}
+const sfxOk = () => { tone(660, .1); setTimeout(() => tone(880, .16), 90); };
+const sfxNo = () => tone(200, .18, 'triangle', .12);
+const sfxWin = () => [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, .2), i * 110));
+
+/* ── 저장 ───────────────────────────────────────────────────────── */
+function load() { try { return JSON.parse(localStorage.getItem(SAVE)) || {}; } catch { return {}; } }
+function save(d) { try { localStorage.setItem(SAVE, JSON.stringify(d)); } catch {} }
+
+/* ── 문제 만들기 ─────────────────────────────────────────────────── */
+const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/** 한 라운드의 문제 목록. 아는 낱말을 앞에 두고, 나머지는 섞는다. */
+function buildRound(themeId) {
+  const pool = themeId === 'pair'
+    ? PAIRS.flat()                       // '헷갈리는 짝' 전용 라운드
+    : byTheme(themeId);
+  const known = pool.filter(w => w.known);
+  const rest = shuffle(pool.filter(w => !w.known));
+  return [...known, ...rest].slice(0, 12);
+}
+
+/** 보기 4개. 정답 + 함정(짝) + 같은 주제에서 채운다.
+ *  ⚠️보기는 **그림만** 보여 준다. 글자를 같이 주면 아이가 소리가 아니라 글자 모양으로 찍는다. */
+function buildChoices(answer, pool) {
+  const out = [answer];
+  if (answer.pair && byId[answer.pair]) out.push(byId[answer.pair]);   // 헷갈리는 짝을 반드시 넣는다
+  const others = shuffle(pool.filter(w => w.id !== answer.id && !out.some(o => o.id === w.id)));
+  const wide = shuffle(WORDS.filter(w => w.id !== answer.id && !out.some(o => o.id === w.id)));
+  while (out.length < 4) {
+    const n = others.shift() || wide.shift();
+    if (!n) break;
+    out.push(n);
+  }
+  return shuffle(out);
+}
+
+/* ── 상태 ───────────────────────────────────────────────────────── */
+const S = { theme: null, queue: [], i: 0, score: 0, got: [], answer: null, locked: false, retry: 0 };
+
+function setGrid(n) {
+  $('#grid').style.gridTemplateColumns = n <= 4 ? 'repeat(2,1fr)' : 'repeat(3,1fr)';
+}
+
+function render() {
+  const w = S.answer;
+  $('#word').textContent = '';          // 글자는 답을 맞힌 뒤에 보여 준다(③ 원칙)
+  $('#hint').textContent = '잘 듣고 골라요 · 🔊 다시 듣기';
+  $('#speak').classList.add('wait');
+  $('#score').textContent = '⭐ ' + S.score;
+  $('#barIn').style.width = (S.i / S.queue.length * 100) + '%';
+  const pool = S.theme === 'pair' ? PAIRS.flat() : byTheme(S.theme);
+  const cs = buildChoices(w, pool);
+  setGrid(cs.length);
+  const g = $('#grid'); g.innerHTML = '';
+  for (const c of cs) {
+    const b = document.createElement('button');
+    b.className = 'card'; b.dataset.id = c.id;
+    b.innerHTML = `<span>${c.emoji}</span>`;
+    b.addEventListener('click', () => pick(c, b));
+    g.appendChild(b);
+  }
+}
+
+function ask() {
+  if (S.i >= S.queue.length) return finish();
+  S.answer = S.queue[S.i];
+  S.locked = false; S.retry = 0;
+  render();
+  setTimeout(() => say(S.answer.id), 260);
+}
+
+function pick(c, el) {
+  if (S.locked) return;
+  if (c.id === S.answer.id) {
+    S.locked = true;
+    el.classList.add('ok');
+    $('#speak').classList.remove('wait');
+    sfxOk(); say(c.id);
+    // 맞힌 뒤에야 글자와 뜻을 보여 준다 — 소리로 고른 것을 글자로 확인시키는 순서다.
+    $('#word').textContent = c.en;
+    $('#hint').textContent = c.ko;
+    el.insertAdjacentHTML('beforeend', `<small>${c.en}</small>`);
+    if (!S.got.includes(c.id)) {
+      S.got.push(c.id);
+      const z = document.createElement('span'); z.textContent = c.emoji; $('#zoo').appendChild(z);
+    }
+    S.score += S.retry ? 1 : 2;          // 한 번에 맞히면 2, 다시 찾았으면 1 — 틀려도 0은 아니다
+    const d = load(); d[c.id] = (d[c.id] || 0) + 1; save(d);
+    setTimeout(() => { S.i++; ask(); }, 1150);
+  } else {
+    // ①원칙: 벌하지 않는다. 고른 것이 무엇이었는지 알려 주고 정답을 다시 들려준다.
+    S.retry++;
+    el.classList.add('no');
+    sfxNo();
+    $('#hint').textContent = `그건 ${c.ko}(${c.en}) 예요. 다시 들어 보세요`;
+    setTimeout(() => el.classList.remove('no'), 420);
+    setTimeout(() => say(S.answer.id, true), 700);   // 두 번째부터는 천천히 들려준다
+  }
+}
+
+function finish() {
+  sfxWin();
+  $('#barIn').style.width = '100%';
+  const total = S.queue.length;
+  $('#endTitle').textContent = S.score >= total * 2 ? '🏆 전부 한 번에 맞혔어요!' : '🎉 잘했어요!';
+  $('#endText').textContent = `${total}개 낱말 · ⭐ ${S.score}점`;
+  $('#endZoo').textContent = S.got.map(id => byId[id].emoji).join(' ');
+  $('#veilEnd').classList.remove('hide');
+}
+
+/* ── 주제 고르기 ─────────────────────────────────────────────────── */
+function buildMenu() {
+  const m = $('#themeMenu'); m.innerHTML = '';
+  const d = load();
+  const mk = (id, emoji, ko, count) => {
+    const done = (id === 'pair' ? PAIRS.flat() : byTheme(id)).filter(w => d[w.id]).length;
+    const b = document.createElement('button');
+    b.innerHTML = `<b>${emoji}</b><span>${ko}</span><i>${done}/${count}</i>`;
+    b.addEventListener('click', () => start(id));
+    m.appendChild(b);
+  };
+  for (const t of THEMES) mk(t.id, t.emoji, t.ko, byTheme(t.id).length);
+  mk('pair', '🤔', '헷갈리는 짝', PAIRS.flat().length);   // tiger/lion 처럼 닮은 것만 모은 라운드
+}
+
+function start(themeId) {
+  S.theme = themeId;
+  S.queue = buildRound(themeId);
+  S.i = 0; S.score = 0; S.got = [];
+  $('#zoo').innerHTML = '';
+  $('#theme').textContent = themeId === 'pair' ? '헷갈리는 짝' : THEMES.find(t => t.id === themeId).ko;
+  $('#veilStart').classList.add('hide');
+  $('#veilEnd').classList.add('hide');
+  try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); ac.resume(); } catch {}
+  ask();
+}
+
+function home() {
+  $('#veilEnd').classList.add('hide');
+  $('#veilStart').classList.remove('hide');
+  buildMenu();
+}
+
+$('#speak').addEventListener('click', () => S.answer && say(S.answer.id));
+$('#btnSlow').addEventListener('click', () => S.answer && say(S.answer.id, true));
+$('#btnHome').addEventListener('click', home);
+$('#btnAgain').addEventListener('click', () => start(S.theme));
+$('#btnBack').addEventListener('click', home);
+buildMenu();
+
+/* ══ 자가검증 (?test=sim) ══════════════════════════════════════════
+ * 배포 전에 사람이 일일이 눌러 보지 않아도 되도록, 규칙이 실제로 지켜지는지 코드로 확인한다. */
+if (TEST === 'sim') {
+  const R = []; const ok = (n, c, d = '') => R.push({ n, c, d });
+  // 데이터
+  ok('낱말 80개 이상', WORDS.length >= 80, WORDS.length);
+  ok('id 중복 없음', new Set(WORDS.map(w => w.id)).size === WORDS.length);
+  ok('짝이 서로를 가리킴', WORDS.filter(w => w.pair).every(w => byId[w.pair] && byId[w.pair].pair === w.id));
+  ok('모든 낱말에 이모지', WORDS.every(w => w.emoji && w.emoji.length));
+  ok('모든 낱말에 한국어 뜻', WORDS.every(w => w.ko && w.ko.length));
+  ok('아는 낱말이 있음', WORDS.some(w => w.known));
+  // 주제
+  for (const t of THEMES) ok(`주제 ${t.ko} 4개 이상`, byTheme(t.id).length >= 4, byTheme(t.id).length);
+  // 문제 생성
+  for (const t of [...THEMES.map(t => t.id), 'pair']) {
+    const q = buildRound(t);
+    ok(`${t} 라운드 생성`, q.length >= 4, q.length);
+    ok(`${t} 아는 말이 앞`, !q.some((w, i) => w.known && q.slice(0, i).some(p => !p.known)));
+  }
+  // 보기
+  let pairIncluded = 0, dupFound = 0;
+  for (let i = 0; i < 300; i++) {
+    const w = WORDS[Math.random() * WORDS.length | 0];
+    const cs = buildChoices(w, byTheme(w.theme));
+    if (cs.length !== 4) dupFound++;
+    if (new Set(cs.map(c => c.id)).size !== cs.length) dupFound++;
+    if (!cs.some(c => c.id === w.id)) dupFound++;
+    if (w.pair && cs.some(c => c.id === w.pair)) pairIncluded++;
+  }
+  ok('보기 항상 4개·중복 없음·정답 포함', dupFound === 0, dupFound);
+  const pairWords = WORDS.filter(w => w.pair).length;
+  ok('헷갈리는 짝이 보기에 들어감', pairIncluded > 0, pairIncluded);
+  // 음성 파일 — 낱말 목록과 실제 파일이 어긋나면 조용히 무음이 된다
+  Promise.all(WORDS.flatMap(w => ['', '_slow'].map(s =>
+    fetch(`audio/${w.id}${s}.mp3`, { method: 'HEAD' }).then(r => r.ok ? null : `${w.id}${s}`).catch(() => `${w.id}${s}`)
+  ))).then(miss => {
+    const m = miss.filter(Boolean);
+    ok('발음 파일 전부 존재', m.length === 0, m.slice(0, 5).join(','));
+    const bad = R.filter(r => !r.c);
+    console.log(`[englishzoo:sim] ${R.length - bad.length}/${R.length} 통과`);
+    bad.forEach(b => console.log('  ❌', b.n, b.d));
+    window.__TEST__ = { total: R.length, fail: bad.length, bad: bad.map(b => b.n + (b.d ? ` (${b.d})` : '')) };
+    document.title = bad.length ? `FAIL ${bad.length}` : `PASS ${R.length}`;
+  });
+}
+</script>
+</body>
+</html>

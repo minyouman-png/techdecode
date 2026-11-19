@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>유자의 전설 — 비공개 테스트 참여</title>
+<style>
+  body{margin:0;background:#14110f;color:#f6efe2;font:16px/1.6 -apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+  main{max-width:480px;margin:0 auto;padding:28px 20px 48px}
+  h1{font-size:30px;margin:0 0 4px}
+  .sub{color:#ffcd78;margin:0 0 18px;font-weight:600}
+  .step{background:#241e1a;border-radius:14px;padding:18px;margin:14px 0}
+  .step b{display:block;font-size:18px;margin-bottom:4px}
+  .step p{margin:0 0 12px;color:#d9cfbf;font-size:14px}
+  a.btn{display:block;text-align:center;background:#ffcd78;color:#1c140c;font-weight:700;padding:13px;border-radius:10px;text-decoration:none}
+  .note{font-size:13px;color:#b5aa99;margin-top:16px}
+  .note a{color:#ffcd78}
+</style>
+</head>
+<body>
+<main>
+  <h1>유자의 전설</h1>
+  <p class="sub">조선 설화 오픈월드 액션 RPG · 1인 개발</p>
+  <p>지금은 Google Play 비공개 테스트 중입니다. 안드로이드 폰에서 두 단계면 무료로 받을 수 있어요.</p>
+  <div class="step">
+    <b>1. 테스터 그룹 가입</b>
+    <p>구글 그룹 페이지에서 ‘그룹 참여’를 누르세요. Play 테스트에 쓰는 구글 계정으로 가입해야 합니다.</p>
+    <a class="btn" data-step="group" href="https://groups.google.com/g/cnklab_tester" target="_blank" rel="noopener">그룹 가입하기</a>
+  </div>
+  <div class="step">
+    <b>2. 테스터 등록 후 설치</b>
+    <p>‘테스터 되기’를 누른 뒤 Play 스토어에서 설치하세요.</p>
+    <a class="btn" data-step="play" href="https://play.google.com/apps/testing/com.menewsoft.yujalegend" target="_blank" rel="noopener">테스터 등록하기</a>
+  </div>
+  <p class="note">가입 직후에는 Play에 바로 안 보일 수 있어요. 앱을 찾을 수 없다고 나오면 잠시 뒤에 다시 열어 주세요.<br>
+  게임 소개와 공략은 <a href="/guide/yuja-legend/">공략 페이지</a>에서 볼 수 있습니다.</p>
+</main>
+<script>
+// 어느 경로로 왔는지 숫자만 센다(개인정보·쿠키 없음). 저장 실패해도 페이지는 그대로 쓸 수 있다.
+(function () {
+  var KEY = 'AIzaSyDoY2F1m19qae7Jw0TMZ1NmDEI2aYg9I0s';
+  var URL_ = 'https://firestore.googleapis.com/v1/projects/menewsoft-board/databases/(default)/documents/promo_clicks?key=' + KEY;
+  var OK = ['promo', 'short_a', 'short_b', 'short_c', 'guide', 'gameplay', 'community', 'press', 'hm', 'test'];
+  var src = new URLSearchParams(location.search).get('src');
+  if (OK.indexOf(src) < 0) src = 'direct';
+  function hit(step) {
+    try {
+      fetch(URL_, {method: 'POST', keepalive: true, headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({fields: {src: {stringValue: src}, step: {stringValue: step}}})}).catch(function () {});
+    } catch (e) {}
+  }
+  hit('view');
+  document.querySelectorAll('a[data-step]').forEach(function (a) {
+    a.addEventListener('click', function () { hit(a.dataset.step); });
+  });
+})();
+</script>
+</body>
+</html>

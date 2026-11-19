@@ -1,0 +1,132 @@
+<!DOCTYPE html><html lang="ko"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>스마트도큐먼트 사용 가이드 — 폰 속 모든 문서를 찾아 읽고, 고치고, AI로 요약까지 — MeNew Soft</title><meta name="description" content="카톡으로 받은 한글 파일, 다운로드 폴더의 PDF, 회사 엑셀까지 폰 안의 문서를 자동으로 찾아 종류별로 모아 주는 안드로이드 앱 '스마트도큐먼트'. 화면 캡처로 보는 사용법과, Gemini·ChatGPT·Claude에게 문서 분석을 맡기는 새 기능, 테스터 참여 방법까지 정리했습니다."><meta name="google-site-verification" content="Vlehh_NC5drUpj3OCzbr48VPtCNTlL20dHI1HQCL4Ok"><meta name="naver-site-verification" content="8308368b2377cbbbd03c2db29c88cf5524ea888d"><link rel="canonical" href="https://menewsoft.com/blog/smartdocument-guide-2026/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)"><link rel="alternate" hreflang="ko" href="https://menewsoft.com/blog/smartdocument-guide-2026/"><link rel="alternate" hreflang="en" href="https://menewsoft.com/en/blog/smartdocument-guide-2026/"><link rel="alternate" hreflang="x-default" href="https://menewsoft.com/blog/smartdocument-guide-2026/"><meta property="og:type" content="website"><meta property="og:title" content="스마트도큐먼트 사용 가이드 — 폰 속 모든 문서를 찾아 읽고, 고치고, AI로 요약까지 — MeNew Soft"><meta property="og:description" content="카톡으로 받은 한글 파일, 다운로드 폴더의 PDF, 회사 엑셀까지 폰 안의 문서를 자동으로 찾아 종류별로 모아 주는 안드로이드 앱 '스마트도큐먼트'. 화면 캡처로 보는 사용법과, Gemini·ChatGPT·Claude에게 문서 분석을 맡기는 새 기능, 테스터 참여 방법까지 정리했습니다."><meta property="og:url" content="https://menewsoft.com/blog/smartdocument-guide-2026/"><meta property="og:site_name" content="MeNew Soft"><meta property="og:image" content="https://menewsoft.com/og/blog/smartdocument-guide-2026.en.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="스마트도큐먼트 사용 가이드 — 폰 속 모든 문서를 찾아 읽고, 고치고, AI로 요약까지"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://menewsoft.com/og/blog/smartdocument-guide-2026.en.png"><link rel="sitemap" href="/sitemap-index.xml"><!-- ⚠️RSS(<link rel="alternate">) 는 뺐다 — 피드가 블로그 전용인데 블로그는 격리 대상이다.
+         피드 자체는 `/rss.xml` 에 그대로 살아 있다. --><!-- GoatCounter 방문자 집계 (쿠키 없음, localhost 자동 제외) --><script data-goatcounter="https://minyouman.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><!-- 사이트 이름 별칭 (한글 표기 검색 대응) --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MeNew Soft","alternateName":["menewsoft","menewsoft.com","미뉴소프트","메뉴소프트","Tech Decode"],"url":"https://menewsoft.com/"}</script><link rel="stylesheet" href="/_astro/index.BCiWuGtA.css">
+<style>.related[data-astro-cid-y2nmntto]{max-width:var(--readw);margin:48px auto 0;padding-top:8px}.game-break[data-astro-cid-y2nmntto]{max-width:var(--readw);margin:34px auto 0;display:flex;align-items:center;gap:20px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--bg-elev)}.gb-cover[data-astro-cid-y2nmntto]{flex:none;width:190px;aspect-ratio:16 / 10;display:block;background:#1a2433}.gb-cover[data-astro-cid-y2nmntto] img[data-astro-cid-y2nmntto]{width:100%;height:100%;object-fit:cover;display:block}.gb-body[data-astro-cid-y2nmntto]{padding:14px 18px 14px 0;min-width:0}.gb-label[data-astro-cid-y2nmntto]{margin:0 0 4px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600}.gb-body[data-astro-cid-y2nmntto] h3[data-astro-cid-y2nmntto]{margin:0 0 8px;font-family:var(--serif);font-size:1.15rem;color:var(--fg-strong)}.gb-play[data-astro-cid-y2nmntto]{color:var(--accent);font-weight:600;font-size:14.5px}@media(max-width:560px){.game-break[data-astro-cid-y2nmntto]{flex-direction:column;align-items:stretch;gap:0}.gb-cover[data-astro-cid-y2nmntto]{width:100%}.gb-body[data-astro-cid-y2nmntto]{padding:14px 18px 16px}}
+</style></head> <body> <header class="site-header"> <div class="wrap header-inner"> <a class="brand" href="/">MeNew<span>Soft</span></a> <nav class="nav"> <a href="/">홈</a> <a href="/shops/">등록 업체</a> <a href="/news/">업체 소식</a> <a href="/games/">놀이공간</a> <a href="/blog/">글</a>  <a href="/learn/">초등 1학년 학습</a>  <a href="/academy/">자격증 학원</a>  <a href="/guide/">게임 공략</a>  <a href="/imjin/">임진왜란 상단</a>  <a href="/board/">게시판</a> <a href="/about/">소개</a> <a href="/contact/">문의</a> <div class="lang-switch" aria-label="Language"> <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"> <circle cx="12" cy="12" r="9"></circle> <path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"></path> </svg> <ul> <li> <a href="/blog/smartdocument-guide-2026/" class="active" hreflang="ko">한국어</a> </li><li> <a href="/en/blog/smartdocument-guide-2026/" class hreflang="en">English</a> </li> </ul> </div> </nav> </div> </header> <main>  <article class="article"> <div class="wrap"> <div class="article-head"> <a class="cat" href="/category/ai/">AI</a> <h1>스마트도큐먼트 사용 가이드 — 폰 속 모든 문서를 찾아 읽고, 고치고, AI로 요약까지</h1> <p class="post-meta">By menew · November 18, 2026</p> </div> <div class="ad-slot" data-ad-slot="article-top"></div> <div class="post-body"><p>휴대폰으로 문서를 열 때마다 같은 일을 겪었다. 카톡으로 받은 한글 파일은 어느 폴더에 있는지 모르겠고, 열려면 앱을 따로 깔아야 하고, 오타 하나 고치려면 결국 PC 앞에 앉아야 했다. 그래서 직접 만들었다. <strong>스마트도큐먼트(SmartDocument)</strong> 는 폰 안의 모든 문서를 자동으로 찾아 종류별로 모아 주고, 앱 하나로 읽고 고치고 보내는 안드로이드 문서 앱이다. 이번 업데이트에서는 <strong>문서를 AI에게 맡겨 요약·분석하는 기능</strong>도 들어갔다.</p>
+<p>지금은 Google Play <strong>비공개 테스트</strong> 중이다. 이 글에서 화면 캡처와 함께 사용법을 정리하고, 마지막에 테스터 참여 방법을 적어 두었다.</p>
+<h2 id="한눈에-보는-기능">한눈에 보는 기능</h2>
+<ul>
+<li><strong>자동 찾기·분류</strong>: 폰 전체(다운로드, 카카오톡, 문서 폴더 등)의 문서를 찾아 한글·워드·엑셀·파워포인트·PDF·텍스트로 나눠 보여 준다.</li>
+<li><strong>읽기·고치기·저장</strong>: 앱 하나로 한글(HWP·HWPX), 워드, 엑셀, 파워포인트를 열고 바로 수정한다. 고친 내용은 원래 형식 그대로 저장한다.</li>
+<li><strong>옛 문서·특이한 형식도</strong>: 한글 97 이전(HWP 3.0) 문서, 한셀·한쇼, 엑셀 바이너리(.xlsb), Apple Pages·Numbers·Keynote, 전자책(EPUB), XPS까지 열린다.</li>
+<li><strong>보내기</strong>: 원본·PDF·압축(ZIP) 중 골라 카카오톡·메일·드라이브로 보낸다.</li>
+<li><strong>비밀번호 문서 열기</strong>: PDF·한글·워드·엑셀·파워포인트에 걸린 비밀번호를 넣으면 보기 전용으로 열린다. 원본의 비밀번호는 그대로 둔다.</li>
+<li><strong>AI에게 분석 맡기기</strong>: 요약, 핵심 정리, 표·숫자 분석, 검토·교정, 쉽게 설명을 골라 Gemini·ChatGPT·Claude 앱으로 바로 넘긴다.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>종류</th><th>여는 형식</th></tr></thead><tbody><tr><td>한글</td><td>HWP, HWPX, HWT·HWTX(서식), HML, HWP 3.0</td></tr><tr><td>워드</td><td>DOCX, DOC, DOTX·DOCM, RTF, ODT, Pages</td></tr><tr><td>엑셀</td><td>XLSX, XLS, XLSB, XLSM·XLTX, CSV·TSV, ODS, 한셀(.cell), Numbers</td></tr><tr><td>파워포인트</td><td>PPTX, PPT, PPSX·POTX, ODP, 한쇼(.show), Keynote</td></tr><tr><td>기타</td><td>PDF, XPS, EPUB, TXT·MD</td></tr></tbody></table>
+<h2 id="1-처음-실행-문서를-알아서-찾아-준다">1. 처음 실행: 문서를 알아서 찾아 준다</h2>
+<p>처음 켜면 <strong>‘문서를 어디서 찾을까요?’</strong> 를 한 번만 묻는다. <strong>폰 전체에서 찾기</strong>(추천)를 누르고, 다음 화면에서 ‘권한 허용’을 켠 뒤 뒤로 가면 바로 문서를 모아 온다. 특정 폴더만 골라도 된다. 다만 안드로이드는 Download 폴더 자체를 고르지 못하게 막아 두어서, 다운로드한 문서까지 보려면 ‘폰 전체에서 찾기’가 편하다. 이어서 사용 방법 안내 4장이 나오고, 설정에서 다시 볼 수 있다.</p>
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/0_setup.jpg" alt="처음 설정 화면: 문서를 어디서 찾을까요? 추천 폰 전체에서 찾기와 허용하러 가기 단추, 아래에 내가 고른 폴더만 찾기" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/1_home.jpg" alt="스마트도큐먼트 홈 화면: 위에 검색창, 아래에 전체·한글·워드·엑셀·파워포인트·PDF·최근·즐겨찾기·텍스트·전자책 버튼과 문서 수" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+<ul>
+<li>홈의 <strong>전체·한글·워드·엑셀·파워포인트·PDF</strong> 버튼을 누르면 폰 안의 그 종류 문서가 한 번에 나온다. 최근·즐겨찾기도 버튼 하나로 연다.</li>
+<li>검색창은 <strong>파일 이름뿐 아니라 본문 내용, 초성(ㅅㅇㄱㅎ)</strong> 까지 찾는다.</li>
+<li>목록의 <strong>정렬</strong> 단추로 수정일·이름·크기·종류·<strong>출처(카카오톡·다운로드 등)</strong> 별로 보고, 기간·크기로 거를 수 있다.</li>
+<li>문서 줄 끝 <strong>⋮</strong> 를 누르면 편집·공유·이름 바꾸기·삭제 같은 메뉴가 나온다.</li>
+</ul>
+<h2 id="2-문서-읽고-고치기">2. 문서 읽고 고치기</h2>
+<p>문서를 누르면 바로 읽기 화면이 열리고, 오른쪽 위 <strong>편집</strong> 을 누르면 고칠 수 있다.</p>
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/2_word.jpg" alt="워드 문서 읽기 화면: 2026년 사업계획서의 제목, 굵은 글씨, 글머리 목록, 표" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+<p>워드·한글 문서는 오타를 고쳐도 굵은 글씨·색 같은 글자 서식이 그대로 남도록 <strong>바뀐 부분만</strong> 고쳐 저장한다. 실행 취소·다시 실행, 찾기·바꾸기도 있다.</p>
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/3_excel.jpg" alt="엑셀 편집 화면: 셀 주소와 수식 입력줄, 날짜·품목·수량·단가 표, 아래쪽에 정렬·필터·자동 합계·행 추가 도구" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+<p>엑셀은 셀을 눌러 값을 바꾸고, 아래 도구 줄에서 <strong>정렬·필터·자동 합계·행/열 추가·삭제</strong> 를 한다. 수식도 계산된다.</p>
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/4_ppt.jpg" alt="파워포인트 편집 화면: 슬라이드 미리보기와 제목·텍스트 상자 편집칸, 슬라이드 위·아래 이동·복제·삭제 단추" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+<p>파워포인트는 슬라이드마다 글자를 고치고, 순서 바꾸기·복제·삭제를 한다.</p>
+<h2 id="3-보내기-받는-사람에게-맞는-형식으로">3. 보내기: 받는 사람에게 맞는 형식으로</h2>
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/5_share.jpg" alt="공유 시트: 원본·PDF로·압축(ZIP) 선택 버튼과 Gmail·Drive·Messages·Bluetooth·Quick Share 즐겨찾기" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+<p>공유 단추를 누르면 <strong>원본 / PDF로 / 압축(ZIP)</strong> 을 고를 수 있다. 상대방 폰에 한글이나 오피스 앱이 없을 것 같으면 PDF로 보내면 된다. 자주 쓰는 앱 6개는 즐겨찾기로 위에 고정된다.</p>
+<h2 id="4-새-기능-ai에게-분석-맡기기">4. 새 기능: AI에게 분석 맡기기</h2>
+<p>긴 공문, 계약서, 회의 자료를 폰으로 받았을 때 “그래서 뭘 하라는 거지?”를 빨리 알고 싶을 때가 많다. 문서를 열고 <strong>더 보기 → AI에게 분석 맡기기</strong> 를 누르면 된다.</p>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:620px;margin:18px auto">
+<figure style="margin:0;text-align:center"><img src="/blog-assets/smartdocument-guide/more.jpg" alt="문서 화면에서 더 보기를 누른 모습. 맨 위에 AI에게 분석 맡기기" loading="lazy" style="width:100%;border-radius:12px;border:1px solid rgba(128,128,128,.35)"><figcaption style="font-size:.85em;opacity:.8;margin-top:6px">① 더 보기 → AI에게 분석 맡기기</figcaption></figure>
+<figure style="margin:0;text-align:center"><img src="/blog-assets/smartdocument-guide/aisheet.jpg" alt="AI에게 분석 맡기기 시트: Gemini·ChatGPT·Claude 아이콘과 요약·핵심 정리·표 분석·검토·쉽게 설명 버튼" loading="lazy" style="width:100%;border-radius:12px;border:1px solid rgba(128,128,128,.35)"><figcaption style="font-size:.85em;opacity:.8;margin-top:6px">② AI 앱과 맡길 일 고르기</figcaption></figure>
+<figure style="margin:0;text-align:center"><img src="/blog-assets/smartdocument-guide/guide.jpg" alt="보내기 전 안내 창: 서버 처리 주의와 붙여넣기 방법, 다시 보지 않기 체크 상자" loading="lazy" style="width:100%;border-radius:12px;border:1px solid rgba(128,128,128,.35)"><figcaption style="font-size:.85em;opacity:.8;margin-top:6px">③ 보내기 전 안내(다시 보지 않기 가능)</figcaption></figure>
+<figure style="margin:0;text-align:center"><img src="/blog-assets/smartdocument-guide/gem_result.jpg" alt="Gemini가 첨부된 사업계획서를 요약한 화면: 문서명, 추진 배경, 항목별 금액" loading="lazy" style="width:100%;border-radius:12px;border:1px solid rgba(128,128,128,.35)"><figcaption style="font-size:.85em;opacity:.8;margin-top:6px">④ Gemini가 문서를 요약한 결과</figcaption></figure>
+</div>
+<ol>
+<li>폰에 깔린 AI 앱(Gemini·ChatGPT·Claude 등)이 나타난다. 하나를 고른다.</li>
+<li>맡길 일을 고른다. <strong>요약 / 핵심 정리·할 일 / 표·숫자 분석 / 검토·교정 / 쉽게 설명</strong></li>
+<li>처음 한 번 안내가 뜬다. 문서가 그 AI 회사의 서버에서 처리된다는 내용이다. ‘다시 보지 않기’를 체크하면 다음부터는 바로 넘어간다.</li>
+<li>AI 앱이 열리고 문서가 첨부된다. 보내기를 누르면 끝이다.</li>
+</ol>
+<p>여기서 스마트도큐먼트만의 장점이 하나 있다. <strong>Gemini 같은 AI 앱은 한글(HWP·HWPX)이나 파워포인트 파일을 직접 받지 못한다.</strong> 그래서 스마트도큐먼트가 보내기 전에 자동으로 바꿔 준다. 한글·파워포인트는 PDF로, 한셀·Numbers 같은 표 문서는 엑셀(XLSX)로 바꿔서 넘긴다. 실제로 한글 97 시절 공문서 서식을 Gemini에 보냈더니 법령 조항과 기관명까지 정확히 정리해 줬다.</p>
+<blockquote>
+<p><strong>Gemini·Claude 사용 팁</strong>: 이 두 앱은 요청 문구를 입력창에 자동으로 넣어 주지 않는다. 스마트도큐먼트가 문구를 미리 복사해 두니, 입력창을 길게 눌러 ‘붙여넣기’한 뒤 보내면 된다. ChatGPT는 문구가 자동으로 채워진다.</p>
+</blockquote>
+<h2 id="5-설정">5. 설정</h2>
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/6_settings.jpg" alt="설정 화면: 언어, 문서 찾기(폴더 추가·폰 전체에서 찾기·숨김 파일·지금 다시 찾기), 사용 방법, 문서를 누르면(물어보기·바로 보기·바로 편집)" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+<ul>
+<li><strong>문서를 누르면</strong>: 물어보기 / 바로 보기 / 바로 편집 중에서 고른다(처음엔 바로 보기).</li>
+<li><strong>사용 방법</strong>: 처음 실행 때 본 안내 4장을 다시 본다.</li>
+<li><strong>이전 버전 보관</strong>: 저장할 때마다 이전 내용을 폰 안에 보관해서, ‘정보·버전 기록’에서 되돌릴 수 있다(5~50개).</li>
+<li><strong>본문 내용 검색</strong>: 켜 두면 문서 속 글자로도 찾는다.</li>
+</ul>
+<h2 id="자주-묻는-질문">자주 묻는 질문</h2>
+<p><strong>카톡으로 받은 문서가 목록에 안 보여요.</strong> 최근 안드로이드는 카카오톡 전용 폴더를 다른 앱이 읽지 못하게 막는다. 카톡에서 문서를 연 뒤 ‘다른 앱으로 열기 → 스마트도큐먼트’를 고르면 사본이 보관되어 다음부터 목록에 나온다.</p>
+<p><strong>문서가 밖으로 나가나요?</strong> 읽기·고치기·검색은 모두 폰 안에서만 처리한다. 문서가 밖으로 나가는 건 내가 직접 공유하거나 ‘AI에게 분석 맡기기’로 AI 앱에 보낼 때뿐이다.</p>
+<p><strong>비밀번호가 걸린 문서도 열리나요?</strong> 열린다. 카드·급여 명세서 같은 PDF, 한글(HWP·HWPX·HWP 3.0), 워드·엑셀·파워포인트, 오픈오피스 문서에 걸린 비밀번호를 넣으면 보기 전용으로 열린다. 원래 파일의 비밀번호는 그대로이고, 비밀번호 없는 사본이 필요하면 ‘더 보기 → 다른 이름으로 저장’을 쓰면 된다.</p>
+<p style="text-align:center"><img src="/blog-assets/smartdocument-guide/password.jpg" alt="비밀번호가 걸린 PDF를 열 때 뜨는 비밀번호 입력 창: 취소·열기 단추" loading="lazy" style="width:100%;max-width:340px;border-radius:14px;border:1px solid rgba(128,128,128,.35)"></p>
+<p><strong>안 열리는 문서도 있나요?</strong> 작성자가 보호해 둔 배포용 한글 문서는 볼 수만 있고 고치거나 AI로 보낼 수 없다. 옛 워드(.doc)나 Apple 문서에 걸린 암호는 아직 열지 못한다.</p>
+<h2 id="테스터로-참여하기">테스터로 참여하기</h2>
+<p>스마트도큐먼트는 지금 비공개 테스트 중이다. 안드로이드폰이 있다면 아래 세 단계로 참여할 수 있다.</p>
+<ol>
+<li><strong>테스터 그룹 가입</strong>: <a href="https://groups.google.com/g/cnklab_tester">groups.google.com/g/cnklab_tester</a> 에서 ‘그룹 가입’</li>
+<li><strong>테스트 참여 신청</strong>: <a href="https://play.google.com/apps/testing/com.menewsoft.smartdocument">play.google.com/apps/testing/com.menewsoft.smartdocument</a> 에서 ‘테스터 되기’</li>
+<li><strong>앱 설치</strong>: <a href="https://play.google.com/store/apps/details?id=com.menewsoft.smartdocument">Play 스토어에서 설치</a></li>
+</ol>
+<p>그룹에 가입한 구글 계정으로 Play 스토어에 로그인돼 있어야 한다. 평소 쓰는 문서, 특히 한글 파일을 열어 보고 안 열리거나 깨지는 문서가 있으면 <a href="/contact/">문의 페이지</a>로 알려 주면 큰 도움이 된다.</p>
+<p>이 앱도 이 사이트의 다른 도구·게임처럼 AI 코딩 에이전트와 함께 만들었다. 만드는 과정은 <a href="/blog/shipping-five-ai-built-games-2026/">AI 코딩 에이전트에게 브라우저 게임 5개를 맡겨봤다</a>에 적어 두었다.</p></div> <p class="disclosure">이 글에는 제휴 링크가 포함될 수 있습니다. 본문의 어떤 내용도 금융·투자 조언이 아닙니다.</p> <aside class="related" data-astro-cid-y2nmntto><p class="section-label" data-astro-cid-y2nmntto>이어서 읽기</p><ul class="post-list compact" data-astro-cid-y2nmntto><li data-astro-cid-y2nmntto><a class="post-row" href="/blog/ai-model-race-2026-10/" data-astro-cid-y2nmntto><span class="cat" data-astro-cid-y2nmntto>AI</span><h3 data-astro-cid-y2nmntto>클로드 vs 챗GPT vs 제미나이, 2026년 10월 성적표: 벤치마크·실측·가격으로 본 3강 구도와 전망</h3></a></li><li data-astro-cid-y2nmntto><a class="post-row" href="/blog/candklab-partner-site-2026/" data-astro-cid-y2nmntto><span class="cat" data-astro-cid-y2nmntto>AI</span><h3 data-astro-cid-y2nmntto>함께 키워 갈 이웃 사이트, C&amp;K LAB을 소개합니다</h3></a></li><li data-astro-cid-y2nmntto><a class="post-row" href="/blog/mac-mini-local-llm-2026/" data-astro-cid-y2nmntto><span class="cat" data-astro-cid-y2nmntto>AI</span><h3 data-astro-cid-y2nmntto>맥미니로 로컬 LLM을 돌린다는 것 — M6·M5 Pro가 바꾼 계산</h3></a></li></ul></aside><aside class="game-break" data-astro-cid-y2nmntto> <a class="gb-cover" href="/play/menew-kart/?lang=ko" target="_blank" rel="noopener" title="새 탭에서 열립니다" data-astro-cid-y2nmntto> <img src="/games/kart/cover.jpg" alt="MeNew 카트" loading="lazy" data-astro-cid-y2nmntto> </a> <div class="gb-body" data-astro-cid-y2nmntto> <p class="gb-label" data-astro-cid-y2nmntto>잠깐 쉬어가기 — AI가 만든 게임 한 판</p> <h3 data-astro-cid-y2nmntto>MeNew 카트</h3> <a class="gb-play" href="/play/menew-kart/?lang=ko" target="_blank" rel="noopener" data-astro-cid-y2nmntto>▶ 지금 플레이</a> </div> </aside>  </div> </article> <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"스마트도큐먼트 사용 가이드 — 폰 속 모든 문서를 찾아 읽고, 고치고, AI로 요약까지","description":"카톡으로 받은 한글 파일, 다운로드 폴더의 PDF, 회사 엑셀까지 폰 안의 문서를 자동으로 찾아 종류별로 모아 주는 안드로이드 앱 '스마트도큐먼트'. 화면 캡처로 보는 사용법과, Gemini·ChatGPT·Claude에게 문서 분석을 맡기는 새 기능, 테스터 참여 방법까지 정리했습니다.","inLanguage":"ko","datePublished":"2026-11-18T10:00:00.000Z","author":{"@type":"Person","name":"menew"},"publisher":{"@type":"Organization","name":"Tech Decode"},"image":"https://menewsoft.com/og/blog/smartdocument-guide-2026.en.png","mainEntityOfPage":"https://menewsoft.com/blog/smartdocument-guide-2026/","articleSection":"ai"}</script>  </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="wrap" data-astro-cid-sz7xmlte> <div class="foot-top" data-astro-cid-sz7xmlte> <span class="foot-brand" data-astro-cid-sz7xmlte>MeNew Soft</span> <div class="links" data-astro-cid-sz7xmlte> <!-- ⚠️2026-08-20 복귀: 블로그·용어사전·도구를 다시 건다. 상단 메뉴는 칸이 좁아 글까지만
+             넣었고(Header.astro 주석), 용어사전·도구로 가는 유일한 길이 여기다. --> <a href="/" data-astro-cid-sz7xmlte>홈</a> <a href="/shops/" data-astro-cid-sz7xmlte>등록 업체</a> <a href="/news/" data-astro-cid-sz7xmlte>업체 소식</a> <a href="/games/" data-astro-cid-sz7xmlte>놀이공간</a> <a href="/blog/" data-astro-cid-sz7xmlte>글</a> <a href="/glossary/" data-astro-cid-sz7xmlte>용어사전</a> <a href="/tools/" data-astro-cid-sz7xmlte>도구</a> <a href="/learn/" data-astro-cid-sz7xmlte>초등 1학년 학습</a> <a href="/academy/" data-astro-cid-sz7xmlte>자격증 학원</a> <a href="/guide/" data-astro-cid-sz7xmlte>게임 공략</a> <a href="/imjin/" data-astro-cid-sz7xmlte>임진왜란 상단</a> <a href="/about/" data-astro-cid-sz7xmlte>소개</a> <a href="/contact/" data-astro-cid-sz7xmlte>문의</a> <a href="/privacy/" data-astro-cid-sz7xmlte>Privacy</a> </div> </div> <p class="foot-note" data-astro-cid-sz7xmlte>© 2026 MeNew Soft · menewsoft.com (미뉴소프트) — 게임 · 교육 · 콘텐츠 종합 엔터테인먼트 — 웹게임·학습 게임·가게 홈페이지. 등록 내용이 틀렸다면 알려주세요.</p> <p class="foot-visits" id="footVisits" hidden data-astro-cid-sz7xmlte>
+👁 오늘 <b id="fvToday" data-astro-cid-sz7xmlte>–</b> · 전체 <b id="fvTotal" data-astro-cid-sz7xmlte>–</b> </p> </div> </footer>  <script>
+  // GoatCounter 공개 카운터 API로 오늘/전체 방문수 표시 (실패 시 조용히 숨김 유지)
+  (function () {
+    var base = 'https://minyouman.goatcounter.com/counter/';
+    function num(s) { return (s || '').replace(/[^0-9]/g, ''); }
+    function get(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+    }
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    Promise.all([
+      get(base + 'TOTAL.json?start=' + today),
+      get(base + 'TOTAL.json')
+    ]).then(function (res) {
+      var t = num(res[0].count), a = num(res[1].count);
+      if (t === '' || a === '') return;
+      document.getElementById('fvToday').textContent = Number(t).toLocaleString();
+      document.getElementById('fvTotal').textContent = Number(a).toLocaleString();
+      document.getElementById('footVisits').hidden = false;
+    }).catch(function () { /* 계정 미생성·차단기 등 → 표시 생략 */ });
+  })();
+</script> </body></html>

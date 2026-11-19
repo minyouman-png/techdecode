@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://menewsoft.com/sitemap-index.xml
